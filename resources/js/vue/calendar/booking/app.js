@@ -27,11 +27,14 @@ window.Vue = require('vue').default;
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
  
-const Helper = require("../../../ts/calendar_helper/app").Helper;
+// const Helper = require("../../../ts/calendar_helper/app").Helper;
 // const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
 
+window.moment = require('moment');
+window.cookie = require('js-cookie');
+
 // window.viewEnums = new ViewEnums();
-window.helper = new Helper();
+// window.helper = new Helper();
 // console.log(helper.my());
  
 import App from './components/App.vue';
@@ -40,8 +43,13 @@ window.app = new Vue({
 // const businessHours = new Vue({
     el: '#calendarBooking',
     render(h) {
-        return h(App) 
+        return h(App, {
+            props:{
+                userId: document.querySelector("#calendarBooking").dataset.userId
+            }
+        }) 
     }
 });
 
-// alert(11);
+// alert(111);
+// console.log(document.querySelector("#calendarBooking").dataset.userId);

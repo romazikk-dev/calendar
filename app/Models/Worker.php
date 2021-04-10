@@ -100,6 +100,15 @@ class Worker extends Authenticatable
     }
     
     /**
+     * Reference to pivot table.
+     *
+     * @return Model
+     */
+    public function templates() {
+        return $this->belongsToMany('App\Models\Template');
+    }
+    
+    /**
      * Get the post's image.
      */
     public function phones(){

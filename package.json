@@ -33,6 +33,8 @@
         "webpack": "^5.27.2"
     },
     "dependencies": {
+        "js-cookie": "^2.2.1",
+        "moment": "^2.29.1",
         "vue2-timepicker": "^1.1.6"
     }
 }

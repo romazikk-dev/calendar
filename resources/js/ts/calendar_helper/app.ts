@@ -12,6 +12,10 @@ export class Helper{
         this.view = EnumView.MONTH;
         this.range = new DateRange(EnumView.MONTH);
     }
+    
+    parse(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
 
     // getRange(){
     //     return this.range.range;

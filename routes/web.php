@@ -11,6 +11,13 @@ use App\Http\Controllers\Dashboard\SettingsController as DashboardSettingsContro
 
 use App\Http\Controllers\Calendar\BookingController as CalendarBookingController;
 
+use App\Http\Controllers\Api\Calendar\Booking\RangeController as ApiRangeController;
+use App\Http\Controllers\Api\Calendar\Booking\AuthController as ApiAuthController;
+use App\Http\Controllers\Api\Calendar\Booking\WorkerController as ApiWorkerController;
+use App\Http\Controllers\Api\Calendar\Booking\TemplateController as ApiTemplateController;
+
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -22,9 +29,86 @@ use App\Http\Controllers\Calendar\BookingController as CalendarBookingController
 |
 */
 
-Route::get('/', function () {
-    // return view('welcome');
+Route::group([
+    'prefix' => '/calendar-api',
+    'as' => 'calendar_api.'
+], function () {
+    
+    Route::group([
+        'prefix' => '/bookings',
+        'as' => 'bookings.'
+    ], function () {
+        
+        Route::group([
+            'prefix' => '/worker',
+            'as' => 'worker.'
+        ], function () {
+        
+            Route::get('/', [ApiWorkerController::class, 'index'])->name('index');
+        
+        });
+        
+        Route::group([
+            'prefix' => '/template',
+            'as' => 'template.'
+        ], function () {
+        
+            Route::get('/', [ApiTemplateController::class, 'index'])->name('index');
+        
+        });
+        
+        // Route::get('/', [CalendarBookingController::class, 'index'])
+        //     ->where([
+        //         // 'start' => '\d{2}-\d{2}-\d{4}',
+        //         // 'end' => '\d{2}-\d{2}-\d{4}',
+        //         'start' => '\d+',
+        //         'end' => '\d+',
+        //     ]);
+    
+        // Route::get('/{start}/{end}', function (Request $request) {
+        Route::get('/{user_id}/{start}/{end}', [ApiRangeController::class, 'index'])->where([
+            'user_id' => '\d+',
+            'start' => '\d{2}-\d{2}-\d{4}',
+            'end' => '\d{2}-\d{2}-\d{4}',
+            // 'start' => '\d+',
+            // 'end' => '\d+',
+        ])->name('index');
+        
+        Route::post('/register', [ApiAuthController::class, 'register'])->name('register');
+        Route::post('/login', [ApiAuthController::class, 'login'])->name('login');
+    
+    });
+    
+    Route::get('/tokens/create', function (Request $request) {
+        // $token = $request->user()->createToken($request->token_name);
+        $token = $request->user()->createToken('my');
+        echo  $token->plainTextToken;
+    });
+    
+    Route::get('/tokens/create', function (Request $request) {
+        // $token = $request->user()->createToken($request->token_name);
+        $token = $request->user()->createToken('my');
+        echo  $token->plainTextToken;
+    });
+
+
+    Route::get('/tokens/all', function (Request $request) {
+        if ($request->wantsJson()) {
+            var_dump(222);
+        } else {
+            var_dump(111);
+        }
+        // var_dump($request->user()->tokens);
+    });
+    // })->middleware('auth:sanctum');
+
+    Route::get('/', function () {
+        // return view('welcome');
+    });
+    
 });
+
+
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');

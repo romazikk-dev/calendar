@@ -7,6 +7,7 @@ export class DateRange{
     range: any;
     offset: number;
     dates: any;
+    currenyViewIdx: number;
     // EnumView: EnumView = EnumView;
     
     constructor(view = EnumView.MONTH) {
@@ -18,6 +19,10 @@ export class DateRange{
     
     setRange(){
         if(this.view == EnumView.MONTH){
+            this.currenyViewIdx = parseInt(this.currentDate.getMonth()) + 1;
+            // console.log(this.currenyViewIdx);
+            
+            
             let firstMonthDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
             let lastMonthDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
             let firstMonthDayWeekday = firstMonthDay.getDay();

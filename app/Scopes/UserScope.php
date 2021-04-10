@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 
+// use App\Scopes\UserScope;
+
 class UserScope implements Scope
 {
     /**

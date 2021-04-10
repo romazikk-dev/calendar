@@ -1,0 +1,7 @@
+body{
+    
+}
+.card-response .card-body{
+    max-height: 600px!important;
+    overflow-y: auto!important;
+}
