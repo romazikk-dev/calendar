@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\Calendar\Booking\RangeController as ApiRangeControl
 use App\Http\Controllers\Api\Calendar\Booking\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\Calendar\Booking\WorkerController as ApiWorkerController;
 use App\Http\Controllers\Api\Calendar\Booking\TemplateController as ApiTemplateController;
+use App\Http\Controllers\Api\Calendar\Booking\BookController as ApiBookController;
+
 
 use Illuminate\Http\Request;
 
@@ -38,6 +40,32 @@ Route::group([
         'prefix' => '/bookings',
         'as' => 'bookings.'
     ], function () {
+        
+        Route::group([
+            'prefix' => '/book',
+            'as' => 'book.'
+        ], function () {
+        
+            Route::post('/create/{user_id}/{hall_id}/{template_id}/{worker_id}', [ApiBookController::class, 'create'])->where([
+                'user_id' => '\d+',
+                'hall_id' => '\d+',
+                'template_id' => '\d+',
+                'worker_id' => '\d+',
+                // 'start' => '\d{2}-\d{2}-\d{4}',
+                // 'end' => '\d{2}-\d{2}-\d{4}',
+            ])->name('create');
+            
+            Route::delete('/cancel/{user_id}/{hall_id}/{template_id}/{worker_id}/{booking_id}', [ApiBookController::class, 'cancel'])->where([
+                'user_id' => '\d+',
+                'hall_id' => '\d+',
+                'template_id' => '\d+',
+                'worker_id' => '\d+',
+                'booking_id' => '\d+',
+                // 'start' => '\d{2}-\d{2}-\d{4}',
+                // 'end' => '\d{2}-\d{2}-\d{4}',
+            ])->name('cancel');
+        
+        });
         
         Route::group([
             'prefix' => '/worker',
@@ -66,13 +94,13 @@ Route::group([
         //     ]);
     
         // Route::get('/{start}/{end}', function (Request $request) {
-        Route::get('/{user_id}/{start}/{end}', [ApiRangeController::class, 'index'])->where([
+        Route::get('/range/{user_id}/{start}/{end}', [ApiRangeController::class, 'index'])->where([
             'user_id' => '\d+',
             'start' => '\d{2}-\d{2}-\d{4}',
             'end' => '\d{2}-\d{2}-\d{4}',
             // 'start' => '\d+',
             // 'end' => '\d+',
-        ])->name('index');
+        ])->name('range');
         
         Route::post('/register', [ApiAuthController::class, 'register'])->name('register');
         Route::post('/login', [ApiAuthController::class, 'login'])->name('login');

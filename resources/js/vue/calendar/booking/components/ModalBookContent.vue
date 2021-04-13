@@ -23,6 +23,7 @@
                     </div>
                 </div>
                 <time-bar :free-time-perc="freeTimePerc"
+                    v-if="!successfullyBooked"
                     ref="time_bar"
                     :start="barStart"
                     :end="barEnd"
@@ -34,7 +35,10 @@
                     :duration-minutes="templateDurationMinutes"
                     @change="timeBarChange($event)"
                     @slider_disabled='timeBarSliderDisabled'
-                    @slider_enabled='timeBarSliderEnabled'></time-bar>                
+                    @slider_enabled='timeBarSliderEnabled'></time-bar>
+                <div v-if="successfullyBooked">
+                    Your successfully requested to book you on choosen time, we will contact you for approving your booking. 
+                </div>
                 <div class="row">
                     
                     <!-- <div class="col-sm-12 col pt-2">
@@ -55,8 +59,16 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-success">Book</button>
+            <template v-if="!successfullyBooked">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button @click.prevent="book"
+                    type="button"
+                    class="btn btn-success"
+                    :disabled="bookButtonDisabled">Book</button>
+            </template>
+            <template v-if="successfullyBooked">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+            </template>
         </div>
     </div>
 </template>
@@ -87,13 +99,17 @@
             
             // console.log(JSON.parse(JSON.stringify(this.bookDate)));
             // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-            this.$refs['loader'].show();
+            // if(!this.successfullyBooked)
+            //     this.$refs['loader'].show();
             
             // $("#bookModal").on('show.bs.modal', () => {
             //     this.$refs['loader'].show();
             // });
             
             $("#bookModal").on('shown.bs.modal', () => {
+                if(this.successfullyBooked)
+                    this.$refs['loader'].fadeOut(300);
+                    
                 this.setInitValue();
                 this.$refs['time_bar'].recalculate();
                 
@@ -114,12 +130,17 @@
                 this.bookOn = this.bookTimePeriod.from;
                 // this.modalOpened = true
                 this.$refs['loader'].fadeOut(300);
+                setTimeout(() => {
+                    this.bookButtonDisabled = false;
+                }, 300);
                 // console.log(this.$refs['time_bar'].sliderDisabled);
                 // console.log(this.startPeriodDate.getTimezoneOffset());
             });
             
             $("#bookModal").on('hidden.bs.modal', () => {
                 // this.modalOpened = false
+                this.successfullyBooked = false;
+                this.bookButtonDisabled = true;
                 this.$refs['loader'].show();
                 this.arrowPosition = 10;
                 this.setStyleForArrow();
@@ -132,6 +153,8 @@
         data: function(){
             return {
                 // modalOpened: false,
+                bookButtonDisabled: true,
+                successfullyBooked: false,
                 bookOn: null,
                 template: filters.template,
                 choosedH: null,
@@ -247,6 +270,48 @@
             },
         },
         methods: {
+            onBooked: function (response){
+                this.$emit('booked');
+                // this.$refs['loader'].showTranparent();
+            },
+            book: function (){
+                this.bookButtonDisabled = true;
+                this.$refs['loader'].showTranparent();
+                let url = routes.calendar.booking.book.create;
+                
+                url = url.replace(':hall_id', filters.hall.id);
+                url = url.replace(':template_id', filters.template.id);
+                url = url.replace(':worker_id', filters.worker.id);
+                
+                // console.log(this.bookOn);
+                
+                axios.post(url, {
+                    book_on_date: this.bookingDate,
+                    book_on_time: this.bookOn,
+                })
+                .then((response) => {
+                    // handle success
+                    // this.dates = response.data.data;
+                    console.log('success');
+                    this.onBooked(response);
+                    // console.log(JSON.parse(JSON.stringify(this.dates)));
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(() => {
+                    // always executed
+                    console.log('always');
+                    this.$refs['loader'].fadeOut(300);
+                    setTimeout(() => {
+                        this.successfullyBooked = true;
+                        this.bookButtonDisabled = false;
+                    }, 300);
+                    
+                });
+                // console.log(url);
+            },
             timeBarSliderEnabled: function (){
                 // console.log('timeBarSliderEnabled');
                 this.hintText = 'Move slider to choose time for booking.';

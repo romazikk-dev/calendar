@@ -31,13 +31,18 @@ class TemplateController extends Controller
         $templates = Template::select([
             DB::raw("templates.`id`"),
             DB::raw("templates.`title`"),
-            DB::raw("DATE_FORMAT(FROM_UNIXTIME(`duration`), '%H:%i') as duration"),
+            // DB::raw("DATE_FORMAT(FROM_UNIXTIME(templates.`duration`), '%H:%i') as duration"),
+            DB::raw("templates.`duration`"),
             DB::raw("templates.`created_at`"),
             // DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`hall_id` = halls.`id`) as `workers_count`")
         ])
         ->where('is_deleted', 0);
         
-        return Datatables::eloquent($templates)->toJson(true);
+        return Datatables::eloquent($templates)
+            ->editColumn('duration', function(Template $template) {
+                return date('H:i', $template->duration);
+            })
+            ->toJson(true);
         // return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
         //             $sql = "CONCAT(first_name,' ',last_name)  like ?";
         //             $query->whereRaw($sql, ["%{$keyword}%"]);
@@ -170,7 +175,9 @@ class TemplateController extends Controller
             'assign_worker' => 'nullable|array',
         ]);
         
+        // dd($validated['duration']);
         $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
+        // dd($validated['duration']);
         
         if(!empty($validated['assign_worker'])){
             $assign_workers = array_keys($validated['assign_worker']);

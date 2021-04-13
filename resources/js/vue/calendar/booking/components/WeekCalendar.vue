@@ -469,7 +469,9 @@
                     // handle success
                     // console.log(response.data);
                     this.dates = response.data.data;
-                    this.setWorkHours(response.data.start, response.data.end);
+                    // this.setWorkHours(response.data.start, response.data.end);
+                    console.log(response.data.business_hours);
+                    this.setWorkHours(response.data.business_hours);
                     // console.log(response.data[0]);
                     // console.log(JSON.parse(JSON.stringify(this.dates)));
                 })
@@ -481,7 +483,40 @@
                     // always executed
                 });
             },
-            setWorkHours: function(startHour, endHour){
+            // setWorkHours: function(startHour, endHour){
+            setWorkHours: function(business_hours){
+                let start = null;
+                let end = null;
+                // return;
+                // console.log(business_hours);
+                business_hours.forEach((item, i) => {
+                    if(start == null){
+                        // start = item.start;
+                        start = moment('1970-01-01 ' + item.start + ':00');
+                        let first = true;
+                    }
+                    if(end == null){
+                        end = moment('1970-01-01 ' + item.end + ':00');
+                        let first = true;
+                    }
+                    if(typeof first != 'undefined' && first == true)
+                        return;
+                    let itemStart = moment('1970-01-01 ' + item.start + ':00');
+                    let itemEnd = moment('1970-01-01 ' + item.end + ':00');
+                    if(itemStart.diff(start) < 0)
+                        start = itemStart;
+                    if(itemStart.diff(start) >= 0)
+                        end = itemEnd;
+                });
+                // 
+                // return;
+                // 
+                let startHour = start.format('HH:mm');
+                let endHour = end.format('HH:mm');
+                // console.log(endHourArr);
+                // 
+                // // console.log(moment('1970-01-01 00:00:00').toDate());
+                // // let start = '00:00'
                 let startHourArr = startHour.split(':');
                 let endHourArr = endHour.split(':');
                 let startHourInt = parseInt(startHourArr[0]);
@@ -490,7 +525,7 @@
                 for(let i = startHourInt; i < endHourInt; i++){
                     this.workHours.push(i);
                 }
-                // console.log(this.workHours);
+                console.log(this.workHours);
             },
             setDates: function(firstCalendarMonthDate){
                 let currentDateMoment = moment(this.currentDate);

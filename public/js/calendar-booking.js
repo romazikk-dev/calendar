@@ -2470,15 +2470,32 @@ __webpack_require__.r(__webpack_exports__);
   },
   props: ['text'],
   data: function data() {
-    return {// showing: false,
+    return {
+      transparent: false
     };
   },
   methods: {
+    showTranparent: function showTranparent() {
+      var _this = this;
+
+      this.transparent = true;
+      setTimeout(function () {
+        $(_this.$refs['loader']).show();
+      }, 10);
+    },
     show: function show() {
       $(this.$refs['loader']).show();
     },
     fadeOut: function fadeOut(ms) {
-      $(this.$refs['loader']).fadeOut(ms);
+      var _this2 = this;
+
+      // $(this.$refs['loader']).fadeOut(ms);
+      setTimeout(function () {
+        $(_this2.$refs['loader']).fadeOut(ms);
+        setTimeout(function () {
+          _this2.transparent = false;
+        }, ms);
+      }, 20);
     }
   }
 });
@@ -2718,6 +2735,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2738,12 +2767,15 @@ __webpack_require__.r(__webpack_exports__);
     // JSON.parse(JSON.stringify(filters.template));
     // console.log(JSON.parse(JSON.stringify(this.bookDate)));
     // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-
-    this.$refs['loader'].show(); // $("#bookModal").on('show.bs.modal', () => {
+    // if(!this.successfullyBooked)
+    //     this.$refs['loader'].show();
+    // $("#bookModal").on('show.bs.modal', () => {
     //     this.$refs['loader'].show();
     // });
 
     $("#bookModal").on('shown.bs.modal', function () {
+      if (_this.successfullyBooked) _this.$refs['loader'].fadeOut(300);
+
       _this.setInitValue();
 
       _this.$refs['time_bar'].recalculate(); // this.$refs['loader'].show();
@@ -2764,12 +2796,18 @@ __webpack_require__.r(__webpack_exports__);
 
       _this.bookOn = _this.bookTimePeriod.from; // this.modalOpened = true
 
-      _this.$refs['loader'].fadeOut(300); // console.log(this.$refs['time_bar'].sliderDisabled);
-      // console.log(this.startPeriodDate.getTimezoneOffset());
+      _this.$refs['loader'].fadeOut(300);
 
+      setTimeout(function () {
+        _this.bookButtonDisabled = false;
+      }, 300); // console.log(this.$refs['time_bar'].sliderDisabled);
+      // console.log(this.startPeriodDate.getTimezoneOffset());
     });
     $("#bookModal").on('hidden.bs.modal', function () {
       // this.modalOpened = false
+      _this.successfullyBooked = false;
+      _this.bookButtonDisabled = true;
+
       _this.$refs['loader'].show();
 
       _this.arrowPosition = 10;
@@ -2781,6 +2819,8 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       // modalOpened: false,
+      bookButtonDisabled: true,
+      successfullyBooked: false,
       bookOn: null,
       template: filters.template,
       choosedH: null,
@@ -2887,6 +2927,44 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    onBooked: function onBooked(response) {
+      this.$emit('booked'); // this.$refs['loader'].showTranparent();
+    },
+    book: function book() {
+      var _this2 = this;
+
+      this.bookButtonDisabled = true;
+      this.$refs['loader'].showTranparent();
+      var url = routes.calendar.booking.book.create;
+      url = url.replace(':hall_id', filters.hall.id);
+      url = url.replace(':template_id', filters.template.id);
+      url = url.replace(':worker_id', filters.worker.id); // console.log(this.bookOn);
+
+      axios.post(url, {
+        book_on_date: this.bookingDate,
+        book_on_time: this.bookOn
+      }).then(function (response) {
+        // handle success
+        // this.dates = response.data.data;
+        console.log('success');
+
+        _this2.onBooked(response); // console.log(JSON.parse(JSON.stringify(this.dates)));
+
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        // always executed
+        console.log('always');
+
+        _this2.$refs['loader'].fadeOut(300);
+
+        setTimeout(function () {
+          _this2.successfullyBooked = true;
+          _this2.bookButtonDisabled = false;
+        }, 300);
+      }); // console.log(url);
+    },
     timeBarSliderEnabled: function timeBarSliderEnabled() {
       // console.log('timeBarSliderEnabled');
       this.hintText = 'Move slider to choose time for booking.';
@@ -2904,22 +2982,22 @@ __webpack_require__.r(__webpack_exports__);
       this.s.textContent = "\n                .alert-arrow:after {\n                    left: " + this.arrowPosition + "px!important;\n                }\n            ";
     },
     timeBarChange: function timeBarChange(event) {
-      var _this2 = this;
+      var _this3 = this;
 
       clearTimeout(this.timeBarChangeTimeout);
       this.timeBarChangeTimeout = setTimeout(function () {
         console.log(event.sliderValue);
         var minPerc = event.freeMinutes / event.freeMinutesForStart;
         var minutes = Math.round(event.sliderValue / minPerc);
-        _this2.bookOn = _this2.composeHourMinuteTimeFromMinutes(_this2.startPeriodDatetime + minutes);
+        _this3.bookOn = _this3.composeHourMinuteTimeFromMinutes(_this3.startPeriodDatetime + minutes);
         var widthOnePerc = (event.sliderWidth - event.sliderThumbWidth) / 100;
         var minutesOnePerc = event.freeMinutesForStart / 100;
         var minutesPerc = minutes / minutesOnePerc;
         var offset = widthOnePerc * minutesPerc; // console.log(offset);
 
-        _this2.arrowPosition = offset + 10;
+        _this3.arrowPosition = offset + 10;
 
-        _this2.setStyleForArrow();
+        _this3.setStyleForArrow();
       }, 0); // this.$emit('change', {
       //     freeMinutes: this.freeMinutes,
       //     freeMinutesForStart: this.freeMinutesForStart,
@@ -3013,6 +3091,211 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Loader.vue */ "./resources/js/vue/calendar/booking/components/Loader.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// import VueTimepicker from 'vue2-timepicker'
+// import 'vue2-timepicker/dist/VueTimepicker.css'
+// import TimeBar from "./TimeBar.vue";
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  mounted: function mounted() {// console.log(this.filters);
+    // this.$refs['loader'].show();
+    // 
+    // $("#cancelBookModal").on('hidden.bs.modal', () => {
+    //     this.bookDate = null;
+    //     // console.log(this.bookDate);
+    // });
+    // $("#cancelBookModal").on('show.bs.modal', () => {
+    //     if(this.bookingItem == null)
+    //         this.$refs['loader'].show();
+    //     // console.log(this.bookDate);
+    // });
+    // 
+    // $("#cancelBookModal").on('hidden.bs.modal', () => {
+    //     this.bookingItem = null;
+    // });
+  },
+  props: ['booking'],
+  data: function data() {
+    return {
+      // bookingItem: booking,
+      cancelButtonDisabled: false,
+      successfullyCanceled: false,
+      question: null,
+      modalTitle: null,
+      bTitle: null,
+      bTimeMoment: null,
+      bDuration: null,
+      filters: filters // template: filters.template,
+      // choosedH: null,
+      // choosedM: null,
+      // initValue: {
+      //     HH: '',
+      //     mm: '',
+      // },
+      // startPeriodDatetime: null,
+      // endPeriodDatetime: null,
+      // preEndPeriodDatetime: null,
+      // timeBarChangeTimeout: null,
+      // s: null,
+      // arrowPosition: 10,
+      // hintText: 'Move slider to choose time for booking.'
+
+    };
+  },
+  computed: {
+    filterWorkerFullName: function filterWorkerFullName() {
+      return filters.worker.first_name + " " + filters.worker.last_name;
+    },
+    bDate: function bDate() {
+      if (this.bTimeMoment == null) return '';
+      return this.bTimeMoment.format('YYYY-MM-DD');
+    },
+    bTime: function bTime() {
+      if (this.bTimeMoment == null) return '';
+      return this.bTimeMoment.format('HH:mm');
+    }
+  },
+  methods: {
+    onCancel: function onCancel(response) {
+      this.$emit('canceled', response); // this.$refs['loader'].showTranparent();
+    },
+    cancel: function cancel() {
+      var _this = this;
+
+      // this.bookButtonDisabled = true;
+      // this.$refs['loader'].showTranparent();
+      var url = routes.calendar.booking.book.cancel;
+      url = url.replace(':hall_id', filters.hall.id);
+      url = url.replace(':template_id', filters.template.id);
+      url = url.replace(':worker_id', filters.worker.id);
+      url = url.replace(':booking_id', this.booking.id); // console.log(url);
+      // return;
+
+      axios["delete"](url).then(function (response) {
+        // handle success
+        // this.dates = response.data.data;
+        console.log('success');
+
+        _this.onCancel(response.data); // console.log(JSON.parse(JSON.stringify(response)));
+
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        // always executed
+        console.log('always'); // this.$refs['loader'].fadeOut(300);
+        // setTimeout(() => {
+        //     this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+      }); // console.log(url);
+    }
+  },
+  components: {
+    // VueTimepicker,
+    // TimeBar,
+    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  },
+  watch: {
+    booking: function booking(newOne, oldOne) {
+      if (this.booking == null) return;
+      this.booking = this.booking;
+      this.$refs['loader'].fadeOut(300); // setTimeout(() => {
+      //     this.$refs['loader'].fadeOut(300);
+      // });
+
+      if (this.booking.approved == 1) {
+        this.modalTitle = "Cancel booked event?";
+        this.question = "Do you realy want cancel this booked event?";
+      } else {
+        this.modalTitle = "Cancel request for event?";
+        this.question = "Do you realy want cancel this request to book an event?";
+      }
+
+      this.bTimeMoment = moment(this.booking.time);
+      this.bTitle = this.booking.template_without_user_scope.title;
+      var durationSeconds = this.booking.template_without_user_scope.duration / 60;
+      var durationHourPart = parseInt(durationSeconds / 60);
+      if (durationHourPart < 10) durationHourPart = '0' + durationHourPart;
+      var durationMinutePart = durationSeconds % 60;
+      if (durationMinutePart < 10) durationMinutePart = '0' + durationMinutePart;
+      this.bDuration = durationHourPart + ':' + durationMinutePart;
+      console.log(JSON.parse(JSON.stringify(this.booking))); // console.log("Title changed from " + newOne + " to " + oldOne)
+    } // initValue: (newOne, oldOne) => {
+    //     console.log(helper.parse(newOne));
+    // 	// console.log("Title changed from " + newOne + " to " + oldOne)
+    // },
+
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=script&lang=js&":
 /*!*****************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=script&lang=js& ***!
@@ -3027,6 +3310,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MonthCell_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MonthCell.vue */ "./resources/js/vue/calendar/booking/components/MonthCell.vue");
 /* harmony import */ var _ModalAuthContent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalAuthContent.vue */ "./resources/js/vue/calendar/booking/components/ModalAuthContent.vue");
 /* harmony import */ var _ModalBookContent_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalBookContent.vue */ "./resources/js/vue/calendar/booking/components/ModalBookContent.vue");
+/* harmony import */ var _ModalCancelBookContent_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ModalCancelBookContent.vue */ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue");
 //
 //
 //
@@ -3092,6 +3376,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -3137,7 +3434,8 @@ __webpack_require__.r(__webpack_exports__);
       firstMonthDate: null,
       lastMonthDate: null,
       firstCalendarDate: null,
-      lastCalendarDate: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
+      lastCalendarDate: null,
+      cancelBookData: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
 
     };
   },
@@ -3152,6 +3450,20 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    cancelBook: function cancelBook(event) {
+      this.cancelBookData = event;
+      $('#cancelBookModal').modal('show'); // console.log(event);
+    },
+    isFirstItemOfTypeBooked: function isFirstItemOfTypeBooked(i, k) {
+      var dateFirstItem = this.getDate(i, k, 'items')[0];
+      return dateFirstItem.type == 'booked' ? true : false;
+    },
+    onBooked: function onBooked() {
+      this.getData();
+    },
+    onCanceled: function onCanceled() {
+      this.getData();
+    },
     next: function next() {
       console.log('next');
       var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M'); // console.log(dateOfNextMonth.toDate());
@@ -3308,7 +3620,8 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     MonthCell: _MonthCell_vue__WEBPACK_IMPORTED_MODULE_0__.default,
     ModalAuthContent: _ModalAuthContent_vue__WEBPACK_IMPORTED_MODULE_1__.default,
-    ModalBookContent: _ModalBookContent_vue__WEBPACK_IMPORTED_MODULE_2__.default
+    ModalBookContent: _ModalBookContent_vue__WEBPACK_IMPORTED_MODULE_2__.default,
+    ModalCancelBookContent: _ModalCancelBookContent_vue__WEBPACK_IMPORTED_MODULE_3__.default
   },
   watch: {
     search: function search() {
@@ -3343,36 +3656,41 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-// require("../../../../ts/calendar_helper/enums/View").Helper;
-// import { View } from "../../../../ts/calendar_helper/enums/View";
-// console.log(View);
-// import MonthCalendar from "./MonthCalendar.vue";
-// import WeekCalendar from "./WeekCalendar.vue";
-// import DayCalendar from "./DayCalendar.vue";
-// import Filters from "./Filters.vue";
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  mounted: function mounted() {// console.log(this.dateRange);
+  mounted: function mounted() {
+    // console.log(this.dateRange);
     // console.log(this.view);
     // this.getDataForCalendar();
-    // console.log(this.free);
+    console.log(JSON.parse(JSON.stringify(this.items)));
   },
-  props: ['free'],
+  props: ['items'],
   data: function data() {
     return {// range: helper.range.range,
-      // dates: null,
-      // view: helper.range.view,
-      // curreny_view_idx: helper.range.currenyViewIdx,
-      // currentDate: {
-      //     year: moment(helper.range.currentDate).format('YYYY'),
-      //     month: moment(helper.range.currentDate).format('MM'),
-      //     day: moment(helper.range.currentDate).format('DD'),
-      // },
-      // views: ['Month','Week','Day'],
-      // owner: owner,
-      // halls: halls,
-      // workers: workers,
-      // templates: templates
-      // halls: 
     };
   },
   methods: {},
@@ -3984,9 +4302,11 @@ __webpack_require__.r(__webpack_exports__);
       axios.get(url).then(function (response) {
         // handle success
         // console.log(response.data);
-        _this5.dates = response.data.data;
+        _this5.dates = response.data.data; // this.setWorkHours(response.data.start, response.data.end);
 
-        _this5.setWorkHours(response.data.start, response.data.end); // console.log(response.data[0]);
+        console.log(response.data.business_hours);
+
+        _this5.setWorkHours(response.data.business_hours); // console.log(response.data[0]);
         // console.log(JSON.parse(JSON.stringify(this.dates)));
 
       })["catch"](function (error) {
@@ -3995,7 +4315,39 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function () {// always executed
       });
     },
-    setWorkHours: function setWorkHours(startHour, endHour) {
+    // setWorkHours: function(startHour, endHour){
+    setWorkHours: function setWorkHours(business_hours) {
+      var start = null;
+      var end = null; // return;
+      // console.log(business_hours);
+
+      business_hours.forEach(function (item, i) {
+        if (start == null) {
+          // start = item.start;
+          start = moment('1970-01-01 ' + item.start + ':00');
+          var _first = true;
+        }
+
+        if (end == null) {
+          end = moment('1970-01-01 ' + item.end + ':00');
+          var _first2 = true;
+        }
+
+        if (typeof first != 'undefined' && first == true) return;
+        var itemStart = moment('1970-01-01 ' + item.start + ':00');
+        var itemEnd = moment('1970-01-01 ' + item.end + ':00');
+        if (itemStart.diff(start) < 0) start = itemStart;
+        if (itemStart.diff(start) >= 0) end = itemEnd;
+      }); // 
+      // return;
+      // 
+
+      var startHour = start.format('HH:mm');
+      var endHour = end.format('HH:mm'); // console.log(endHourArr);
+      // 
+      // // console.log(moment('1970-01-01 00:00:00').toDate());
+      // // let start = '00:00'
+
       var startHourArr = startHour.split(':');
       var endHourArr = endHour.split(':');
       var startHourInt = parseInt(startHourArr[0]);
@@ -4004,8 +4356,9 @@ __webpack_require__.r(__webpack_exports__);
 
       for (var i = startHourInt; i < endHourInt; i++) {
         this.workHours.push(i);
-      } // console.log(this.workHours);
+      }
 
+      console.log(this.workHours);
     },
     setDates: function setDates(firstCalendarMonthDate) {
       var currentDateMoment = moment(this.currentDate);
@@ -4242,7 +4595,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "#loader[data-v-bfa298a8] {\n  position: absolute;\n  z-index: 999;\n  top: 0px;\n  left: 0px;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n  transition: all 0.3s;\n  background-color: #f1f1f1;\n}\n#loader table[data-v-bfa298a8] {\n  width: 100%;\n  height: 100%;\n}\n#loader table td[data-v-bfa298a8] {\n  vertical-align: middle;\n}\n.lds-spinner[data-v-bfa298a8] {\n  color: official;\n  display: block;\n  position: relative;\n  width: 80px;\n  height: 80px;\n  margin: auto;\n}\n.lds-spinner div[data-v-bfa298a8] {\n  transform-origin: 40px 40px;\n  -webkit-animation: lds-spinner-data-v-bfa298a8 1.2s linear infinite;\n          animation: lds-spinner-data-v-bfa298a8 1.2s linear infinite;\n}\n.lds-spinner div[data-v-bfa298a8]:after {\n  content: \" \";\n  display: block;\n  position: absolute;\n  top: 3px;\n  left: 37px;\n  width: 6px;\n  height: 18px;\n  border-radius: 20%;\n  background: #17a2b8;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(1) {\n  transform: rotate(0deg);\n  -webkit-animation-delay: -1.1s;\n          animation-delay: -1.1s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(2) {\n  transform: rotate(30deg);\n  -webkit-animation-delay: -1s;\n          animation-delay: -1s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(3) {\n  transform: rotate(60deg);\n  -webkit-animation-delay: -0.9s;\n          animation-delay: -0.9s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(4) {\n  transform: rotate(90deg);\n  -webkit-animation-delay: -0.8s;\n          animation-delay: -0.8s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(5) {\n  transform: rotate(120deg);\n  -webkit-animation-delay: -0.7s;\n          animation-delay: -0.7s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(6) {\n  transform: rotate(150deg);\n  -webkit-animation-delay: -0.6s;\n          animation-delay: -0.6s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(7) {\n  transform: rotate(180deg);\n  -webkit-animation-delay: -0.5s;\n          animation-delay: -0.5s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(8) {\n  transform: rotate(210deg);\n  -webkit-animation-delay: -0.4s;\n          animation-delay: -0.4s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(9) {\n  transform: rotate(240deg);\n  -webkit-animation-delay: -0.3s;\n          animation-delay: -0.3s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(10) {\n  transform: rotate(270deg);\n  -webkit-animation-delay: -0.2s;\n          animation-delay: -0.2s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(11) {\n  transform: rotate(300deg);\n  -webkit-animation-delay: -0.1s;\n          animation-delay: -0.1s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(12) {\n  transform: rotate(330deg);\n  -webkit-animation-delay: 0s;\n          animation-delay: 0s;\n}\n@-webkit-keyframes lds-spinner-data-v-bfa298a8 {\n0% {\n    opacity: 1;\n}\n100% {\n    opacity: 0;\n}\n}\n@keyframes lds-spinner-data-v-bfa298a8 {\n0% {\n    opacity: 1;\n}\n100% {\n    opacity: 0;\n}\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "#loader[data-v-bfa298a8] {\n  position: absolute;\n  z-index: 999;\n  top: 0px;\n  left: 0px;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n  transition: all 0.3s;\n  background-color: #f1f1f1;\n}\n#loader table[data-v-bfa298a8] {\n  width: 100%;\n  height: 100%;\n}\n#loader table td[data-v-bfa298a8] {\n  vertical-align: middle;\n}\n#loader.transparent-loader[data-v-bfa298a8] {\n  background-color: rgba(241, 241, 241, 0.5);\n}\n.lds-spinner[data-v-bfa298a8] {\n  color: official;\n  display: block;\n  position: relative;\n  width: 80px;\n  height: 80px;\n  margin: auto;\n}\n.lds-spinner div[data-v-bfa298a8] {\n  transform-origin: 40px 40px;\n  -webkit-animation: lds-spinner-data-v-bfa298a8 1.2s linear infinite;\n          animation: lds-spinner-data-v-bfa298a8 1.2s linear infinite;\n}\n.lds-spinner div[data-v-bfa298a8]:after {\n  content: \" \";\n  display: block;\n  position: absolute;\n  top: 3px;\n  left: 37px;\n  width: 6px;\n  height: 18px;\n  border-radius: 20%;\n  background: #17a2b8;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(1) {\n  transform: rotate(0deg);\n  -webkit-animation-delay: -1.1s;\n          animation-delay: -1.1s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(2) {\n  transform: rotate(30deg);\n  -webkit-animation-delay: -1s;\n          animation-delay: -1s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(3) {\n  transform: rotate(60deg);\n  -webkit-animation-delay: -0.9s;\n          animation-delay: -0.9s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(4) {\n  transform: rotate(90deg);\n  -webkit-animation-delay: -0.8s;\n          animation-delay: -0.8s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(5) {\n  transform: rotate(120deg);\n  -webkit-animation-delay: -0.7s;\n          animation-delay: -0.7s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(6) {\n  transform: rotate(150deg);\n  -webkit-animation-delay: -0.6s;\n          animation-delay: -0.6s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(7) {\n  transform: rotate(180deg);\n  -webkit-animation-delay: -0.5s;\n          animation-delay: -0.5s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(8) {\n  transform: rotate(210deg);\n  -webkit-animation-delay: -0.4s;\n          animation-delay: -0.4s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(9) {\n  transform: rotate(240deg);\n  -webkit-animation-delay: -0.3s;\n          animation-delay: -0.3s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(10) {\n  transform: rotate(270deg);\n  -webkit-animation-delay: -0.2s;\n          animation-delay: -0.2s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(11) {\n  transform: rotate(300deg);\n  -webkit-animation-delay: -0.1s;\n          animation-delay: -0.1s;\n}\n.lds-spinner div[data-v-bfa298a8]:nth-child(12) {\n  transform: rotate(330deg);\n  -webkit-animation-delay: 0s;\n          animation-delay: 0s;\n}\n@-webkit-keyframes lds-spinner-data-v-bfa298a8 {\n0% {\n    opacity: 1;\n}\n100% {\n    opacity: 0;\n}\n}\n@keyframes lds-spinner-data-v-bfa298a8 {\n0% {\n    opacity: 1;\n}\n100% {\n    opacity: 0;\n}\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -4369,6 +4722,30 @@ ___CSS_LOADER_EXPORT___.push([module.id, "\n.vue__time-picker[data-v-5b3cc6bc], 
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "\n.modal-body[data-v-088adde2]{\n    position: relative;\n}\n.modal-header[data-v-088adde2], .modal-footer[data-v-088adde2]{\n    background-color: #6c757d;\n    color: white;\n}\n.modal-header[data-v-088adde2]{\n    position: relative;\n}\n.close[data-v-088adde2]{\n    font-size: 60px;\n    color: #fff;\n    opacity: .7;\n    transition: opacity .3s ease;\n    line-height: .8em;\n    padding: 0px;\n    margin: 0px;\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close span[data-v-088adde2]{\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close[data-v-088adde2]:hover{\n    color: #fff;\n    opacity: 1!important;\n}\n.modal-title[data-v-088adde2]{\n    font-weight: normal;\n    color: #f4f4f4;\n}\n.modal-title b[data-v-088adde2]{\n    color: white;\n}\n.small[data-v-088adde2]{\n    line-height: 1.2em!important;\n}\n.modal-body table[data-v-088adde2]{\n    width: 100%;\n}\n.modal-body table td[data-v-088adde2]{\n    /* width: 49.9%; */\n}\n.modal-body table tr:nth-child(odd) td[data-v-088adde2]{\n    background-color: #f1f1f1;\n}\n.modal-body table td[data-v-088adde2]:first-child{\n    text-align: right;\n    width: 100px;\n}\n.modal-body table td[data-v-088adde2]:last-child{\n    padding-left: 15px;\n}\n", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=style&index=0&id=350c4056&scoped=true&lang=css&":
 /*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=style&index=0&id=350c4056&scoped=true&lang=css& ***!
@@ -4386,7 +4763,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.for-table[data-v-350c4056]{\n    padding-top: 10px!important;\n}\ntable[data-v-350c4056]{\n    width: 100%;\n    /* margin-top: 20px!important; */\n}\ntable th[data-v-350c4056]{\n    text-align: center;\n}\ntable td[data-v-350c4056], table th[data-v-350c4056]{\n    border: 1px solid #ccc;\n}\ntable td[data-v-350c4056]{\n    width: 14.25%;\n    vertical-align: top;\n}\ntable td .cont[data-v-350c4056]{\n    min-height: 80px!important;\n    position: relative;\n}\ntable td .day[data-v-350c4056]{\n    position: absolute;\n    top: 0px;\n    left: 0px;\n}\n.day.not-period[data-v-350c4056]{\n    color: #999;\n}\n.current-day[data-v-350c4056]{\n    background-color: rgba(8,232,222, 0.3);\n}\n.booking[data-v-350c4056]{\n    position: absolute;\n    bottom: 0px;\n    right: 0px;\n}\n.current-month[data-v-350c4056]{\n    text-align: center;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.for-table[data-v-350c4056]{\n    padding-top: 10px!important;\n}\ntable[data-v-350c4056]{\n    width: 100%;\n    /* margin-top: 20px!important; */\n}\ntable th[data-v-350c4056]{\n    text-align: center;\n}\ntable td[data-v-350c4056], table th[data-v-350c4056]{\n    border: 1px solid #ccc;\n}\ntable td[data-v-350c4056]{\n    width: 14.25%;\n    vertical-align: top;\n}\ntable td .cont[data-v-350c4056]{\n    min-height: 80px!important;\n    position: relative;\n}\ntable td .day[data-v-350c4056]{\n    position: absolute;\n    top: 0px;\n    left: 0px;\n    font-weight: bold;\n}\n.day.not-period[data-v-350c4056]{\n    color: #999;\n}\n.current-day[data-v-350c4056]{\n    background-color: rgba(8,232,222, 0.3);\n}\n.booking[data-v-350c4056]{\n    position: absolute;\n    bottom: 0px;\n    right: 0px;\n}\n.current-month[data-v-350c4056]{\n    text-align: center;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -4410,7 +4787,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\nul[data-v-53bc1379]{\n    padding: 0px;\n    margin: 0px;\n    width: 100%;\n    padding-left: 30px;\n    padding-right: 4px;\n    padding-top: 4px;\n}\nul li[data-v-53bc1379]{\n    list-style: none;\n    /* background-color: red; */\n}\nul li a[data-v-53bc1379]{\n    background-color: red;\n    display: block;\n    width: 100%;\n    background-color: rgba(144,238,144, 0.5);\n    margin-bottom: 3px;\n    border-radius: 3px;\n    font-size: 10px;\n    padding: 2px 6px;\n    color: black;\n    text-decoration: none;\n    transition: background .2s ease;\n}\nul li a[data-v-53bc1379]:hover{\n    background-color: rgba(144,238,144, 1);\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\nul[data-v-53bc1379]{\n    padding: 0px;\n    margin: 0px;\n    width: 100%;\n    padding-left: 30px;\n    padding-right: 4px;\n    padding-top: 4px;\n}\nul li[data-v-53bc1379]{\n    list-style: none;\n    /* background-color: red; */\n}\nul li .free-slot[data-v-53bc1379]{\n    background-color: red;\n    display: block;\n    width: 100%;\n    background-color: rgba(144,238,144, 0.5);\n    margin-bottom: 3px;\n    border-radius: 3px;\n    font-size: 10px;\n    padding: 2px 6px;\n    color: black;\n    text-decoration: none;\n    transition: background .2s ease;\n    margin-bottom: 6px;\n}\n.booked-slot[data-v-53bc1379]{\n    background-color: red;\n    display: block;\n    width: 100%;\n    background-color: rgba(114,51,128, 1);\n    /* margin-bottom: 3px; */\n    border-radius: 3px;\n    font-size: 10px;\n    padding: 2px 6px;\n    color: white;\n    text-decoration: none;\n    transition: background .2s ease;\n    position: relative;\n    left: -27px;\n    width: calc(100% + 27px);\n    margin-bottom: 6px;\n}\nul li:first-child .booked-slot[data-v-53bc1379]{\n    left: 0px;\n    width: 100%;\n}\n/* ul li a:hover{\n    background-color: rgba(144,238,144, 1);\n} */\n.not-approved-bookings[data-v-53bc1379]{\n    /* background-color: brown;\n    color: white; */\n    /* padding: 2px 6px; */\n    /* margin-bottom: 2px; */\n    /* border-radius: 3px; */\n}\n.not-approved-bookings-itm[data-v-53bc1379]{\n    background-color: #cf582c;\n    color: white;\n    padding: 2px 6px;\n    border-radius: 3px;\n    margin-bottom: 2px;\n    position: relative;\n    left: -28px;\n    width: calc(100% + 28px);\n    /* padding-left: 36px; */\n}\nbutton.cancel[data-v-53bc1379]{\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    outline: none!important;\n    /* background-color: red; */\n    border-radius: 0px;\n    width: 30px;\n    height: 30px;\n    font-size: 40px;\n    line-height: .5em;\n    padding: 0px;\n    text-decoration: none;\n    color: #fff;\n    opacity: .6;\n    transition: opacity .3s ease;\n    box-shadow: none;\n}\n/* .not-approved-bookings-itm button.cancel */\n.not-approved-bookings-itm:hover button.cancel[data-v-53bc1379],\n.booked-slot:hover button.cancel[data-v-53bc1379]{\n    opacity: 1;\n}\nbutton.cancel span[data-v-53bc1379]{\n    display: block;\n    width: 100%;\n    height: 100%;\n}\nbutton.book[data-v-53bc1379]{\n    box-shadow: none;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -43786,6 +44163,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_style_index_0_id_088adde2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_style_index_0_id_088adde2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_style_index_0_id_088adde2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=style&index=0&id=350c4056&scoped=true&lang=css&":
 /*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=style&index=0&id=350c4056&scoped=true&lang=css& ***!
@@ -44489,6 +44896,47 @@ component.options.__file = "resources/js/vue/calendar/booking/components/ModalBo
 
 /***/ }),
 
+/***/ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue":
+/*!*********************************************************************************!*\
+  !*** ./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _ModalCancelBookContent_vue_vue_type_template_id_088adde2_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true& */ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true&");
+/* harmony import */ var _ModalCancelBookContent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalCancelBookContent.vue?vue&type=script&lang=js& */ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=script&lang=js&");
+/* harmony import */ var _ModalCancelBookContent_vue_vue_type_style_index_0_id_088adde2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css& */ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _ModalCancelBookContent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _ModalCancelBookContent_vue_vue_type_template_id_088adde2_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _ModalCancelBookContent_vue_vue_type_template_id_088adde2_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "088adde2",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
 /***/ "./resources/js/vue/calendar/booking/components/MonthCalendar.vue":
 /*!************************************************************************!*\
   !*** ./resources/js/vue/calendar/booking/components/MonthCalendar.vue ***!
@@ -44792,6 +45240,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************!*\
+  !*** ./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalCancelBookContent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
 /***/ "./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=script&lang=js&":
 /*!*************************************************************************************************!*\
   !*** ./resources/js/vue/calendar/booking/components/MonthCalendar.vue?vue&type=script&lang=js& ***!
@@ -44933,6 +45397,19 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalBookContent_vue_vue_type_style_index_0_id_5b3cc6bc_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalBookContent.vue?vue&type=style&index=0&id=5b3cc6bc&scoped=true&lang=css& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalBookContent.vue?vue&type=style&index=0&id=5b3cc6bc&scoped=true&lang=css&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css&":
+/*!******************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css& ***!
+  \******************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_8_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_style_index_0_id_088adde2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-8[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=style&index=0&id=088adde2&scoped=true&lang=css&");
 
 
 /***/ }),
@@ -45113,6 +45590,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalBookContent_vue_vue_type_template_id_5b3cc6bc_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
 /* harmony export */ });
 /* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalBookContent_vue_vue_type_template_id_5b3cc6bc_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalBookContent.vue?vue&type=template&id=5b3cc6bc&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalBookContent.vue?vue&type=template&id=5b3cc6bc&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true&":
+/*!****************************************************************************************************************************!*\
+  !*** ./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true& ***!
+  \****************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_template_id_088adde2_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_template_id_088adde2_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalCancelBookContent_vue_vue_type_template_id_088adde2_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true&");
 
 
 /***/ }),
@@ -45918,7 +46412,15 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { ref: "loader", attrs: { id: "loader" } }, [_vm._m(0)])
+  return _c(
+    "div",
+    {
+      ref: "loader",
+      class: { "transparent-loader": _vm.transparent },
+      attrs: { id: "loader" }
+    },
+    [_vm._m(0)]
+  )
 }
 var staticRenderFns = [
   function() {
@@ -46322,27 +46824,37 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _c("time-bar", {
-              ref: "time_bar",
-              attrs: {
-                "free-time-perc": _vm.freeTimePerc,
-                start: _vm.barStart,
-                end: _vm.barEnd,
-                "pre-end": _vm.barPreEnd,
-                "start-minutes": _vm.startPeriodDatetime,
-                "end-minutes": _vm.endPeriodDatetime,
-                "pre-end-minutes": _vm.preEndPeriodDatetime,
-                duration: _vm.templateDuration,
-                "duration-minutes": _vm.templateDurationMinutes
-              },
-              on: {
-                change: function($event) {
-                  return _vm.timeBarChange($event)
-                },
-                slider_disabled: _vm.timeBarSliderDisabled,
-                slider_enabled: _vm.timeBarSliderEnabled
-              }
-            }),
+            !_vm.successfullyBooked
+              ? _c("time-bar", {
+                  ref: "time_bar",
+                  attrs: {
+                    "free-time-perc": _vm.freeTimePerc,
+                    start: _vm.barStart,
+                    end: _vm.barEnd,
+                    "pre-end": _vm.barPreEnd,
+                    "start-minutes": _vm.startPeriodDatetime,
+                    "end-minutes": _vm.endPeriodDatetime,
+                    "pre-end-minutes": _vm.preEndPeriodDatetime,
+                    duration: _vm.templateDuration,
+                    "duration-minutes": _vm.templateDurationMinutes
+                  },
+                  on: {
+                    change: function($event) {
+                      return _vm.timeBarChange($event)
+                    },
+                    slider_disabled: _vm.timeBarSliderDisabled,
+                    slider_enabled: _vm.timeBarSliderEnabled
+                  }
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.successfullyBooked
+              ? _c("div", [
+                  _vm._v(
+                    "\n                Your successfully requested to book you on choosen time, we will contact you for approving your booking. \n            "
+                  )
+                ])
+              : _vm._e(),
             _vm._v(" "),
             _c("div", { staticClass: "row" })
           ],
@@ -46352,7 +46864,53 @@ var render = function() {
       1
     ),
     _vm._v(" "),
-    _vm._m(1)
+    _c(
+      "div",
+      { staticClass: "modal-footer" },
+      [
+        !_vm.successfullyBooked
+          ? [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-secondary",
+                  attrs: { type: "button", "data-dismiss": "modal" }
+                },
+                [_vm._v("Cancel")]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-success",
+                  attrs: { type: "button", disabled: _vm.bookButtonDisabled },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.book($event)
+                    }
+                  }
+                },
+                [_vm._v("Book")]
+              )
+            ]
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.successfullyBooked
+          ? [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-success",
+                  attrs: { type: "button", "data-dismiss": "modal" }
+                },
+                [_vm._v("Ok")]
+              )
+            ]
+          : _vm._e()
+      ],
+      2
+    )
   ])
 }
 var staticRenderFns = [
@@ -46372,27 +46930,154 @@ var staticRenderFns = [
       },
       [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
     )
-  },
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true&":
+/*!*******************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue?vue&type=template&id=088adde2&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "modal-content" }, [
+    _c("div", { staticClass: "modal-header" }, [
+      _c("h5", { staticClass: "modal-title" }, [
+        _vm._v(_vm._s(_vm.modalTitle))
+      ]),
+      _vm._v(" "),
+      _vm._m(0)
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "modal-body" },
+      [
+        _c("loader", { ref: "loader" }),
+        _vm._v(" "),
+        _c("table", [
+          _c("tbody", [
+            _c("tr", [
+              _c("td", [_vm._v("Title:")]),
+              _vm._v(" "),
+              _c("td", [_c("b", [_vm._v(_vm._s(_vm.bTitle))])])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("Hall:")]),
+              _vm._v(" "),
+              _c("td", [_c("b", [_vm._v(_vm._s(_vm.filters.hall.title))])])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("Worker:")]),
+              _vm._v(" "),
+              _c("td", [_c("b", [_vm._v(_vm._s(_vm.filterWorkerFullName))])])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("Date:")]),
+              _vm._v(" "),
+              _c("td", [_c("b", [_vm._v(_vm._s(_vm.bDate))])])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("Time:")]),
+              _vm._v(" "),
+              _c("td", [_c("b", [_vm._v(_vm._s(_vm.bTime))])])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("Duration:")]),
+              _vm._v(" "),
+              _c("td", [_c("b", [_vm._v(_vm._s(_vm.bDuration))])])
+            ])
+          ])
+        ])
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "modal-footer" },
+      [
+        !_vm.successfullyCanceled
+          ? [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-secondary",
+                  attrs: { type: "button", "data-dismiss": "modal" }
+                },
+                [_vm._v("Close")]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-success",
+                  attrs: { type: "button", disabled: _vm.cancelButtonDisabled },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.cancel($event)
+                    }
+                  }
+                },
+                [_vm._v("Yes")]
+              )
+            ]
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.successfullyCanceled
+          ? [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-success",
+                  attrs: { type: "button", "data-dismiss": "modal" }
+                },
+                [_vm._v("Ok")]
+              )
+            ]
+          : _vm._e()
+      ],
+      2
+    )
+  ])
+}
+var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-footer" }, [
-      _c(
-        "button",
-        {
-          staticClass: "btn btn-secondary",
-          attrs: { type: "button", "data-dismiss": "modal" }
-        },
-        [_vm._v("Cancel")]
-      ),
-      _vm._v(" "),
-      _c(
-        "button",
-        { staticClass: "btn btn-success", attrs: { type: "button" } },
-        [_vm._v("Book")]
-      )
-    ])
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
   }
 ]
 render._withStripped = true
@@ -46515,47 +47200,51 @@ var render = function() {
               ? _c(
                   "tr",
                   _vm._l(7, function(k) {
-                    return _c("td", [
-                      _c(
-                        "div",
-                        {
-                          staticClass: "cont",
-                          class: { "current-day": _vm.isCurrentDate(i, k) }
-                        },
-                        [
-                          _c(
-                            "div",
-                            {
-                              staticClass: "day",
-                              class: {
-                                "not-period":
-                                  _vm.currentCalendarMonth !=
-                                  _vm.getDate(i, k, "month")
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n                                " +
-                                  _vm._s(_vm.dates[i * 7 + k - 8].day) +
-                                  "\n                            "
-                              )
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _vm.notPast(i, k)
-                            ? _c("month-cell", {
-                                attrs: { free: _vm.getDate(i, k, "free") },
-                                on: {
-                                  "open-modal": function($event) {
-                                    return _vm.openModal($event, i, k)
-                                  }
+                    return _c(
+                      "td",
+                      { class: { "current-day": _vm.isCurrentDate(i, k) } },
+                      [
+                        _c(
+                          "div",
+                          { staticClass: "cont" },
+                          [
+                            _c(
+                              "div",
+                              {
+                                staticClass: "day",
+                                class: {
+                                  "not-period":
+                                    _vm.currentCalendarMonth !=
+                                    _vm.getDate(i, k, "month")
                                 }
-                              })
-                            : _vm._e()
-                        ],
-                        1
-                      )
-                    ])
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                " +
+                                    _vm._s(_vm.getDate(i, k, "day")) +
+                                    "\n                            "
+                                )
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _vm.notPast(i, k)
+                              ? _c("month-cell", {
+                                  attrs: { items: _vm.getDate(i, k, "items") },
+                                  on: {
+                                    "open-modal": function($event) {
+                                      return _vm.openModal($event, i, k)
+                                    },
+                                    cancel: function($event) {
+                                      return _vm.cancelBook($event)
+                                    }
+                                  }
+                                })
+                              : _vm._e()
+                          ],
+                          1
+                        )
+                      ]
+                    )
                   }),
                   0
                 )
@@ -46577,9 +47266,32 @@ var render = function() {
                   "user-id": _vm.userId,
                   "book-date": _vm.bookDate,
                   "book-time-period": _vm.bookTimePeriod
+                },
+                on: {
+                  booked: function($event) {
+                    return _vm.onBooked($event)
+                  }
                 }
               })
             : _c("modal-auth-content", { attrs: { "user-id": _vm.userId } })
+        ],
+        1
+      )
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "modal fade", attrs: { id: "cancelBookModal" } }, [
+      _c(
+        "div",
+        { staticClass: "modal-dialog" },
+        [
+          _c("modal-cancel-book-content", {
+            attrs: { booking: _vm.cancelBookData },
+            on: {
+              canceled: function($event) {
+                return _vm.onCanceled($event)
+              }
+            }
+          })
         ],
         1
       )
@@ -46635,29 +47347,113 @@ var render = function() {
   return _c("div", [
     _c(
       "ul",
-      _vm._l(_vm.free, function(itm) {
+      _vm._l(_vm.items, function(itm) {
         return _c("li", [
-          _c(
-            "a",
-            {
-              attrs: { href: "#" },
-              on: {
-                click: function($event) {
-                  $event.preventDefault()
-                  return _vm.$emit("open-modal", itm)
-                }
-              }
-            },
-            [
-              _vm._v(
-                "\n                " +
-                  _vm._s(itm.from) +
-                  " - " +
-                  _vm._s(itm.to) +
-                  "\n            "
-              )
-            ]
-          )
+          itm.type == "free"
+            ? _c("div", { staticClass: "free-slot" }, [
+                _vm._v("\n                Free time:"),
+                _c("br"),
+                _vm._v(" "),
+                _c("b", [_vm._v(_vm._s(itm.from) + " - " + _vm._s(itm.to))]),
+                _vm._v(" "),
+                itm.not_approved_bookings
+                  ? _c(
+                      "div",
+                      { staticClass: "not-approved-bookings" },
+                      _vm._l(itm.not_approved_bookings, function(itmm) {
+                        return _c(
+                          "div",
+                          { staticClass: "not-approved-bookings-itm" },
+                          [
+                            _vm._v("\n                        In approving:"),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c("b", [
+                              _vm._v(
+                                _vm._s(
+                                  itmm.booking.template_without_user_scope.title
+                                )
+                              ),
+                              _c("br"),
+                              _vm._v(
+                                "\n                        " +
+                                  _vm._s(itmm.from) +
+                                  " - " +
+                                  _vm._s(itmm.to)
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "button",
+                              {
+                                staticClass:
+                                  "btn btn-link btn-sm btn-block cancel",
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.$emit("cancel", itmm.booking)
+                                  }
+                                }
+                              },
+                              [_c("span", [_vm._v("×")])]
+                            )
+                          ]
+                        )
+                      }),
+                      0
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-link btn-sm btn-block book",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.$emit("open-modal", itm)
+                      }
+                    }
+                  },
+                  [_vm._v("Book")]
+                )
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          itm.type == "booked"
+            ? _c("div", { staticClass: "booked-slot" }, [
+                _vm._v("\n                Booked on:"),
+                _c("br"),
+                _vm._v(" "),
+                _c("b", [
+                  _vm._v(_vm._s(itm.booking.template_without_user_scope.title)),
+                  _c("br"),
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(itm.from) +
+                      " - " +
+                      _vm._s(itm.to)
+                  )
+                ]),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-link btn-sm btn-block cancel",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.$emit("cancel", itm.booking)
+                      }
+                    }
+                  },
+                  [_c("span", [_vm._v("×")])]
+                )
+              ])
+            : _vm._e()
         ])
       }),
       0

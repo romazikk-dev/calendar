@@ -33,12 +33,16 @@
                 </thead>
                 <tbody>
                     <tr v-if="dates" v-for="i in 6">
-                        <td v-for="k in 7">
-                            <div class="cont" :class="{'current-day': isCurrentDate(i,k)}">
+                        <td v-for="k in 7" :class="{'current-day': isCurrentDate(i,k)}">
+                            <div class="cont">
                                 <div class="day" :class="{'not-period': currentCalendarMonth != getDate(i,k,'month')}">
-                                    {{dates[(((i*7) + k))-8].day}}
+                                    <!-- {{dates[(((i*7) + k))-8].day}} -->
+                                    {{getDate(i,k,'day')}}
                                 </div>
-                                <month-cell v-if="notPast(i,k)" @open-modal="openModal($event,i,k)" :free="getDate(i,k,'free')"></month-cell>
+                                <month-cell v-if="notPast(i,k)"
+                                    @open-modal="openModal($event,i,k)"
+                                    @cancel="cancelBook($event)"
+                                    :items="getDate(i,k,'items')"></month-cell>
                                 <!-- <a @click.prevent="openModal(i,k)" v-if="notPast(i,k)" class="booking" href="#">book...</a> -->
                             </div>
                         </td>
@@ -52,11 +56,19 @@
             <div class="modal-dialog">
                 <!-- ModalAuthContent -->
                 <modal-book-content v-if="$parent.isAuth()"
+                    @booked="onBooked($event)"
                     :user-id="userId"
                     :book-date="bookDate"
                     :book-time-period="bookTimePeriod"></modal-book-content>
                 <!-- ModalAuthContent -->
                 <modal-auth-content v-else :user-id="userId"></modal-auth-content>
+            </div>
+        </div>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="cancelBookModal">
+            <div class="modal-dialog">
+                <modal-cancel-book-content @canceled="onCanceled($event)" :booking="cancelBookData"></modal-cancel-book-content>
             </div>
         </div>
         
@@ -67,6 +79,7 @@
     import MonthCell from "./MonthCell.vue";
     import ModalAuthContent from "./ModalAuthContent.vue";
     import ModalBookContent from "./ModalBookContent.vue";
+    import ModalCancelBookContent from "./ModalCancelBookContent.vue";
     export default {
         mounted() {
             this.setDates(moment(new Date()).startOf('month').toDate());
@@ -113,6 +126,7 @@
                 lastMonthDate: null,
                 firstCalendarDate: null,
                 lastCalendarDate: null,
+                cancelBookData: null,
                 // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
             };
         },
@@ -127,6 +141,21 @@
             }
         },
         methods: {
+            cancelBook: function(event){
+                this.cancelBookData = event;
+                $('#cancelBookModal').modal('show');
+                // console.log(event);
+            },
+            isFirstItemOfTypeBooked: function(i,k){
+                let dateFirstItem = (this.getDate(i, k, 'items'))[0];
+                return dateFirstItem.type == 'booked' ? true : false;
+            },
+            onBooked: function(){
+                this.getData();
+            },
+            onCanceled: function(){
+                this.getData();
+            },
             next: function(){
                 console.log('next');
                 var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M');
@@ -311,7 +340,8 @@
         components: {
             MonthCell,
             ModalAuthContent,
-            ModalBookContent
+            ModalBookContent,
+            ModalCancelBookContent
         },
         watch: {
             search: function () {
@@ -348,6 +378,7 @@
         position: absolute;
         top: 0px;
         left: 0px;
+        font-weight: bold;
     }
     .day.not-period{
         color: #999;

@@ -14,13 +14,17 @@
             var routes = {
                 calendar: {
                     booking: {
-                        range: '{{ route("calendar_api.bookings.index", [$owner->id, ":start", ":end"] ) }}',
+                        range: '{{ route("calendar_api.bookings.range", [$owner->id, ":start", ":end"] ) }}',
                         register: '{{ route("calendar_api.bookings.register") }}',
                         worker: {
                             index: '{{ route("calendar_api.bookings.worker.index") }}',
                         },
                         template: {
                             index: '{{ route("calendar_api.bookings.template.index") }}',
+                        },
+                        book: {
+                            create: '{{ route("calendar_api.bookings.book.create", [$owner->id, ":hall_id", ":template_id", ":worker_id"]) }}',
+                            cancel: '{{ route("calendar_api.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
                         }
                     }
                 }

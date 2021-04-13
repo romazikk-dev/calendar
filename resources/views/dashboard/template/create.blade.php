@@ -69,6 +69,7 @@
                 </div>
                 
                 <div class="form-group">
+                    {{$template->duration_parsed}}
                     <x-label for="duration" value="Duration*" />
                     <div id="timePicker"
                             data-name="duration"

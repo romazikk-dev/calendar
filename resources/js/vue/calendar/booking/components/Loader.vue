@@ -1,5 +1,5 @@
 <template>
-    <div ref="loader" id="loader">
+    <div ref="loader" id="loader" :class="{'transparent-loader': transparent}">
         <table>
             <tbody>
                 <tr>
@@ -21,15 +21,27 @@ export default {
     props: ['text'],
     data: function(){
         return {
-            // showing: false,
+            transparent: false,
         }
     },
     methods: {
+        showTranparent: function (){
+            this.transparent = true;
+            setTimeout(() => {
+                $(this.$refs['loader']).show();
+            }, 10);
+        },
         show: function (){
             $(this.$refs['loader']).show();
         },
         fadeOut: function (ms){
-            $(this.$refs['loader']).fadeOut(ms);
+            // $(this.$refs['loader']).fadeOut(ms);
+            setTimeout(() => {
+                $(this.$refs['loader']).fadeOut(ms);
+                setTimeout(() => {
+                    this.transparent = false;
+                }, ms);
+            }, 20);
         },
     },
 };
@@ -55,6 +67,9 @@ export default {
         }
         table td{
             vertical-align: middle;
+        }
+        &.transparent-loader{
+            background-color: rgba(241,241,241, .5);
         }
     }
     
