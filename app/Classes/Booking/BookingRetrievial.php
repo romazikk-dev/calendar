@@ -23,15 +23,21 @@ class BookingRetrievial extends MainBookingRetrievial{
         
         $output = [];
         do{
+            //Set itm data related to hall
+            // $hall_business_hours = $this->getHallBusinessHoursFromCarbonDate($start_date_carbon);
+            
             $weekday = Range::getWeekdayFromCarbonInstance($start_date_carbon);
+            // $bussiness_hours_of_weekday = $this->hall_business_hours[];
             
             //Set initial itm
             $itm = [
                 'year' => $start_date_carbon->format("Y"),
                 'month' => $start_date_carbon->format("m"),
                 'day' => $start_date_carbon->format("d"),
+                'is_weekend' => false,
                 'weekday' => $weekday,
                 'bookable' => true,
+                'items' => null,
                 // 'bookable' => false,
                 // 'items' => [
                 //     [
@@ -50,11 +56,21 @@ class BookingRetrievial extends MainBookingRetrievial{
             
             //Set itm data related to hall
             $hall_business_hours = $this->getHallBusinessHoursFromCarbonDate($start_date_carbon);
+            $itm['start'] = $hall_business_hours->start;
+            $itm['end'] = $hall_business_hours->end;
+            if($hall_business_hours->is_weekend){
+                $itm['bookable'] = false;
+                $itm['is_weekend'] = true;
+                $itm['items'] = null;
+                $output[] = $itm;
+                $start_date_carbon->addDays(1);
+                continue;
+            }
+            // if($hall_business_hours->is_weekend)
+                
             
             $hall_start_time = $hall_business_hours->start;
             $hall_end_time = $hall_business_hours->end;
-            if($hall_business_hours->is_weekend)
-                $itm['bookable'] = false;
             $itm['items'] = [
                 [
                     'type' => 'free',
@@ -88,7 +104,13 @@ class BookingRetrievial extends MainBookingRetrievial{
                 $first_item = $booking[$first_item_key];
                 $first_item_start_carbon = \Carbon\Carbon::parse($first_item->time);
                 
-                if($start_carbon->lt($first_item_start_carbon) && !empty($first_item_start_carbon->approved)){
+                // if($itm_date_index == '2021_04_22'){
+                //     var_dump($start_carbon->lt($first_item_start_carbon));
+                //     var_dump($first_item->approved);
+                //     die();
+                // }
+                    
+                if($start_carbon->lt($first_item_start_carbon) && !empty($first_item->approved)){
                     $items[] = [
                         'type' => 'free',
                         'from' => $start_carbon->format('H:i'),
@@ -122,6 +144,16 @@ class BookingRetrievial extends MainBookingRetrievial{
                             
                             // Reset $not_approved_bookings for next iteration
                             $not_approved_bookings = [];
+                        }else{
+                            if($start_carbon->lt($booking_carbon)){
+                                $items[] = [
+                                    'type' => 'free',
+                                    'from' => $start_carbon->format('H:i'),
+                                    'to' => $booking_carbon->format('H:i'),
+                                    'not_approved_bookings' => null
+                                ];
+                                $start_carbon = $booking_carbon;
+                            }
                         }
                         
                         $items[] = [
@@ -132,6 +164,9 @@ class BookingRetrievial extends MainBookingRetrievial{
                         ];
                         
                         $start_carbon = $booking_carbon;
+                        
+                        // var_dump($start_carbon->format('H:i'));
+                        // die();
                     }
                 }
                 

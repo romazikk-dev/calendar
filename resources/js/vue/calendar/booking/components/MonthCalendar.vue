@@ -1,18 +1,36 @@
 <template>
     <div>
         <div class="handles">
-            <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                </svg>
-                Previous
-            </button>
-            <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-right">
-                Next
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-            </button>
+            <div class="left-part float-left">
+                <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                </button>
+                <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+                <button @click.prevent="today" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
+                    today
+                </button>
+            </div>
+            
+            <div class="right-part float-right">
+                <div class="filter float-right mr-0">
+                    <div id="viewDropdown" class="dropdown">
+                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{view}}
+                        </a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="viewDropdownButton">
+                            <a v-for="itm in views" @click.prevent="changeView(itm)" v-if="itm.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="current-month">
                 {{calendarTile}}
             </div>
@@ -32,6 +50,15 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr class="divider">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                     <tr v-if="dates" v-for="i in 6">
                         <td v-for="k in 7" :class="{'current-day': isCurrentDate(i,k)}">
                             <div class="cont">
@@ -110,7 +137,7 @@
             // console.log(this.firstMonthDate);
             // console.log(this.currentDateObj);
         },
-        props: ['userId','search'],
+        props: ['userId','search','views','view'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -131,6 +158,11 @@
             };
         },
         computed: {
+            // views: function () {
+            //     // console.log(this.$parent.views);
+            //     // return null;
+            //     return this.$parent.views;
+            // },
             calendarTile: function () {
                 return moment(this.firstMonthDate).format('MMMM YYYY');
             },
@@ -138,9 +170,17 @@
                 let firstMonthDay = moment(this.firstMonthDate).startOf('month');
                 let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
                 return firstMonthDay.isAfter(currentDateFirstMonthDay);
-            }
+            },
+            // hasCurrentDate: function () {
+            //     let firstMonthDay = moment(this.firstMonthDate).startOf('month');
+            //     let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
+            //     return firstMonthDay.diff(currentDateFirstMonthDay) == 0;
+            // }
         },
         methods: {
+            changeView: function(view){
+                this.$emit('view_changed', view);
+            },
             cancelBook: function(event){
                 this.cancelBookData = event;
                 $('#cancelBookModal').modal('show');
@@ -154,7 +194,7 @@
                 this.getData();
             },
             onCanceled: function(){
-                this.getData();
+                this.getData('cancel_book');
             },
             next: function(){
                 console.log('next');
@@ -171,6 +211,17 @@
                 var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
                 this.setDates(dateOfPreviousMonth.toDate());
                 this.getData();
+            },
+            today: function(){
+                this.setDates(moment(new Date()).startOf('month').toDate());
+                this.getData();
+                // let interval = setInterval(() => {
+                //     if(this.search != null){
+                //         // console.log(11111);
+                //         clearInterval(interval);
+                //         this.getData();
+                //     }
+                // }, 300);
             },
             openModal: function(itm,i,k){
                 // console.log(itm);
@@ -208,7 +259,7 @@
                     return date[type];
                 return date;
             },
-            getData: function(){
+            getData: function(from = null){
                 // console.log(JSON.parse(JSON.stringify(this.range)));
                 // routes.calendar.booking.range
                 let url = routes.calendar.booking.range;
@@ -240,8 +291,13 @@
                     // handle error
                     console.log(error);
                 })
-                .then(function () {
+                .then(() => {
                     // always executed
+                    // console.log('always');
+                    if(from == 'cancel_book'){
+                        console.log('from: cancel_book');
+                        $('#cancelBookModal').modal('hide');
+                    }
                 });
             },
             setDates: function(firstCalendarMonthDate){
@@ -352,7 +408,32 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+    #viewDropdown{
+        .dropdown-toggle{
+            text-transform: capitalize;
+        }
+        .dropdown-item{
+            text-transform: capitalize;
+        }
+    }
+    
+    .handles{
+        .left-part{
+            button{
+                // display: none;
+                &:nth-child(1){
+                    border-radius: .2rem 0 0 .2rem;
+                }
+                &:nth-child(2){
+                    border-radius: 0 .2rem .2rem 0;
+                }
+                &:nth-child(3){
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
     .for-table{
         padding-top: 10px!important;
     }
@@ -379,6 +460,10 @@
         top: 0px;
         left: 0px;
         font-weight: bold;
+    }
+    table tr.divider td{
+        height: 10px;
+        background-color: #6c757d;
     }
     .day.not-period{
         color: #999;

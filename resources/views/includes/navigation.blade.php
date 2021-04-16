@@ -29,6 +29,9 @@
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.client.index') active @endif">
                 <a class="nav-link" href="{{ route('dashboard.client.index') }}">Clients</a>
             </li>
+            <li class="nav-item @if(Route::current()->getName() == 'dashboard.bookings.index') active @endif">
+                <a class="nav-link" href="{{ route('dashboard.bookings.index') }}">Bookings</a>
+            </li>
             <!-- <li class="nav-item">
                 <a class="nav-link" href="#">Schedule</a>
             </li> -->

@@ -41,7 +41,7 @@ class RangeController extends Controller{
             'hall' => 'required|integer|exists:halls,id',
             'worker' => 'required|integer|exists:workers,id',
             'template' => 'required|integer|exists:templates,id',
-            'view' => 'required|string|in:month,week,day',
+            'view' => 'required|string|in:month,week,day,list',
         ]);
         
         // $hall_start = '08:00';

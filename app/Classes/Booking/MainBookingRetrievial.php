@@ -55,13 +55,20 @@ class MainBookingRetrievial{
     }
     
     protected function composeBookingModel(){
+        // var_dump([
+        //     $this->range->getStartDatetime(), $this->range->getEndDatetime()
+        // ]);
+        // die();
         $this->booking = Booking::user($this->user->id)
-            ->where('time', '>=', $this->range->getStartDate())
-            ->where('time', '<=', $this->range->getEndDate())
+            ->where('time', '>=', $this->range->getStartDatetime())
+            ->where('time', '<=', $this->range->getEndDatetime())
             ->where('hall_id', '=', $this->hall->id)
             ->where('worker_id', '=', $this->worker->id)
             ->where('template_id', '=', $this->template->id)
             ->orderBy('time', 'ASC');
+            
+        // var_dump($this->booking->get());
+        // die();
     }
     
     protected function getBookingsAsDateTimeKeyArray($only_approved = false){
@@ -74,6 +81,10 @@ class MainBookingRetrievial{
             return [];
             
         $booked_itms = [];
+        
+        // var_dump($bookings);
+        // die();
+        
         foreach($bookings as $booking){
             $booking_date_index = \Carbon\Carbon::parse($booking['time'])->format('Y_m_d');
             $booking_hour_index = \Carbon\Carbon::parse($booking['time'])->format('H_i');

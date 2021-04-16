@@ -1,6 +1,7 @@
 <template>
     <div>
-        <filters :owner="owner"
+        <filters ref="filters"
+                 :owner="owner"
                  :halls="halls"
                  :workers="workers"
                  :templates="templates"
@@ -10,11 +11,26 @@
                  @showCalendar="showCalendar = true"></filters>
         <div v-show="showCalendar" class="container-fluid">
             <month-calendar v-if="monthView"
+                @view_changed="onViewChange($event)"
+                :view="view"
+                :views="views"
                 :user-id="userId"
                 :search="search"></month-calendar>
             <week-calendar v-if="weekView"
+                @view_changed="onViewChange($event)"
+                :view="view"
+                :views="views"
                 :user-id="userId"
                 :search="search"></week-calendar>
+            <day-calendar v-if="dayView"
+                @view_changed="onViewChange($event)"
+                :view="view"
+                :views="views"
+                :user-id="userId"
+                :search="search"></day-calendar>
+            <list-calendar v-if="listView"
+                :user-id="userId"
+                :search="search"></list-calendar>
         </div>
         <!-- <week-calendar v-if="view == 'WEEK'" :dates="dates" :range="range" :view="view"></week-calendar>
         <day-calendar v-if="view == 'DAY'" :dates="dates" :range="range" :view="view"></day-calendar> -->
@@ -31,6 +47,7 @@
     import MonthCalendar from "./MonthCalendar.vue";
     import WeekCalendar from "./WeekCalendar.vue";
     import DayCalendar from "./DayCalendar.vue";
+    import ListCalendar from "./ListCalendar.vue";
     import Filters from "./Filters.vue";
     export default {
         mounted() {
@@ -54,7 +71,8 @@
                 workers: workers,
                 templates: templates,
                 token: null,
-                showCalendar: true
+                showCalendar: true,
+                views: ['month','week','day','list'],
             };
         },
         computed: {
@@ -67,8 +85,16 @@
             dayView: function () {
                 return this.view != null && this.view.toLowerCase() == 'day';
             },
+            listView: function () {
+                return this.view != null && this.view.toLowerCase() == 'list';
+            },
         },
         methods: {
+            onViewChange: function(event){
+                console.log(event);
+                this.$refs['filters'].changeView(event);
+                // this.view = null;
+            },
             reset: function(){
                 this.view = null;
             },
@@ -100,6 +126,7 @@
             MonthCalendar,
             WeekCalendar,
             DayCalendar,
+            ListCalendar,
             Filters
         },
         watch: {

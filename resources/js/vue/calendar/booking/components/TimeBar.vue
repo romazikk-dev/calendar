@@ -53,7 +53,7 @@
         },
         methods: {
             recalculate: function (){
-                console.log('recalculate');
+                // console.log('recalculate');
                 // this.setSliderThumbWidth();
                 
                 setTimeout(() => {
@@ -62,7 +62,7 @@
                 }, 300);
             },
             recalculateSlider: function (){
-                console.log('recalculateSlider');
+                // console.log('recalculateSlider');
                 // this.setSliderThumbWidth();
                 
                 this.setSliderThumbWidth();
@@ -95,12 +95,12 @@
                 let widthOnePerc = Math.round(sliderWidth/100) * percentage;
                 this.sliderThumbWidth = widthOnePerc;
                 
-                console.log(onePerc);
-                console.log(percentage);
-                console.log(this.sliderWidth);
-                console.log(this.durationMinutes);
-                console.log(this.sliderMax);
-                console.log(this.sliderThumbWidth);
+                // console.log(onePerc);
+                // console.log(percentage);
+                // console.log(this.sliderWidth);
+                // console.log(this.durationMinutes);
+                // console.log(this.sliderMax);
+                // console.log(this.sliderThumbWidth);
             },
             createStyleForSlider: function (){
                 this.s = document.createElement("style");

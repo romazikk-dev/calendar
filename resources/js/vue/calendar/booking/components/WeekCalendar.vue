@@ -1,62 +1,106 @@
 <template>
     <div>
         <div class="handles">
-            <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                </svg>
-                Previous
-            </button>
-            <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-right">
-                Next
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-            </button>
+            <div class="left-part float-left">
+                <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                </button>
+                <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+                <button @click.prevent="today" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
+                    today
+                </button>
+            </div>
+            
+            <div class="right-part float-right">
+                <div class="filter float-right mr-0">
+                    <div id="viewDropdown" class="dropdown">
+                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{view}}
+                        </a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="viewDropdownButton">
+                            <a v-for="itm in views" @click.prevent="changeView(itm)" v-if="itm.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="current-month">
                 {{calendarTile}}
             </div>
         </div>
         <div class="clearfix"></div>
         <div class="for-table">
+            
             <table>
                 <thead>
                     <tr>
-                        <th></th>
-                        <th :class="{'current-day': isCurrentDate(2)}">Monday<span>{{mondayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(3)}">Tuesday<span>{{tuesdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(4)}">Wednesday<span>{{wednesdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(5)}">Thursday<span>{{thursdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(6)}">Friday<span>{{fridayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(7)}">Saturday<span>{{saturdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(8)}">Sunday<span>{{sundayDate}}</span></th>
+                        <!-- <th></th> -->
+                        <th :class="{'current-day': isCurrentDate(1)}">Monday<span>{{mondayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(2)}">Tuesday<span>{{tuesdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(3)}">Wednesday<span>{{wednesdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(4)}">Thursday<span>{{thursdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(5)}">Friday<span>{{fridayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(6)}">Saturday<span>{{saturdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(7)}">Sunday<span>{{sundayDate}}</span></th>
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- <tr class="divider">
+                        <td :class="{'current-day': isCurrentDate(1)}"></td>
+                        <td :class="{'current-day': isCurrentDate(2)}"></td>
+                        <td :class="{'current-day': isCurrentDate(3)}"></td>
+                        <td :class="{'current-day': isCurrentDate(4)}"></td>
+                        <td :class="{'current-day': isCurrentDate(5)}"></td>
+                        <td :class="{'current-day': isCurrentDate(6)}"></td>
+                        <td :class="{'current-day': isCurrentDate(7)}"></td>
+                    </tr> -->
+                    <tr>
+                        <!-- <td></td> -->
+                        <td v-for="i in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(i)}">
+                            <week-requested-booked-cell
+                                v-if="weekDayNotPast(i)"
+                                @cancel="cancelBook($event)"
+                                :dates="dates"
+                                :weekday-index="i"></week-requested-booked-cell>
+                        </td>
+                    </tr>
+                    <tr class="divider">
+                        <td :class="{'current-day': isCurrentDate(1)}"></td>
+                        <td :class="{'current-day': isCurrentDate(2)}"></td>
+                        <td :class="{'current-day': isCurrentDate(3)}"></td>
+                        <td :class="{'current-day': isCurrentDate(4)}"></td>
+                        <td :class="{'current-day': isCurrentDate(5)}"></td>
+                        <td :class="{'current-day': isCurrentDate(6)}"></td>
+                        <td :class="{'current-day': isCurrentDate(7)}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <table>
+                <tbody>
                     <template v-if="dates" v-for="i in workHours">
                         <tr>
-                            <td v-for="k in 8"
+                            <td v-for="k in 7"
                                 class="hour-cell"
                                 :class="{'current-day': isCurrentDate(k)}"
-                                :data-weekday="k != 1 && k - 1"
+                                :data-weekday="k"
                                 :data-hour="hours[i].hour">
-                                    <template v-if="k == 1">
-                                        <week-time-cell :index='i'></week-time-cell>
-                                    </template>
-                                    <template v-else>
-                                        <!-- <div v-if="k == 3 && i == 9" class="free-box">111</div> -->
-                                    </template>
-                                <!-- <div class="cont" :class="{'current-day': isCurrentDate(i,k)}">
-                                    <div class="day" :class="{'not-period': currentCalendarMonth != getDate(i,k,'month')}">
-                                        {{dates[(((i*7) + k))-8].day}}
+                                    <div class="faded-time">
+                                        {{ hours[i].hour }}:{{ hours[i].minute }}
                                     </div>
-                                    <month-cell v-if="notPast(i,k)" @open-modal="openModal($event,i,k)" :free="getDate(i,k,'free')"></month-cell>
-                                </div> -->
                             </td>
                         </tr>
                     </template>
                 </tbody>
             </table>
+            
         </div>
         
         <!-- Modal -->
@@ -64,11 +108,19 @@
             <div class="modal-dialog">
                 <!-- ModalAuthContent -->
                 <modal-book-content v-if="$parent.isAuth()"
+                    @booked="onBooked($event)"
                     :user-id="userId"
                     :book-date="bookDate"
                     :book-time-period="bookTimePeriod"></modal-book-content>
                 <!-- ModalAuthContent -->
                 <modal-auth-content v-else :user-id="userId"></modal-auth-content>
+            </div>
+        </div>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="cancelBookModal">
+            <div class="modal-dialog">
+                <modal-cancel-book-content @canceled="onCanceled($event)" :booking="cancelBookData"></modal-cancel-book-content>
             </div>
         </div>
         
@@ -80,6 +132,9 @@
     import MonthCell from "./MonthCell.vue";
     import ModalAuthContent from "./ModalAuthContent.vue";
     import ModalBookContent from "./ModalBookContent.vue";
+    import ModalCancelBookContent from "./ModalCancelBookContent.vue";
+    // import ModalRequestedBookingsContent from "./ModalRequestedBookingsContent.vue";
+    import WeekRequestedBookedCell from "./WeekRequestedBookedCell.vue";
     export default {
         mounted() {
             this.setDates(moment(new Date()).startOf('week').toDate());
@@ -101,13 +156,15 @@
                 }
             }, 300);
             
-            let intervalDates = setInterval(() => {
-                if(this.dates != null){
-                    clearInterval(intervalDates);
-                    this.placeItems();
-                    this.regModalOpenButtons();
-                }
-            }, 300);
+            // let intervalDates = setInterval(() => {
+            //     if(this.dates != null){
+            //         clearInterval(intervalDates);
+            //         this.placeItems();
+            //         this.regModalOpenButtons();
+            //     }
+            // }, 300);
+            
+            this.regModalOpenButtons();
             
             // this.getData();
             $("#bookModal").on('hidden.bs.modal', () => {
@@ -115,16 +172,19 @@
                 // console.log(this.bookDate);
             });
             
+            // console.log(JSON.parse(JSON.stringify([dateItem, hourItem])));
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search'],
+        props: ['userId','search','views','view'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
+                
                 dates: null,
                 bookDate: null,
                 bookTimePeriod: null,
+                requestedBookings: null,
                 currentDate: new Date(),
                 yearOfCurrentDate: null,
                 monthOfCurrentDate: null,
@@ -142,6 +202,7 @@
                 sundayDate: null,
                 
                 workHours: null,
+                bussinessHours: null,
                 
                 hours: [
                     {
@@ -246,12 +307,33 @@
                 // lastMonthDate: null,
                 // firstCalendarDate: null,
                 // lastCalendarDate: null,
+                cancelBookData: null,
                 
                 
                 // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
             };
         },
         computed: {
+            weekDayNotPast: function(){
+                return (i) => {
+                    if(this.firstWeekday == null)
+                        return false;
+                    let firstWeekdayMoment = moment(this.firstWeekday);
+                    let currentDateMoment = moment(this.currentDate);
+                    return i >= this.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
+                }
+                // console.log(this.currentDate);
+                
+                // mondayWeekday = this.mondayDate.getDay();
+                // let mondayDateMoment = moment(this.mondayDate);
+                // let currentDateMoment = moment(this.currentDate);
+                // return i >= this.weekdayOfCurrentDate;
+                // return i >= this.weekdayOfCurrentDate || this.mondayDate != null;
+                // console.log(currentDateMoment.diff(mondayDateMoment) > 0);
+                // console.log(this.mondayDate);
+                // 
+                // return currentDateMoment.diff(mondayDateMoment) > 0;
+            },
             calendarTile: function () {
                 if(this.firstWeekday == null)
                     return '';
@@ -281,57 +363,147 @@
             }
         },
         methods: {
+            changeView: function(view){
+                this.$emit('view_changed', view);
+            },
+            // weekDayNotPast: function(i){
+            //     // console.log(this.currentDate);
+            // 
+            //     // mondayWeekday = this.mondayDate.getDay();
+            //     let mondayDateMoment = moment(this.mondayDate);
+            //     let currentDateMoment = moment(this.currentDate);
+            //     return i >= this.weekdayOfCurrentDate;
+            //     // return i >= this.weekdayOfCurrentDate || this.mondayDate != null;
+            //     // console.log(currentDateMoment.diff(mondayDateMoment) > 0);
+            //     // console.log(this.mondayDate);
+            //     // 
+            //     // return currentDateMoment.diff(mondayDateMoment) > 0;
+            // },
+            getBussinessHourPerWeekday: function(i){
+                let bussinessHours = this.bussinessHours[i];
+                return bussinessHours.start + ' - ' + bussinessHours.end;
+            },
+            cancelBook: function(event){
+                this.cancelBookData = event;
+                $('#cancelBookModal').modal('show');
+                // console.log(event);
+            },
+            onBooked: function(){
+                this.getData();
+            },
+            onCanceled: function(){
+                this.getData('cancel_book');
+            },
             regModalOpenButtons: function(){
-                $(document).on('click', '.calendar-item', (event) => {
+                $(document).off('click', '.free-calendar-item');
+                $(document).on('click', '.free-calendar-item', (event) => {
                     // console.log(event);
-                    let dayItemIndex = $(event.target).attr('day-item-index');
-                    let freeItemIndex = $(event.target).attr('free-item-index');
+                    let dateItemIndex = $(event.target).attr('date-item-index');
+                    let hourItemIndex = $(event.target).attr('hour-item-index');
                     
-                    // console.log(dayItemIndex);
-                    // console.log(freeItemIndex);
+                    // console.log(dateItemIndex);
+                    // console.log(hourItemIndex);
                     
-                    this.openModal(dayItemIndex, freeItemIndex);
+                    this.openModal(dateItemIndex, hourItemIndex);
                 });
+                
+                // console.log(111);
+                // console.log(on);
+                
+                // $(document).on('click', '.calendar-item .badge', (event) => {
+                //     event.stopPropagation();
+                //     // alert(111);
+                //     // console.log(event);
+                //     let calendarItem = $(event.target).closest('.calendar-item');
+                //     let dateItemIndex = calendarItem.attr('date-item-index');
+                //     let hourItemIndex = calendarItem.attr('hour-item-index');
+                // 
+                //     // console.log(dayItemIndex);
+                //     // console.log(freeItemIndex);
+                // 
+                //     this.openRequestedBookingsModal(dateItemIndex, hourItemIndex);
+                // });
             },
             placeItems: function(){
+                // console.log(555555555555555555555555555555);
                 let _this = this;
                 
-                this.dates.forEach((dayItem, i) => {
-                    let weekday = dayItem.weekday;
-                    dayItem.free.forEach((freeItem, ii) => {
+                $('.calendar-item').remove();
+                
+                this.dates.forEach((dateItem, i) => {
+                    // let weekday = dateItem.weekday;
+                    if(dateItem.is_weekend){
+                        placeClosedDateItem(dateItem);
+                        return;
+                    }
+                    
+                    placeBeginningClosedDateItem(dateItem);
+                    placeEndClosedDateItem(dateItem);
+                    
+                    dateItem.items.forEach((hourItem, ii) => {
                         if(this.notPast(i, ii))
-                            placeItem(dayItem, freeItem, i, ii);
+                            // console.log(111);
+                            placeItem(dateItem, hourItem, i, ii);
                         // console.log(JSON.parse(JSON.stringify(freeItem)));
                     });
-                    // console.log(item);
+                    
                 });
                 
-                function placeItem(dayItem, freeItem, dayItemIndex, freeItemIndex){
-                    let fromArr = freeItem.from.split(':');
-                    let fromHour = fromArr[0];
-                    let fromMinute = fromArr[1];
-                    let toArr = freeItem.to.split(':');
-                    let toHour = toArr[0];
-                    let toMinute = toArr[1];
-                    let toHourInt = parseInt(toHour);
-                    let lastWorkHour = _this.workHours.slice(-1).pop();
-                    let weekDay = dayItem.weekday;
+                function placeBeginningClosedDateItem(dateItem){
+                    // return true;
+                    let startDateItemMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + dateItem.start + ':00');
+                    let startWorkHour = _this.workHours[0];
+                    if(startWorkHour < 10)
+                        startWorkHour = '0' + startWorkHour;
+                    // let bussinessHours = _this.bussinessHours[dateItem.weekday - 1];
+                    let startWorkHourMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + startWorkHour + ':00:00');
+                    // console.log(startDateItemMoment.diff(startWorkHourMoment));
+                    // console.log(JSON.parse(JSON.stringify(dateItem)));
+                    if(startDateItemMoment.diff(startWorkHourMoment) > 0){
+                        let fromHour = startWorkHourMoment.format('HH');
+                        let fromMinute = startWorkHourMoment.format('mm');
+                        
+                        let toHour = startDateItemMoment.format('HH');
+                        let toMinute = startDateItemMoment.format('mm');
+                        
+                        placeClosedItem(dateItem, fromHour, fromMinute, toHour, toMinute);
+                    }
+                }
+                
+                function placeEndClosedDateItem(dateItem){
+                    // return true;
+                    let endDateItemMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + dateItem.end + ':00');
+                    let endWorkHour = _this.workHours[_this.workHours.length - 1] + 1;
+                    if(endWorkHour < 10)
+                        endWorkHour = '0' + endWorkHour;
+                    // let bussinessHours = _this.bussinessHours[dateItem.weekday - 1];
+                    let endWorkHourMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + endWorkHour + ':00:00');
+                    // console.log(startDateItemMoment.diff(startWorkHourMoment));
+                    // console.log(JSON.parse(JSON.stringify(dateItem)));
+                    if(endDateItemMoment.diff(endWorkHourMoment) < 0){
+                        let fromHour = endDateItemMoment.format('HH');
+                        let fromMinute = endDateItemMoment.format('mm');
+                        // console.log(fromHour);
+                        let toHour = endWorkHourMoment.format('HH');
+                        let toMinute = endWorkHourMoment.format('mm');
+                        
+                        placeClosedItem(dateItem, fromHour, fromMinute, toHour, toMinute);
+                    }
+                }
+                
+                function placeClosedItem(dateItem, fromHour, fromMinute, toHour, toMinute){
+                    let weekDay = dateItem.weekday;
                     let beginCell = $('.hour-cell[data-hour="' + fromHour + '"][data-weekday="' + weekDay + '"]');
                     
                     let div = document.createElement('div');
-                    // $(div).addClass('calendar-item').html('Free time:<br>' + freeItem.from + ' - ' + freeItem.to);
-                    $(div).attr('day-item-index', dayItemIndex);
-                    $(div).attr('free-item-index', freeItemIndex);
-                    $(div).addClass('calendar-item').html(freeItem.from + ' - ' + freeItem.to);
+                    $(div).addClass('calendar-item').addClass('closed-calendar-item');
+                    $(div).html('Closed');
                     
                     let diffHours = parseInt(toHour) - parseInt(fromHour);
-                    let cellHeight = parseInt(beginCell.outerHeight());
-                    // let
-                    // this.workHours.forEach((item, i) => {
-                    // 
-                    // });
+                    let cellHeight = beginCell.outerHeight();
                     
                     let divHeight = diffHours*cellHeight;
+                    
                     if(parseInt(fromMinute) != 0){
                         let topShift = getPercValueOfMnutesToHour(fromMinute, cellHeight);
                         $(div).css({'top': topShift + 'px'});
@@ -340,44 +512,161 @@
                     
                     if(parseInt(toMinute) != 0){
                         let bottomShift = getPercValueOfMnutesToHour(toMinute, cellHeight);
-                        // $(div).css({'top': topShift + 'px'});
                         divHeight += bottomShift;
                     }
                     
-                    $(div).css({'height':(divHeight - 2) + 'px'});
+                    divHeight = divHeight - 2;
+                    $(div).css({'height':divHeight + 'px'});
                     
                     beginCell.prepend(div);
+                }
+                
+                function placeClosedDateItem(dateItem){
+                    let lengthCells = $('.hour-cell[data-weekday="' + dateItem.weekday + '"]').length;
+                    let beginCell = $('.hour-cell[data-weekday="' + dateItem.weekday + '"]').eq(0);
                     
-                    // let width = getPercValue(parseInt(beginCell.width()));
-                    // console.log(JSON.parse(JSON.stringify(width)));
-                    // if()
-                    // console.log(JSON.parse(JSON.stringify(cellHeight)));
-                    // console.log(JSON.parse(JSON.stringify(diffHours)));
-                    // console.log(JSON.parse(JSON.stringify(divHeight)));
-                    // console.log(_this.workHours.slice(-1).pop());
+                    let div = document.createElement('div');
+                    $(div).addClass('calendar-item').addClass('closed-calendar-item');
+                    $(div).html('Closed');
+                    
+                    let cellHeight = beginCell.outerHeight();
+                    let divHeight = lengthCells*cellHeight;
+                    divHeight = divHeight - 2;
+                    
+                    $(div).css({'height':divHeight + 'px'});
+                    
+                    beginCell.prepend(div);
+                }
+                
+                // function placeDayClosedItems(dateItem, dateItemIndex){
+                //     let items = Object.values(dateItem.items);
+                //     let firstItem = items[0];
+                //     // console.log(firstItem);
+                //     console.log(JSON.parse(JSON.stringify(dateItem)));
+                // }
+                
+                function placeItem(dateItem, hourItem, dateItemIndex, hourItemIndex){
+                    if(hourItem.type != 'free')
+                        return;
+                        
+                    // let bussinessHours = _this.bussinessHours[dateItem.weekday - 1];
+                    // let startBussinessHourMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + bussinessHours.start + ':00');
+                    // let endBussinessHourMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + bussinessHours.end + ':00');
+                    
+                    // console.log(_this.workHours);
+                    // console.log(bussinessHours);
+                    // console.log(JSON.parse(JSON.stringify(bussinessHours)));
+                    
+                    // let startItemMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + hourItem.from + ':00');
+                    
+                    // console.log(startItemMoment->format('HH:mm'));
+                    // console.log(startBussinessHourMoment->format('HH:mm'));
+                    
+                    // if(startItemMoment.diff(startBussinessHourMoment) > 0){
+                    //     console.log(startItemMoment.format('HH:mm'));
+                    //     console.log(startBussinessHourMoment.format('HH:mm'));
+                    //     console.log(hourItemIndex);
+                    //     console.log('-----------------------');
+                    //     // console.log(JSON.parse(JSON.stringify('ddddd')));
+                    // }
+                    
+                    let fromArr = hourItem.from.split(':');
+                    let fromHour = fromArr[0];
+                    let fromMinute = fromArr[1];
+                    let toArr = hourItem.to.split(':');
+                    let toHour = toArr[0];
+                    let toMinute = toArr[1];
+                    let toHourInt = parseInt(toHour);
+                    let lastWorkHour = _this.workHours.slice(-1).pop();
+                    let weekDay = dateItem.weekday;
+                    let beginCell = $('.hour-cell[data-hour="' + fromHour + '"][data-weekday="' + weekDay + '"]');
+                    
+                    let div = document.createElement('div');
+                    $(div).attr('date-item-index', dateItemIndex);
+                    $(div).attr('hour-item-index', hourItemIndex);
+                    $(div).addClass('calendar-item').addClass('free-calendar-item');
+                    
+                    $(div).html('Free time:');
+                    
+                    let diffHours = parseInt(toHour) - parseInt(fromHour);
+                    // let cellHeight = parseInt(beginCell.outerHeight());
+                    let cellHeight = beginCell.outerHeight();
+                    
+                    // diffHours++;
+                    // console.log(cellHeight);
+                    
+                    let divHeight = diffHours*cellHeight;
+                    // let divHeight = cellHeight;
+                    if(parseInt(fromMinute) != 0){
+                        let topShift = getPercValueOfMnutesToHour(fromMinute, cellHeight);
+                        $(div).css({'top': topShift + 'px'});
+                        divHeight -= topShift;
+                        // console.log(topShift);
+                    }
+                    
+                    if(parseInt(toMinute) != 0){
+                        let bottomShift = getPercValueOfMnutesToHour(toMinute, cellHeight);
+                        divHeight += bottomShift;
+                        // console.log(bottomShift);
+                    }
+                    
+                    divHeight = divHeight - 2;
+                    
+                    // console.log(topShift);
+                    // console.log(bottomShift);
+                    // console.log(divHeight);
+                    // console.log('-----------------');
+                    
+                    $(div).css({'height':divHeight + 'px'});
+                    
+                    beginCell.prepend(div);
                 }
                 
                 function getPercValueOfMnutesToHour(minutes, cellHeight){
-                    let oneMinutePerc = 100/60;
-                    let perc = parseInt(minutes*oneMinutePerc);
-                    let onePercCellPixel = cellHeight/100;
-                    let topShift = onePercCellPixel*perc;
-                    // console.log(topShift);
-                    return topShift;
-                    // console.log(minutes + ': ' + perc);
-                    // console.log(oneMinutePerc);
-                    // let onePixelCelPerc = 60/100;
+                    // console.log(cellHeight);
+                    // cellHeight++;
+                    let oneMinutePerc = 60/100;
+                    // let onePixelPerc = cellHeight/100;
+                    // let minutesPercents = minutes/oneMinutePerc;
+                    let minutesPercents = parseInt(minutes/oneMinutePerc);
+                    
+                    let shift = (cellHeight/100) * minutesPercents;
+                    
+                    return shift;
+                    // console.log(minutes);
+                    // console.log(minutesPercents);
+                    // console.log(shift);
+                    
+                    // console.log(onePixelPerc);
+                    // let perc = parseInt(minutes*oneMinutePerc);
+                    // let perc = minutes*oneMinutePerc;
+                    // let onePercCellPixel = cellHeight/100;
+                    // let topShift = onePercCellPixel*perc;
+                    // // console.log(topShift);
+                    // return topShift;
                 }
+                
+                // function getPercValueOfMnutesToHour(minutes, cellHeight){
+                //     // console.log(cellHeight);
+                //     // cellHeight++;
+                //     let oneMinutePerc = 100/60;
+                //     // let perc = parseInt(minutes*oneMinutePerc);
+                //     let perc = minutes*oneMinutePerc;
+                //     let onePercCellPixel = cellHeight/100;
+                //     let topShift = onePercCellPixel*perc;
+                //     // console.log(topShift);
+                //     return topShift;
+                // }
             },
             next: function(){
-                console.log('next');
+                // console.log('next');
                 let dateOfNextWeek = moment(this.firstWeekday).add(7, 'days');
                 // console.log(dateOfNextWeek.toDate());
                 this.setDates(dateOfNextWeek.toDate());
                 // console.log(dateOfNextWeek.toDate());
                 // console.log(this.firstWeekday);
                 // console.log(this.lastWeekday);
-                // this.getData();
+                this.getData();
             },
             previous: function(){
                 if(!this.canGoToPrevious)
@@ -387,14 +676,39 @@
                 // console.log('previous');
                 // var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
                 this.setDates(dateOfPreviousWeek.toDate());
-                // this.getData();
+                this.getData();
+            },
+            today: function(){
+                this.setDates(moment(new Date()).startOf('week').toDate());
+                this.getData();
+            },
+            openRequestedBookingsModal: function(i, ii){
+                this.bookDate = this.dates[i];
+                this.bookTimePeriod = this.bookDate.items[ii];
+                if(typeof this.bookTimePeriod.not_approved_bookings != 'undefined' && this.bookTimePeriod.not_approved_bookings != null){
+                    this.requestedBookings = Object.values(this.bookTimePeriod.not_approved_bookings);
+                    // console.log(this.requestedBookings);
+                    $('#requestedBookingsModal').modal('show');
+                }
             },
             openModal: function(i, ii){
                 // console.log(itm);
                 // $parent.isAuth();
                 // console.log(this.$parent.isAuth());
+                
                 this.bookDate = this.dates[i];
-                this.bookTimePeriod = this.bookDate.free[ii];
+                this.bookTimePeriod = this.bookDate.items[ii];
+                
+                // console.log(JSON.parse(JSON.stringify(this.bookDate)));
+                // console.log();
+                // console.log(i);
+                // console.log(JSON.parse(JSON.stringify(this.dates)));
+                
+                // return;
+                // if(this.bookTimePeriod.type == 'free' && typeof this.bookTimePeriod.not_approved_bookings != 'undefined'){
+                //     console.log(JSON.parse(JSON.stringify(this.bookTimePeriod.not_approved_bookings)));
+                // }
+                    
                 // console.log(i);
                 // console.log(ii);
                 // console.log(dayItem);
@@ -403,32 +717,23 @@
                 // this.bookTimePeriod = itm;
                 $('#bookModal').modal('show');
             },
-            notPast: function(dayItemIndex, freeItemIndex){
+            notPast: function(dateItemIndex, hourItemIndex){
                 // console.log(dayItemIndex, freeItemIndex);
-                let dayItem = this.dates[dayItemIndex];
-                let freeItem = dayItem.free[freeItemIndex];
+                let dateItem = this.dates[dateItemIndex];
+                let hourItem = dateItem.items[hourItemIndex];
                 
-                
-                // this.bookTimePeriod = this.bookDate.free[ii];
-                // let date = this.getDate(i,k);
-                let itemDateMoment = moment(dayItem.year+'-'+dayItem.month+'-'+dayItem.day);
+                let dateItemMoment = moment(dateItem.year+'-'+dateItem.month+'-'+dateItem.day);
                 let currentDateMoment = moment(this.currentDate);
-                // console.log(dateMoment.format("YYYY MM DD") + ' - ' + currentDateMoment.format("YYYY MM DD") + ': ' + (dateMoment.diff(currentDateMoment) >= 0 || dateMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")));
-                // console.log(currentDateMoment.format("YYYY MM DD"));
+                
                 return (
-                    itemDateMoment.diff(currentDateMoment) >= 0 ||
-                    itemDateMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")
-                ) && dayItem.bookable;
-                // console.log(dateMoment < currentDateMoment);
-                // console.log(moment(date).isAfter(moment('2014-03-24T01:14:000')));
-                // return this.currentDate.year == this.getDate(i,k,'year') &&
-                // this.currentDate.month == this.getDate(i,k,'month') &&
-                // this.currentDate.day == this.getDate(i,k,'day');
+                    dateItemMoment.diff(currentDateMoment) >= 0 ||
+                    dateItemMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")
+                ) && dateItem.bookable;
             },
             isCurrentDate: function(k){
                 // console.log(moment(this.currentDate).startOf('week').format('DD'));
                 // console.log(moment(this.firstWeekday).startOf('week').format('DD'));
-                return this.weekdayOfCurrentDate == (k - 1) &&
+                return this.weekdayOfCurrentDate == k &&
                 moment(this.currentDate).startOf('week').format('DD') == moment(this.firstWeekday).startOf('week').format('DD');
                 // return this.yearOfCurrentDate == this.getDate(i,k,'year') &&
                 // this.monthOfCurrentDate == this.getDate(i,k,'month') &&
@@ -441,7 +746,7 @@
                     return date[type];
                 return date;
             },
-            getData: function(){
+            getData: function(from = null){
                 // console.log(JSON.parse(JSON.stringify(this.range)));
                 // routes.calendar.booking.range
                 // let url = JSON.parse(JSON.stringify(routes.calendar.booking.range));
@@ -452,8 +757,8 @@
                 // console.log(url);
                 // return;
                 
-                // url = url.replace(':start', moment(this.firstWeekday).format('DD-MM-YYYY'));
-                url = url.replace(':start', moment(this.currentDate).format('DD-MM-YYYY'));
+                url = url.replace(':start', moment(this.firstWeekday).format('DD-MM-YYYY'));
+                // url = url.replace(':start', moment(this.currentDate).format('DD-MM-YYYY'));
                 url = url.replace(':end', moment(this.lastWeekday).format('DD-MM-YYYY'));
                 
                 url += '?' + this.search;
@@ -467,13 +772,19 @@
                 axios.get(url)
                 .then((response) => {
                     // handle success
-                    // console.log(response.data);
+                    // console.log(response.data.data);
                     this.dates = response.data.data;
                     // this.setWorkHours(response.data.start, response.data.end);
-                    console.log(response.data.business_hours);
-                    this.setWorkHours(response.data.business_hours);
+                    // console.log(response.data.business_hours);
+                    this.bussinessHours = response.data.business_hours;
+                    this.setWorkHours();
+                    // console.log(JSON.parse(JSON.stringify(4444444444444444)));
+                    setTimeout(() => {
+                        this.placeItems();
+                    }, 100);
+                    // this.placeItems();
                     // console.log(response.data[0]);
-                    // console.log(JSON.parse(JSON.stringify(this.dates)));
+                    console.log(JSON.parse(JSON.stringify(this.dates)));
                 })
                 .catch(function (error) {
                     // handle error
@@ -481,15 +792,19 @@
                 })
                 .then(function () {
                     // always executed
+                    if(from == 'cancel_book'){
+                        console.log('from: cancel_book');
+                        $('#cancelBookModal').modal('hide');
+                    }
                 });
             },
             // setWorkHours: function(startHour, endHour){
-            setWorkHours: function(business_hours){
+            setWorkHours: function(){
                 let start = null;
                 let end = null;
                 // return;
                 // console.log(business_hours);
-                business_hours.forEach((item, i) => {
+                this.bussinessHours.forEach((item, i) => {
                     if(start == null){
                         // start = item.start;
                         start = moment('1970-01-01 ' + item.start + ':00');
@@ -525,7 +840,7 @@
                 for(let i = startHourInt; i < endHourInt; i++){
                     this.workHours.push(i);
                 }
-                console.log(this.workHours);
+                // console.log(this.workHours);
             },
             setDates: function(firstCalendarMonthDate){
                 let currentDateMoment = moment(this.currentDate);
@@ -537,10 +852,14 @@
                     this.dayOfCurrentDate = currentDateMoment.format('DD');
                 if(this.weekdayOfCurrentDate == null)
                     this.weekdayOfCurrentDate = currentDateMoment.day();
-                
+            
                 this.firstWeekday = moment(firstCalendarMonthDate).startOf('week').add(1,'days').toDate();
                 this.lastWeekday = moment(firstCalendarMonthDate).endOf('week').add(1,'days').toDate();
                 
+                // console.log([
+                //     this.firstWeekday, this.lastWeekday
+                // ]);
+            
                 let weekDayFormat = 'D/M';
                 this.mondayDate = moment(this.firstWeekday).startOf('week').add(1,'days').format(weekDayFormat);
                 this.tuesdayDate = moment(this.firstWeekday).startOf('week').add(2,'days').format(weekDayFormat);
@@ -549,14 +868,14 @@
                 this.fridayDate = moment(this.firstWeekday).startOf('week').add(5,'days').format(weekDayFormat);
                 this.saturdayDate = moment(this.firstWeekday).startOf('week').add(6,'days').format(weekDayFormat);
                 this.sundayDate = moment(this.firstWeekday).startOf('week').add(7,'days').format(weekDayFormat);
-                
-                console.log([
-                    this.firstWeekday, this.lastWeekday, this.weekdayOfCurrentDate
-                ]);
-                
+            
+                // console.log([
+                //     this.firstWeekday, this.lastWeekday, this.weekdayOfCurrentDate
+                // ]);
+            
                 // this.monthOfCurrentDate = parseInt(moment(this.currentDate).format('MM')) + 1;
                 // this.dayOfCurrentDate = parseInt(moment(this.currentDate).format('YYYY'));
-                
+            
                 // this.firstMonthDate = firstCalendarMonthDate;
                 // this.lastMonthDate = moment(firstCalendarMonthDate).endOf('month').toDate();
                 // 
@@ -598,7 +917,10 @@
             MonthCell,
             ModalAuthContent,
             ModalBookContent,
-            WeekTimeCell
+            WeekTimeCell,
+            // ModalRequestedBookingsContent,
+            WeekRequestedBookedCell,
+            ModalCancelBookContent
         },
         watch: {
             search: function () {
@@ -609,12 +931,39 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+    #viewDropdown{
+        .dropdown-toggle{
+            text-transform: capitalize;
+        }
+        .dropdown-item{
+            text-transform: capitalize;
+        }
+    }
+
+    .handles{
+        .left-part{
+            button{
+                // display: none;
+                &:nth-child(1){
+                    border-radius: .2rem 0 0 .2rem;
+                }
+                &:nth-child(2){
+                    border-radius: 0 .2rem .2rem 0;
+                }
+                &:nth-child(3){
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+
     .for-table{
         padding-top: 10px!important;
     }
     table{
         width: 100%;
+        min-width: 700px;
         /* margin-top: 20px!important; */
     }
     table th{
@@ -630,14 +979,34 @@
     table td, table th{
         border: 1px solid #ccc;
     }
-    table td:first-child{
+    /* table td:first-child{
         width: 8%;
-    }
+    } */
     table td{
-        width: 13.1%;
+        width: 14.2%;
         vertical-align: top;
         position: relative;
-        height: 40px;
+        /* height: 20px; */
+    }
+    table tr:nth-child(odd) td{
+        background-color: #f4f4f4;
+    }
+    table tr.bookings td{
+        height: auto;
+    }
+    table tr.divider td{
+        height: 10px;
+        background-color: #6c757d!important;
+        text-align: center;
+        font-weight: bold;
+        color: #f6f6f6;
+        /* color: #d4f4c9; */
+        /* font-size: 14px; */
+    }
+    @media only screen and (max-width: 900px) {
+        table tr.divider td{
+            font-size: 14px;
+        }
     }
     table td .cont{
         min-height: 80px!important;
@@ -648,11 +1017,21 @@
         top: 0px;
         left: 0px;
     }
+    table td.hour-cell:first-child{
+        font-weight: bold;
+    }
+    table td.hour-cell{
+        padding-right: 10px;
+        text-align: right;
+    }
+    /* table td{
+        font-weight: bold;
+    } */
     .day.not-period{
         color: #999;
     }
     .current-day{
-        background-color: rgba(8,232,222, 0.3); 
+        background-color: rgba(8,232,222, 0.3)!important; 
     }
     .booking{
         position: absolute;
@@ -666,7 +1045,7 @@
 
 <style>
     .calendar-item{
-        width: 96%;
+        /* width: 96%;
         position: absolute;
         left: 2%;
         background-color: rgba(144,238,144, 0.5);
@@ -674,9 +1053,40 @@
         z-index: 9;
         cursor: pointer;
         line-height: 1em;
-        padding: 2px;
+        padding: 2px; */
+        
+        position: absolute;
+        /* display: block; */
+        width: 96%;
+        left: 2%;
+        /* background-color: rgba(144,238,144, 0.5); */
+        /* background-color: #d4f4c9; */
+        margin-bottom: 3px;
+        border-radius: 3px;
+        font-size: 10px;
+        padding: 2px 6px;
+        color: black;
+        text-decoration: none;
+        transition: background .2s ease;
+        z-index: 10;
+        /* line-height: 1.2em; */
+        cursor: pointer;
+        font-weight: bold;
     }
-    .calendar-item:hover{
-        background-color: rgba(144,238,144, 1);
+    
+    .free-calendar-item{
+        /* background-color: #d4f4c9!important; */
+        background-color: rgba(144,238,144, 0.5);
+    }
+    .free-calendar-item:hover{
+        background-color: rgba(144,238,144, 0.8);
+    }
+    
+    /* .booked-calendar-item:hover{
+        background-color: rgba(114,51,128, 1)!important;
+    } */
+    .faded-time{
+        font-weight: bold;
+        color: #ccc;
     }
 </style>

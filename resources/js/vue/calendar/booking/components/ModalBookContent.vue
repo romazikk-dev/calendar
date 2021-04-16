@@ -335,7 +335,7 @@
             timeBarChange: function (event) {
                 clearTimeout(this.timeBarChangeTimeout);
                 this.timeBarChangeTimeout = setTimeout(() => {
-                    console.log(event.sliderValue);
+                    // console.log(event.sliderValue);
                     let minPerc = event.freeMinutes/event.freeMinutesForStart;
                     let minutes = Math.round(event.sliderValue/minPerc)
                     this.bookOn = this.composeHourMinuteTimeFromMinutes(this.startPeriodDatetime + minutes);

@@ -63,6 +63,14 @@ class Range{
         return $this->end_date;
     }
     
+    public function getStartDatetime(){
+        return $this->start_datetime;
+    }
+    
+    public function getEndDatetime(){
+        return $this->end_datetime;
+    }
+    
     /**
      * @param \Carbon\Carbon date_carbon
      *

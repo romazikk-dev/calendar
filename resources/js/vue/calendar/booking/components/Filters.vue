@@ -104,7 +104,7 @@
                     </button>
                 </div>
                 
-                <div class="filter float-right mr-0">
+                <!-- <div class="filter float-right mr-0">
                     <div id="viewDropdownCalendar" class="dropdown">
                         <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownCalendarButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {{choosedItmView}}
@@ -114,7 +114,7 @@
                             <a v-for="itm in views" @click.prevent="changeView(itm)" v-if="itm.toLowerCase() != choosedItmView.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
                         </div>
                     </div>
-                </div>
+                </div> -->
                     
                 <div class="clearfix"></div>
             </div>
@@ -151,7 +151,7 @@
                 cookieItmWorker: null,
                 cookieItmTemplate: null,
                 cookieItmView: null,
-                views: ['month','week','day'],
+                views: ['month','week','day','list'],
                 search: null,
                 workers: null,
                 templates: null,
@@ -424,7 +424,8 @@
         text-align: center;
         padding: 14px 0px 6px;
     }
-    #viewDropdown .dropdown-toggle{
+    #viewDropdown .dropdown-toggle,
+    #viewDropdownCalendar .dropdown-toggle{
         text-transform: capitalize;
     }
     .dropdown-item{

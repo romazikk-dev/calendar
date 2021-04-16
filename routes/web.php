@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\HallController as DashboardHallController;
 use App\Http\Controllers\Dashboard\TemplateController as DashboardTemplateController;
 use App\Http\Controllers\Dashboard\ClientController as DashboardClientController;
 use App\Http\Controllers\Dashboard\SettingsController as DashboardSettingsController;
+use App\Http\Controllers\Dashboard\BookingsController as DashboardBookingsController;
 
 use App\Http\Controllers\Calendar\BookingController as CalendarBookingController;
 
@@ -160,6 +161,15 @@ Route::group([
 ], function () {
     
     Route::get('/', [DashboardDefaultController::class, 'index'])->name('index');
+    
+    Route::group([
+        'prefix' => '/bookings',
+        'as' => 'bookings.'
+    ], function () {
+        
+        Route::get('/', [DashboardBookingsController::class, 'index'])->name('index');
+        
+    });
     
     Route::resource('worker', DashboardWorkerController::class);
     Route::group([
