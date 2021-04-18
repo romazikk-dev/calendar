@@ -13,6 +13,7 @@
     // import DayCalendar from "./DayCalendar.vue";
     // import Filters from "./Filters.vue";
     export default {
+        name: 'bookings',
         mounted() {
             // console.log(this.dateRange);
             // console.log(this.view);

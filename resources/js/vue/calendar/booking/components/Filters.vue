@@ -104,6 +104,10 @@
                     </button>
                 </div>
                 
+                <div class="float-right">
+                    <client-info :client-info="clientInfo" :user-id="owner.id"></client-info>
+                </div>
+                
                 <!-- <div class="filter float-right mr-0">
                     <div id="viewDropdownCalendar" class="dropdown">
                         <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownCalendarButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -129,8 +133,9 @@
     // import MonthCalendar from "./MonthCalendar.vue";
     // import WeekCalendar from "./WeekCalendar.vue";
     // import DayCalendar from "./DayCalendar.vue";
-    // import Filters from "./Filters.vue";
+    import ClientInfo from "./ClientInfo.vue";
     export default {
+        name: 'filters',
         mounted() {
             // console.log(this.dateRange);
             // console.log(this.view);
@@ -140,7 +145,7 @@
             // console.log(JSON.parse(JSON.stringify(this.owner)));
             this.setFiltersFromCookie();
         },
-        props: ['owner','halls'],
+        props: ['owner','halls','clientInfo'],
         data: function(){
             return {
                 choosedItmHall: null,
@@ -406,7 +411,7 @@
             }
         },
         components: {
-            
+            ClientInfo
         },
     }
 </script>

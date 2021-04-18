@@ -12,6 +12,7 @@
 
 <script>
     export default {
+        name: 'timeBar',
         mounted() {
             // this.setInitValues();
             // var slider = document.getElementById("freeTimeRange");

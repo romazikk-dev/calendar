@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Calendar\Booking\AuthController as ApiAuthControlle
 use App\Http\Controllers\Api\Calendar\Booking\WorkerController as ApiWorkerController;
 use App\Http\Controllers\Api\Calendar\Booking\TemplateController as ApiTemplateController;
 use App\Http\Controllers\Api\Calendar\Booking\BookController as ApiBookController;
+use App\Http\Controllers\Api\Calendar\Booking\ClientController as ApiClientController;
 
 
 use Illuminate\Http\Request;
@@ -41,6 +42,16 @@ Route::group([
         'prefix' => '/bookings',
         'as' => 'bookings.'
     ], function () {
+        
+        Route::group([
+            'prefix' => '/client',
+            'as' => 'client.',
+            'middleware' => 'auth:sanctum',
+        ], function () {
+        
+            Route::get('/info', [ApiClientController::class, 'info'])->name('info');
+        
+        });
         
         Route::group([
             'prefix' => '/book',
@@ -104,7 +115,9 @@ Route::group([
         ])->name('range');
         
         Route::post('/register', [ApiAuthController::class, 'register'])->name('register');
-        Route::post('/login', [ApiAuthController::class, 'login'])->name('login');
+        Route::post('/login/{user_id}', [ApiAuthController::class, 'login'])->where([
+            'user_id' => '\d+'
+        ])->name('login');
     
     });
     

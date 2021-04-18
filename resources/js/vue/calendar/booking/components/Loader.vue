@@ -15,6 +15,7 @@
 <script>
 
 export default {
+    name: 'loader',
     mounted() {
         // this.getRenderData();
     },

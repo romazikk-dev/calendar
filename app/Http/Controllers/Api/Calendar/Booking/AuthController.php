@@ -48,7 +48,26 @@ class AuthController extends Controller{
     }
     
     public function login(Request $request){
+        $validated = $request->validate([
+            'user_id' => 'exists:users,id',
+            'email' => 'required|email|max:255',
+            'password' => 'required|max:255'
+        ]);
         
+        $client = Client::where('email', $validated['email'])
+                    ->where('is_deleted', '0')
+                    ->first();
+                    
+        if (!$client || !Hash::check($validated['password'], $client->password))
+            return response('Login invalid', 503);
+        
+        $token = $client->createToken('my');
+        
+        return response()->json([
+            'msg' => 'Client successfuly authorized',
+            'status' => 'success',
+            'token' =>  $token->plainTextToken,
+        ]);
     }
     
 }

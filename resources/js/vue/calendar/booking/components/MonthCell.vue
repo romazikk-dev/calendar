@@ -37,6 +37,7 @@
 
 <script>
     export default {
+        name: 'monthCell',
         mounted() {
             // console.log(this.dateRange);
             // console.log(this.view);

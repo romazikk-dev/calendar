@@ -39,6 +39,37 @@ window.cookie = require('js-cookie');
  
 import App from './components/App.vue';
 
+Vue.mixin({
+    methods: {
+        getParentComponentByName: function (_thisComponent, componentName) {
+            let component = null;
+            if(_thisComponent.$options.name === componentName)
+                return _thisComponent;
+            let parent = _thisComponent.$parent;
+            while (parent && !component) {
+                if (parent.$options.name === componentName) {
+                  component = parent
+                }
+                parent = parent.$parent
+            }
+            return component;
+        },
+        isAuth: function () {
+            let componentApp = this.$root.$children[0];
+            return componentApp.authorized;
+            // return false;
+            // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
+            // if(componentApp)
+            //     return componentApp.isAuth;
+            // return false;
+        },
+        // showChildren: function () {
+        //     // console.log(this.$root.$children[0].$options.name);
+        //     console.log(this.$root.$children[0].$options.name);
+        // }
+    },
+});
+
 window.app = new Vue({
 // const businessHours = new Vue({
     el: '#calendarBooking',

@@ -79,7 +79,12 @@
     import TimeBar from "./TimeBar.vue";
     import Loader from "./Loader.vue";
     export default {
+        name: 'modalBookContent',
         mounted() {
+            
+            console.log(111);
+            console.log(this.auth);
+            // this.$refs['loader'].fadeOut(300);
             
             this.createStyleForArrow();
             this.setStyleForArrow();
@@ -173,13 +178,9 @@
             };
         },
         computed: {
-            // bookOn: function () {
-            //     if(this.choosedH != null && this.choosedM != null){
-            //         return this.choosedH + ':' + this.choosedM;
-            //     }else{
-            //         return 0;
-            //     }
-            // },
+            auth: function () {
+                return this.isAuth();
+            },
             templateDuration: function () {
                 let durationInMin = parseInt(this.template.duration/60);
                 return this.composeHourMinuteTimeFromMinutes(durationInMin);
@@ -441,8 +442,13 @@
             Loader
         },
         watch: {
-            bookTimePeriod: (newOne, oldOne) => {
-                // console.log(helper.parse(newOne));
+            auth: function(newOne, oldOne) {
+                this.$refs['loader'].show();
+                setTimeout(() => {
+                    this.$refs['loader'].fadeOut(300);
+                }, 200);
+                // this.$refs['loader'].fadeOut(300);
+                // console.log(this.auth);
         		// console.log("Title changed from " + newOne + " to " + oldOne)
         	},
             // initValue: (newOne, oldOne) => {

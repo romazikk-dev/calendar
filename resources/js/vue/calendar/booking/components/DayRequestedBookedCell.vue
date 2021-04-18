@@ -25,6 +25,7 @@
 
 <script>
     export default {
+        name: 'dayRequestedBookedCell',
         mounted() {
             // console.log(this.dateRange);
             // console.log(this.view);

@@ -16,6 +16,7 @@
                     booking: {
                         range: '{{ route("calendar_api.bookings.range", [$owner->id, ":start", ":end"] ) }}',
                         register: '{{ route("calendar_api.bookings.register") }}',
+                        login: '{{ route("calendar_api.bookings.login", [$owner->id]) }}',
                         worker: {
                             index: '{{ route("calendar_api.bookings.worker.index") }}',
                         },
@@ -25,6 +26,9 @@
                         book: {
                             create: '{{ route("calendar_api.bookings.book.create", [$owner->id, ":hall_id", ":template_id", ":worker_id"]) }}',
                             cancel: '{{ route("calendar_api.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
+                        },
+                        client: {
+                            info: '{{ route("calendar_api.bookings.client.info") }}',
                         }
                     }
                 }

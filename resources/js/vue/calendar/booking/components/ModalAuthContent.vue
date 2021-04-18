@@ -39,7 +39,7 @@
                     </div>
                 </form>
             </div>
-            <div v-else>
+            <div v-if="show == 'signin'">
                 <form ref="signinForm" action="" method="post" id="signinForm">
                     <div class="form-group">
                         <input name="email" type="email" class="form-control" id="signinEmail" placeholder="Email">
@@ -60,8 +60,11 @@
 <script>
     import MonthCell from "./MonthCell.vue";
     export default {
+        name: 'modalAuthContent',
         mounted() {
             
+            // let component = this.getComponentByName('modalAuthContent');
+            // console.log(component);
             // this.globalHelper();
             // console.log(this.currentDate);
             // console.log(this.curreny_view_idx);
@@ -87,6 +90,8 @@
                 if(this.show == 'signin'){
                     var formData = new FormData(this.$refs['signinForm']);
                     var url = routes.calendar.booking.login;
+                    // console.log(this.show);
+                    // console.log(url);
                     // console.log(formData);
                     // console.log(formData.get('signin_email'));
                     // console.log(document.getElementById("signupEmail"));
@@ -97,10 +102,15 @@
                 }else{
                     var formData = new FormData(this.$refs['signupForm']);
                     var url = routes.calendar.booking.register;
+                    // console.log(url);
                     // console.log(formData.get('signup_email'));
                     // console.log(document.getElementById("signupForm"));
                     // console.log(this.$refs['signupForm']);
                 }
+                
+                // console.log(url);
+                // return;
+                
                 axios({
                     method: "post",
                     url: url,
@@ -109,9 +119,21 @@
                 })
                 .then((response) => {
                     //handle success
-                    this.signinErrors = null;
-                    this.signupErrors = null;
-                    this.$parent.$parent.setToken(response.data.token);
+                    
+                    // console.log(response);
+                    let componentApp = this.getParentComponentByName(this, 'app');
+                    if(componentApp){
+                        componentApp.setToken(response.data.token);
+                        componentApp.getClientInfo();
+                        this.signinErrors = null;
+                        this.signupErrors = null;
+                        // this.$emit('authorized');
+                        // if(this.show == 'signin')
+                    }
+                    
+                    // $emit.setToken('set_token', response.data.token);
+                    // this.$parent.$parent.setToken(response.data.token);
+                    // getComponentByName
                 })
                 .catch(error => {
                     console.log("ERRRR:: ",error.response.data);

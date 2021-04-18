@@ -58,6 +58,7 @@
     // import TimeBar from "./TimeBar.vue";
     import Loader from "./Loader.vue";
     export default {
+        name: 'modalCancelBookContent',
         mounted() {
             // console.log(this.filters);
             // this.$refs['loader'].show();

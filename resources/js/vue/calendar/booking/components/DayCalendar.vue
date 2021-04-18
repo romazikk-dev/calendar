@@ -1,41 +1,14 @@
 <template>
     <div>
-        <div class="handles">
-            <div class="left-part float-left">
-                <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                    </svg>
-                </button>
-                <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </button>
-                <button @click.prevent="today" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
-                    today
-                </button>
-            </div>
+        <navigation :view="view"
+            :views="views"
+            :can-go-to-previous="canGoToPrevious"
+            :calendar-title="calendarTitle"
+            @previous="previous"
+            @next="next"
+            @today="today"
+            @change_view="changeView($event)"></navigation>
             
-            <div class="right-part float-right">
-                <div class="filter float-right mr-0">
-                    <div id="viewDropdown" class="dropdown">
-                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{view}}
-                        </a>
-
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="viewDropdownButton">
-                            <a v-for="item in views" @click.prevent="changeView(item)" v-if="item.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{item}}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="current-month">
-                {{calendarTitle}}
-            </div>
-        </div>
-        <div class="clearfix"></div>
         <div class="for-table">
             
             <table>
@@ -66,7 +39,7 @@
                     <template v-if="date" v-for="i in workHours">
                         <tr>
                             <td v-for="k in 2"
-                                :class="{'title-hour-cell': k == 1, 'hour-cell': k == 2, 'current-day': currentDay && k == 2}"
+                                :class="{'title-hour-cell': k == 1, 'hour-cell': k == 2}"
                                 :data-hour="hours[i].hour">
                                     <div v-if="k == 1">
                                         {{ hours[i].hour }}:{{ hours[i].minute }}
@@ -107,12 +80,16 @@
 </template>
 
 <script>
+    import Navigation from "./Navigation.vue";
     import ModalAuthContent from "./ModalAuthContent.vue";
     import ModalBookContent from "./ModalBookContent.vue";
     import ModalCancelBookContent from "./ModalCancelBookContent.vue";
     import DayRequestedBookedCell from "./DayRequestedBookedCell.vue";
     export default {
+        name: 'dayCalendar',
         mounted() {
+            if(this.startDate != null)
+                this.currentChoosenDateMoment = moment(this.startDate);
             
             // this.setDates();
             
@@ -136,7 +113,7 @@
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search','views','view'],
+        props: ['userId','search','views','view','startDate'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -305,7 +282,9 @@
             currentDay: function () {
                 // if(this.currentDate == null)
                 //     return true;
-                return this.currentDateMoment.diff(this.currentChoosenDateMoment) == 0;
+                let currentDate = moment(currentDate).format('YYYYMMDD');
+                let currentChoosenDate = this.currentChoosenDateMoment.format('YYYYMMDD');
+                return currentDate == currentChoosenDate;
             },
             calendarTitle: function () {
                 if(this.currentChoosenDateMoment == null)
@@ -321,7 +300,13 @@
             canGoToPrevious: function () {
                 if(this.currentChoosenDateMoment == null)
                     return false;
-                return this.currentDateMoment.diff(this.currentChoosenDateMoment) < 0;
+                let currentDateMoment = this.currentDateMoment.clone();
+                let currentChoosenDateMoment = this.currentChoosenDateMoment.clone();
+                currentDateMoment.startOf('day');
+                currentChoosenDateMoment.startOf('day');
+                
+                return currentDateMoment.diff(currentChoosenDateMoment) < 0;
+                // return this.currentDateMoment.diff(this.currentChoosenDateMoment) < 0;
                 
                 // let firstWeekDayOfCurrentDate = moment(this.currentDate).startOf('week');
                 // let firstWeekDay = moment(this.firstWeekday).startOf('week');
@@ -627,6 +612,7 @@
                 this.currentChoosenDateMoment = null;
                 currentChoosenDateMoment.add(1, 'days');
                 this.currentChoosenDateMoment = currentChoosenDateMoment;
+                this.$parent.setStartDate('day', new Date(this.currentChoosenDateMoment.toDate()));
                 // console.log(this.currentChoosenDateMoment.format('YYYY MM DD'));
                 // this.currentChoosenDateMoment.format();
                 this.getData();
@@ -639,6 +625,7 @@
                 this.currentChoosenDateMoment = null;
                 currentChoosenDateMoment.subtract(1, 'days');
                 this.currentChoosenDateMoment = currentChoosenDateMoment;
+                this.$parent.setStartDate('day', new Date(this.currentChoosenDateMoment.toDate()));
                 // console.log(this.currentChoosenDateMoment.format('YYYY MM DD'));
                 // this.currentChoosenDateMoment.format();
                 this.getData();
@@ -653,6 +640,7 @@
                 this.currentChoosenDateMoment = null;
                 // currentChoosenDateMoment.subtract(1, 'days');
                 this.currentChoosenDateMoment = moment(new Date());
+                this.$parent.setStartDate('day', new Date(this.currentChoosenDateMoment.toDate()));
                 // console.log(this.currentChoosenDateMoment.format('YYYY MM DD'));
                 // this.currentChoosenDateMoment.format();
                 this.getData();
@@ -799,6 +787,7 @@
             },
         },
         components: {
+            Navigation,
             ModalAuthContent,
             ModalBookContent,
             ModalCancelBookContent,
@@ -918,9 +907,6 @@
         position: absolute;
         bottom: 0px;
         right: 0px;
-    }
-    .current-month{
-        text-align: center;
     }
 </style>
 

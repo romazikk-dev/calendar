@@ -1,44 +1,17 @@
 <template>
     <div>
-        <div class="handles">
-            <div class="left-part float-left">
-                <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                    </svg>
-                </button>
-                <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </button>
-                <button @click.prevent="today" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
-                    today
-                </button>
-            </div>
+        <navigation :view="view"
+            :views="views"
+            :can-go-to-previous="canGoToPrevious"
+            :calendar-title="calendarTitle"
+            @previous="previous"
+            @next="next"
+            @today="today"
+            @change_view="changeView($event)"></navigation>
             
-            <div class="right-part float-right">
-                <div class="filter float-right mr-0">
-                    <div id="viewDropdown" class="dropdown">
-                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{view}}
-                        </a>
-
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="viewDropdownButton">
-                            <a v-for="itm in views" @click.prevent="changeView(itm)" v-if="itm.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="current-month">
-                {{calendarTile}}
-            </div>
-        </div>
-        <div class="clearfix"></div>
         <div class="for-table">
             
-            <table>
+            <table cellspacing="0">
                 <thead>
                     <tr>
                         <!-- <th></th> -->
@@ -83,13 +56,12 @@
                 </tbody>
             </table>
         
-            <table>
+            <table cellspacing="0">
                 <tbody>
                     <template v-if="dates" v-for="i in workHours">
                         <tr>
                             <td v-for="k in 7"
                                 class="hour-cell"
-                                :class="{'current-day': isCurrentDate(k)}"
                                 :data-weekday="k"
                                 :data-hour="hours[i].hour">
                                     <div class="faded-time">
@@ -128,6 +100,7 @@
 </template>
 
 <script>
+    import Navigation from "./Navigation.vue";
     import WeekTimeCell from "./WeekTimeCell.vue";
     import MonthCell from "./MonthCell.vue";
     import ModalAuthContent from "./ModalAuthContent.vue";
@@ -136,17 +109,10 @@
     // import ModalRequestedBookingsContent from "./ModalRequestedBookingsContent.vue";
     import WeekRequestedBookedCell from "./WeekRequestedBookedCell.vue";
     export default {
+        name: 'weekCalendar',
         mounted() {
-            this.setDates(moment(new Date()).startOf('week').toDate());
-            // console.log(this.range.first_date);
-            // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-            // console.log(this.currenyViewIdx);
-            
-            // console.log(this.currentDate);
-            // console.log(this.firstMonthDate);
-            // console.log(this.lastMonthDate);
-            // console.log(this.firstCalendarDate);
-            // console.log(this.lastCalendarDate);
+            // this.setDates(moment(new Date()).startOf('week').toDate());
+            this.setDates(moment(this.startDate).startOf('week').toDate());
             
             let interval = setInterval(() => {
                 if(this.search != null){
@@ -156,27 +122,14 @@
                 }
             }, 300);
             
-            // let intervalDates = setInterval(() => {
-            //     if(this.dates != null){
-            //         clearInterval(intervalDates);
-            //         this.placeItems();
-            //         this.regModalOpenButtons();
-            //     }
-            // }, 300);
-            
             this.regModalOpenButtons();
             
-            // this.getData();
             $("#bookModal").on('hidden.bs.modal', () => {
                 this.bookDate = null;
                 // console.log(this.bookDate);
             });
-            
-            // console.log(JSON.parse(JSON.stringify([dateItem, hourItem])));
-            // console.log(this.firstMonthDate);
-            // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search','views','view'],
+        props: ['userId','search','views','view','startDate'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -322,19 +275,8 @@
                     let currentDateMoment = moment(this.currentDate);
                     return i >= this.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
                 }
-                // console.log(this.currentDate);
-                
-                // mondayWeekday = this.mondayDate.getDay();
-                // let mondayDateMoment = moment(this.mondayDate);
-                // let currentDateMoment = moment(this.currentDate);
-                // return i >= this.weekdayOfCurrentDate;
-                // return i >= this.weekdayOfCurrentDate || this.mondayDate != null;
-                // console.log(currentDateMoment.diff(mondayDateMoment) > 0);
-                // console.log(this.mondayDate);
-                // 
-                // return currentDateMoment.diff(mondayDateMoment) > 0;
             },
-            calendarTile: function () {
+            calendarTitle: function () {
                 if(this.firstWeekday == null)
                     return '';
                 
@@ -366,19 +308,6 @@
             changeView: function(view){
                 this.$emit('view_changed', view);
             },
-            // weekDayNotPast: function(i){
-            //     // console.log(this.currentDate);
-            // 
-            //     // mondayWeekday = this.mondayDate.getDay();
-            //     let mondayDateMoment = moment(this.mondayDate);
-            //     let currentDateMoment = moment(this.currentDate);
-            //     return i >= this.weekdayOfCurrentDate;
-            //     // return i >= this.weekdayOfCurrentDate || this.mondayDate != null;
-            //     // console.log(currentDateMoment.diff(mondayDateMoment) > 0);
-            //     // console.log(this.mondayDate);
-            //     // 
-            //     // return currentDateMoment.diff(mondayDateMoment) > 0;
-            // },
             getBussinessHourPerWeekday: function(i){
                 let bussinessHours = this.bussinessHours[i];
                 return bussinessHours.start + ' - ' + bussinessHours.end;
@@ -406,23 +335,6 @@
                     
                     this.openModal(dateItemIndex, hourItemIndex);
                 });
-                
-                // console.log(111);
-                // console.log(on);
-                
-                // $(document).on('click', '.calendar-item .badge', (event) => {
-                //     event.stopPropagation();
-                //     // alert(111);
-                //     // console.log(event);
-                //     let calendarItem = $(event.target).closest('.calendar-item');
-                //     let dateItemIndex = calendarItem.attr('date-item-index');
-                //     let hourItemIndex = calendarItem.attr('hour-item-index');
-                // 
-                //     // console.log(dayItemIndex);
-                //     // console.log(freeItemIndex);
-                // 
-                //     this.openRequestedBookingsModal(dateItemIndex, hourItemIndex);
-                // });
             },
             placeItems: function(){
                 // console.log(555555555555555555555555555555);
@@ -548,27 +460,6 @@
                 function placeItem(dateItem, hourItem, dateItemIndex, hourItemIndex){
                     if(hourItem.type != 'free')
                         return;
-                        
-                    // let bussinessHours = _this.bussinessHours[dateItem.weekday - 1];
-                    // let startBussinessHourMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + bussinessHours.start + ':00');
-                    // let endBussinessHourMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + bussinessHours.end + ':00');
-                    
-                    // console.log(_this.workHours);
-                    // console.log(bussinessHours);
-                    // console.log(JSON.parse(JSON.stringify(bussinessHours)));
-                    
-                    // let startItemMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + hourItem.from + ':00');
-                    
-                    // console.log(startItemMoment->format('HH:mm'));
-                    // console.log(startBussinessHourMoment->format('HH:mm'));
-                    
-                    // if(startItemMoment.diff(startBussinessHourMoment) > 0){
-                    //     console.log(startItemMoment.format('HH:mm'));
-                    //     console.log(startBussinessHourMoment.format('HH:mm'));
-                    //     console.log(hourItemIndex);
-                    //     console.log('-----------------------');
-                    //     // console.log(JSON.parse(JSON.stringify('ddddd')));
-                    // }
                     
                     let fromArr = hourItem.from.split(':');
                     let fromHour = fromArr[0];
@@ -612,11 +503,6 @@
                     
                     divHeight = divHeight - 2;
                     
-                    // console.log(topShift);
-                    // console.log(bottomShift);
-                    // console.log(divHeight);
-                    // console.log('-----------------');
-                    
                     $(div).css({'height':divHeight + 'px'});
                     
                     beginCell.prepend(div);
@@ -633,36 +519,14 @@
                     let shift = (cellHeight/100) * minutesPercents;
                     
                     return shift;
-                    // console.log(minutes);
-                    // console.log(minutesPercents);
-                    // console.log(shift);
-                    
-                    // console.log(onePixelPerc);
-                    // let perc = parseInt(minutes*oneMinutePerc);
-                    // let perc = minutes*oneMinutePerc;
-                    // let onePercCellPixel = cellHeight/100;
-                    // let topShift = onePercCellPixel*perc;
-                    // // console.log(topShift);
-                    // return topShift;
                 }
-                
-                // function getPercValueOfMnutesToHour(minutes, cellHeight){
-                //     // console.log(cellHeight);
-                //     // cellHeight++;
-                //     let oneMinutePerc = 100/60;
-                //     // let perc = parseInt(minutes*oneMinutePerc);
-                //     let perc = minutes*oneMinutePerc;
-                //     let onePercCellPixel = cellHeight/100;
-                //     let topShift = onePercCellPixel*perc;
-                //     // console.log(topShift);
-                //     return topShift;
-                // }
             },
             next: function(){
                 // console.log('next');
                 let dateOfNextWeek = moment(this.firstWeekday).add(7, 'days');
                 // console.log(dateOfNextWeek.toDate());
                 this.setDates(dateOfNextWeek.toDate());
+                this.$parent.setStartDate('week', new Date(this.firstWeekday));
                 // console.log(dateOfNextWeek.toDate());
                 // console.log(this.firstWeekday);
                 // console.log(this.lastWeekday);
@@ -676,10 +540,12 @@
                 // console.log('previous');
                 // var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
                 this.setDates(dateOfPreviousWeek.toDate());
+                this.$parent.setStartDate('week', new Date(this.firstWeekday));
                 this.getData();
             },
             today: function(){
                 this.setDates(moment(new Date()).startOf('week').toDate());
+                this.$parent.setStartDate('week', new Date(this.firstWeekday));
                 this.getData();
             },
             openRequestedBookingsModal: function(i, ii){
@@ -914,6 +780,7 @@
             },
         },
         components: {
+            Navigation,
             MonthCell,
             ModalAuthContent,
             ModalBookContent,
@@ -964,6 +831,10 @@
     table{
         width: 100%;
         min-width: 700px;
+        // border-collapse: separate;
+        // border-right: 1px solid #ccc;
+        // border-bottom: 1px solid #ccc;
+        // border-spacing: 0;
         /* margin-top: 20px!important; */
     }
     table th{
@@ -978,6 +849,9 @@
     }
     table td, table th{
         border: 1px solid #ccc;
+        // background-image: url('/imgs/week-calendar-table-odd-row-bg.jpg');
+        // border-left: 1px solid #ccc;
+        // border-top: 1px solid #ccc;
     }
     /* table td:first-child{
         width: 8%;
@@ -989,7 +863,10 @@
         /* height: 20px; */
     }
     table tr:nth-child(odd) td{
-        background-color: #f4f4f4;
+        // background-color: #f4f4f4;
+        background-image: url('/imgs/week-calendar-table-odd-row-bg.jpg');
+        // background-color: #fff;
+        // border-right: 1px solid #ccc;
     }
     table tr.bookings td{
         height: auto;
@@ -1037,9 +914,6 @@
         position: absolute;
         bottom: 0px;
         right: 0px;
-    }
-    .current-month{
-        text-align: center;
     }
 </style>
 

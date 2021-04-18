@@ -1,23 +1,13 @@
 <template>
     <div>
-        <div class="handles">
-            <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                </svg>
-                Previous
-            </button>
-            <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-right">
-                Next
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-            </button>
-            <div class="calendar-title">
-                {{calendarTile}}
-            </div>
-        </div>
-        <div class="clearfix"></div>
+        <navigation :view="view"
+            :views="views"
+            :can-go-to-previous="canGoToPrevious"
+            :calendar-title="calendarTitle"
+            @previous="previous"
+            @next="next"
+            @today="today"
+            @change_view="changeView($event)"></navigation>
         
         <div class="for-table">
             <table>
@@ -61,6 +51,13 @@
                         </tr>
                         
                     </template>
+                    <template v-if="empty">
+                        <tr>
+                            <td colspan="2" class="text-center">
+                                No free time available and no booked items present
+                            </td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
@@ -90,6 +87,7 @@
 </template>
 
 <script>
+    import Navigation from "./Navigation.vue";
     import WeekTimeCell from "./WeekTimeCell.vue";
     import MonthCell from "./MonthCell.vue";
     import ModalAuthContent from "./ModalAuthContent.vue";
@@ -98,8 +96,9 @@
     // import ModalRequestedBookingsContent from "./ModalRequestedBookingsContent.vue";
     import WeekRequestedBookedCell from "./WeekRequestedBookedCell.vue";
     export default {
+        name: 'listCalendar',
         mounted() {
-            let initDate = moment(new Date()).startOf('week').toDate();
+            let initDate = moment(this.startDate).startOf('week').toDate();
             this.setDates(initDate);
             // console.log(this.range.first_date);
             // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
@@ -148,11 +147,12 @@
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search'],
+        props: ['userId','search','view','views','startDate'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
                 weekdays: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+                empty: true,
                 
                 dates: null,
                 bookDate: null,
@@ -288,7 +288,7 @@
             };
         },
         computed: {
-            calendarTile: function () {
+            calendarTitle: function () {
                 if(this.firstWeekday == null)
                     return '';
                 
@@ -319,6 +319,11 @@
             }
         },
         methods: {
+            
+            changeView: function (view) {
+                // console.log('changeView: ' + view);
+                this.$emit('view_changed', view);
+            },
             notPast: function(date){
                 let dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + date.start + ':00');
                 let currentDateMoment = moment(this.currentDate);
@@ -352,6 +357,7 @@
             next: function(){
                 let dateOfNextWeek = moment(this.firstWeekday).add(7, 'days').toDate();
                 this.setDates(dateOfNextWeek);
+                this.$parent.setStartDate('week', new Date(this.firstWeekday));
                 this.getData();
             },
             previous: function(){
@@ -360,6 +366,12 @@
                 
                 let dateOfPreviousWeek = moment(this.firstWeekday).subtract(7, 'days').toDate();
                 this.setDates(dateOfPreviousWeek);
+                this.$parent.setStartDate('week', new Date(this.firstWeekday));
+                this.getData();
+            },
+            today: function(){
+                this.setDates(moment(new Date()).startOf('week').toDate());
+                this.$parent.setStartDate('week', new Date(this.firstWeekday));
                 this.getData();
             },
             openModal: function(dateItem, hourItem){
@@ -433,6 +445,7 @@
             },
         },
         components: {
+            Navigation,
             MonthCell,
             ModalAuthContent,
             ModalBookContent,
@@ -445,7 +458,19 @@
             search: function () {
                 // console.log(this.search);
                 this.getData();
-            }
+            },
+            dates: function () {
+                if(this.dates == null)
+                    return false;
+                let itemsCount = 0;
+                this.dates.forEach((date, i) => {
+                    if(date.bookable && this.notPast(date))
+                        itemsCount++;
+                });
+                console.log(itemsCount);
+                // if(itemsCount > 0)
+                this.empty = itemsCount > 0 ? false : true;
+            },
         }
     }
 </script>

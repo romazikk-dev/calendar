@@ -1,41 +1,14 @@
 <template>
     <div>
-        <div class="handles">
-            <div class="left-part float-left">
-                <button @click.prevent="previous" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                    </svg>
-                </button>
-                <button @click.prevent="next" type="button" class="btn btn-sm btn-primary float-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </button>
-                <button @click.prevent="today" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
-                    today
-                </button>
-            </div>
-            
-            <div class="right-part float-right">
-                <div class="filter float-right mr-0">
-                    <div id="viewDropdown" class="dropdown">
-                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{view}}
-                        </a>
-
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="viewDropdownButton">
-                            <a v-for="itm in views" @click.prevent="changeView(itm)" v-if="itm.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="current-month">
-                {{calendarTile}}
-            </div>
-        </div>
-        <div class="clearfix"></div>
+        <navigation :view="view"
+            :views="views"
+            :can-go-to-previous="canGoToPrevious"
+            :calendar-title="calendarTitle"
+            @previous="previous"
+            @next="next"
+            @today="today"
+            @change_view="changeView($event)"></navigation>
+        
         <div class="for-table">
             <table>
                 <thead>
@@ -82,13 +55,13 @@
         <div class="modal fade" id="bookModal">
             <div class="modal-dialog">
                 <!-- ModalAuthContent -->
-                <modal-book-content v-if="$parent.isAuth()"
+                <modal-book-content v-show="isAuth()"
                     @booked="onBooked($event)"
                     :user-id="userId"
                     :book-date="bookDate"
                     :book-time-period="bookTimePeriod"></modal-book-content>
                 <!-- ModalAuthContent -->
-                <modal-auth-content v-else :user-id="userId"></modal-auth-content>
+                <modal-auth-content v-show="!isAuth()" :user-id="userId"></modal-auth-content>
             </div>
         </div>
         
@@ -103,14 +76,21 @@
 </template>
 
 <script>
+    import Navigation from "./Navigation.vue";
     import MonthCell from "./MonthCell.vue";
     import ModalAuthContent from "./ModalAuthContent.vue";
     import ModalBookContent from "./ModalBookContent.vue";
     import ModalCancelBookContent from "./ModalCancelBookContent.vue";
     export default {
+        name: 'monthCalendar',
         mounted() {
-            this.setDates(moment(new Date()).startOf('month').toDate());
-            // console.log(this.range.first_date);
+            // if(!this.isAuth())
+                
+                
+            // this.setDates(moment(new Date()).startOf('month').toDate());
+            this.setDates(moment(this.startDate).startOf('month').toDate());
+            
+            // console.log(this.startDate);
             // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
             // console.log(this.currenyViewIdx);
             
@@ -137,7 +117,7 @@
             // console.log(this.firstMonthDate);
             // console.log(this.currentDateObj);
         },
-        props: ['userId','search','views','view'],
+        props: ['userId','search','views','view','startDate'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -163,7 +143,7 @@
             //     // return null;
             //     return this.$parent.views;
             // },
-            calendarTile: function () {
+            calendarTitle: function () {
                 return moment(this.firstMonthDate).format('MMMM YYYY');
             },
             canGoToPrevious: function () {
@@ -201,6 +181,7 @@
                 var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M');
                 // console.log(dateOfNextMonth.toDate());
                 this.setDates(dateOfNextMonth.toDate());
+                this.$parent.setStartDate('month', new Date(this.firstMonthDate));
                 this.getData();
             },
             previous: function(){
@@ -210,10 +191,12 @@
                 // console.log('previous');
                 var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
                 this.setDates(dateOfPreviousMonth.toDate());
+                this.$parent.setStartDate('month', new Date(this.firstMonthDate));
                 this.getData();
             },
             today: function(){
                 this.setDates(moment(new Date()).startOf('month').toDate());
+                this.$parent.setStartDate('month', new Date(this.firstMonthDate));
                 this.getData();
                 // let interval = setInterval(() => {
                 //     if(this.search != null){
@@ -229,6 +212,8 @@
                 // console.log(this.$parent.isAuth());
                 this.bookDate = this.getDate(i,k);
                 this.bookTimePeriod = itm;
+                console.log(111);
+                console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
                 $('#bookModal').modal('show');
             },
             notPast: function(i,k){
@@ -394,6 +379,7 @@
             // },
         },
         components: {
+            Navigation,
             MonthCell,
             ModalAuthContent,
             ModalBookContent,
@@ -476,7 +462,7 @@
         bottom: 0px;
         right: 0px;
     }
-    .current-month{
-        text-align: center;
-    }
+    // .current-month{
+    //     text-align: center;
+    // }
 </style>
