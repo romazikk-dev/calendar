@@ -9,6 +9,7 @@ use App\Models\Client;
 // use DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller{
     
@@ -47,7 +48,7 @@ class AuthController extends Controller{
         ]);
     }
     
-    public function login(Request $request){
+    public function login(Request $request, User $user){
         $validated = $request->validate([
             'user_id' => 'exists:users,id',
             'email' => 'required|email|max:255',

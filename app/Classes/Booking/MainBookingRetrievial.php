@@ -9,7 +9,9 @@ use App\Models\User;
 use App\Models\Hall;
 use App\Models\Template;
 use App\Models\Worker;
+use App\Models\Client;
 use App\Classes\Range\Range;
+use App\Scopes\UserScope;
 // use App\Exceptions\Api\Calendar\BadRangeException;
 
 class MainBookingRetrievial{
@@ -24,6 +26,8 @@ class MainBookingRetrievial{
     protected $hall = null;
     // Worker model
     protected $worker = null;
+    // Client model
+    protected $client = null;
     // Template model
     protected $template = null;
     // Array - Hall business hours
@@ -35,7 +39,8 @@ class MainBookingRetrievial{
         Hall $hall,
         Worker $worker,
         Template $template,
-        Range $range
+        Range $range,
+        Client $client = null
     ) {
         // parent::__construct();
         $this->user = $user;
@@ -43,6 +48,9 @@ class MainBookingRetrievial{
         $this->worker = $worker;
         $this->template = $template;
         $this->range = $range;
+        
+        if(!is_null($client))
+            $this->client = $client;
         
         $this->hall_business_hours = json_decode($this->hall->business_hours);
         
@@ -54,18 +62,33 @@ class MainBookingRetrievial{
         return $this->hall_business_hours[$business_hour_index];
     }
     
+    protected function isByClient(){
+        return !is_null($this->client);
+    }
+    
     protected function composeBookingModel(){
         // var_dump([
         //     $this->range->getStartDatetime(), $this->range->getEndDatetime()
         // ]);
         // die();
-        $this->booking = Booking::user($this->user->id)
+        
+        // var_dump($this->user);
+        // die();
+        
+        $this->booking = Booking::withoutGlobalScope(UserScope::class)
+            ->byUser($this->user->id)
             ->where('time', '>=', $this->range->getStartDatetime())
             ->where('time', '<=', $this->range->getEndDatetime())
             ->where('hall_id', '=', $this->hall->id)
             ->where('worker_id', '=', $this->worker->id)
             ->where('template_id', '=', $this->template->id)
             ->orderBy('time', 'ASC');
+            
+        if($this->isByClient()){
+            $this->booking->byClient($this->client->id);
+        }else{
+            $this->booking->approved();
+        }
             
         // var_dump($this->booking->get());
         // die();

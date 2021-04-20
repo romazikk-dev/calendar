@@ -15,13 +15,13 @@
                 <thead>
                     <tr>
                         <!-- <th></th> -->
-                        <th :class="{'current-day': isCurrentDate(1)}">Monday<span>{{mondayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(2)}">Tuesday<span>{{tuesdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(3)}">Wednesday<span>{{wednesdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(4)}">Thursday<span>{{thursdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(5)}">Friday<span>{{fridayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(6)}">Saturday<span>{{saturdayDate}}</span></th>
-                        <th :class="{'current-day': isCurrentDate(7)}">Sunday<span>{{sundayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(1)}">{{weekdaysList[0]}}<span>{{mondayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(2)}">{{weekdaysList[1]}}<span>{{tuesdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(3)}">{{weekdaysList[2]}}<span>{{wednesdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(4)}">{{weekdaysList[3]}}<span>{{thursdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(5)}">{{weekdaysList[4]}}<span>{{fridayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(6)}">{{weekdaysList[5]}}<span>{{saturdayDate}}</span></th>
+                        <th :class="{'current-day': isCurrentDate(7)}">{{weekdaysList[6]}}<span>{{sundayDate}}</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,9 +63,9 @@
                             <td v-for="k in 7"
                                 class="hour-cell"
                                 :data-weekday="k"
-                                :data-hour="hours[i].hour">
+                                :data-hour="hoursList[i].hour">
                                     <div class="faded-time">
-                                        {{ hours[i].hour }}:{{ hours[i].minute }}
+                                        {{ hoursList[i].hour }}:{{ hoursList[i].minute }}
                                     </div>
                             </td>
                         </tr>
@@ -92,7 +92,7 @@
         <!-- Modal -->
         <div class="modal fade" id="cancelBookModal">
             <div class="modal-dialog">
-                <modal-cancel-book-content @canceled="onCanceled($event)" :booking="cancelBookData"></modal-cancel-book-content>
+                <modal-cancel-book-content :booking="cancelBookData"></modal-cancel-book-content>
             </div>
         </div>
         
@@ -129,7 +129,7 @@
                 // console.log(this.bookDate);
             });
         },
-        props: ['userId','search','views','view','startDate'],
+        props: ['userId','search','views','view','startDate','dataUpdater'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -157,112 +157,9 @@
                 workHours: null,
                 bussinessHours: null,
                 
-                hours: [
-                    {
-                        hour: '00',
-                        minute: '00',
-                    },
-                    {
-                        hour: '01',
-                        minute: '00',
-                    },
-                    {
-                        hour: '02',
-                        minute: '00',
-                    },
-                    {
-                        hour: '03',
-                        minute: '00',
-                    },
-                    {
-                        hour: '04',
-                        minute: '00',
-                    },
-                    {
-                        hour: '05',
-                        minute: '00',
-                    },
-                    {
-                        hour: '06',
-                        minute: '00',
-                    },
-                    {
-                        hour: '07',
-                        minute: '00',
-                    },
-                    {
-                        hour: '08',
-                        minute: '00',
-                    },
-                    {
-                        hour: '09',
-                        minute: '00',
-                    },
-                    {
-                        hour: '10',
-                        minute: '00',
-                    },
-                    {
-                        hour: '11',
-                        minute: '00',
-                    },
-                    {
-                        hour: '12',
-                        minute: '00',
-                    },
-                    {
-                        hour: '13',
-                        minute: '00',
-                    },
-                    {
-                        hour: '14',
-                        minute: '00',
-                    },
-                    {
-                        hour: '15',
-                        minute: '00',
-                    },
-                    {
-                        hour: '16',
-                        minute: '00',
-                    },
-                    {
-                        hour: '17',
-                        minute: '00',
-                    },
-                    {
-                        hour: '18',
-                        minute: '00',
-                    },
-                    {
-                        hour: '19',
-                        minute: '00',
-                    },
-                    {
-                        hour: '20',
-                        minute: '00',
-                    },
-                    {
-                        hour: '21',
-                        minute: '00',
-                    },
-                    {
-                        hour: '22',
-                        minute: '00',
-                    },
-                    {
-                        hour: '23',
-                        minute: '00',
-                    },
-                ],
-                // currentCalendarMonth: null,
-                // firstMonthDate: null,
-                // lastMonthDate: null,
-                // firstCalendarDate: null,
-                // lastCalendarDate: null,
                 cancelBookData: null,
                 
-                
+                componentApp: null,
                 // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
             };
         },
@@ -320,9 +217,9 @@
             onBooked: function(){
                 this.getData();
             },
-            onCanceled: function(){
-                this.getData('cancel_book');
-            },
+            // onCanceled: function(){
+            //     this.getData('cancel_book');
+            // },
             regModalOpenButtons: function(){
                 $(document).off('click', '.free-calendar-item');
                 $(document).on('click', '.free-calendar-item', (event) => {
@@ -613,56 +510,33 @@
                 return date;
             },
             getData: function(from = null){
-                // console.log(JSON.parse(JSON.stringify(this.range)));
-                // routes.calendar.booking.range
-                // let url = JSON.parse(JSON.stringify(routes.calendar.booking.range));
-                let url = routes.calendar.booking.range;
-                // url = url.replace(':start', moment(this.range.first_date).format('DD-MM-YYYY'));
-                // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-                // console.log(moment(this.range.last_date).format('DD-MM-YYYY'));
-                // console.log(url);
-                // return;
+                if(this.componentApp == null)
+                    this.componentApp = this.getParentComponentByName(this, 'app');
                 
-                url = url.replace(':start', moment(this.firstWeekday).format('DD-MM-YYYY'));
-                // url = url.replace(':start', moment(this.currentDate).format('DD-MM-YYYY'));
-                url = url.replace(':end', moment(this.lastWeekday).format('DD-MM-YYYY'));
-                
-                url += '?' + this.search;
-                
-                // return;
-                // url = url.replace(':start', '28-03-2021');
-                // url = url.replace(':end', '08-05-2021');
-                
-                // console.log(url);
-                // console.log(routes.calendar.booking.range);
-                axios.get(url)
-                .then((response) => {
-                    // handle success
-                    // console.log(response.data.data);
-                    this.dates = response.data.data;
-                    // this.setWorkHours(response.data.start, response.data.end);
-                    // console.log(response.data.business_hours);
-                    this.bussinessHours = response.data.business_hours;
-                    this.setWorkHours();
-                    // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-                    setTimeout(() => {
-                        this.placeItems();
-                    }, 100);
-                    // this.placeItems();
-                    // console.log(response.data[0]);
-                    console.log(JSON.parse(JSON.stringify(this.dates)));
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(function () {
-                    // always executed
-                    if(from == 'cancel_book'){
-                        console.log('from: cancel_book');
+                this.componentApp.getData(
+                    moment(this.firstWeekday).format('DD-MM-YYYY'),
+                    moment(this.lastWeekday).format('DD-MM-YYYY'),
+                    (response) => {
+                        // handle success
+                        // console.log(response.data.data);
+                        this.dates = response.data.data;
+                        // this.setWorkHours(response.data.start, response.data.end);
+                        // console.log(response.data.business_hours);
+                        this.bussinessHours = response.data.business_hours;
+                        this.setWorkHours();
+                        // console.log(JSON.parse(JSON.stringify(4444444444444444)));
+                        setTimeout(() => {
+                            this.placeItems();
+                        }, 100);
+                        // this.placeItems();
+                        // console.log(response.data[0]);
+                        console.log(JSON.parse(JSON.stringify(this.dates)));
+                    },
+                    () => {},
+                    () => {
                         $('#cancelBookModal').modal('hide');
-                    }
-                });
+                    },
+                );
             },
             // setWorkHours: function(startHour, endHour){
             setWorkHours: function(){
@@ -793,7 +667,10 @@
             search: function () {
                 // console.log(this.search);
                 this.getData();
-            }
+            },
+            dataUpdater: function () {
+                this.getData();
+            },
         }
     }
 </script>

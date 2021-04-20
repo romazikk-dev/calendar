@@ -123,8 +123,7 @@
                     // console.log(response);
                     let componentApp = this.getParentComponentByName(this, 'app');
                     if(componentApp){
-                        componentApp.setToken(response.data.token);
-                        componentApp.getClientInfo();
+                        componentApp.login(response.data.token);
                         this.signinErrors = null;
                         this.signupErrors = null;
                         // this.$emit('authorized');

@@ -14,21 +14,25 @@
             var routes = {
                 calendar: {
                     booking: {
-                        range: '{{ route("calendar_api.bookings.range", [$owner->id, ":start", ":end"] ) }}',
-                        register: '{{ route("calendar_api.bookings.register") }}',
-                        login: '{{ route("calendar_api.bookings.login", [$owner->id]) }}',
+                        register: '{{ route("api.calendar.bookings.register", [$owner->id]) }}',
+                        login: '{{ route("api.calendar.bookings.login", [$owner->id]) }}',
+                        range: {
+                            client: '{{ route("api.calendar.bookings.range.client", [$owner->id, ":start", ":end"] ) }}',
+                            guest: '{{ route("api.calendar.bookings.range.guest", [$owner->id, ":start", ":end"] ) }}'
+                        },
                         worker: {
-                            index: '{{ route("calendar_api.bookings.worker.index") }}',
+                            index: '{{ route("api.calendar.bookings.worker.index", [$owner->id]) }}',
                         },
                         template: {
-                            index: '{{ route("calendar_api.bookings.template.index") }}',
+                            index: '{{ route("api.calendar.bookings.template.index", [$owner->id]) }}',
                         },
                         book: {
-                            create: '{{ route("calendar_api.bookings.book.create", [$owner->id, ":hall_id", ":template_id", ":worker_id"]) }}',
-                            cancel: '{{ route("calendar_api.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
+                            create: '{{ route("api.calendar.bookings.book.create", [$owner->id, ":hall_id", ":template_id", ":worker_id"]) }}',
+                            cancel: '{{ route("api.calendar.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
+                            all: '{{ route("api.calendar.bookings.book.all", [$owner->id, ":from_date"]) }}',
                         },
                         client: {
-                            info: '{{ route("calendar_api.bookings.client.info") }}',
+                            info: '{{ route("api.calendar.bookings.client.info", [$owner->id]) }}',
                         }
                     }
                 }

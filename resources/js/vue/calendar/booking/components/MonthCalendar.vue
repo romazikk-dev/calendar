@@ -13,24 +13,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Monday</th>
-                        <th>Tuesday</th>
-                        <th>Wednesday</th>
-                        <th>Thursday</th>
-                        <th>Friday</th>
-                        <th>Saturday</th>
-                        <th>Sunday</th>
+                        <th v-for="weekday in weekdaysList">{{weekday}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="divider">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td v-for="td in 7"></td>
                     </tr>
                     <tr v-if="dates" v-for="i in 6">
                         <td v-for="k in 7" :class="{'current-day': isCurrentDate(i,k)}">
@@ -56,7 +44,6 @@
             <div class="modal-dialog">
                 <!-- ModalAuthContent -->
                 <modal-book-content v-show="isAuth()"
-                    @booked="onBooked($event)"
                     :user-id="userId"
                     :book-date="bookDate"
                     :book-time-period="bookTimePeriod"></modal-book-content>
@@ -68,7 +55,7 @@
         <!-- Modal -->
         <div class="modal fade" id="cancelBookModal">
             <div class="modal-dialog">
-                <modal-cancel-book-content @canceled="onCanceled($event)" :booking="cancelBookData"></modal-cancel-book-content>
+                <modal-cancel-book-content :booking="cancelBookData"></modal-cancel-book-content>
             </div>
         </div>
         
@@ -117,7 +104,7 @@
             // console.log(this.firstMonthDate);
             // console.log(this.currentDateObj);
         },
-        props: ['userId','search','views','view','startDate'],
+        props: ['userId','search','views','view','startDate','dataUpdater'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -134,6 +121,8 @@
                 firstCalendarDate: null,
                 lastCalendarDate: null,
                 cancelBookData: null,
+                
+                componentApp: null,
                 // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
             };
         },
@@ -169,12 +158,6 @@
             isFirstItemOfTypeBooked: function(i,k){
                 let dateFirstItem = (this.getDate(i, k, 'items'))[0];
                 return dateFirstItem.type == 'booked' ? true : false;
-            },
-            onBooked: function(){
-                this.getData();
-            },
-            onCanceled: function(){
-                this.getData('cancel_book');
             },
             next: function(){
                 console.log('next');
@@ -245,45 +228,20 @@
                 return date;
             },
             getData: function(from = null){
-                // console.log(JSON.parse(JSON.stringify(this.range)));
-                // routes.calendar.booking.range
-                let url = routes.calendar.booking.range;
-                // url = url.replace(':start', moment(this.range.first_date).format('DD-MM-YYYY'));
-                // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-                // console.log(moment(this.range.last_date).format('DD-MM-YYYY'));
+                if(this.componentApp == null)
+                    this.componentApp = this.getParentComponentByName(this, 'app');
                 
-                // return;
-                
-                url = url.replace(':start', moment(this.firstCalendarDate).format('DD-MM-YYYY'));
-                url = url.replace(':end', moment(this.lastCalendarDate).format('DD-MM-YYYY'));
-                
-                url += '?' + this.search;
-                
-                // return;
-                // url = url.replace(':start', '28-03-2021');
-                // url = url.replace(':end', '08-05-2021');
-                
-                // console.log(url);
-                // console.log(routes.calendar.booking.range);
-                axios.get(url)
-                .then((response) => {
-                    // handle success
-                    this.dates = response.data.data;
-                    // console.log(response.data[0]);
-                    // console.log(JSON.parse(JSON.stringify(this.dates)));
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    // always executed
-                    // console.log('always');
-                    if(from == 'cancel_book'){
-                        console.log('from: cancel_book');
+                this.componentApp.getData(
+                    moment(this.firstCalendarDate).format('DD-MM-YYYY'),
+                    moment(this.lastCalendarDate).format('DD-MM-YYYY'),
+                    (response) => {
+                        this.dates = response.data.data;
+                    },
+                    () => {},
+                    () => {
                         $('#cancelBookModal').modal('hide');
-                    }
-                });
+                    },
+                );
             },
             setDates: function(firstCalendarMonthDate){
                 if(this.yearOfCurrentDate == null)
@@ -389,7 +347,10 @@
             search: function () {
                 // console.log(this.search);
                 this.getData();
-            }
+            },
+            dataUpdater: function () {
+                this.getData();
+            },
         }
     }
 </script>

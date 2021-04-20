@@ -60,28 +60,11 @@
     export default {
         name: 'modalCancelBookContent',
         mounted() {
-            // console.log(this.filters);
-            // this.$refs['loader'].show();
-            // 
-            // $("#cancelBookModal").on('hidden.bs.modal', () => {
-            //     this.bookDate = null;
-            //     // console.log(this.bookDate);
-            // });
             
-            // $("#cancelBookModal").on('show.bs.modal', () => {
-            //     if(this.bookingItem == null)
-            //         this.$refs['loader'].show();
-            //     // console.log(this.bookDate);
-            // });
-            // 
-            // $("#cancelBookModal").on('hidden.bs.modal', () => {
-            //     this.bookingItem = null;
-            // });
         },
         props: ['booking'],
         data: function(){
             return {
-                // bookingItem: booking,
                 cancelButtonDisabled: false,
                 successfullyCanceled: false,
                 question: null,
@@ -90,20 +73,6 @@
                 bTimeMoment: null,
                 bDuration: null,
                 filters: filters,
-                // template: filters.template,
-                // choosedH: null,
-                // choosedM: null,
-                // initValue: {
-                //     HH: '',
-                //     mm: '',
-                // },
-                // startPeriodDatetime: null,
-                // endPeriodDatetime: null,
-                // preEndPeriodDatetime: null,
-                // timeBarChangeTimeout: null,
-                // s: null,
-                // arrowPosition: 10,
-                // hintText: 'Move slider to choose time for booking.'
             };
         },
         computed: {
@@ -122,51 +91,18 @@
             },
         },
         methods: {
-            onCancel: function (response){
-                this.$emit('canceled', response);
-                // this.$refs['loader'].showTranparent();
-            },
+            // onCancel: function (responseData){
+            //     this.$emit('canceled', responseData);
+            // },
             cancel: function (){
-                // this.bookButtonDisabled = true;
-                // this.$refs['loader'].showTranparent();
-                let url = routes.calendar.booking.book.cancel;
-                
-                url = url.replace(':hall_id', filters.hall.id);
-                url = url.replace(':template_id', filters.template.id);
-                url = url.replace(':worker_id', filters.worker.id);
-                url = url.replace(':booking_id', this.booking.id);
-                
-                // console.log(url);
-                // return;
-                
-                axios.delete(url)
-                .then((response) => {
-                    // handle success
-                    // this.dates = response.data.data;
+                let componentApp = this.getParentComponentByName(this, 'app');
+                componentApp.cancelBooking(this.booking, (response) => {
                     console.log('success');
-                    this.onCancel(response.data);
-                    // console.log(JSON.parse(JSON.stringify(response)));
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    // always executed
-                    console.log('always');
-                    // this.$refs['loader'].fadeOut(300);
-                    // setTimeout(() => {
-                    //     this.successfullyBooked = true;
-                    //     this.bookButtonDisabled = false;
-                    // }, 300);
-                    
+                    // this.onCancel(response.data);
                 });
-                // console.log(url);
             },
         },
         components: {
-            // VueTimepicker,
-            // TimeBar,
             Loader
         },
         watch: {
@@ -198,13 +134,9 @@
                 if(durationMinutePart < 10)
                     durationMinutePart = '0' + durationMinutePart;
                 this.bDuration = durationHourPart + ':' + durationMinutePart;
-                console.log(JSON.parse(JSON.stringify(this.booking)));
+                // console.log(JSON.parse(JSON.stringify(this.booking)));
         		// console.log("Title changed from " + newOne + " to " + oldOne)
         	},
-            // initValue: (newOne, oldOne) => {
-            //     console.log(helper.parse(newOne));
-        	// 	// console.log("Title changed from " + newOne + " to " + oldOne)
-        	// },
     	}
     }
 </script>

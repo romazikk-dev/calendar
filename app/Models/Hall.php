@@ -84,4 +84,28 @@ class Hall extends Model
         static::addGlobalScope(new UserScope);
         static::addGlobalScope(new NotDeletedScope);
     }
+    
+    /**
+     * Scope a query to only include halls of given user.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_id
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUser($query, $user_id)
+    {
+        return $query->where('user_id', $user_id);
+    }
+    
+    /**
+     * Scope a query to only include halls of given id.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_id
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeById($query, $id)
+    {
+        return $query->where('id', $id);
+    }
 }

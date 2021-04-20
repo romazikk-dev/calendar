@@ -14,7 +14,47 @@ use App\Scopes\UserScope;
 
 class BookController extends Controller{
     
-    public function create(Request $request, $user_id, $hall_id, $template_id, $worker_id){
+    // public function test(Request $request, User $user){
+    //     // echo $user_id;
+    //     echo 111;
+    //     die();
+    // }
+    
+    public function all(Request $request, User $user, $from_date = null, $to_date = null){
+        $client = $request->user();
+        
+        // $booking_model = Booking::withoutGlobalScope(UserScope::class)->byUser($user->id)->orderBy('time', 'ASC');
+        $booking_model = Booking::withoutGlobalScope(UserScope::class)->with(
+            'templateWithoutUserScope',
+            'workerWithoutUserScope',
+            'hallWithoutUserScope'
+        )->byUser($user->id)->byClient($client->id)->orderBy('time', 'ASC');
+        
+        if(!is_null($from_date)){
+            $from_date_arr = explode('_', $from_date);
+            $booking_model->where('time', '>=', $from_date_arr[0] . ' ' . $from_date_arr[1]);
+        }
+        // $from_date_arr = explode('_', $from_date);
+        // $from_date_carbon = \Carbon\Carbon::parse('');
+        // $only_date_arr = explode('-', $from_date_arr[0]);
+        
+        // if(!is_null($from_date))
+        //     $booking_model->where('time', '>=', $from_date_arr[0] . ' ' . $from_date_arr[1]);
+        
+        $bookings = $booking_model->get();
+        
+        // foreach($bookings as $booking){
+        //     var_dump($booking->templateWithoutUserScope);
+        // }
+        // // var_dump($bookings->template);
+        // die();
+        
+        return response()->json($bookings->toArray());
+        // return response()->json($client);
+    }
+    
+    public function create(Request $request, User $user, $hall_id, $template_id, $worker_id){
+    // public function create(Request $request, $user_id, $hall_id, $template_id, $worker_id){
         
         // book_on_date: this.bookingDate,
         // book_on_time: this.bookOn,
@@ -24,30 +64,41 @@ class BookController extends Controller{
             'book_on_time' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
         ]);
         
+        $client = $request->user();
+        
         // var_dump($validated);
         // die();
         
-        if(!($user = User::find($user_id)))
-            abort(404, 'Page not found');
+        // if(!($user = User::find($user_id)))
+        //     abort(404, 'Page not found');
         
         // $errors = [];
-        if(!($hall = Hall::withoutGlobalScope(UserScope::class)->find($hall_id)))
+        // if(!($hall = Hall::withoutGlobalScope(UserScope::class)->find($hall_id)))
+        if(!($hall = Hall::withoutGlobalScope(UserScope::class)->byUser($user->id)->byId($hall_id)->first()))
             // $errors['hall'] = 'Hall not exist with :id = '.$hall_id;
             return response()->json([
                 'error' => 'Hall not exist with :id = '.$hall_id
             ]);
         
-        $template = Template::withoutGlobalScope(UserScope::class)->whereHas('workers', function($query) use ($hall_id, $worker_id, &$errors) {
-            // $query = $query->withoutGlobalScope(UserScope::class)->where('workers.id', $worker_id);
-            // if(empty($query->first()))
-            //     $errors['worker'] = 'Worker not exist with :id = '.$worker_id;
-            // $query->whereHas('halls', function($query) use ($hall_id) {
-            //     $query->withoutGlobalScope(UserScope::class)->where('halls.id', $hall_id);
-            // });
-            $query->withoutGlobalScope(UserScope::class)->where('workers.id', $worker_id)->whereHas('halls', function($query) use ($hall_id) {
-                $query->withoutGlobalScope(UserScope::class)->where('halls.id', $hall_id);
-            });
-        })->where('id', $template_id)->first();
+        $template = Template::withoutGlobalScope(UserScope::class)
+            ->byUser($user->id)
+            ->byId($template_id)
+            ->whereHas('workers', function($query) use ($user, $hall_id, $worker_id, &$errors) {
+                // $query = $query->withoutGlobalScope(UserScope::class)->where('workers.id', $worker_id);
+                // if(empty($query->first()))
+                //     $errors['worker'] = 'Worker not exist with :id = '.$worker_id;
+                // $query->whereHas('halls', function($query) use ($hall_id) {
+                //     $query->withoutGlobalScope(UserScope::class)->where('halls.id', $hall_id);
+                // });
+                $query->withoutGlobalScope(UserScope::class)
+                    ->byUser($user->id)
+                    ->byId($worker_id)
+                    ->whereHas('halls', function($query) use ($user, $hall_id) {
+                        $query->withoutGlobalScope(UserScope::class)
+                            ->byUser($user->id)
+                            ->byId($hall_id);
+                    });
+            })->first();
         
         if(empty($template))
             // $errors['params'] = 'Bad data for :hall_id, :template_id, :worker_id';
@@ -56,11 +107,11 @@ class BookController extends Controller{
             ]);
         
         $booking = Booking::create([
-            'user_id' => $user_id,
+            'user_id' => $user->id,
             'hall_id' => $hall_id,
             'template_id' => $template_id,
             'worker_id' => $worker_id,
-            'client_id' => 1,
+            'client_id' => $client->id,
             'time' => $validated['book_on_date'] . ' ' . $validated['book_on_time'] . ':00',
         ]);
         
@@ -85,22 +136,36 @@ class BookController extends Controller{
         // }
     }
     
-    public function cancel(Request $request, $user_id, $hall_id, $template_id, $worker_id, $booking_id){
+    public function cancel(Request $request, User $user, $hall_id, $template_id, $worker_id, $booking_id){
         
-        if(!($user = User::find($user_id)))
-            abort(404, 'Page not found');
+        $client = $request->user();
+        
+        // var_dump($client->toArray());
+        // die();
+        // if(!($user = User::find($user_id)))
+        //     abort(404, 'Page not found');
             
-        $booking = Booking::where([
+        $booking = Booking::withoutGlobalScope(UserScope::class)->byUser($user->id)->where([
             'id' => $booking_id,
-            'user_id' => $user_id,
+            // 'user_id' => $user->id,
             'hall_id' => $hall_id,
             'template_id' => $template_id,
             'worker_id' => $worker_id,
-            'client_id' => 1,
+            'client_id' => $client->id,
         ])->first();
         
         if(empty($booking))
             abort(400, 'Bad request');
+            
+        // if(empty($booking))
+        //     return response()->json([
+        //         'id' => $booking_id,
+        //         'user_id' => $user->id,
+        //         'hall_id' => $hall_id,
+        //         'template_id' => $template_id,
+        //         'worker_id' => $worker_id,
+        //         'client_id' => $client->id,
+        //     ]);
             
         $booking->delete();
         
@@ -108,8 +173,6 @@ class BookController extends Controller{
             'status' => 'success',
             'msg' => 'Booking successfully deleted'
         ]);
-        // var_dump($booking);
-        // die();
     }
     
 }

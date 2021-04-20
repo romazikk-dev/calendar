@@ -105,7 +105,9 @@
                 </div>
                 
                 <div class="float-right">
-                    <client-info :client-info="clientInfo" :user-id="owner.id"></client-info>
+                    <client-info :client-info="clientInfo"
+                        :all-bookings="allBookings"
+                        :user-id="owner.id"></client-info>
                 </div>
                 
                 <!-- <div class="filter float-right mr-0">
@@ -145,7 +147,7 @@
             // console.log(JSON.parse(JSON.stringify(this.owner)));
             this.setFiltersFromCookie();
         },
-        props: ['owner','halls','clientInfo'],
+        props: ['owner','halls','clientInfo','allBookings'],
         data: function(){
             return {
                 choosedItmHall: null,

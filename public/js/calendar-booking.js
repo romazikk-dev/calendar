@@ -1895,6 +1895,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -1908,6 +1913,7 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(this.$options.name);
     this.setTokenFromCookie();
     this.getClientInfo();
+    this.getBookings();
   },
   props: ['userId'],
   data: function data() {
@@ -1920,11 +1926,13 @@ __webpack_require__.r(__webpack_exports__);
       templates: templates,
       token: null,
       clientInfo: null,
+      allBookings: null,
       showCalendar: true,
       views: ['month', 'week', 'day', 'list'],
       startDateMonth: new Date(),
       startDateWeek: new Date(),
-      startDateDay: new Date()
+      startDateDay: new Date(),
+      dataUpdater: 0
     };
   },
   computed: {
@@ -1940,36 +1948,182 @@ __webpack_require__.r(__webpack_exports__);
     listView: function listView() {
       return this.view != null && this.view.toLowerCase() == 'list';
     },
-    authorized: function authorized() {
-      return this.token != null; // return false;
+    clientAuthorized: function clientAuthorized() {
+      return this.token != null;
+    },
+    tokenHeader: function tokenHeader() {
+      if (this.token == null) return null;
+      return 'Bearer ' + this.token;
     }
   },
   methods: {
+    getData: function getData(startDate, endDate) {
+      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
+        console.log('success');
+      };
+      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+        console.log('error');
+      };
+      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
+        console.log('final');
+      };
+
+      if (this.isAuth()) {
+        var url = routes.calendar.booking.range.client;
+        var headers = {
+          headers: {
+            Authorization: this.tokenHeader
+          }
+        };
+      } else {
+        var url = routes.calendar.booking.range.guest;
+        var headers = {};
+      }
+
+      url = url.replace(':start', startDate);
+      url = url.replace(':end', endDate);
+      url += '?' + this.search;
+      axios.get(url, headers).then(function (response) {
+        // handle success
+        successCallback(response); // console.log(JSON.parse(JSON.stringify(this.dates)));
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        // always executed
+        finalCallback(); // $('#cancelBookModal').modal('hide');
+      });
+    },
+    bookOn: function bookOn(bookOnDate, bookOnTime) {
+      var _this = this;
+
+      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
+        console.log('success');
+      };
+      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+        console.log('error');
+      };
+      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
+        console.log('final');
+      };
+      if (this.tokenHeader == null) return;
+      var url = routes.calendar.booking.book.create;
+      url = url.replace(':hall_id', filters.hall.id);
+      url = url.replace(':template_id', filters.template.id);
+      url = url.replace(':worker_id', filters.worker.id);
+      axios.post(url, {
+        book_on_date: bookOnDate,
+        book_on_time: bookOnTime
+      }, {
+        headers: {
+          Authorization: this.tokenHeader
+        }
+      }).then(function (response) {
+        successCallback(response);
+        _this.dataUpdater++;
+
+        _this.getBookings(); // this.dataUpdater++;
+
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        finalCallback();
+      });
+    },
+    cancelBooking: function cancelBooking(booking) {
+      var _this2 = this;
+
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
+        console.log('success');
+      };
+      if (this.tokenHeader == null) return;
+      var url = routes.calendar.booking.book.cancel;
+      url = url.replace(':hall_id', filters.hall.id);
+      url = url.replace(':template_id', filters.template.id);
+      url = url.replace(':worker_id', filters.worker.id);
+      url = url.replace(':booking_id', booking.id); // console.log(url);
+      // return;
+
+      axios["delete"](url, {
+        headers: {
+          Authorization: this.tokenHeader
+        }
+      }).then(function (response) {
+        // handle success
+        // this.dates = response.data.data;
+        successCallback(response);
+        _this2.dataUpdater++;
+
+        _this2.getBookings(); // console.log('success');
+        // this.onCancel(response.data);
+        // console.log(JSON.parse(JSON.stringify(response)));
+
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        // always executed
+        console.log('always'); // this.$refs['loader'].fadeOut(300);
+        // setTimeout(() => {
+        //     this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+      });
+    },
+    login: function login(token) {
+      // cookie.remove('token');
+      // this.token = null;
+      // this.clientInfo = null;
+      this.setToken(token);
+      this.getClientInfo();
+      this.getBookings();
+      this.dataUpdater++;
+    },
     logout: function logout() {
       cookie.remove('token');
       this.token = null;
       this.clientInfo = null;
+      this.dataUpdater++;
     },
-    getClientInfo: function getClientInfo() {
-      var _this = this;
+    getBookings: function getBookings() {
+      var _this3 = this;
 
-      if (this.token == null) return;
-      var token = 'Bearer ' + this.token;
-      console.log(token);
-      var url = routes.calendar.booking.client.info; // let config = {
-      //     headers: {
-      //         Authorization: token,
-      //     }
-      // }
-      // let data = {}
-
+      if (this.token == null) return null;
+      var url = routes.calendar.booking.book.all;
+      var currentDate = moment(new Date()).format('YYYY-MM-DD_HH:mm:ss');
+      url = url.replace(':from_date', currentDate);
       axios.get(url, {
         headers: {
-          Authorization: token
+          Authorization: this.tokenHeader
         }
       }).then(function (response) {
         // handle success
-        _this.clientInfo = response.data; // console.log(this.clientInfo);
+        _this3.allBookings = response.data; // console.log(this.clientInfo);
+
+        console.log(JSON.parse(JSON.stringify(_this3.allBookings)));
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        // always executed
+        console.log('always'); // if(from == 'cancel_book'){
+        //     console.log('from: cancel_book');
+        //     $('#cancelBookModal').modal('hide');
+        // }
+      });
+    },
+    getClientInfo: function getClientInfo() {
+      var _this4 = this;
+
+      if (this.token == null) return;
+      axios.get(routes.calendar.booking.client.info, {
+        headers: {
+          Authorization: this.tokenHeader
+        }
+      }).then(function (response) {
+        // handle success
+        _this4.clientInfo = response.data; // console.log(this.clientInfo);
         // console.log(JSON.parse(JSON.stringify(this.dates)));
       })["catch"](function (error) {
         // handle error
@@ -2128,6 +2282,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2142,7 +2297,7 @@ __webpack_require__.r(__webpack_exports__);
       _this.show = true;
     }, 100);
   },
-  props: ['clientInfo', 'userId'],
+  props: ['clientInfo', 'userId', 'allBookings'],
   data: function data() {
     return {
       show: false // dates: null,
@@ -2319,7 +2474,7 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(this.firstMonthDate);
     // console.log(this.weekdayOfCurrentDate);
   },
-  props: ['userId', 'search', 'views', 'view', 'startDate'],
+  props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -2330,130 +2485,13 @@ __webpack_require__.r(__webpack_exports__);
       currentDate: new Date(),
       currentDateMoment: moment(new Date()),
       currentChoosenDateMoment: moment(new Date()),
-      // currentDate: null,
-      // currentDateMoment: null,
-      // currentChoosenDateMoment: null,
-      // calendarTitle: null,
-      // calendarWeekdayTitle: null,
-      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      // yearOfCurrentDate: null,
-      // monthOfCurrentDate: null,
-      // dayOfCurrentDate: null,
-      // weekdayOfCurrentDate: null,
-      // firstWeekday: null,
-      // lastWeekday: null,
-      // mondayDate: null,
-      // tuesdayDate: null,
-      // wednesdayDate: null,
-      // thursdayDate: null,
-      // fridayDate: null,
-      // saturdayDate: null,
-      // sundayDate: null,
       workHours: null,
       bussinessHours: null,
-      hours: [{
-        hour: '00',
-        minute: '00'
-      }, {
-        hour: '01',
-        minute: '00'
-      }, {
-        hour: '02',
-        minute: '00'
-      }, {
-        hour: '03',
-        minute: '00'
-      }, {
-        hour: '04',
-        minute: '00'
-      }, {
-        hour: '05',
-        minute: '00'
-      }, {
-        hour: '06',
-        minute: '00'
-      }, {
-        hour: '07',
-        minute: '00'
-      }, {
-        hour: '08',
-        minute: '00'
-      }, {
-        hour: '09',
-        minute: '00'
-      }, {
-        hour: '10',
-        minute: '00'
-      }, {
-        hour: '11',
-        minute: '00'
-      }, {
-        hour: '12',
-        minute: '00'
-      }, {
-        hour: '13',
-        minute: '00'
-      }, {
-        hour: '14',
-        minute: '00'
-      }, {
-        hour: '15',
-        minute: '00'
-      }, {
-        hour: '16',
-        minute: '00'
-      }, {
-        hour: '17',
-        minute: '00'
-      }, {
-        hour: '18',
-        minute: '00'
-      }, {
-        hour: '19',
-        minute: '00'
-      }, {
-        hour: '20',
-        minute: '00'
-      }, {
-        hour: '21',
-        minute: '00'
-      }, {
-        hour: '22',
-        minute: '00'
-      }, {
-        hour: '23',
-        minute: '00'
-      }],
-      // currentCalendarMonth: null,
-      // firstMonthDate: null,
-      // lastMonthDate: null,
-      // firstCalendarDate: null,
-      // lastCalendarDate: null,
-      cancelBookData: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
-
+      cancelBookData: null,
+      componentApp: null
     };
   },
   computed: {
-    // weekDayNotPast: function(){
-    //     return (i) => {
-    //         if(this.firstWeekday == null)
-    //             return false;
-    //         let firstWeekdayMoment = moment(this.firstWeekday);
-    //         let currentDateMoment = moment(this.currentDate);
-    //         return i >= this.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
-    //     }
-    //     // console.log(this.currentDate);
-    // 
-    //     // mondayWeekday = this.mondayDate.getDay();
-    //     // let mondayDateMoment = moment(this.mondayDate);
-    //     // let currentDateMoment = moment(this.currentDate);
-    //     // return i >= this.weekdayOfCurrentDate;
-    //     // return i >= this.weekdayOfCurrentDate || this.mondayDate != null;
-    //     // console.log(currentDateMoment.diff(mondayDateMoment) > 0);
-    //     // console.log(this.mondayDate);
-    //     // 
-    //     // return currentDateMoment.diff(mondayDateMoment) > 0;
-    // },
     currentDay: function currentDay() {
       // if(this.currentDate == null)
       //     return true;
@@ -2468,7 +2506,7 @@ __webpack_require__.r(__webpack_exports__);
     calendarWeekdayTitle: function calendarWeekdayTitle() {
       if (this.currentChoosenDateMoment == null) return ''; // console.log(this.currentChoosenDateMoment.isoWeekday() - 1);
 
-      return this.weekdays[this.currentChoosenDateMoment.isoWeekday() - 1];
+      return this.weekdaysList[this.currentChoosenDateMoment.isoWeekday() - 1];
     },
     canGoToPrevious: function canGoToPrevious() {
       if (this.currentChoosenDateMoment == null) return false;
@@ -2827,50 +2865,19 @@ __webpack_require__.r(__webpack_exports__);
       var _this4 = this;
 
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      // console.log(JSON.parse(JSON.stringify(this.range)));
-      // routes.calendar.booking.range
-      // let url = JSON.parse(JSON.stringify(routes.calendar.booking.range));
-      var url = routes.calendar.booking.range; // url = url.replace(':start', moment(this.range.first_date).format('DD-MM-YYYY'));
-      // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-      // console.log(moment(this.range.last_date).format('DD-MM-YYYY'));
-      // console.log(url);
-      // return;
-
-      url = url.replace(':start', this.currentChoosenDateMoment.format('DD-MM-YYYY')); // url = url.replace(':start', moment(this.currentDate).format('DD-MM-YYYY'));
-
-      url = url.replace(':end', this.currentChoosenDateMoment.format('DD-MM-YYYY'));
-      url += '?' + this.search; // return;
-      // url = url.replace(':start', '28-03-2021');
-      // url = url.replace(':end', '08-05-2021');
-      // console.log(url);
-      // console.log(routes.calendar.booking.range);
-
-      axios.get(url).then(function (response) {
-        // handle success
-        // console.log(response.data.data);
-        _this4.date = response.data.data[0]; // this.setWorkHours(response.data.start, response.data.end);
-        // console.log(response.data.business_hours);
-
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      this.componentApp.getData(moment(this.firstWeekday).format('DD-MM-YYYY'), moment(this.lastWeekday).format('DD-MM-YYYY'), function (response) {
+        _this4.date = response.data.data[0];
         _this4.bussinessHours = response.data.business_hours;
 
         _this4.setWorkHours(); // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-        // if(this.date.)
 
 
         setTimeout(function () {
           _this4.placeItems();
-        }, 100); // this.placeItems();
-        // console.log(response.data[0]);
-        // console.log(JSON.parse(JSON.stringify(this.dates)));
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
-        if (from == 'cancel_book') {
-          console.log('from: cancel_book');
-          $('#cancelBookModal').modal('hide');
-        }
+        }, 100);
+      }, function () {}, function () {
+        $('#cancelBookModal').modal('hide');
       });
     },
     // setWorkHours: function(startHour, endHour){
@@ -2928,6 +2935,9 @@ __webpack_require__.r(__webpack_exports__);
   watch: {
     search: function search() {
       // console.log(this.search);
+      this.getData();
+    },
+    dataUpdater: function dataUpdater() {
       this.getData();
     }
   }
@@ -3134,6 +3144,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 // require("../../../../ts/calendar_helper/enums/View").Helper;
 // import { View } from "../../../../ts/calendar_helper/enums/View";
 // console.log(View);
@@ -3152,7 +3164,7 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(JSON.parse(JSON.stringify(this.owner)));
     this.setFiltersFromCookie();
   },
-  props: ['owner', 'halls', 'clientInfo'],
+  props: ['owner', 'halls', 'clientInfo', 'allBookings'],
   data: function data() {
     return {
       choosedItmHall: null,
@@ -3571,11 +3583,9 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(this.firstMonthDate);
     // console.log(this.weekdayOfCurrentDate);
   },
-  props: ['userId', 'search', 'view', 'views', 'startDate'],
+  props: ['userId', 'search', 'view', 'views', 'startDate', 'dataUpdater'],
   data: function data() {
     return {
-      // dateRange: helper.range.range,
-      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
       empty: true,
       dates: null,
       bookDate: null,
@@ -3589,95 +3599,10 @@ __webpack_require__.r(__webpack_exports__);
       weekdayOfCurrentDate: null,
       firstWeekday: null,
       lastWeekday: null,
-      // mondayDate: null,
-      // tuesdayDate: null,
-      // wednesdayDate: null,
-      // thursdayDate: null,
-      // fridayDate: null,
-      // saturdayDate: null,
-      // sundayDate: null,
       workHours: null,
       bussinessHours: null,
-      hours: [{
-        hour: '00',
-        minute: '00'
-      }, {
-        hour: '01',
-        minute: '00'
-      }, {
-        hour: '02',
-        minute: '00'
-      }, {
-        hour: '03',
-        minute: '00'
-      }, {
-        hour: '04',
-        minute: '00'
-      }, {
-        hour: '05',
-        minute: '00'
-      }, {
-        hour: '06',
-        minute: '00'
-      }, {
-        hour: '07',
-        minute: '00'
-      }, {
-        hour: '08',
-        minute: '00'
-      }, {
-        hour: '09',
-        minute: '00'
-      }, {
-        hour: '10',
-        minute: '00'
-      }, {
-        hour: '11',
-        minute: '00'
-      }, {
-        hour: '12',
-        minute: '00'
-      }, {
-        hour: '13',
-        minute: '00'
-      }, {
-        hour: '14',
-        minute: '00'
-      }, {
-        hour: '15',
-        minute: '00'
-      }, {
-        hour: '16',
-        minute: '00'
-      }, {
-        hour: '17',
-        minute: '00'
-      }, {
-        hour: '18',
-        minute: '00'
-      }, {
-        hour: '19',
-        minute: '00'
-      }, {
-        hour: '20',
-        minute: '00'
-      }, {
-        hour: '21',
-        minute: '00'
-      }, {
-        hour: '22',
-        minute: '00'
-      }, {
-        hour: '23',
-        minute: '00'
-      }],
-      // currentCalendarMonth: null,
-      // firstMonthDate: null,
-      // lastMonthDate: null,
-      // firstCalendarDate: null,
-      // lastCalendarDate: null,
-      cancelBookData: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
-
+      cancelBookData: null,
+      componentApp: null
     };
   },
   computed: {
@@ -3718,7 +3643,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     getWeekdayTitleFromDateItem: function getWeekdayTitleFromDateItem(date) {
       var dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
-      return this.weekdays[dateMoment.isoWeekday() - 1];
+      return this.weekdaysList[dateMoment.isoWeekday() - 1];
     },
     getDayTitleFromDateItem: function getDayTitleFromDateItem(date) {
       var dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
@@ -3769,35 +3694,12 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      // return;
-      // console.log(this.currentDateMoment.format('YYYY MM DD'));
-      var url = routes.calendar.booking.range;
-      url = url.replace(':start', moment(this.firstWeekday).format('DD-MM-YYYY'));
-      url = url.replace(':end', moment(this.lastWeekday).format('DD-MM-YYYY'));
-      url += '?' + this.search; // return;
-
-      axios.get(url).then(function (response) {
-        // handle success
-        // console.log(response.data.data);
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      this.componentApp.getData(moment(this.firstWeekday).format('DD-MM-YYYY'), moment(this.lastWeekday).format('DD-MM-YYYY'), function (response) {
         _this2.dates = response.data.data;
-        _this2.bussinessHours = response.data.business_hours; // this.setWorkHours();
-        // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-        // console.log(this.currentDateMoment.format('YYYY MM DD'));
-        // setTimeout(() => {
-        //     // this.placeItems();
-        //     console.log(this.currentDateMoment.format('YYYY MM DD'));
-        // }, 100);
-
-        console.log(JSON.parse(JSON.stringify(_this2.dates)));
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
-        if (from == 'cancel_book') {
-          console.log('from: cancel_book');
-          $('#cancelBookModal').modal('hide');
-        }
+        _this2.bussinessHours = response.data.business_hours; // console.log(JSON.parse(JSON.stringify(this.dates)));
+      }, function () {}, function () {
+        $('#cancelBookModal').modal('hide');
       });
     },
     setDates: function setDates(firstCalendarMonthDate) {
@@ -3827,6 +3729,9 @@ __webpack_require__.r(__webpack_exports__);
   watch: {
     search: function search() {
       // console.log(this.search);
+      this.getData();
+    },
+    dataUpdater: function dataUpdater() {
       this.getData();
     },
     dates: function dates() {
@@ -4042,8 +3947,7 @@ __webpack_require__.r(__webpack_exports__);
         var componentApp = _this.getParentComponentByName(_this, 'app');
 
         if (componentApp) {
-          componentApp.setToken(response.data.token);
-          componentApp.getClientInfo();
+          componentApp.login(response.data.token);
           _this.signinErrors = null;
           _this.signupErrors = null; // this.$emit('authorized');
           // if(this.show == 'signin')
@@ -4351,34 +4255,14 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    onBooked: function onBooked(response) {
-      this.$emit('booked'); // this.$refs['loader'].showTranparent();
-    },
     book: function book() {
       var _this2 = this;
 
+      var componentApp = this.getParentComponentByName(this, 'app');
       this.bookButtonDisabled = true;
       this.$refs['loader'].showTranparent();
-      var url = routes.calendar.booking.book.create;
-      url = url.replace(':hall_id', filters.hall.id);
-      url = url.replace(':template_id', filters.template.id);
-      url = url.replace(':worker_id', filters.worker.id); // console.log(this.bookOn);
-
-      axios.post(url, {
-        book_on_date: this.bookingDate,
-        book_on_time: this.bookOn
-      }).then(function (response) {
-        // handle success
-        // this.dates = response.data.data;
-        console.log('success');
-
-        _this2.onBooked(response); // console.log(JSON.parse(JSON.stringify(this.dates)));
-
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
+      componentApp.bookOn(this.bookingDate, this.bookOn, function (response) {// this.onBooked(response);
+      }, function () {}, function () {
         console.log('always');
 
         _this2.$refs['loader'].fadeOut(300);
@@ -4387,7 +4271,7 @@ __webpack_require__.r(__webpack_exports__);
           _this2.successfullyBooked = true;
           _this2.bookButtonDisabled = false;
         }, 300);
-      }); // console.log(url);
+      });
     },
     timeBarSliderEnabled: function timeBarSliderEnabled() {
       // console.log('timeBarSliderEnabled');
@@ -4503,16 +4387,27 @@ __webpack_require__.r(__webpack_exports__);
     Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_3__.default
   },
   watch: {
-    auth: function auth(newOne, oldOne) {
+    auth: function (_auth) {
+      function auth(_x, _x2) {
+        return _auth.apply(this, arguments);
+      }
+
+      auth.toString = function () {
+        return _auth.toString();
+      };
+
+      return auth;
+    }(function (newOne, oldOne) {
       var _this4 = this;
 
+      console.log('auth changed: ' + auth);
       this.$refs['loader'].show();
       setTimeout(function () {
         _this4.$refs['loader'].fadeOut(300);
       }, 200); // this.$refs['loader'].fadeOut(300);
       // console.log(this.auth);
       // console.log("Title changed from " + newOne + " to " + oldOne)
-    } // initValue: (newOne, oldOne) => {
+    }) // initValue: (newOne, oldOne) => {
     //     console.log(helper.parse(newOne));
     // 	// console.log("Title changed from " + newOne + " to " + oldOne)
     // },
@@ -4594,27 +4489,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalCancelBookContent',
-  mounted: function mounted() {// console.log(this.filters);
-    // this.$refs['loader'].show();
-    // 
-    // $("#cancelBookModal").on('hidden.bs.modal', () => {
-    //     this.bookDate = null;
-    //     // console.log(this.bookDate);
-    // });
-    // $("#cancelBookModal").on('show.bs.modal', () => {
-    //     if(this.bookingItem == null)
-    //         this.$refs['loader'].show();
-    //     // console.log(this.bookDate);
-    // });
-    // 
-    // $("#cancelBookModal").on('hidden.bs.modal', () => {
-    //     this.bookingItem = null;
-    // });
-  },
+  mounted: function mounted() {},
   props: ['booking'],
   data: function data() {
     return {
-      // bookingItem: booking,
       cancelButtonDisabled: false,
       successfullyCanceled: false,
       question: null,
@@ -4622,21 +4500,7 @@ __webpack_require__.r(__webpack_exports__);
       bTitle: null,
       bTimeMoment: null,
       bDuration: null,
-      filters: filters // template: filters.template,
-      // choosedH: null,
-      // choosedM: null,
-      // initValue: {
-      //     HH: '',
-      //     mm: '',
-      // },
-      // startPeriodDatetime: null,
-      // endPeriodDatetime: null,
-      // preEndPeriodDatetime: null,
-      // timeBarChangeTimeout: null,
-      // s: null,
-      // arrowPosition: 10,
-      // hintText: 'Move slider to choose time for booking.'
-
+      filters: filters
     };
   },
   computed: {
@@ -4653,44 +4517,17 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    onCancel: function onCancel(response) {
-      this.$emit('canceled', response); // this.$refs['loader'].showTranparent();
-    },
+    // onCancel: function (responseData){
+    //     this.$emit('canceled', responseData);
+    // },
     cancel: function cancel() {
-      var _this = this;
-
-      // this.bookButtonDisabled = true;
-      // this.$refs['loader'].showTranparent();
-      var url = routes.calendar.booking.book.cancel;
-      url = url.replace(':hall_id', filters.hall.id);
-      url = url.replace(':template_id', filters.template.id);
-      url = url.replace(':worker_id', filters.worker.id);
-      url = url.replace(':booking_id', this.booking.id); // console.log(url);
-      // return;
-
-      axios["delete"](url).then(function (response) {
-        // handle success
-        // this.dates = response.data.data;
-        console.log('success');
-
-        _this.onCancel(response.data); // console.log(JSON.parse(JSON.stringify(response)));
-
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
-        console.log('always'); // this.$refs['loader'].fadeOut(300);
-        // setTimeout(() => {
-        //     this.successfullyBooked = true;
-        //     this.bookButtonDisabled = false;
-        // }, 300);
-      }); // console.log(url);
+      var componentApp = this.getParentComponentByName(this, 'app');
+      componentApp.cancelBooking(this.booking, function (response) {
+        console.log('success'); // this.onCancel(response.data);
+      });
     }
   },
   components: {
-    // VueTimepicker,
-    // TimeBar,
     Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_0__.default
   },
   watch: {
@@ -4716,13 +4553,9 @@ __webpack_require__.r(__webpack_exports__);
       if (durationHourPart < 10) durationHourPart = '0' + durationHourPart;
       var durationMinutePart = durationSeconds % 60;
       if (durationMinutePart < 10) durationMinutePart = '0' + durationMinutePart;
-      this.bDuration = durationHourPart + ':' + durationMinutePart;
-      console.log(JSON.parse(JSON.stringify(this.booking))); // console.log("Title changed from " + newOne + " to " + oldOne)
-    } // initValue: (newOne, oldOne) => {
-    //     console.log(helper.parse(newOne));
-    // 	// console.log("Title changed from " + newOne + " to " + oldOne)
-    // },
-
+      this.bDuration = durationHourPart + ':' + durationMinutePart; // console.log(JSON.parse(JSON.stringify(this.booking)));
+      // console.log("Title changed from " + newOne + " to " + oldOne)
+    }
   }
 });
 
@@ -4800,11 +4633,84 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalClientInfoContent',
   mounted: function mounted() {
     var _this = this;
 
+    // $('.popover-dismiss').popover({
+    //     trigger: 'focus'
+    // });
     // console.log(11111);
     // console.log(component.$options.name);
     $('#enterModal').on('hidden.bs.modal', function () {
@@ -4812,11 +4718,12 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   // props: ['range','view','curreny_view_idx','currentDate'],
-  props: ['clientInfo'],
+  props: ['clientInfo', 'allBookings'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
-      showTab: 'info' // signupErrors: null,
+      showTab: 'info',
+      componentApp: null // signupErrors: null,
       // signinErrors: null,
       // clientInfoToShow: null,
 
@@ -4829,9 +4736,17 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    cancel: function cancel(booking) {
+      // console.log(booking);
+      // return;
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      this.componentApp.cancelBooking(booking, function (response) {
+        console.log('success'); // this.onCancel(response.data);
+      });
+    },
     logout: function logout() {
-      var componentApp = this.getParentComponentByName(this, 'app');
-      componentApp.logout();
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      this.componentApp.logout();
     }
   },
   components: {}
@@ -4855,19 +4770,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ModalAuthContent_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalAuthContent.vue */ "./resources/js/vue/calendar/booking/components/ModalAuthContent.vue");
 /* harmony import */ var _ModalBookContent_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ModalBookContent.vue */ "./resources/js/vue/calendar/booking/components/ModalBookContent.vue");
 /* harmony import */ var _ModalCancelBookContent_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ModalCancelBookContent.vue */ "./resources/js/vue/calendar/booking/components/ModalCancelBookContent.vue");
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -4967,7 +4869,7 @@ __webpack_require__.r(__webpack_exports__);
     }); // console.log(this.firstMonthDate);
     // console.log(this.currentDateObj);
   },
-  props: ['userId', 'search', 'views', 'view', 'startDate'],
+  props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -4983,7 +4885,8 @@ __webpack_require__.r(__webpack_exports__);
       lastMonthDate: null,
       firstCalendarDate: null,
       lastCalendarDate: null,
-      cancelBookData: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
+      cancelBookData: null,
+      componentApp: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
 
     };
   },
@@ -5018,12 +4921,6 @@ __webpack_require__.r(__webpack_exports__);
     isFirstItemOfTypeBooked: function isFirstItemOfTypeBooked(i, k) {
       var dateFirstItem = this.getDate(i, k, 'items')[0];
       return dateFirstItem.type == 'booked' ? true : false;
-    },
-    onBooked: function onBooked() {
-      this.getData();
-    },
-    onCanceled: function onCanceled() {
-      this.getData('cancel_book');
     },
     next: function next() {
       console.log('next');
@@ -5088,35 +4985,11 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      // console.log(JSON.parse(JSON.stringify(this.range)));
-      // routes.calendar.booking.range
-      var url = routes.calendar.booking.range; // url = url.replace(':start', moment(this.range.first_date).format('DD-MM-YYYY'));
-      // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-      // console.log(moment(this.range.last_date).format('DD-MM-YYYY'));
-      // return;
-
-      url = url.replace(':start', moment(this.firstCalendarDate).format('DD-MM-YYYY'));
-      url = url.replace(':end', moment(this.lastCalendarDate).format('DD-MM-YYYY'));
-      url += '?' + this.search; // return;
-      // url = url.replace(':start', '28-03-2021');
-      // url = url.replace(':end', '08-05-2021');
-      // console.log(url);
-      // console.log(routes.calendar.booking.range);
-
-      axios.get(url).then(function (response) {
-        // handle success
-        _this2.dates = response.data.data; // console.log(response.data[0]);
-        // console.log(JSON.parse(JSON.stringify(this.dates)));
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
-        // console.log('always');
-        if (from == 'cancel_book') {
-          console.log('from: cancel_book');
-          $('#cancelBookModal').modal('hide');
-        }
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      this.componentApp.getData(moment(this.firstCalendarDate).format('DD-MM-YYYY'), moment(this.lastCalendarDate).format('DD-MM-YYYY'), function (response) {
+        _this2.dates = response.data.data;
+      }, function () {}, function () {
+        $('#cancelBookModal').modal('hide');
       });
     },
     setDates: function setDates(firstCalendarMonthDate) {
@@ -5211,6 +5084,9 @@ __webpack_require__.r(__webpack_exports__);
     search: function search() {
       // console.log(this.search);
       this.getData();
+    },
+    dataUpdater: function dataUpdater() {
+      this.getData();
     }
   }
 });
@@ -5295,6 +5171,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5691,7 +5578,7 @@ __webpack_require__.r(__webpack_exports__);
       _this2.bookDate = null; // console.log(this.bookDate);
     });
   },
-  props: ['userId', 'search', 'views', 'view', 'startDate'],
+  props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -5715,85 +5602,8 @@ __webpack_require__.r(__webpack_exports__);
       sundayDate: null,
       workHours: null,
       bussinessHours: null,
-      hours: [{
-        hour: '00',
-        minute: '00'
-      }, {
-        hour: '01',
-        minute: '00'
-      }, {
-        hour: '02',
-        minute: '00'
-      }, {
-        hour: '03',
-        minute: '00'
-      }, {
-        hour: '04',
-        minute: '00'
-      }, {
-        hour: '05',
-        minute: '00'
-      }, {
-        hour: '06',
-        minute: '00'
-      }, {
-        hour: '07',
-        minute: '00'
-      }, {
-        hour: '08',
-        minute: '00'
-      }, {
-        hour: '09',
-        minute: '00'
-      }, {
-        hour: '10',
-        minute: '00'
-      }, {
-        hour: '11',
-        minute: '00'
-      }, {
-        hour: '12',
-        minute: '00'
-      }, {
-        hour: '13',
-        minute: '00'
-      }, {
-        hour: '14',
-        minute: '00'
-      }, {
-        hour: '15',
-        minute: '00'
-      }, {
-        hour: '16',
-        minute: '00'
-      }, {
-        hour: '17',
-        minute: '00'
-      }, {
-        hour: '18',
-        minute: '00'
-      }, {
-        hour: '19',
-        minute: '00'
-      }, {
-        hour: '20',
-        minute: '00'
-      }, {
-        hour: '21',
-        minute: '00'
-      }, {
-        hour: '22',
-        minute: '00'
-      }, {
-        hour: '23',
-        minute: '00'
-      }],
-      // currentCalendarMonth: null,
-      // firstMonthDate: null,
-      // lastMonthDate: null,
-      // firstCalendarDate: null,
-      // lastCalendarDate: null,
-      cancelBookData: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
+      cancelBookData: null,
+      componentApp: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
 
     };
   },
@@ -5851,9 +5661,9 @@ __webpack_require__.r(__webpack_exports__);
     onBooked: function onBooked() {
       this.getData();
     },
-    onCanceled: function onCanceled() {
-      this.getData('cancel_book');
-    },
+    // onCanceled: function(){
+    //     this.getData('cancel_book');
+    // },
     regModalOpenButtons: function regModalOpenButtons() {
       var _this4 = this;
 
@@ -6117,25 +5927,8 @@ __webpack_require__.r(__webpack_exports__);
       var _this6 = this;
 
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      // console.log(JSON.parse(JSON.stringify(this.range)));
-      // routes.calendar.booking.range
-      // let url = JSON.parse(JSON.stringify(routes.calendar.booking.range));
-      var url = routes.calendar.booking.range; // url = url.replace(':start', moment(this.range.first_date).format('DD-MM-YYYY'));
-      // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-      // console.log(moment(this.range.last_date).format('DD-MM-YYYY'));
-      // console.log(url);
-      // return;
-
-      url = url.replace(':start', moment(this.firstWeekday).format('DD-MM-YYYY')); // url = url.replace(':start', moment(this.currentDate).format('DD-MM-YYYY'));
-
-      url = url.replace(':end', moment(this.lastWeekday).format('DD-MM-YYYY'));
-      url += '?' + this.search; // return;
-      // url = url.replace(':start', '28-03-2021');
-      // url = url.replace(':end', '08-05-2021');
-      // console.log(url);
-      // console.log(routes.calendar.booking.range);
-
-      axios.get(url).then(function (response) {
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      this.componentApp.getData(moment(this.firstWeekday).format('DD-MM-YYYY'), moment(this.lastWeekday).format('DD-MM-YYYY'), function (response) {
         // handle success
         // console.log(response.data.data);
         _this6.dates = response.data.data; // this.setWorkHours(response.data.start, response.data.end);
@@ -6152,15 +5945,8 @@ __webpack_require__.r(__webpack_exports__);
         // console.log(response.data[0]);
 
         console.log(JSON.parse(JSON.stringify(_this6.dates)));
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
-        if (from == 'cancel_book') {
-          console.log('from: cancel_book');
-          $('#cancelBookModal').modal('hide');
-        }
+      }, function () {}, function () {
+        $('#cancelBookModal').modal('hide');
       });
     },
     // setWorkHours: function(startHour, endHour){
@@ -6280,6 +6066,9 @@ __webpack_require__.r(__webpack_exports__);
   watch: {
     search: function search() {
       // console.log(this.search);
+      this.getData();
+    },
+    dataUpdater: function dataUpdater() {
       this.getData();
     }
   }
@@ -6604,7 +6393,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-99b7b4e8] {\n  background-color: #6c757d;\n}\n.modal-content .modal-body[data-v-99b7b4e8] {\n  position: relative;\n  background-color: #fff;\n}\n.modal-content .modal-body table[data-v-99b7b4e8] {\n  width: 100%;\n}\n.modal-content .modal-body table.info-table tr:nth-child(odd) td[data-v-99b7b4e8] {\n  background-color: #f1f1f1;\n}\n.modal-content .modal-body table.info-table td[data-v-99b7b4e8] {\n  vertical-align: top;\n  padding: 6px 0px;\n}\n.modal-content .modal-body table.info-table td[data-v-99b7b4e8]:first-child {\n  width: 70px;\n  text-align: right;\n  padding-right: 10px;\n}\n.modal-content .modal-header[data-v-99b7b4e8], .modal-content .modal-footer[data-v-99b7b4e8] {\n  background-color: #6c757d;\n  color: white;\n}\n.modal-content .modal-header[data-v-99b7b4e8] {\n  position: relative;\n}\n.modal-content .modal-header .modal-title[data-v-99b7b4e8] {\n  font-size: 14px;\n  font-weight: normal;\n  color: #f4f4f4;\n  width: 100%;\n}\n.modal-content .modal-header .modal-title b[data-v-99b7b4e8] {\n  color: white;\n}\n.modal-content .modal-header .close[data-v-99b7b4e8] {\n  font-size: 60px;\n  color: #fff;\n  opacity: 0.7;\n  transition: opacity 0.3s ease;\n  line-height: 0.8em;\n  padding: 0px;\n  margin: 0px;\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  height: 60px;\n  width: 60px;\n}\n.modal-content .modal-header .close span[data-v-99b7b4e8] {\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  height: 60px;\n  width: 60px;\n}\n.modal-content .modal-header .close[data-v-99b7b4e8]:hover {\n  color: #fff;\n  opacity: 1 !important;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-99b7b4e8] {\n  background-color: #6c757d;\n}\n.modal-content .modal-body[data-v-99b7b4e8] {\n  position: relative;\n  background-color: #fff;\n  padding-right: 0px;\n  padding-top: 0px;\n  padding-bottom: 0px;\n  line-height: 1.2em;\n}\n.modal-content .modal-body .for-info-table[data-v-99b7b4e8] {\n  padding-right: 16px !important;\n  padding-top: 16px;\n  padding-bottom: 16px;\n}\n.modal-content .modal-body .for-info-table table[data-v-99b7b4e8] {\n  width: 100%;\n}\n.modal-content .modal-body .for-info-table table.info-table tr:nth-child(odd) td[data-v-99b7b4e8] {\n  background-color: #f1f1f1;\n}\n.modal-content .modal-body .for-info-table table.info-table td[data-v-99b7b4e8] {\n  vertical-align: top;\n  padding: 6px 0px;\n}\n.modal-content .modal-body .for-info-table table.info-table td[data-v-99b7b4e8]:first-child {\n  width: 70px;\n  text-align: right;\n  padding-right: 10px;\n}\n.modal-content .modal-body .for-bookings-list[data-v-99b7b4e8] {\n  max-height: 300px;\n  overflow-x: auto;\n  padding-right: 16px;\n  padding-top: 16px;\n  padding-bottom: 16px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item[data-v-99b7b4e8] {\n  padding-bottom: 15px;\n  position: relative;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item[data-v-99b7b4e8]:last-child {\n  padding-bottom: 0px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item button.close[data-v-99b7b4e8] {\n  position: absolute;\n  z-index: 99;\n  top: 0px;\n  right: 0px;\n  outline: none !important;\n  border-radius: 0px;\n  width: 35px;\n  height: 35px;\n  font-size: 50px;\n  line-height: 0.5em;\n  padding: 0px;\n  text-decoration: none;\n  color: #6c757d;\n  opacity: 1;\n  transition: opacity 0.3s ease;\n  box-shadow: none;\n  font-weight: normal;\n  cursor: pointer;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item button.close span[data-v-99b7b4e8] {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item:hover .booking-item[data-v-99b7b4e8] {\n  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item[data-v-99b7b4e8] {\n  background-color: #f1f1f1;\n  position: relative;\n  border-radius: 4px;\n  overflow: hidden;\n  transition: box-shadow 0.3s;\n  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table[data-v-99b7b4e8] {\n  width: 100%;\n  margin: 0px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table td[data-v-99b7b4e8] {\n  padding: 6px;\n  vertical-align: top;\n  position: relative;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table td[data-v-99b7b4e8]:first-child {\n  width: 110px;\n  background-color: #e1e1e1;\n  color: white;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table td:first-child .item-date[data-v-99b7b4e8] {\n  font-weight: bold;\n  color: #fae0d6;\n  font-size: 12px;\n  padding-top: 4px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table td:first-child .item-time[data-v-99b7b4e8] {\n  position: relative;\n  top: -2px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table td[data-v-99b7b4e8]:last-child {\n  padding-left: 20px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item table td:last-child .book-item-property span[data-v-99b7b4e8] {\n  font-size: 14px;\n  color: #999;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item .drop-cancel .dropdown-menu[data-v-99b7b4e8] {\n  margin-right: 10px;\n  padding-left: 10px;\n  padding-right: 10px;\n  width: 260px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item .drop-cancel .dropdown-menu[data-v-99b7b4e8]:after, .modal-content .modal-body .for-bookings-list .for-booking-item .booking-item .drop-cancel .dropdown-menu[data-v-99b7b4e8]:before {\n  left: 100%;\n  top: 15px;\n  border: solid transparent;\n  content: \"\";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item .drop-cancel .dropdown-menu[data-v-99b7b4e8]:after {\n  border-color: rgba(255, 255, 255, 0);\n  border-left-color: #fff;\n  border-width: 10px;\n  margin-top: -10px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item .booking-item .drop-cancel .dropdown-menu[data-v-99b7b4e8]:before {\n  border-color: rgba(0, 0, 0, 0);\n  border-left-color: rgba(0, 0, 0, 0.15);\n  border-width: 11px;\n  margin-top: -11px;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item.requested-book td[data-v-99b7b4e8]:first-child {\n  background-color: #cf582c !important;\n}\n.modal-content .modal-body .for-bookings-list .for-booking-item.approved-book td[data-v-99b7b4e8]:first-child {\n  background-color: #723380 !important;\n}\n.modal-content .modal-header[data-v-99b7b4e8], .modal-content .modal-footer[data-v-99b7b4e8] {\n  background-color: #6c757d;\n  color: white;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -48619,7 +48408,8 @@ var render = function() {
           halls: _vm.halls,
           workers: _vm.workers,
           templates: _vm.templates,
-          "client-info": _vm.clientInfo
+          "client-info": _vm.clientInfo,
+          "all-bookings": _vm.allBookings
         },
         on: {
           change: function($event) {
@@ -48656,7 +48446,8 @@ var render = function() {
                   view: _vm.view,
                   views: _vm.views,
                   "user-id": _vm.userId,
-                  search: _vm.search
+                  search: _vm.search,
+                  "data-updater": _vm.dataUpdater
                 },
                 on: {
                   view_changed: function($event) {
@@ -48673,7 +48464,8 @@ var render = function() {
                   view: _vm.view,
                   views: _vm.views,
                   "user-id": _vm.userId,
-                  search: _vm.search
+                  search: _vm.search,
+                  "data-updater": _vm.dataUpdater
                 },
                 on: {
                   view_changed: function($event) {
@@ -48690,7 +48482,8 @@ var render = function() {
                   view: _vm.view,
                   views: _vm.views,
                   "user-id": _vm.userId,
-                  search: _vm.search
+                  search: _vm.search,
+                  "data-updater": _vm.dataUpdater
                 },
                 on: {
                   view_changed: function($event) {
@@ -48707,7 +48500,8 @@ var render = function() {
                   view: _vm.view,
                   views: _vm.views,
                   "user-id": _vm.userId,
-                  search: _vm.search
+                  search: _vm.search,
+                  "data-updater": _vm.dataUpdater
                 },
                 on: {
                   view_changed: function($event) {
@@ -48788,7 +48582,10 @@ var render = function() {
             [
               _vm.clientInfo
                 ? _c("modal-client-info-content", {
-                    attrs: { "client-info": _vm.clientInfo }
+                    attrs: {
+                      "client-info": _vm.clientInfo,
+                      "all-bookings": _vm.allBookings
+                    }
                   })
                 : _c("modal-auth-content", { attrs: { "user-id": _vm.userId } })
             ],
@@ -48895,25 +48692,25 @@ var render = function() {
                                 "title-hour-cell": k == 1,
                                 "hour-cell": k == 2
                               },
-                              attrs: { "data-hour": _vm.hours[i].hour }
+                              attrs: { "data-hour": _vm.hoursList[i].hour }
                             },
                             [
                               k == 1
                                 ? _c("div", [
                                     _vm._v(
                                       "\n                                    " +
-                                        _vm._s(_vm.hours[i].hour) +
+                                        _vm._s(_vm.hoursList[i].hour) +
                                         ":" +
-                                        _vm._s(_vm.hours[i].minute) +
+                                        _vm._s(_vm.hoursList[i].minute) +
                                         "\n                                "
                                     )
                                   ])
                                 : _c("div", { staticClass: "faded-time" }, [
                                     _vm._v(
                                       "\n                                    " +
-                                        _vm._s(_vm.hours[i].hour) +
+                                        _vm._s(_vm.hoursList[i].hour) +
                                         ":" +
-                                        _vm._s(_vm.hours[i].minute) +
+                                        _vm._s(_vm.hoursList[i].minute) +
                                         "\n                                "
                                     )
                                   ])
@@ -49520,6 +49317,7 @@ var render = function() {
                 _c("client-info", {
                   attrs: {
                     "client-info": _vm.clientInfo,
+                    "all-bookings": _vm.allBookings,
                     "user-id": _vm.owner.id
                   }
                 })
@@ -50622,30 +50420,176 @@ var render = function() {
       [
         _vm.showTab == "info"
           ? [
-              _c("table", { staticClass: "info-table" }, [
-                _c("tr", [
-                  _c("td", [_vm._v("Name: ")]),
+              _c("div", { staticClass: "for-info-table" }, [
+                _c("table", { staticClass: "info-table" }, [
+                  _c("tr", [
+                    _c("td", [_vm._v("Name: ")]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(_vm.fullName))])
+                  ]),
                   _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(_vm.fullName))])
-                ]),
-                _vm._v(" "),
-                _c("tr", [
-                  _c("td", [_vm._v("Email: ")]),
+                  _c("tr", [
+                    _c("td", [_vm._v("Email: ")]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(_vm.clientInfo.email))])
+                  ]),
                   _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(_vm.clientInfo.email))])
-                ]),
-                _vm._v(" "),
-                _c("tr", [
-                  _c("td", [_vm._v("Phone: ")]),
-                  _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(_vm.clientInfo.phone))])
+                  _c("tr", [
+                    _c("td", [_vm._v("Phone: ")]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(_vm.clientInfo.phone))])
+                  ])
                 ])
               ])
             ]
           : _vm._e(),
         _vm._v(" "),
         _vm.showTab == "bookings"
-          ? [_vm._v("\n            bookings\n        ")]
+          ? [
+              _c(
+                "div",
+                { staticClass: "for-bookings-list" },
+                _vm._l(_vm.allBookings, function(itm) {
+                  return _c(
+                    "div",
+                    {
+                      staticClass: "for-booking-item",
+                      class: {
+                        "approved-book": itm.approved,
+                        "requested-book": !itm.approved
+                      }
+                    },
+                    [
+                      _c("div", { staticClass: "booking-item" }, [
+                        _c(
+                          "div",
+                          {
+                            staticClass:
+                              "drop-cancel btn-group dropleft float-right"
+                          },
+                          [
+                            _vm._m(0, true),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              {
+                                staticClass: "dropdown-menu",
+                                on: {
+                                  click: function($event) {
+                                    $event.stopPropagation()
+                                  }
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                Do you really want delete this request on booking?\n                                "
+                                ),
+                                _vm._m(1, true)
+                              ]
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c("table", [
+                          _c("tbody", [
+                            _c("tr", [
+                              _c("td", [
+                                _c("div", { staticClass: "small" }, [
+                                  _vm._v(
+                                    _vm._s(
+                                      itm.approved
+                                        ? "Booked on:"
+                                        : "In approving:"
+                                    )
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "item-date" }, [
+                                  _vm._v("2021-04-19")
+                                ]),
+                                _vm._v(" "),
+                                _vm._m(2, true)
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c(
+                                  "div",
+                                  { staticClass: "book-item-property" },
+                                  [
+                                    _c("b", [
+                                      _vm._v(
+                                        _vm._s(
+                                          itm.template_without_user_scope.title
+                                        )
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("span", [_vm._v("(Template)")])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "book-item-property" },
+                                  [
+                                    _vm._v(
+                                      "\n                                            " +
+                                        _vm._s(
+                                          itm.worker_without_user_scope
+                                            .first_name +
+                                            " " +
+                                            itm.worker_without_user_scope
+                                              .last_name
+                                        ) +
+                                        "\n                                            "
+                                    ),
+                                    _c("span", [_vm._v("(Worker)")])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "book-item-property" },
+                                  [
+                                    _vm._v(
+                                      "\n                                            " +
+                                        _vm._s(
+                                          itm.hall_without_user_scope.title
+                                        ) +
+                                        "\n                                            "
+                                    ),
+                                    _c("span", [_vm._v("(Hall)")])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "book-item-property" },
+                                  [
+                                    _vm._v(
+                                      "\n                                            " +
+                                        _vm._s(
+                                          _vm.parseSecondsToHourMinuteString(
+                                            itm.template_without_user_scope
+                                              .duration
+                                          )
+                                        ) +
+                                        "\n                                            "
+                                    ),
+                                    _c("span", [_vm._v("(Duration)")])
+                                  ]
+                                )
+                              ])
+                            ])
+                          ])
+                        ])
+                      ])
+                    ]
+                  )
+                }),
+                0
+              )
+            ]
           : _vm._e(),
         _vm._v(" "),
         _vm.showTab == "logout"
@@ -50662,20 +50606,6 @@ var render = function() {
                     on: { click: _vm.logout }
                   },
                   [_vm._v("Yes")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-link",
-                    attrs: { type: "button" },
-                    on: {
-                      click: function($event) {
-                        _vm.showTab = "info"
-                      }
-                    }
-                  },
-                  [_vm._v("No")]
                 )
               ])
             ]
@@ -50684,10 +50614,48 @@ var render = function() {
       2
     ),
     _vm._v(" "),
-    _vm._m(0)
+    _vm._m(3)
   ])
 }
 var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-toggle": "dropdown",
+          "aria-haspopup": "true",
+          "aria-expanded": "false"
+        }
+      },
+      [_c("span", [_vm._v("×")])]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", [
+      _c("a", { staticClass: "btn btn-sm btn-link", attrs: { href: "#" } }, [
+        _vm._v("Yes")
+      ]),
+      _vm._v(" "),
+      _c("a", { staticClass: "btn btn-sm btn-link", attrs: { href: "#" } }, [
+        _vm._v("No")
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "item-time" }, [_c("b", [_vm._v("14:00")])])
+  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -50748,12 +50716,27 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "for-table" }, [
         _c("table", [
-          _vm._m(0),
+          _c("thead", [
+            _c(
+              "tr",
+              _vm._l(_vm.weekdaysList, function(weekday) {
+                return _c("th", [_vm._v(_vm._s(weekday))])
+              }),
+              0
+            )
+          ]),
           _vm._v(" "),
           _c(
             "tbody",
             [
-              _vm._m(1),
+              _c(
+                "tr",
+                { staticClass: "divider" },
+                _vm._l(7, function(td) {
+                  return _c("td")
+                }),
+                0
+              ),
               _vm._v(" "),
               _vm._l(6, function(i) {
                 return _vm.dates
@@ -50836,11 +50819,6 @@ var render = function() {
                 "user-id": _vm.userId,
                 "book-date": _vm.bookDate,
                 "book-time-period": _vm.bookTimePeriod
-              },
-              on: {
-                booked: function($event) {
-                  return _vm.onBooked($event)
-                }
               }
             }),
             _vm._v(" "),
@@ -50869,12 +50847,7 @@ var render = function() {
             { staticClass: "modal-dialog" },
             [
               _c("modal-cancel-book-content", {
-                attrs: { booking: _vm.cancelBookData },
-                on: {
-                  canceled: function($event) {
-                    return _vm.onCanceled($event)
-                  }
-                }
+                attrs: { booking: _vm.cancelBookData }
               })
             ],
             1
@@ -50885,50 +50858,7 @@ var render = function() {
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", [_vm._v("Monday")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Tuesday")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Wednesday")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Thursday")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Friday")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Saturday")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Sunday")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("tr", { staticClass: "divider" }, [
-      _c("td"),
-      _vm._v(" "),
-      _c("td"),
-      _vm._v(" "),
-      _c("td"),
-      _vm._v(" "),
-      _c("td"),
-      _vm._v(" "),
-      _c("td"),
-      _vm._v(" "),
-      _c("td"),
-      _vm._v(" "),
-      _c("td")
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -51186,62 +51116,37 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "right-part float-right" }, [
-        _c("div", { staticClass: "filter float-right mr-0" }, [
-          _c(
-            "div",
-            { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
-            [
-              _c(
-                "a",
-                {
-                  staticClass: "btn btn-sm btn-secondary dropdown-toggle",
-                  attrs: {
-                    href: "#",
-                    role: "button",
-                    id: "viewDropdownButton",
-                    "data-toggle": "dropdown",
-                    "aria-haspopup": "true",
-                    "aria-expanded": "false"
+        _c(
+          "div",
+          {
+            staticClass: "btn-group",
+            attrs: { role: "group", "aria-label": "Basic example" }
+          },
+          _vm._l(_vm.views, function(item) {
+            return _c(
+              "button",
+              {
+                staticClass: "btn btn-sm btn-secondary",
+                class: {
+                  active: item.toLowerCase() == _vm.view.toLowerCase(),
+                  disabled: item.toLowerCase() == _vm.view.toLowerCase()
+                },
+                attrs: {
+                  disabled: item.toLowerCase() == _vm.view.toLowerCase(),
+                  type: "button"
+                },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.$emit("change_view", item)
                   }
-                },
-                [
-                  _vm._v(
-                    "\n                        " +
-                      _vm._s(_vm.view) +
-                      "\n                    "
-                  )
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                {
-                  staticClass: "dropdown-menu dropdown-menu-right",
-                  attrs: { "aria-labelledby": "viewDropdownButton" }
-                },
-                _vm._l(_vm.views, function(item) {
-                  return item.toLowerCase() != _vm.view.toLowerCase()
-                    ? _c(
-                        "a",
-                        {
-                          staticClass: "dropdown-item",
-                          attrs: { href: "#" },
-                          on: {
-                            click: function($event) {
-                              $event.preventDefault()
-                              return _vm.$emit("change_view", item)
-                            }
-                          }
-                        },
-                        [_vm._v(_vm._s(item))]
-                      )
-                    : _vm._e()
-                }),
-                0
-              )
-            ]
-          )
-        ])
+                }
+              },
+              [_vm._v(_vm._s(item))]
+            )
+          }),
+          0
+        )
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "calendar-title" }, [
@@ -51364,37 +51269,37 @@ var render = function() {
           _c("thead", [
             _c("tr", [
               _c("th", { class: { "current-day": _vm.isCurrentDate(1) } }, [
-                _vm._v("Monday"),
+                _vm._v(_vm._s(_vm.weekdaysList[0])),
                 _c("span", [_vm._v(_vm._s(_vm.mondayDate))])
               ]),
               _vm._v(" "),
               _c("th", { class: { "current-day": _vm.isCurrentDate(2) } }, [
-                _vm._v("Tuesday"),
+                _vm._v(_vm._s(_vm.weekdaysList[1])),
                 _c("span", [_vm._v(_vm._s(_vm.tuesdayDate))])
               ]),
               _vm._v(" "),
               _c("th", { class: { "current-day": _vm.isCurrentDate(3) } }, [
-                _vm._v("Wednesday"),
+                _vm._v(_vm._s(_vm.weekdaysList[2])),
                 _c("span", [_vm._v(_vm._s(_vm.wednesdayDate))])
               ]),
               _vm._v(" "),
               _c("th", { class: { "current-day": _vm.isCurrentDate(4) } }, [
-                _vm._v("Thursday"),
+                _vm._v(_vm._s(_vm.weekdaysList[3])),
                 _c("span", [_vm._v(_vm._s(_vm.thursdayDate))])
               ]),
               _vm._v(" "),
               _c("th", { class: { "current-day": _vm.isCurrentDate(5) } }, [
-                _vm._v("Friday"),
+                _vm._v(_vm._s(_vm.weekdaysList[4])),
                 _c("span", [_vm._v(_vm._s(_vm.fridayDate))])
               ]),
               _vm._v(" "),
               _c("th", { class: { "current-day": _vm.isCurrentDate(6) } }, [
-                _vm._v("Saturday"),
+                _vm._v(_vm._s(_vm.weekdaysList[5])),
                 _c("span", [_vm._v(_vm._s(_vm.saturdayDate))])
               ]),
               _vm._v(" "),
               _c("th", { class: { "current-day": _vm.isCurrentDate(7) } }, [
-                _vm._v("Sunday"),
+                _vm._v(_vm._s(_vm.weekdaysList[6])),
                 _c("span", [_vm._v(_vm._s(_vm.sundayDate))])
               ])
             ])
@@ -51462,16 +51367,16 @@ var render = function() {
                               staticClass: "hour-cell",
                               attrs: {
                                 "data-weekday": k,
-                                "data-hour": _vm.hours[i].hour
+                                "data-hour": _vm.hoursList[i].hour
                               }
                             },
                             [
                               _c("div", { staticClass: "faded-time" }, [
                                 _vm._v(
                                   "\n                                    " +
-                                    _vm._s(_vm.hours[i].hour) +
+                                    _vm._s(_vm.hoursList[i].hour) +
                                     ":" +
-                                    _vm._s(_vm.hours[i].minute) +
+                                    _vm._s(_vm.hoursList[i].minute) +
                                     "\n                                "
                                 )
                               ])
@@ -51522,12 +51427,7 @@ var render = function() {
             { staticClass: "modal-dialog" },
             [
               _c("modal-cancel-book-content", {
-                attrs: { booking: _vm.cancelBookData },
-                on: {
-                  canceled: function($event) {
-                    return _vm.onCanceled($event)
-                  }
-                }
+                attrs: { booking: _vm.cancelBookData }
               })
             ],
             1
@@ -71308,6 +71208,84 @@ window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/s
 
 
 Vue.mixin({
+  data: function data() {
+    return {
+      hoursList: [{
+        hour: '00',
+        minute: '00'
+      }, {
+        hour: '01',
+        minute: '00'
+      }, {
+        hour: '02',
+        minute: '00'
+      }, {
+        hour: '03',
+        minute: '00'
+      }, {
+        hour: '04',
+        minute: '00'
+      }, {
+        hour: '05',
+        minute: '00'
+      }, {
+        hour: '06',
+        minute: '00'
+      }, {
+        hour: '07',
+        minute: '00'
+      }, {
+        hour: '08',
+        minute: '00'
+      }, {
+        hour: '09',
+        minute: '00'
+      }, {
+        hour: '10',
+        minute: '00'
+      }, {
+        hour: '11',
+        minute: '00'
+      }, {
+        hour: '12',
+        minute: '00'
+      }, {
+        hour: '13',
+        minute: '00'
+      }, {
+        hour: '14',
+        minute: '00'
+      }, {
+        hour: '15',
+        minute: '00'
+      }, {
+        hour: '16',
+        minute: '00'
+      }, {
+        hour: '17',
+        minute: '00'
+      }, {
+        hour: '18',
+        minute: '00'
+      }, {
+        hour: '19',
+        minute: '00'
+      }, {
+        hour: '20',
+        minute: '00'
+      }, {
+        hour: '21',
+        minute: '00'
+      }, {
+        hour: '22',
+        minute: '00'
+      }, {
+        hour: '23',
+        minute: '00'
+      }],
+      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    };
+  },
   methods: {
     getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
       var component = null;
@@ -71326,11 +71304,37 @@ Vue.mixin({
     },
     isAuth: function isAuth() {
       var componentApp = this.$root.$children[0];
-      return componentApp.authorized; // return false;
+      return componentApp.clientAuthorized; // return false;
       // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
       // if(componentApp)
       //     return componentApp.isAuth;
       // return false;
+    },
+    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
+      // console.log(milliseconds);
+      var minutes = seconds / 60; // console.log('seconds:' + seconds);
+      // let minutes = seconds/60;
+      // console.log('minutes:' + minutes);
+
+      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
+      // console.log(hours + ':' + minutes);
+
+      if (hours > 0) {
+        minutes = minutes % 60;
+        hours = this.formatTimeItemToTwoDigitString(hours);
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } else {
+        hours = '00';
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } // console.log(hours + ':' + minutes);
+
+
+      return hours + ':' + minutes;
+    },
+    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
+      var timeItemInt = parseInt(timeItem);
+      if (timeItemInt < 10) return '0' + timeItemInt;
+      return '' + timeItemInt;
     } // showChildren: function () {
     //     // console.log(this.$root.$children[0].$options.name);
     //     console.log(this.$root.$children[0].$options.name);

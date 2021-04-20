@@ -156,12 +156,15 @@ class BookingRetrievial extends MainBookingRetrievial{
                             }
                         }
                         
-                        $items[] = [
-                            'type' => 'booked',
-                            'from' => $booking_carbon->format('H:i'),
-                            'to' => $booking_carbon->addSeconds($template_duration)->format('H:i'),
-                            'booking' => $v->toArray(),
-                        ];
+                        $booking_carbon->addSeconds($template_duration);
+                        if($this->isByClient())
+                            $items[] = [
+                                'type' => 'booked',
+                                'from' => $booking_carbon->format('H:i'),
+                                // 'to' => $booking_carbon->addSeconds($template_duration)->format('H:i'),
+                                'to' => $booking_carbon->format('H:i'),
+                                'booking' => $v->toArray(),
+                            ];
                         
                         $start_carbon = $booking_carbon;
                         

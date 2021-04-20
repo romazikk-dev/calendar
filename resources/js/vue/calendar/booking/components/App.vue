@@ -6,6 +6,7 @@
                  :workers="workers"
                  :templates="templates"
                  :client-info="clientInfo"
+                 :all-bookings="allBookings"
                  @change="filterChange($event)"
                  @reset="reset"
                  @hideCalendar="showCalendar = false"
@@ -17,28 +18,32 @@
                 :view="view"
                 :views="views"
                 :user-id="userId"
-                :search="search"></month-calendar>
+                :search="search"
+                :data-updater="dataUpdater"></month-calendar>
             <week-calendar v-if="weekView"
                 @view_changed="onViewChange($event)"
                 :start-date="startDateWeek"
                 :view="view"
                 :views="views"
                 :user-id="userId"
-                :search="search"></week-calendar>
+                :search="search"
+                :data-updater="dataUpdater"></week-calendar>
             <day-calendar v-if="dayView"
                 @view_changed="onViewChange($event)"
                 :start-date="startDateDay"
                 :view="view"
                 :views="views"
                 :user-id="userId"
-                :search="search"></day-calendar>
+                :search="search"
+                :data-updater="dataUpdater"></day-calendar>
             <list-calendar v-if="listView"
                 @view_changed="onViewChange($event)"
                 :start-date="startDateWeek"
                 :view="view"
                 :views="views"
                 :user-id="userId"
-                :search="search"></list-calendar>
+                :search="search"
+                :data-updater="dataUpdater"></list-calendar>
         </div>
     </div>
 </template>
@@ -57,6 +62,7 @@
             // console.log(this.$options.name);
             this.setTokenFromCookie();
             this.getClientInfo();
+            this.getBookings();
         },
         props: ['userId'],
         data: function(){
@@ -70,6 +76,7 @@
                 
                 token: null,
                 clientInfo: null,
+                allBookings: null,
                 
                 showCalendar: true,
                 views: ['month','week','day','list'],
@@ -77,6 +84,8 @@
                 startDateMonth: new Date(),
                 startDateWeek: new Date(),
                 startDateDay: new Date(),
+                
+                dataUpdater: 0,
             };
         },
         computed: {
@@ -92,32 +101,196 @@
             listView: function () {
                 return this.view != null && this.view.toLowerCase() == 'list';
             },
-            authorized: function(){
+            clientAuthorized: function(){
                 return this.token != null;
-                // return false;
+            },
+            tokenHeader: function(){
+                if(this.token == null)
+                    return null;
+                return 'Bearer ' + this.token;
             },
         },
         methods: {
+            getData: function(startDate, endDate, successCallback = () => {
+                console.log('success');
+            }, errorCallback = () => {
+                console.log('error');
+            }, finalCallback = () => {
+                console.log('final');
+            },){
+                
+                if(this.isAuth()){
+                    var url = routes.calendar.booking.range.client;
+                    var headers = {
+                        headers: {
+                            Authorization: this.tokenHeader,
+                        }
+                    }
+                }else{
+                    var url = routes.calendar.booking.range.guest;
+                    var headers = {}
+                }
+                
+                url = url.replace(':start', startDate);
+                url = url.replace(':end', endDate);
+                
+                url += '?' + this.search;
+                
+                axios.get(url, headers)
+                .then((response) => {
+                    // handle success
+                    successCallback(response);
+                    // console.log(JSON.parse(JSON.stringify(this.dates)));
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(() => {
+                    // always executed
+                    finalCallback();
+                    // $('#cancelBookModal').modal('hide');
+                });
+                
+            },
+            bookOn: function(bookOnDate, bookOnTime, successCallback = () => {
+                console.log('success');
+            }, errorCallback = () => {
+                console.log('error');
+            }, finalCallback = () => {
+                console.log('final');
+            },){
+                if(this.tokenHeader == null)
+                    return;
+                    
+                let url = routes.calendar.booking.book.create;
+                
+                url = url.replace(':hall_id', filters.hall.id);
+                url = url.replace(':template_id', filters.template.id);
+                url = url.replace(':worker_id', filters.worker.id);
+                
+                axios.post(url, {
+                    book_on_date: bookOnDate,
+                    book_on_time: bookOnTime,
+                }, {
+                    headers: {
+                        Authorization: this.tokenHeader,
+                    }
+                })
+                .then((response) => {
+                    successCallback(response);
+                    this.dataUpdater++;
+                    this.getBookings();
+                    // this.dataUpdater++;
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(() => {
+                    finalCallback();
+                });
+            },
+            cancelBooking: function(booking, successCallback = () => {
+                console.log('success');
+            }){
+                if(this.tokenHeader == null)
+                    return;
+                
+                let url = routes.calendar.booking.book.cancel;
+                
+                url = url.replace(':hall_id', filters.hall.id);
+                url = url.replace(':template_id', filters.template.id);
+                url = url.replace(':worker_id', filters.worker.id);
+                url = url.replace(':booking_id', booking.id);
+                
+                // console.log(url);
+                // return;
+                
+                axios.delete(url, {
+                    headers: {
+                        Authorization: this.tokenHeader,
+                    }
+                })
+                .then((response) => {
+                    // handle success
+                    // this.dates = response.data.data;
+                    successCallback(response);
+                    this.dataUpdater++;
+                    this.getBookings();
+                    // console.log('success');
+                    // this.onCancel(response.data);
+                    // console.log(JSON.parse(JSON.stringify(response)));
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(() => {
+                    // always executed
+                    console.log('always');
+                    // this.$refs['loader'].fadeOut(300);
+                    // setTimeout(() => {
+                    //     this.successfullyBooked = true;
+                    //     this.bookButtonDisabled = false;
+                    // }, 300);
+                
+                });
+            },
+            login: function(token){
+                // cookie.remove('token');
+                // this.token = null;
+                // this.clientInfo = null;
+                this.setToken(token);
+                this.getClientInfo();
+                this.getBookings();
+                this.dataUpdater++;
+            },
             logout: function(){
                 cookie.remove('token');
                 this.token = null;
                 this.clientInfo = null;
+                this.dataUpdater++;
+            },
+            getBookings: function(){
+                if(this.token == null)
+                    return null;
+                    
+                let url = routes.calendar.booking.book.all;
+                let currentDate = moment(new Date()).format('YYYY-MM-DD_HH:mm:ss');
+                url = url.replace(':from_date', currentDate);
+            
+                axios.get(url, {
+                    headers: {
+                        Authorization: this.tokenHeader,
+                    }
+                })
+                .then((response) => {
+                    // handle success
+                    this.allBookings = response.data;
+                    // console.log(this.clientInfo);
+                    console.log(JSON.parse(JSON.stringify(this.allBookings)));
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(() => {
+                    // always executed
+                    console.log('always');
+                    // if(from == 'cancel_book'){
+                    //     console.log('from: cancel_book');
+                    //     $('#cancelBookModal').modal('hide');
+                    // }
+                });
             },
             getClientInfo: function(){
                 if(this.token == null)
                     return;
-                let token = 'Bearer ' + this.token;
-                console.log(token);
-                let url = routes.calendar.booking.client.info;
-                // let config = {
-                //     headers: {
-                //         Authorization: token,
-                //     }
-                // }
-                // let data = {}
-                axios.get(url, {
+                
+                axios.get(routes.calendar.booking.client.info, {
                     headers: {
-                        Authorization: token,
+                        Authorization: this.tokenHeader,
                     }
                 })
                 .then((response) => {

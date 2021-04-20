@@ -40,12 +40,12 @@
                         <tr>
                             <td v-for="k in 2"
                                 :class="{'title-hour-cell': k == 1, 'hour-cell': k == 2}"
-                                :data-hour="hours[i].hour">
+                                :data-hour="hoursList[i].hour">
                                     <div v-if="k == 1">
-                                        {{ hours[i].hour }}:{{ hours[i].minute }}
+                                        {{ hoursList[i].hour }}:{{ hoursList[i].minute }}
                                     </div>
                                     <div v-else class="faded-time">
-                                        {{ hours[i].hour }}:{{ hours[i].minute }}
+                                        {{ hoursList[i].hour }}:{{ hoursList[i].minute }}
                                     </div>
                             </td>
                         </tr>
@@ -113,7 +113,7 @@
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search','views','view','startDate'],
+        props: ['userId','search','views','view','startDate','dataUpdater'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -124,161 +124,16 @@
                 currentDate: new Date(),
                 currentDateMoment: moment(new Date()),
                 currentChoosenDateMoment: moment(new Date()),
-                // currentDate: null,
-                // currentDateMoment: null,
-                // currentChoosenDateMoment: null,
-                // calendarTitle: null,
-                // calendarWeekdayTitle: null,
-                weekdays: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-                // yearOfCurrentDate: null,
-                // monthOfCurrentDate: null,
-                // dayOfCurrentDate: null,
-                // weekdayOfCurrentDate: null,
-                // firstWeekday: null,
-                // lastWeekday: null,
-                
-                // mondayDate: null,
-                // tuesdayDate: null,
-                // wednesdayDate: null,
-                // thursdayDate: null,
-                // fridayDate: null,
-                // saturdayDate: null,
-                // sundayDate: null,
                 
                 workHours: null,
                 bussinessHours: null,
                 
-                hours: [
-                    {
-                        hour: '00',
-                        minute: '00',
-                    },
-                    {
-                        hour: '01',
-                        minute: '00',
-                    },
-                    {
-                        hour: '02',
-                        minute: '00',
-                    },
-                    {
-                        hour: '03',
-                        minute: '00',
-                    },
-                    {
-                        hour: '04',
-                        minute: '00',
-                    },
-                    {
-                        hour: '05',
-                        minute: '00',
-                    },
-                    {
-                        hour: '06',
-                        minute: '00',
-                    },
-                    {
-                        hour: '07',
-                        minute: '00',
-                    },
-                    {
-                        hour: '08',
-                        minute: '00',
-                    },
-                    {
-                        hour: '09',
-                        minute: '00',
-                    },
-                    {
-                        hour: '10',
-                        minute: '00',
-                    },
-                    {
-                        hour: '11',
-                        minute: '00',
-                    },
-                    {
-                        hour: '12',
-                        minute: '00',
-                    },
-                    {
-                        hour: '13',
-                        minute: '00',
-                    },
-                    {
-                        hour: '14',
-                        minute: '00',
-                    },
-                    {
-                        hour: '15',
-                        minute: '00',
-                    },
-                    {
-                        hour: '16',
-                        minute: '00',
-                    },
-                    {
-                        hour: '17',
-                        minute: '00',
-                    },
-                    {
-                        hour: '18',
-                        minute: '00',
-                    },
-                    {
-                        hour: '19',
-                        minute: '00',
-                    },
-                    {
-                        hour: '20',
-                        minute: '00',
-                    },
-                    {
-                        hour: '21',
-                        minute: '00',
-                    },
-                    {
-                        hour: '22',
-                        minute: '00',
-                    },
-                    {
-                        hour: '23',
-                        minute: '00',
-                    },
-                ],
-                // currentCalendarMonth: null,
-                // firstMonthDate: null,
-                // lastMonthDate: null,
-                // firstCalendarDate: null,
-                // lastCalendarDate: null,
                 cancelBookData: null,
                 
-                
-                // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
+                componentApp: null,
             };
         },
         computed: {
-            
-            // weekDayNotPast: function(){
-            //     return (i) => {
-            //         if(this.firstWeekday == null)
-            //             return false;
-            //         let firstWeekdayMoment = moment(this.firstWeekday);
-            //         let currentDateMoment = moment(this.currentDate);
-            //         return i >= this.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
-            //     }
-            //     // console.log(this.currentDate);
-            // 
-            //     // mondayWeekday = this.mondayDate.getDay();
-            //     // let mondayDateMoment = moment(this.mondayDate);
-            //     // let currentDateMoment = moment(this.currentDate);
-            //     // return i >= this.weekdayOfCurrentDate;
-            //     // return i >= this.weekdayOfCurrentDate || this.mondayDate != null;
-            //     // console.log(currentDateMoment.diff(mondayDateMoment) > 0);
-            //     // console.log(this.mondayDate);
-            //     // 
-            //     // return currentDateMoment.diff(mondayDateMoment) > 0;
-            // },
             currentDay: function () {
                 // if(this.currentDate == null)
                 //     return true;
@@ -295,7 +150,7 @@
                 if(this.currentChoosenDateMoment == null)
                     return '';
                 // console.log(this.currentChoosenDateMoment.isoWeekday() - 1);
-                return this.weekdays[this.currentChoosenDateMoment.isoWeekday() - 1];
+                return this.weekdaysList[this.currentChoosenDateMoment.isoWeekday() - 1];
             },
             canGoToPrevious: function () {
                 if(this.currentChoosenDateMoment == null)
@@ -689,57 +544,26 @@
                 return date;
             },
             getData: function(from = null){
-                // console.log(JSON.parse(JSON.stringify(this.range)));
-                // routes.calendar.booking.range
-                // let url = JSON.parse(JSON.stringify(routes.calendar.booking.range));
-                let url = routes.calendar.booking.range;
-                // url = url.replace(':start', moment(this.range.first_date).format('DD-MM-YYYY'));
-                // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-                // console.log(moment(this.range.last_date).format('DD-MM-YYYY'));
-                // console.log(url);
-                // return;
+                if(this.componentApp == null)
+                    this.componentApp = this.getParentComponentByName(this, 'app');
                 
-                url = url.replace(':start', this.currentChoosenDateMoment.format('DD-MM-YYYY'));
-                // url = url.replace(':start', moment(this.currentDate).format('DD-MM-YYYY'));
-                url = url.replace(':end', this.currentChoosenDateMoment.format('DD-MM-YYYY'));
-                
-                url += '?' + this.search;
-                
-                // return;
-                // url = url.replace(':start', '28-03-2021');
-                // url = url.replace(':end', '08-05-2021');
-                
-                // console.log(url);
-                // console.log(routes.calendar.booking.range);
-                axios.get(url)
-                .then((response) => {
-                    // handle success
-                    // console.log(response.data.data);
-                    this.date = response.data.data[0];
-                    // this.setWorkHours(response.data.start, response.data.end);
-                    // console.log(response.data.business_hours);
-                    this.bussinessHours = response.data.business_hours;
-                    this.setWorkHours();
-                    // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-                    // if(this.date.)
-                    setTimeout(() => {
-                        this.placeItems();
-                    }, 100);
-                    // this.placeItems();
-                    // console.log(response.data[0]);
-                    // console.log(JSON.parse(JSON.stringify(this.dates)));
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(function () {
-                    // always executed
-                    if(from == 'cancel_book'){
-                        console.log('from: cancel_book');
+                this.componentApp.getData(
+                    moment(this.firstWeekday).format('DD-MM-YYYY'),
+                    moment(this.lastWeekday).format('DD-MM-YYYY'),
+                    (response) => {
+                        this.date = response.data.data[0];
+                        this.bussinessHours = response.data.business_hours;
+                        this.setWorkHours();
+                        // console.log(JSON.parse(JSON.stringify(4444444444444444)));
+                        setTimeout(() => {
+                            this.placeItems();
+                        }, 100);
+                    },
+                    () => {},
+                    () => {
                         $('#cancelBookModal').modal('hide');
-                    }
-                });
+                    },
+                );
             },
             // setWorkHours: function(startHour, endHour){
             setWorkHours: function(){
@@ -797,7 +621,10 @@
             search: function () {
                 // console.log(this.search);
                 this.getData();
-            }
+            },
+            dataUpdater: function () {
+                this.getData();
+            },
         }
     }
 </script>

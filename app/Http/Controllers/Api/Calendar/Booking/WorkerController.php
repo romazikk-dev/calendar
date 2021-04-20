@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Calendar\Booking;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Worker;
 use App\Models\Hall;
 use App\Models\Template;
@@ -11,7 +12,7 @@ use App\Scopes\UserScope;
 
 class WorkerController extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request, User $user){
         
         $model = Worker::withoutGlobalScope(UserScope::class)->where('is_deleted', '=', '0');
         

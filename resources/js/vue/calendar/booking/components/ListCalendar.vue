@@ -147,11 +147,9 @@
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search','view','views','startDate'],
+        props: ['userId','search','view','views','startDate','dataUpdater'],
         data: function(){
             return {
-                // dateRange: helper.range.range,
-                weekdays: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
                 empty: true,
                 
                 dates: null,
@@ -165,126 +163,14 @@
                 dayOfCurrentDate: null,
                 weekdayOfCurrentDate: null,
                 firstWeekday: null,
-                lastWeekday: null, 
-                
-                // mondayDate: null,
-                // tuesdayDate: null,
-                // wednesdayDate: null,
-                // thursdayDate: null,
-                // fridayDate: null,
-                // saturdayDate: null,
-                // sundayDate: null,
+                lastWeekday: null,
                 
                 workHours: null,
                 bussinessHours: null,
                 
-                hours: [
-                    {
-                        hour: '00',
-                        minute: '00',
-                    },
-                    {
-                        hour: '01',
-                        minute: '00',
-                    },
-                    {
-                        hour: '02',
-                        minute: '00',
-                    },
-                    {
-                        hour: '03',
-                        minute: '00',
-                    },
-                    {
-                        hour: '04',
-                        minute: '00',
-                    },
-                    {
-                        hour: '05',
-                        minute: '00',
-                    },
-                    {
-                        hour: '06',
-                        minute: '00',
-                    },
-                    {
-                        hour: '07',
-                        minute: '00',
-                    },
-                    {
-                        hour: '08',
-                        minute: '00',
-                    },
-                    {
-                        hour: '09',
-                        minute: '00',
-                    },
-                    {
-                        hour: '10',
-                        minute: '00',
-                    },
-                    {
-                        hour: '11',
-                        minute: '00',
-                    },
-                    {
-                        hour: '12',
-                        minute: '00',
-                    },
-                    {
-                        hour: '13',
-                        minute: '00',
-                    },
-                    {
-                        hour: '14',
-                        minute: '00',
-                    },
-                    {
-                        hour: '15',
-                        minute: '00',
-                    },
-                    {
-                        hour: '16',
-                        minute: '00',
-                    },
-                    {
-                        hour: '17',
-                        minute: '00',
-                    },
-                    {
-                        hour: '18',
-                        minute: '00',
-                    },
-                    {
-                        hour: '19',
-                        minute: '00',
-                    },
-                    {
-                        hour: '20',
-                        minute: '00',
-                    },
-                    {
-                        hour: '21',
-                        minute: '00',
-                    },
-                    {
-                        hour: '22',
-                        minute: '00',
-                    },
-                    {
-                        hour: '23',
-                        minute: '00',
-                    },
-                ],
-                // currentCalendarMonth: null,
-                // firstMonthDate: null,
-                // lastMonthDate: null,
-                // firstCalendarDate: null,
-                // lastCalendarDate: null,
                 cancelBookData: null,
                 
-                
-                // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
+                componentApp: null,
             };
         },
         computed: {
@@ -333,7 +219,7 @@
             },
             getWeekdayTitleFromDateItem: function (date) {
                 let dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
-                return this.weekdays[dateMoment.isoWeekday() - 1];
+                return this.weekdaysList[dateMoment.isoWeekday() - 1];
             },
             getDayTitleFromDateItem: function (date) {
                 let dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
@@ -385,44 +271,22 @@
                 return currentDateMoment.format('YYYYMMDD') == date.year + date.month + date.day;
             },
             getData: function(from = null){
-                // return;
+                if(this.componentApp == null)
+                    this.componentApp = this.getParentComponentByName(this, 'app');
                 
-                // console.log(this.currentDateMoment.format('YYYY MM DD'));
-                
-                let url = routes.calendar.booking.range;
-                
-                url = url.replace(':start', moment(this.firstWeekday).format('DD-MM-YYYY'));
-                url = url.replace(':end', moment(this.lastWeekday).format('DD-MM-YYYY'));
-                
-                url += '?' + this.search;
-                
-                // return;
-                axios.get(url)
-                .then((response) => {
-                    // handle success
-                    // console.log(response.data.data);
-                    this.dates = response.data.data;
-                    this.bussinessHours = response.data.business_hours;
-                    // this.setWorkHours();
-                    // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-                    // console.log(this.currentDateMoment.format('YYYY MM DD'));
-                    // setTimeout(() => {
-                    //     // this.placeItems();
-                    //     console.log(this.currentDateMoment.format('YYYY MM DD'));
-                    // }, 100);
-                    console.log(JSON.parse(JSON.stringify(this.dates)));
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(function () {
-                    // always executed
-                    if(from == 'cancel_book'){
-                        console.log('from: cancel_book');
+                this.componentApp.getData(
+                    moment(this.firstWeekday).format('DD-MM-YYYY'),
+                    moment(this.lastWeekday).format('DD-MM-YYYY'),
+                    (response) => {
+                        this.dates = response.data.data;
+                        this.bussinessHours = response.data.business_hours;
+                        // console.log(JSON.parse(JSON.stringify(this.dates)));
+                    },
+                    () => {},
+                    () => {
                         $('#cancelBookModal').modal('hide');
-                    }
-                });
+                    },
+                );
             },
             setDates: function(firstCalendarMonthDate){
                 if(this.yearOfCurrentDate == null || this.monthOfCurrentDate == null ||
@@ -457,6 +321,9 @@
         watch: {
             search: function () {
                 // console.log(this.search);
+                this.getData();
+            },
+            dataUpdater: function () {
                 this.getData();
             },
             dates: function () {

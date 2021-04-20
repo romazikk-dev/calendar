@@ -19,7 +19,18 @@
             </div>
             
             <div class="right-part float-right">
-                <div class="filter float-right mr-0">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button v-for="item in views"
+                        :class="{
+                            active: item.toLowerCase() == view.toLowerCase(),
+                            disabled: item.toLowerCase() == view.toLowerCase()
+                        }"
+                        :disabled="item.toLowerCase() == view.toLowerCase()"
+                        @click.prevent="$emit('change_view', item)"
+                        type="button"
+                        class="btn btn-sm btn-secondary">{{item}}</button>
+                </div>
+                <!-- <div class="filter float-right mr-0">
                     <div id="viewDropdown" class="dropdown">
                         <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {{view}}
@@ -29,7 +40,7 @@
                             <a v-for="item in views" @click.prevent="$emit('change_view', item)" v-if="item.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{item}}</a>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             
             <div class="calendar-title">

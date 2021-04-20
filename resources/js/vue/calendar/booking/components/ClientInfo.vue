@@ -25,7 +25,8 @@
                 <!-- ModalClientInfoContent -->
                 <modal-client-info-content
                     v-if="clientInfo"
-                    :client-info="clientInfo"></modal-client-info-content>
+                    :client-info="clientInfo"
+                    :all-bookings="allBookings"></modal-client-info-content>
                 <!-- ModalAuthContent -->
                 <modal-auth-content v-else :user-id="userId"></modal-auth-content>
             </div>
@@ -47,7 +48,7 @@
                 this.show = true;
             }, 100);
         },
-        props: ['clientInfo','userId'],
+        props: ['clientInfo','userId','allBookings'],
         data: function(){
             return {
                 show: false,

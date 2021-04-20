@@ -271,38 +271,16 @@
             },
         },
         methods: {
-            onBooked: function (response){
-                this.$emit('booked');
-                // this.$refs['loader'].showTranparent();
-            },
             book: function (){
+                let componentApp = this.getParentComponentByName(this, 'app');
+                
                 this.bookButtonDisabled = true;
                 this.$refs['loader'].showTranparent();
-                let url = routes.calendar.booking.book.create;
                 
-                url = url.replace(':hall_id', filters.hall.id);
-                url = url.replace(':template_id', filters.template.id);
-                url = url.replace(':worker_id', filters.worker.id);
-                
-                // console.log(this.bookOn);
-                
-                axios.post(url, {
-                    book_on_date: this.bookingDate,
-                    book_on_time: this.bookOn,
-                })
-                .then((response) => {
-                    // handle success
-                    // this.dates = response.data.data;
-                    console.log('success');
-                    this.onBooked(response);
-                    // console.log(JSON.parse(JSON.stringify(this.dates)));
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    // always executed
+                componentApp.bookOn(this.bookingDate, this.bookOn, (response) => {
+                    // this.onBooked(response);
+                }, () => {}, () => {
+                    
                     console.log('always');
                     this.$refs['loader'].fadeOut(300);
                     setTimeout(() => {
@@ -311,7 +289,6 @@
                     }, 300);
                     
                 });
-                // console.log(url);
             },
             timeBarSliderEnabled: function (){
                 // console.log('timeBarSliderEnabled');
@@ -443,6 +420,7 @@
         },
         watch: {
             auth: function(newOne, oldOne) {
+                console.log('auth changed: ' + auth);
                 this.$refs['loader'].show();
                 setTimeout(() => {
                     this.$refs['loader'].fadeOut(300);
