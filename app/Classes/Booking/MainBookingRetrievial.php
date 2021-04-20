@@ -62,8 +62,11 @@ class MainBookingRetrievial{
         return $this->hall_business_hours[$business_hour_index];
     }
     
-    protected function isByClient(){
-        return !is_null($this->client);
+    protected function isByClient($client_id = null){
+        $out = !is_null($this->client);
+        if(!is_null($client_id) && is_numeric($client_id))
+            return $out && $this->client->id == $client_id;
+        return $out;
     }
     
     protected function composeBookingModel(){
@@ -83,12 +86,16 @@ class MainBookingRetrievial{
             ->where('worker_id', '=', $this->worker->id)
             ->where('template_id', '=', $this->template->id)
             ->orderBy('time', 'ASC');
-            
-        if($this->isByClient()){
-            $this->booking->byClient($this->client->id);
-        }else{
+        
+        if(!$this->isByClient()){
             $this->booking->approved();
         }
+        
+        // if($this->isByClient()){
+        //     $this->booking->byClient($this->client->id);
+        // }else{
+        //     $this->booking->approved();
+        // }
             
         // var_dump($this->booking->get());
         // die();

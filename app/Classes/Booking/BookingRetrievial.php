@@ -126,11 +126,12 @@ class BookingRetrievial extends MainBookingRetrievial{
                     
                     // If booking not approved add it to $not_approved_bookings and continue to next iteration
                     if(!$v->approved){
-                        $not_approved_bookings[$k] = [
-                            'booking' => $v->toArray(),
-                            'from' => $booking_carbon->format('H:i'),
-                            'to' => $booking_carbon->addSeconds($template_duration)->format('H:i'),
-                        ];
+                        if($this->isByClient($v->client_id))
+                            $not_approved_bookings[$k] = [
+                                'booking' => $v->toArray(),
+                                'from' => $booking_carbon->format('H:i'),
+                                'to' => $booking_carbon->addSeconds($template_duration)->format('H:i'),
+                            ];
                     }else{
                         if(!empty($not_approved_bookings)){
                             $items[] = [
@@ -157,7 +158,8 @@ class BookingRetrievial extends MainBookingRetrievial{
                         }
                         
                         $booking_carbon->addSeconds($template_duration);
-                        if($this->isByClient())
+                        // if($this->isByClient())
+                        if($this->isByClient($v->client_id))
                             $items[] = [
                                 'type' => 'booked',
                                 'from' => $booking_carbon->format('H:i'),
