@@ -1,3 +1,4 @@
 {
-    "/js/calendar-booking.js": "/js/calendar-booking.js"
+    "/js/dashboard/halls/halls-list.js": "/js/dashboard/halls/halls-list.js",
+    "/css/dashboard.css": "/css/dashboard.css"
 }

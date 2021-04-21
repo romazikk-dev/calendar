@@ -1,77 +1,124 @@
 /* BREADCRUMBS
 ******************************************************************/
-.breadcrumb{
-    padding: 3px 12px!important;
-    border-radius: 0px!important;
+
+.breadcrumb {
+  padding: 3px 12px !important;
+  border-radius: 0px !important;
 }
 
-
-input, textarea, select{
-    background-color: #f9f9f9!important;
+input,
+textarea,
+select {
+  background-color: #f9f9f9 !important;
 }
 
-.page-actions .page-action svg{
-    position: relative;
-    top: -2px!important;
+.page-actions .page-action svg {
+  position: relative;
+  top: -2px !important;
 }
-
 
 /* SHOW TABLE
 ******************************************************************/
-table.show-table{
-    width: 100%;
-}
-table.show-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-table.show-table td, table.show-table th{
-    border: 1px solid #ccc;
-    padding: 3px 6px;
-}
-/* table.show-table th{
-    background-color: #4CAF50;
-} */
-table.show-table td:first-child{
-    /* background-color: #f1f1f1; */
-    width: 140px;
-}
-/* table.show-table td:last-child{
-    padding-left: 15px;
-} */
 
+.modal-custom-dark-header-footer .modal-header {
+  padding-right: 50px;
+}
 
-/* BREADCRUMBS
+.modal-custom-dark-header-footer .modal-header .close {
+  font-size: 60px;
+  color: #fff;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  line-height: 0.8em;
+  padding: 0px;
+  margin: 0px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 60px;
+  width: 60px;
+}
+
+.modal-custom-dark-header-footer .modal-header .close span {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 60px;
+  width: 60px;
+}
+
+.modal-custom-dark-header-footer .modal-header .close:hover {
+  color: #fff;
+  opacity: 1 !important;
+}
+
+.modal-custom-dark-header-footer .modal-header,
+.modal-custom-dark-header-footer .modal-footer {
+  color: white;
+}
+
+.modal-custom-dark-header-footer .modal-content {
+  background-color: #6c757d;
+  box-shadow: 0px 0px 3px 0px rgba(190, 229, 235, 0.7);
+}
+
+.modal-custom-dark-header-footer .modal-body {
+  background-color: white;
+}
+
+/* SHOW TABLE
 ******************************************************************/
-#businessHours table{
-    width: 100%;
-}
-#businessHours .end{
-    /* border-bottom: 1px solid #ccc; */
-}
-#businessHours .card-body{
-    padding: 0px;
-}
-#businessHours .end td{
-    padding-bottom: 10px;
-}
-#businessHours .start td{
-    padding-top: 10px;
-}
-#businessHours tr td,
-#businessHours tr td{
-    /* background-color: #eaeaea; */
-    /* background-color: #eeeeee; */
-    background-color: rgba(0,0,0,.03);
-    /* background-color: red; */
-}
-#businessHours tr.end:nth-child(4n-2) td,
-#businessHours tr.start:nth-child(4n-3) td{
-    /* background-color: #eaeaea; */
-    background-color: #ffffff;
-    /* background-color: red; */
+
+table.show-table {
+  width: 100%;
 }
 
-#businessHours td:nth-child(1){
-    padding-left: 4px;
-    padding-right: 4px;
+table.show-table tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
+
+table.show-table tr td,
+table.show-table tr th {
+  border: 1px solid #ccc;
+  padding: 3px 6px;
+}
+
+table.show-table tr td:first-child {
+  /* background-color: #f1f1f1; */
+  width: 140px;
+}
+
+/* BUSINESS HOURS
+******************************************************************/
+
+#businessHours .card-body {
+  padding: 0px;
+}
+
+#businessHours .card-body table {
+  width: 100%;
+}
+
+#businessHours .card-body table tr.end td {
+  padding-bottom: 10px;
+}
+
+#businessHours .card-body table tr.start td {
+  padding-top: 10px;
+}
+
+#businessHours .card-body table tr td {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+#businessHours .card-body table tr td:nth-child(1) {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#businessHours .card-body table tr.end:nth-child(4n-2) td,
+#businessHours .card-body table tr.start:nth-child(4n-3) td {
+  background-color: #ffffff;
+}
+
+

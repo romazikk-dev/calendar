@@ -14,8 +14,8 @@
     
     <x-slot name="scripts">        
         <!--  Datepikers  -->
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <script type="text/javascript">
+        <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+        <!-- <script type="text/javascript">
             $(document).ready(function (){
                 var dateFormat = "dd-mm-yy",
                     from = $( "#from" ).datepicker({
@@ -48,219 +48,124 @@
                         return date;
                     }
             });
-        </script>
+        </script> -->
         
         <!--  Datatable  -->
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+        
+        
         <script type="text/javascript">
+            var dataListRoute = "{{ route('dashboard.hall.data_list') }}";
+            var toggleClosedRoute = "{{ route('dashboard.hall.toggle_closed', ':id') }}";
+            var showRoute = "{{ route('dashboard.hall.show', ':id') }}";
+            var deleteRoute = '{{ route("dashboard.hall.destroy", ":id") }}';
+            
+            var editRoute = '{{ route("dashboard.hall.edit", ":id") }}';
+            
+            var csrf = '@csrf';
+            var methodDelete = `@method('DELETE')`;
+            
+            
+            
+            // var delete_url = '{{ route("dashboard.hall.destroy", ":id") }}';
+            // delete_url = delete_url.replace(':id', row.id);
+            
+            // var edit_url = '{{ route("dashboard.hall.edit", ":id") }}';
+            // edit_url = editRoute.replace(':id', row.id);
+            
+            // var show_url = '{{ route("dashboard.hall.show", ":id") }}';
+            // show_url = show_url.replace(':id', row.id);
+            
+            
+            // var toggle_closed = '{{ route("dashboard.hall.toggle_closed", ":id") }}';
+            // toggle_closed = toggle_closed.replace(':id', row.id);
+            
+            
+            
+            
+            
+            // var methodDelete = 111;
+            
             //Initialising DataTable
             $(document).ready(function (){
-                $('#dataTable').DataTable({
-                    "processing": true,
-                    "serverSide": true,
-                    "order": [[ 0, "desc" ]],
-                    "createdRow": function(row, data, dataIndex){
-                        $(row).attr('worker-id', data.id);
-                        $(row).attr('is-closed', data.is_closed);
-                        $(row).attr('workers-count', data.workers_count);
-                        $(row).attr('created-at', data.created_at);
-                        if(data.is_closed == 1)
-                            $(row).addClass('table-danger');
-                    },
-                    "columns": [
-                        {data: 'id', name: 'id'},
-                        {data: 'title', name: 'title'},
-                        {
-                            data: 'workers_count',
-                            name: 'workers_count',
-                            searchable: false,
-                        },
-                        {data: 'created_at', name: 'created_at'},
-                        {
-                            data: null,
-                            className: "actions",
-                            render: function ( data, type, row, meta ) {
-                                // console.log(data);
-                                
-                                var delete_url = '{{ route("dashboard.hall.destroy", ":id") }}';
-                                delete_url = delete_url.replace(':id', row.id);
-                                
-                                var edit_url = '{{ route("dashboard.hall.edit", ":id") }}';
-                                edit_url = edit_url.replace(':id', row.id);
-                                
-                                var show_url = '{{ route("dashboard.hall.show", ":id") }}';
-                                show_url = show_url.replace(':id', row.id);
-                                
-                                
-                                var toggle_closed = '{{ route("dashboard.hall.toggle_closed", ":id") }}';
-                                toggle_closed = toggle_closed.replace(':id', row.id);
-                                
-                                let stopSuspensionVisibility = data.worker_suspension_id !== null ? '' : 'd-none';
-                                
-                                let reinstate = `
-                                    <a href="#"
-                                        onclick="
-                                            event.preventDefault();
-                                            if(confirm('Do you really want to stop suspension for this worker?')){
-                                                toogleSuspension(${row.id}, 'disable');
-                                            }
-                                        "
-                                        class="float-right stop-suspension-action action ${stopSuspensionVisibility}"
-                                        title="Stop suspension">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                                          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
-                                        </svg>
-                                    </a>
-                                `;
-                                // }
-                                
-                                return `
-                                <form method="post" action="${delete_url}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <a href="${delete_url}"
-                                        onclick="event.preventDefault(); if(confirm('Do you realy want to delete this worker')){ this.closest('form').submit();}"
-                                        class="float-right delete-action action"
-                                        data-toggle="tooltip"
-                                        title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                                        </svg>
-                                    </a>
-                                </form>
-                                
-                                <a href="${edit_url}"
-                                    class="float-right edit-action action"
-                                    data-toggle="tooltip"
-                                    title="Edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                        <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                                    </svg>
-                                </a>
-                                
-                                <a href="#"
-                                    onclick="
-                                        event.preventDefault();
-                                        openModal(${row.id});
-                                    "
-                                    class="float-right toggle-suspension-action action"
-                                    title="Suspention">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle-fill" viewBox="0 0 16 16">
-                                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z"/>
-                                    </svg>
-                                </a>
-                                
-                                ${reinstate}
-                                
-                                <a href="${show_url}"
-                                    class="float-right show-action action"
-                                    data-toggle="tooltip"
-                                    title="Show">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                                      <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                                    </svg>
-                                </a>`;
-                            },
-                            sortable: false,
-                            searchable: false,
-                        }
-                    ],
-                    "columnDefs": [
-                        {
-                            "targets": [3],
-                            "render": function ( data, type, row, meta ) {
-                                let date = new Date(data);
-                                
-                                let dateOfMonth = date.getDate();
-                                dateOfMonth = dateOfMonth < 10 ? '0' + dateOfMonth.toString() : dateOfMonth;
-                                
-                                let month = date.getMonth();
-                                month = month < 10 ? '0' + month.toString() : month;
-                                
-                                return dateOfMonth + '/' + month + '/' + date.getFullYear();
-                            }
-                        }
-                    ],
-                    // "ajax": "{{ route('dashboard.worker.data_list') }}",
-                    "ajax": {
-                        "url": "{{ route('dashboard.hall.data_list') }}",
-                        "type": "post",
-                        "headers": {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        // "data": {
-                        //     // "user_id": 451
-                        // }
-                    }
-                });
+                
             });
         </script>
+        
+        <!-- <script type="text/javascript" charset="utf8" src="{{ asset('js/dashboard/halls/dashboard-halls-index.js') }}?@php echo rand(100, 1000) @endphp"></script> -->
+        
+        <script type="text/javascript" src="{{ asset('js/dashboard/halls/halls-list.js') }}?{{$rand}}"></script>
         
         <!--  Modal  -->
         <script type="text/javascript">
             // $('#suspendModal').modal('show');
             
-            function openModal(id){
-                $('#suspendModal').modal('show');
-                $('#suspendModal').attr('worker-id', id);
-                setModalContent();
+            // function openModal(id){
+            //     $('#suspendModal').modal('show');
+            //     $('#suspendModal').attr('worker-id', id);
+            //     setModalContent();
+            // }
+            
+            function openInfoModal(id){
+                $('#infoModal').modal('show');
+                // $('#suspendModal').attr('worker-id', id);
+                // setModalContent();
             }
             
-            function setModalContent(){
-                // $(`#dataTable tr[worker-id=${id}]`).attr(`worker-id`);
-                let id = $('#suspendModal').attr('worker-id');
-                let tr = $(`#dataTable tr[worker-id=${id}]`);
-                let email = tr.attr(`email`);
-                let workerSuspensionId = tr.attr(`worker-suspension-id`);
-                let workerSuspensionFrom = tr.attr(`worker-suspension-from`);
-                let workerSuspensionTo = tr.attr(`worker-suspension-to`);
-                // console.log(workerSuspensionFrom);
-                // console.log($('#suspendModal').attr('worker-suspension-id'));
-                
-                if(typeof workerSuspensionId != 'undefined' &&
-                typeof workerSuspensionFrom != 'undefined' &&
-                typeof workerSuspensionTo != 'undefined'){
-                    $('#suspendModal .status').html(`
-                        Worker with email - ${email}<br>
-                        Suspended for period
-                    `);
-                    $('#periodSuspendBtn').addClass('d-none');
-                    $('#disableSuspendBtn').removeClass('d-none');
-                    $('#completeSuspendBtn').removeClass('d-none');
-                    let workerSuspensionFromArr = workerSuspensionFrom.split("-");
-                    workerSuspensionFrom = workerSuspensionFromArr[2] + '-' + workerSuspensionFromArr[1] + '-' + workerSuspensionFromArr[0];
-                    let workerSuspensionToArr = workerSuspensionTo.split("-");
-                    workerSuspensionTo = workerSuspensionToArr[2] + '-' + workerSuspensionToArr[1] + '-' + workerSuspensionToArr[0];
-                    $('#from').val(workerSuspensionFrom);
-                    $('#to').val(workerSuspensionTo);
-                }else if(typeof workerSuspensionId != 'undefined' &&
-                typeof workerSuspensionFrom == 'undefined' &&
-                typeof workerSuspensionTo == 'undefined'){
-                    $('#suspendModal .status').html(`
-                        ${email}<br>
-                        Totally suspended
-                    `);
-                    $('#completeSuspendBtn').addClass('d-none');
-                    $('#periodSuspendBtn').removeClass('d-none');
-                    $('#disableSuspendBtn').removeClass('d-none');
-                    $('#from').val('');
-                    $('#to').val('');
-                }else if(typeof workerSuspensionId == 'undefined' &&
-                typeof workerSuspensionFrom == 'undefined' &&
-                typeof workerSuspensionTo == 'undefined'){
-                    $('#suspendModal .status').html(`
-                        ${email}<br>
-                        Worker not suspended
-                    `);
-                    $('#completeSuspendBtn').removeClass('d-none');
-                    $('#periodSuspendBtn').removeClass('d-none');
-                    $('#disableSuspendBtn').addClass('d-none');
-                    $('#from').val('');
-                    $('#to').val('');
-                }
-            }
+            // function setModalContent(){
+            //     // $(`#dataTable tr[worker-id=${id}]`).attr(`worker-id`);
+            //     let id = $('#suspendModal').attr('worker-id');
+            //     let tr = $(`#dataTable tr[worker-id=${id}]`);
+            //     let email = tr.attr(`email`);
+            //     let workerSuspensionId = tr.attr(`worker-suspension-id`);
+            //     let workerSuspensionFrom = tr.attr(`worker-suspension-from`);
+            //     let workerSuspensionTo = tr.attr(`worker-suspension-to`);
+            //     // console.log(workerSuspensionFrom);
+            //     // console.log($('#suspendModal').attr('worker-suspension-id'));
+            // 
+            //     if(typeof workerSuspensionId != 'undefined' &&
+            //     typeof workerSuspensionFrom != 'undefined' &&
+            //     typeof workerSuspensionTo != 'undefined'){
+            //         $('#suspendModal .status').html(`
+            //             Worker with email - ${email}<br>
+            //             Suspended for period
+            //         `);
+            //         $('#periodSuspendBtn').addClass('d-none');
+            //         $('#disableSuspendBtn').removeClass('d-none');
+            //         $('#completeSuspendBtn').removeClass('d-none');
+            //         let workerSuspensionFromArr = workerSuspensionFrom.split("-");
+            //         workerSuspensionFrom = workerSuspensionFromArr[2] + '-' + workerSuspensionFromArr[1] + '-' + workerSuspensionFromArr[0];
+            //         let workerSuspensionToArr = workerSuspensionTo.split("-");
+            //         workerSuspensionTo = workerSuspensionToArr[2] + '-' + workerSuspensionToArr[1] + '-' + workerSuspensionToArr[0];
+            //         $('#from').val(workerSuspensionFrom);
+            //         $('#to').val(workerSuspensionTo);
+            //     }else if(typeof workerSuspensionId != 'undefined' &&
+            //     typeof workerSuspensionFrom == 'undefined' &&
+            //     typeof workerSuspensionTo == 'undefined'){
+            //         $('#suspendModal .status').html(`
+            //             ${email}<br>
+            //             Totally suspended
+            //         `);
+            //         $('#completeSuspendBtn').addClass('d-none');
+            //         $('#periodSuspendBtn').removeClass('d-none');
+            //         $('#disableSuspendBtn').removeClass('d-none');
+            //         $('#from').val('');
+            //         $('#to').val('');
+            //     }else if(typeof workerSuspensionId == 'undefined' &&
+            //     typeof workerSuspensionFrom == 'undefined' &&
+            //     typeof workerSuspensionTo == 'undefined'){
+            //         $('#suspendModal .status').html(`
+            //             ${email}<br>
+            //             Worker not suspended
+            //         `);
+            //         $('#completeSuspendBtn').removeClass('d-none');
+            //         $('#periodSuspendBtn').removeClass('d-none');
+            //         $('#disableSuspendBtn').addClass('d-none');
+            //         $('#from').val('');
+            //         $('#to').val('');
+            //     }
+            // }
             
             $(document).on('click', '#completeSuspendBtn', function(e){
                 e.preventDefault();
@@ -335,6 +240,10 @@
                     },
                 });
             }
+            
+            $(document).ready(function(){
+                $('[data-toggle="tooltip"]').tooltip();
+            });
         </script>
         
         
@@ -367,21 +276,69 @@
                 margin-left: 0px!important;
             } */
             /* edit-password-action */
+            #dataTable{
+                
+            }
+            #dataTable .coll-status{
+                vertical-align: middle;
+                text-align: center!important;
+            }
+            #dataTable .coll-status .status-circle{
+                position: relative;
+                left: 15px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                position: relative;
+                left: 15px;
+            }
+            #dataTable .coll-status .status-circle-opened{
+                background-color: green;
+            }
+            #dataTable .coll-status .status-circle-closed{
+                background-color: red;
+            }
+            #dataTable .workers-count div{
+                position: relative;
+                left: 13px;
+                font-weight: bold;
+            }
+            // #dataTable td.coll-id,
+            // #dataTable th.coll-id{
+            //     width: 50px;
+            // }
         </style>
     </x-slot>
-
+    
+    <div id="hallsList"></div>
+    
+    <!--
     <table id="dataTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Title</th>
-                <th>Workers count</th>
+                <th>
+                    Title
+                </th>
+                <th data-toggle="tooltip" data-placement="auto" title="Status of hall (closed/opened)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-open-fill" viewBox="0 0 16 16">
+                        <path d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.57-.495l-7 1A.5.5 0 0 0 3 1.5V15H1.5zM11 2h.5a.5.5 0 0 1 .5.5V15h-1V2zm-2.5 8c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z"/>
+                    </svg>
+                </th>
+                <th data-toggle="tooltip" data-placement="auto" title="Number of employees">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                        <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                    </svg>
+                </th>
                 <th>Created</th>
                 <th></th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
+    -->
     
     <!-- Modal -->
     <div class="modal fade" id="suspendModal" data-link="http://hairdressers.com/dashboard/worker/4/toggle-suspension" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -420,6 +377,41 @@
                                 </td>
                             </tr>
                         </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="disableSuspendBtn" type="button" class="btn btn-success d-none">Reinstate</button>
+                    <button id="completelySuspendEmployeeBtn" type="button" class="btn btn-info">Suspend completely</button>
+                    <button id="periodSuspendBtn" type="button" class="btn btn-primary">Suspend for a period</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal fade modal-custom-dark-header-footer" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table>
+                        <tr>
+                            <td>Description</td>
+                            <td id="infoDescription"></td>
+                        </tr>
+                        <tr>
+                            <td>Short description</td>
+                            <td id="infoShortDescription"></td>
+                        </tr>
+                        <tr>
+                            <td>Short description</td>
+                            <td id="infoShortDescription"></td>
+                        </tr>
                     </table>
                 </div>
                 <div class="modal-footer">

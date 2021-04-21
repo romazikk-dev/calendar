@@ -1,0 +1,77 @@
+/* BREADCRUMBS
+******************************************************************/
+.breadcrumb{
+    padding: 3px 12px!important;
+    border-radius: 0px!important;
+}
+
+
+input, textarea, select{
+    background-color: #f9f9f9!important;
+}
+
+.page-actions .page-action svg{
+    position: relative;
+    top: -2px!important;
+}
+
+
+/* SHOW TABLE
+******************************************************************/
+table.show-table{
+    width: 100%;
+}
+table.show-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+table.show-table td, table.show-table th{
+    border: 1px solid #ccc;
+    padding: 3px 6px;
+}
+/* table.show-table th{
+    background-color: #4CAF50;
+} */
+table.show-table td:first-child{
+    /* background-color: #f1f1f1; */
+    width: 140px;
+}
+/* table.show-table td:last-child{
+    padding-left: 15px;
+} */
+
+
+/* BREADCRUMBS
+******************************************************************/
+#businessHours table{
+    width: 100%;
+}
+#businessHours .end{
+    /* border-bottom: 1px solid #ccc; */
+}
+#businessHours .card-body{
+    padding: 0px;
+}
+#businessHours .end td{
+    padding-bottom: 10px;
+}
+#businessHours .start td{
+    padding-top: 10px;
+}
+#businessHours tr td,
+#businessHours tr td{
+    /* background-color: #eaeaea; */
+    /* background-color: #eeeeee; */
+    background-color: rgba(0,0,0,.03);
+    /* background-color: red; */
+}
+#businessHours tr.end:nth-child(4n-2) td,
+#businessHours tr.start:nth-child(4n-3) td{
+    /* background-color: #eaeaea; */
+    background-color: #ffffff;
+    /* background-color: red; */
+}
+
+#businessHours td:nth-child(1){
+    padding-left: 4px;
+    padding-right: 4px;
+}

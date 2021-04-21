@@ -46,7 +46,12 @@
     
     <x-slot name="styles">
         <style>
-            
+            html{
+                min-height: 100%;
+            }
+            body{
+                min-height: 100%;
+            }
             
         </style>
     </x-slot>

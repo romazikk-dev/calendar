@@ -23,6 +23,14 @@ class Hall extends Model
     }
     
     /**
+     * Get the hall's suspension.
+     */
+    public function suspension()
+    {
+        return $this->morphOne(Suspension::class, 'suspensionable');
+    }
+    
+    /**
      * The labels for attributes.
      *
      * @var array

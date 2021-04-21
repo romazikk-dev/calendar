@@ -1,0 +1,116 @@
+/* BREADCRUMBS
+******************************************************************/
+.breadcrumb{
+    padding: 3px 12px!important;
+    border-radius: 0px!important;
+}
+
+
+input, textarea, select{
+    background-color: #f9f9f9!important;
+}
+
+.page-actions .page-action svg{
+    position: relative;
+    top: -2px!important;
+}
+
+
+/* SHOW TABLE
+******************************************************************/
+.modal-custom-dark-header-footer{
+    .modal-header{
+        padding-right: 50px;
+        .close{
+            font-size: 60px;
+            color: #fff;
+            opacity: .7;
+            transition: opacity .3s ease;
+            line-height: .8em;
+            padding: 0px;
+            margin: 0px;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            height: 60px;
+            width: 60px;
+            span{
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                height: 60px;
+                width: 60px;
+            }
+            &:hover{
+                color: #fff;
+                opacity: 1!important;
+            }
+        }
+    }
+    .modal-header, .modal-footer{
+        color: white;
+    }
+    .modal-content{
+        background-color: #6c757d;
+        -webkit-box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
+-moz-box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
+box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
+    }
+    .modal-body{
+        background-color: white;
+    }
+}
+
+
+/* SHOW TABLE
+******************************************************************/
+table.show-table{
+    width: 100%;
+    tr{
+        &:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        td, th{
+            border: 1px solid #ccc;
+            padding: 3px 6px;
+        }
+        td{
+            &:first-child{
+                /* background-color: #f1f1f1; */
+                width: 140px;
+            }
+        }
+    }
+}
+
+
+/* BUSINESS HOURS
+******************************************************************/
+#businessHours{
+    .card-body{
+        padding: 0px;
+        table{
+            width: 100%;
+            tr{
+                &.end td{
+                    padding-bottom: 10px;
+                }
+                &.start td{
+                    padding-top: 10px;
+                }
+                td{
+                    background-color: rgba(0,0,0,.03);
+                    &:nth-child(1){
+                        padding-left: 4px;
+                        padding-right: 4px;
+                    }
+                }
+            }
+            tr.end:nth-child(4n-2), tr.start:nth-child(4n-3){
+                td{
+                    background-color: #ffffff;
+                }
+            }
+        }
+    }
+}
