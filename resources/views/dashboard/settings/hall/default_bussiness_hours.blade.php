@@ -1,10 +1,6 @@
 <x-dashboard-layout>
     <x-slot name="breadcrumbs">
-        @if(!empty($hall))
-            {{ Breadcrumbs::render('hall', 'edit - ' . $hall->title) }}
-        @else
-            {{ Breadcrumbs::render('hall', 'create new') }}
-        @endif
+        {{ Breadcrumbs::render('settings', 'some') }}
     </x-slot>
     
     <x-slot name="scripts">
@@ -17,7 +13,18 @@
             //         dateFormat: "dd-mm-yy"
             //     });
             // });
+            
+            @if(old('business_hours'))
+                var businessHours = @json(old('business_hours'));
+                // console.log(JSON.parse(JSON.stringify(businessHours)));
+            @elseif(!empty($business_hours))
+                var businessHours = @json($business_hours);
+            @endif
+            
         </script>
+        
+        <script type="text/javascript" src="{{ asset('js/dashboard/halls/hall-business-hours.js') }}?{{$rand}}"></script>
+        
     </x-slot>
     
     <x-slot name="styles">
@@ -33,19 +40,34 @@
     </div>
     @endif
     
-    <div class="page">
-        <div class="page-content">
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="blue">test</div>
-                </div>
-                <div class="col-md-10">
-                    <div class="green">test</div>
-                </div>
+    <div class="setting-page">
+        <div class="sp-wrapper">
+            
+            <div class="sp-sidebar sp-itm">
+                
+                <ul>
+                    @foreach(\Setting::getNavs() as $nav)
+                    <li>
+                        <a href="{{$nav['route']}}">{{$nav['title']}}</a>
+                    </li>
+                    @endforeach
+                </ul>
+                
             </div>
-        </div>
-        <div class="sidebar">
-            <div class="gold">test</div>
+            <div class="sp-content sp-itm">
+                <form action="" method="post">
+                    @csrf
+                    @if(!empty($hall))
+                        @method('PUT')
+                    @endif
+                    
+                    <div id="hallBusinessHours"></div>
+                    
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+                
+            </div>
+            
         </div>
     </div>
     

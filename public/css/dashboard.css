@@ -1,9 +1,100 @@
+/* MAIN
+******************************************************************/
+
+.page-content {
+  padding-top: 20px;
+}
+
+/* SETTING PAGE
+******************************************************************/
+
+.setting-page {
+  display: table;
+  width: 100%;
+}
+
+.setting-page .sp-wrapper {
+  display: table-row;
+}
+
+.setting-page .sp-wrapper .sp-itm {
+  display: table-cell;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-content {
+  padding-left: 20px;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-sidebar {
+  width: 240px;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-sidebar ul {
+  padding: 0px;
+  margin: 0px;
+  border-right: 1px solid #ccc;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-sidebar ul li {
+  list-style: none;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-sidebar ul li a {
+  display: block;
+  text-decoration: none;
+  padding: 3px 8px;
+}
+
+/* EDIT CREATE NAV TABS
+******************************************************************/
+
+.edit-create-nav-tabs {
+  position: relative;
+  border: 0px !important;
+  position: relative;
+  z-index: 99;
+}
+
+.edit-create-nav-tabs li a.active {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #f8f9fa !important;
+}
+
+.edit-create-nav-tabs li.action-btn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.edit-create-nav-tabs .dropdown-menu {
+  border-radius: 4px !important;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: center;
+}
+
+/* EDIT CREATE TAB CONTENT
+******************************************************************/
+
+.edit-create-tab-content {
+  background-color: #f8f9fa !important;
+  position: relative;
+  border-radius: 4px 4px 4px 4px;
+  padding: 10px 15px;
+  border: 1px solid #dee2e6;
+}
+
+.edit-create-tab-content #hours {
+  padding-top: 15px;
+}
+
 /* BREADCRUMBS
 ******************************************************************/
 
 .breadcrumb {
   padding: 3px 12px !important;
   border-radius: 0px !important;
+  margin-bottom: 0px !important;
 }
 
 input,
@@ -17,7 +108,7 @@ select {
   top: -2px !important;
 }
 
-/* SHOW TABLE
+/* MODAL CUSTOM DARK HEADER FOOTER
 ******************************************************************/
 
 .modal-custom-dark-header-footer .modal-header {

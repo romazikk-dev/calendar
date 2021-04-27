@@ -21,34 +21,6 @@ window.Vue = require('vue').default;
 
 // Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
-window.moment = require('moment');
-
-Vue.mixin({
-    data: function(){
-        return {
-            // weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-        };
-    },
-    methods: {
-        getParentComponentByName: function (_thisComponent, componentName) {
-            let component = null;
-            if(_thisComponent.$options.name === componentName)
-                return _thisComponent;
-            let parent = _thisComponent.$parent;
-            while (parent && !component) {
-                if (parent.$options.name === componentName) {
-                  component = parent
-                }
-                parent = parent.$parent
-            }
-            return component;
-        },
-        formatDataDateForDateChooser: function(dataDate){
-            return moment(dataDate).format('DD-MM-YYYY');
-        },
-    },
-});
-
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -59,7 +31,7 @@ import App from './components/App.vue';
 
 window.app = new Vue({
 // const businessHours = new Vue({
-    el: '#hallsList',
+    el: '#hallBusinessHours',
     render(h) {
         return h(App) 
     }

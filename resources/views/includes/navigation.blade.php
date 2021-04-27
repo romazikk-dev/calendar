@@ -35,9 +35,22 @@
             <!-- <li class="nav-item">
                 <a class="nav-link" href="#">Schedule</a>
             </li> -->
-            <li class="nav-item @if(Route::current()->getName() == 'dashboard.settings.index') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.settings.index') }}">Settings</a>
+            <!-- <li class="nav-item @if(Route::current()->getName() == 'dashboard.settings.bussiness_hours') active @endif">
+                <a class="nav-link" href="{{ route('dashboard.settings.bussiness_hours') }}">Settings</a>
+            </li> -->
+            
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="settingsNavbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Settings
+                </a>
+                <div class="dropdown-menu" aria-labelledby="settingsNavbarDropdown">
+                    <a class="dropdown-item" href="#">Custom names, titles</a>
+                    <a href="{{ route('dashboard.settings.bussiness_hours') }}" class="dropdown-item">Default bussiness hours</a>
+                    <!-- <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Something else here</a> -->
+                </div>
             </li>
+            
             
             <!-- <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

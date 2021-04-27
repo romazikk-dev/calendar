@@ -9,6 +9,9 @@ use App\Models\Worker;
 // use App\Models\HallWorkerAssignment;
 use DB;
 use Yajra\DataTables\Facades\DataTables;
+use App\Classes\Suspension\ToogleSuspension;
+use App\Classes\Suspension\Range;
+use App\Classes\Setting\Enums\Keys as SettingKeys;
 
 class HallController extends Controller
 {
@@ -36,7 +39,7 @@ class HallController extends Controller
             DB::raw("halls.`created_at`"),
             DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`hall_id` = halls.`id`) as `workers_count`")
         ])
-        ->where('is_deleted', 0);
+        ->with('suspension')->where('is_deleted', 0);
         
         return Datatables::eloquent($workers)->toJson(true);
         // return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
@@ -46,103 +49,117 @@ class HallController extends Controller
     }
     
     /**
-     * Toggle worker suspension.
+     * Toggle hall suspension.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    // public function toggleSuspension(Request $request, $id)
-    // {        
-    //     $validated = $request->validate([
-    //         'type' => 'required|in:complete,period,disable',
-    //         'from' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i',
-    //         'to' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i'
-    //     ]);
-    // 
-    //     $worker = Worker::find($id);
-    // 
-    //     if(empty($worker))
-    //         return response()->json([
-    //             'status' => 'fail',
-    //             'worker_id' => $id,
-    //             'type' => $validated['type'],
-    //             'from' => !empty($validated['from']) ? $validated['from'] : null,
-    //             'to' => !empty($validated['to']) ? $validated['to'] : null,
-    //             'msg' => 'Worker with `id` - ' . $id . ' does not exist'
-    //         ]);
-    // 
-    //     $workerSuspension = WorkerSuspension::where('worker_id', $worker->id)->first();
-    // 
-    //     if(!empty($workerSuspension)){
-    //         if($validated['type'] == 'disable'){
-    //             $workerSuspension->forceDelete();
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'worker_id' => $id,
-    //                 'type' => $validated['type'],
-    //             ]);
-    //         }elseif($validated['type'] == 'complete'){
-    //             $workerSuspension->from = null;
-    //             $workerSuspension->to = null;
-    //             $workerSuspension->save();
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'worker_id' => $workerSuspension->worker_id,
-    //                 'suspension_id' => $workerSuspension->id,
-    //                 // 'from' => $workerSuspension->from,
-    //                 // 'to' => $workerSuspension->to,
-    //                 'type' => $validated['type'],
-    //             ]);
-    //         }elseif($validated['type'] == 'period'){
-    //             $workerSuspension->from = $this->formatDate($validated['from']);
-    //             $workerSuspension->to = $this->formatDate($validated['to']);
-    //             $workerSuspension->save();
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'worker_id' => $id,
-    //                 'suspension_id' => $workerSuspension->id,
-    //                 'type' => $validated['type'],
-    //                 'from' => $workerSuspension->from,
-    //                 'to' => $workerSuspension->to
-    //             ]);
-    //         }
-    //     }else{
-    //         $workerSuspension = new WorkerSuspension;
-    //         if($validated['type'] == 'complete'){
-    //             $workerSuspension->worker_id = $worker->id;
-    //             $workerSuspension->from = null;
-    //             $workerSuspension->to = null;
-    //             $workerSuspension->save();
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'worker_id' => $id,
-    //                 'suspension_id' => $workerSuspension->id,
-    //                 'type' => $validated['type'],
-    //             ]);
-    //         }elseif($validated['type'] == 'period'){
-    //             $workerSuspension->worker_id = $worker->id;
-    //             $workerSuspension->from = $this->formatDate($validated['from']);
-    //             $workerSuspension->to = $this->formatDate($validated['to']);
-    //             $workerSuspension->save();
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'worker_id' => $id,
-    //                 'suspension_id' => $workerSuspension->id,
-    //                 'type' => $validated['type'],
-    //                 'from' => $workerSuspension->from,
-    //                 'to' => $workerSuspension->to
-    //             ]);
-    //         }
-    //     }
-    // 
-    //     return response()->json([
-    //         'status' => 'fail',
-    //         'worker_id' => $id,
-    //         'type' => $validated['type'],
-    //         'from' => !empty($validated['from']) ? $validated['from'] : null,
-    //         'to' => !empty($validated['to']) ? $validated['to'] : null,
-    //     ]);
-    // }
+    public function toggleSuspension(Request $request, $id)
+    {        
+        $validated = $request->validate([
+            'type' => 'required|in:complete,period,disable',
+            'from' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i',
+            'to' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i'
+        ]);
+    
+        $hall = Hall::find($id);
+        
+        // return response()->json($hall->suspension);
+    
+        if(empty($hall))
+            return response()->json([
+                'status' => 'fail',
+                'msg' => 'Hall with `id` - ' . $id . ' does not exist'
+            ]);
+        
+        $toogle_suspension = new ToogleSuspension(
+            $validated['type'],
+            $hall,
+            $validated['from'] ?? null,
+            $validated['to'] ?? null
+        );
+        $toogle_suspension->toogle();
+        
+        return response()->json([
+            'status' => 'success',
+            'hall' => $hall,
+            'type' => $validated['type'],
+            'from' => $toogle_suspension->getFromDate(),
+            'to' => $toogle_suspension->getToDate(),
+        ]);
+        
+        // $workerSuspension = WorkerSuspension::where('worker_id', $worker->id)->first();
+        // 
+        // if(!empty($workerSuspension)){
+        //     if($validated['type'] == 'disable'){
+        //         $workerSuspension->forceDelete();
+        //         return response()->json([
+        //             'status' => 'success',
+        //             'worker_id' => $id,
+        //             'type' => $validated['type'],
+        //         ]);
+        //     }elseif($validated['type'] == 'complete'){
+        //         $workerSuspension->from = null;
+        //         $workerSuspension->to = null;
+        //         $workerSuspension->save();
+        //         return response()->json([
+        //             'status' => 'success',
+        //             'worker_id' => $workerSuspension->worker_id,
+        //             'suspension_id' => $workerSuspension->id,
+        //             // 'from' => $workerSuspension->from,
+        //             // 'to' => $workerSuspension->to,
+        //             'type' => $validated['type'],
+        //         ]);
+        //     }elseif($validated['type'] == 'period'){
+        //         $workerSuspension->from = $this->formatDate($validated['from']);
+        //         $workerSuspension->to = $this->formatDate($validated['to']);
+        //         $workerSuspension->save();
+        //         return response()->json([
+        //             'status' => 'success',
+        //             'worker_id' => $id,
+        //             'suspension_id' => $workerSuspension->id,
+        //             'type' => $validated['type'],
+        //             'from' => $workerSuspension->from,
+        //             'to' => $workerSuspension->to
+        //         ]);
+        //     }
+        // }else{
+        //     $workerSuspension = new WorkerSuspension;
+        //     if($validated['type'] == 'complete'){
+        //         $workerSuspension->worker_id = $worker->id;
+        //         $workerSuspension->from = null;
+        //         $workerSuspension->to = null;
+        //         $workerSuspension->save();
+        //         return response()->json([
+        //             'status' => 'success',
+        //             'worker_id' => $id,
+        //             'suspension_id' => $workerSuspension->id,
+        //             'type' => $validated['type'],
+        //         ]);
+        //     }elseif($validated['type'] == 'period'){
+        //         $workerSuspension->worker_id = $worker->id;
+        //         $workerSuspension->from = $this->formatDate($validated['from']);
+        //         $workerSuspension->to = $this->formatDate($validated['to']);
+        //         $workerSuspension->save();
+        //         return response()->json([
+        //             'status' => 'success',
+        //             'worker_id' => $id,
+        //             'suspension_id' => $workerSuspension->id,
+        //             'type' => $validated['type'],
+        //             'from' => $workerSuspension->from,
+        //             'to' => $workerSuspension->to
+        //         ]);
+        //     }
+        // }
+        // 
+        // return response()->json([
+        //     'status' => 'fail',
+        //     'worker_id' => $id,
+        //     'type' => $validated['type'],
+        //     'from' => !empty($validated['from']) ? $validated['from'] : null,
+        //     'to' => !empty($validated['to']) ? $validated['to'] : null,
+        // ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -155,7 +172,10 @@ class HallController extends Controller
         // if(!empty($request->old('business_hours')['monday'])){
         //     dd($request->old('business_hours')['monday']);
         // }
-        return view('dashboard.hall.create');
+        $business_hours = \Setting::getOrPlaceholder(SettingKeys::DEFAULT_BUSSINESS_HOURS);
+        return view('dashboard.hall.create', [
+            'business_hours' => $business_hours,
+        ]);
     }
 
     /**
@@ -288,11 +308,19 @@ class HallController extends Controller
         
         $business_hours_raw = json_decode($hall->business_hours);
         $business_hours = [];
+        $all_days_closed = true;
+        $all_days_opened = true;
+        $count_opened_days = 0;
         foreach($business_hours_raw as $itm){
             $business_hours[$itm->weekday]['start_hour'] = $itm->start;
             $business_hours[$itm->weekday]['end_hour'] = $itm->end;
-            if(is_bool($itm->is_weekend) && $itm->is_weekend)
+            if(is_bool($itm->is_weekend) && $itm->is_weekend){
                 $business_hours[$itm->weekday]['is_weekend'] = 'on';
+                $all_days_opened = false;
+            }else{
+                $all_days_closed = false;
+                $count_opened_days++;
+            }
         }
         
         $assign_workers = [];
@@ -307,7 +335,12 @@ class HallController extends Controller
         return view('dashboard.hall.create', [
             'hall' => $hall,
             'business_hours' => $business_hours,
+            'all_days_closed' => $all_days_closed,
+            'all_days_opened' => $all_days_opened,
+            'count_opened_days' => $count_opened_days,
             'assign_workers' => $assign_workers,
+            'suspension' => $hall->suspension,
+            // 'is_suspended' => !empty($hall->suspension) ? ToogleSuspension::isSuspended($hall->suspension) : false,
         ]);
     }
 
@@ -331,7 +364,12 @@ class HallController extends Controller
             'country' => 'max:255',
             'town' => 'max:255',
             'street' => 'max:255',
-            'is_closed' => 'required|in:0,1',
+            // 'is_closed' => 'required|in:0,1',
+            
+            'status' => 'required|in:disable,complete,period',
+            'from' => 'required_if:status,==,period|nullable|string|max:20|regex:/\d{2}-\d{2}-\d{4}/i',
+            'to' => 'required_if:status,==,period|nullable|string|max:20|regex:/\d{2}-\d{2}-\d{4}/i',
+            
             'assign_worker' => 'nullable|array',
             'business_hours' => 'required|array',
             'business_hours.monday.start_hour' => $business_hour_rule,
@@ -357,12 +395,23 @@ class HallController extends Controller
             'business_hours.sunday.is_weekend' => $business_weekend_rule,
         ]);
         
+        // dd($validated);
+        
         $business_hours_keys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
         
         $business_hours = $validated['business_hours'];
         if(!empty($validated['assign_worker']))
             $assign_worker = array_keys($validated['assign_worker']);
         unset($validated['business_hours'], $validated['assign_worker']);
+        
+        // dd($business_hours);
+        
+        $suspension = [
+            'status' => $validated['status'],
+            'from' => !empty($validated['from']) ? $validated['from'] : null,
+            'to' => !empty($validated['to']) ? $validated['to'] : null,
+        ];
+        unset($validated['status'], $validated['from'], $validated['to']);
         
         if(!empty($validated['assign_worker'])){
             $workers = Worker::whereIn('id', $assign_worker)->get();
@@ -379,7 +428,8 @@ class HallController extends Controller
         foreach($business_hours_keys as $key){
             $json_business_hours[] = [
                 'weekday' => $key,
-                'is_weekend' => !empty($business_hours[$key]['is_weekend']) ? true : (in_array($key, ['saturday','sunday']) ? true : false),
+                // 'is_weekend' => !empty($business_hours[$key]['is_weekend']) ? true : (in_array($key, ['saturday','sunday']) ? true : false),
+                'is_weekend' => !empty($business_hours[$key]['is_weekend']),
                 'start' => !empty($business_hours[$key]['start_hour']) ? $business_hours[$key]['start_hour'] : $default_start_time,
                 'end' => !empty($business_hours[$key]['end_hour']) ? $business_hours[$key]['end_hour'] : $default_end_time,
             ];
@@ -403,6 +453,16 @@ class HallController extends Controller
                 $hall->workers()->attach($worker_id);
             }
         }
+        
+        // dd($suspension);
+        
+        $toogle_suspension = new ToogleSuspension(
+            $suspension['status'],
+            $hall,
+            $suspension['from'] ?? null,
+            $suspension['to'] ?? null
+        );
+        $toogle_suspension->toogle();
             
         // if($hall = Hall::create($validated)){
         //     $hall->workers()->sync($assign_worker);
@@ -419,7 +479,11 @@ class HallController extends Controller
         // dd(111111);
         // $this->getBusinessHours($request);
         // return redirect()->route('dashboard.hall.index');
-        return redirect()->back()->with('success', 'Data saccessfuly saved!');
+        // return redirect()->back()->with('success', 'Data saccessfuly saved!');
+        $route_params = ['hall' => $id];
+        if($request->has('tab'))
+            $route_params['tab'] = $request->tab;
+        return redirect()->route('dashboard.hall.edit', $route_params)->with('success', 'Data saccessfuly saved!');
     }
 
     /**

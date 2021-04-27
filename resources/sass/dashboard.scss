@@ -1,8 +1,99 @@
+/* MAIN
+******************************************************************/
+.page-content{
+    padding-top: 20px;
+}
+
+
+/* SETTING PAGE
+******************************************************************/
+.setting-page{
+    display: table;
+    width: 100%;
+    .sp-wrapper{
+        display: table-row;
+        .sp-itm{
+            display: table-cell;
+            &.sp-content{
+                // background-color: blue;
+                padding-left: 20px;
+            }
+            &.sp-sidebar{
+                width: 240px;
+                // background-color: red;
+                ul{
+                    padding: 0px;
+                    margin: 0px;
+                    border-right: 1px solid #ccc;
+                    // padding-right: 20px;
+                    li{
+                        list-style: none;
+                        a{
+                            display: block;
+                            text-decoration: none;
+                            padding: 3px 8px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+/* EDIT CREATE NAV TABS
+******************************************************************/
+.edit-create-nav-tabs{
+    position: relative;
+    border: 0px!important;
+    position: relative;
+    // top: 1px;
+    z-index: 99;
+    li{
+        a{
+            // border-bottom: 1px solid #f8f9fa!important;
+            &.active{
+                background-color: #f8f9fa!important;
+                border-bottom: 1px solid #f8f9fa!important;
+            }
+        }
+        &.action-btn{
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+    }
+    .dropdown-menu{
+        border-radius: 4px!important;
+        padding-left: 10px;
+        padding-right: 10px;
+        text-align: center;
+    }
+    // background-color: #f8f9fa!important;
+}
+
+
+/* EDIT CREATE TAB CONTENT
+******************************************************************/
+.edit-create-tab-content{
+    background-color: #f8f9fa!important;
+    position: relative;
+    border-radius: 4px 4px 4px 4px;
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    // top: -1px;
+    #hours{
+        padding-top: 15px;
+    }
+}
+
+
 /* BREADCRUMBS
 ******************************************************************/
 .breadcrumb{
     padding: 3px 12px!important;
     border-radius: 0px!important;
+    margin-bottom: 0px!important;
 }
 
 
@@ -16,7 +107,7 @@ input, textarea, select{
 }
 
 
-/* SHOW TABLE
+/* MODAL CUSTOM DARK HEADER FOOTER
 ******************************************************************/
 .modal-custom-dark-header-footer{
     .modal-header{

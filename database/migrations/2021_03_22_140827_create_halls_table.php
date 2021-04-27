@@ -23,7 +23,7 @@ class CreateHallsTable extends Migration
             $table->string('country')->nullable();
             $table->string('town')->nullable();
             $table->string('street')->nullable();
-            $table->tinyInteger('is_closed')->default(0);
+            // $table->tinyInteger('is_closed')->default(0);
         	$table->json('business_hours')->nullable();
             $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();

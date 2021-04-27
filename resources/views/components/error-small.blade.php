@@ -1,9 +1,11 @@
 @props(['name'])
 
-@if(!empty($name))
-<small {!! $attributes->merge(['class' => 'text-danger']) !!}>
-    {{ $errors->first($name) ?? '' }}
-</small>
-@else
-    Attribute name is required
+@if($errors->has($name))
+    @if(!empty($name))
+    <small data-attr="@php echo $name @endphp" {!! $attributes->merge(['class' => 'text-danger attr-error']) !!}>
+        {{ $errors->first($name) ?? '' }}
+    </small>
+    @else
+        Attribute name is required
+    @endif
 @endif

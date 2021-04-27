@@ -32,7 +32,9 @@
             <div class="modal-dialog">
                 
                 <modal-info-content :data="infoModalData" v-if="showContent == 'info'"></modal-info-content>
-                <modal-suspension-content :data="suspendModalData" v-if="showContent == 'suspension'"></modal-suspension-content>
+                <modal-suspension-content :data="suspendModalData"
+                    @changed="updateData"
+                    v-if="showContent == 'suspension'"></modal-suspension-content>
                 
             </div>
         </div>
@@ -44,7 +46,9 @@
     import ModalInfoContent from "./ModalInfoContent.vue";
     import ModalSuspensionContent from "./ModalSuspensionContent.vue";
     export default {
+        name: 'app',
         mounted() {
+            this.regActionsOnModalClose();
             this.initDataTable();
             // this.regClickMoreInfoBtn();
         },
@@ -53,15 +57,32 @@
             return {
                 infoModalData: null,
                 suspendModalData: null,
+                modalDataUrl: null,
                 showContent: null,
+                currentDate: new Date(),
             };
         },
         methods: {
-            resetAllModalsData: function(){
-                this.infoModalData = null;
-                this.suspendModalData = null;
-                this.showContent = null;
+            regActionsOnModalClose: function(){
+                $("#modal").on('hidden.bs.modal', () => {
+                    this.infoModalData = null;
+                    this.suspendModalData = null;
+                    this.modalDataUrl = null;
+                    this.showContent = null;
+                });
             },
+            updateData: function(){
+                // alert(123123);
+                // this.initDataTable();
+                // $('#dataTable').data.reload();
+                $('#dataTable').DataTable().ajax.reload();
+                this.updateSuspendModalData();
+            },
+            // resetAllModalsData: function(){
+            //     this.infoModalData = null;
+            //     this.suspendModalData = null;
+            //     this.showContent = null;
+            // },
             openModal: function(type){
                 if(type == 'info'){
                     let url = showRoute.replace(':id', id);
@@ -72,17 +93,24 @@
                 this.regClickMoreInfoBtn();
                 this.regClickToggleSuspensionActionBtn();
             },
+            updateSuspendModalData: function(){
+                axios.get(this.modalDataUrl)
+                .then((response) => {
+                    this.suspendModalData = response.data;
+                }).catch((error) => {}).then(() => {});
+            },
             regClickToggleSuspensionActionBtn: function(){
                 $('.toggle-suspension-action').off('click');
                 $('.toggle-suspension-action').on('click', (e) => {
                     e.preventDefault();
-                    this.resetAllModalsData();
+                    // this.resetAllModalsData();
                     
                     let id = parseInt($(e.target).closest('tr').attr('id'));
                     let url = showRoute.replace(':id', id);
                     url += '?with_suspension=1';
                     axios.get(url)
                     .then((response) => {
+                        this.modalDataUrl = url;
                         this.suspendModalData = response.data;
                         // this.showContent = 'info';
                         this.showModal('suspension');
@@ -92,43 +120,13 @@
                     }).then(() => {
                         
                     });
-                    
-                    // alert(2121212);
-                    // return;
-                    
-                    // let tr = $(e.target).closest('tr');
-                    // // is-closed
-                    // 
-                    // let id = parseInt(tr.attr('id'));
-                    // let isClosed = parseInt(tr.attr('is-closed'));
-                    // 
-                    // this.suspendModalData = {
-                    //     id: id,
-                    //     isClosed: isClosed
-                    // }
-                    // 
-                    // this.showModal('suspension');
-                    // let url = showRoute.replace(':id', id);
-                    // axios.get(url)
-                    // .then((response) => {
-                    //     this.infoModalData = response.data;
-                    //     // this.showContent = 'info';
-                    //     this.showModal('info');
-                    //     console.log(this.infoModalData);
-                    // }).catch((error) => {
-                    // 
-                    // }).then(() => {
-                    // 
-                    // });
-                    // this.openModal('info', e);
-                    // $('#interactionModal').modal('show');
                 });
             },
             regClickMoreInfoBtn: function(){
                 $('.show-action').off('click');
                 $('.show-action').on('click', (e) => {
                     e.preventDefault();
-                    this.resetAllModalsData();
+                    // this.resetAllModalsData();
                     let id = parseInt($(e.target).closest('tr').attr('id'));
                     let url = showRoute.replace(':id', id);
                     url += '?with_workers=1&with_suspension=1';
@@ -151,6 +149,26 @@
                 this.showContent = showContent;
                 $('#modal').modal('show');
             },
+            isSuspended: function(from, to){
+                if(from == null || from == null)
+                    return true;
+                let currentDateMoment = moment(this.currentDate);
+                let fromMoment = moment(from);
+                let toMoment = moment(to);
+                return (currentDateMoment.diff(fromMoment) >= 0 && currentDateMoment.diff(toMoment) <= 0);
+                // console.log(currentDateMoment.format('YYYY-MM-DD HH-mm-ss'));
+                // console.log(fromMoment.format('YYYY-MM-DD HH-mm-ss'));
+                // console.log(toMoment.format('YYYY-MM-DD HH-mm-ss'));
+                // return false;
+            },
+            isSuspentionInFuture: function(from, to){
+                if(from == null || from == null)
+                    return false;
+                let currentDateMoment = moment(this.currentDate);
+                let fromMoment = moment(from);
+                // let toMoment = moment(to);
+                return (currentDateMoment.diff(fromMoment) < 0);
+            },
             initDataTable: function(){
                 let _this = this;
                 $('#dataTable').DataTable({
@@ -163,8 +181,13 @@
                         $(row).attr('is-closed', data.is_closed);
                         $(row).attr('workers-count', data.workers_count);
                         $(row).attr('created-at', data.created_at);
-                        if(data.is_closed == 1)
-                            $(row).addClass('table-danger');
+                        if(data.suspension != null){
+                            if(_this.isSuspended(data.suspension.from, data.suspension.to)){
+                                $(row).addClass('table-danger');
+                            }else if(_this.isSuspentionInFuture(data.suspension.from, data.suspension.to)){
+                                $(row).addClass('table-warning');
+                            }
+                        }
                     },
                     "columns": [
                         {
@@ -214,45 +237,69 @@
                                 
                                 
                                 // var toggle_closed = '{{ route("dashboard.hall.toggle_closed", ":id") }}';
-                                var toggle_closed = toggleClosedRoute.replace(':id', row.id);
+                                var toggle_closed = toggleSuspension.replace(':id', row.id);
                                 
                                 let stopSuspensionVisibility = data.worker_suspension_id !== null ? '' : 'd-none';
                                 
-                                let reinstate = `
-                                    <a href="#"
-                                        onclick="
-                                            event.preventDefault();
-                                            if(confirm('Do you really want to stop suspension for this worker?')){
-                                                toogleSuspension(${row.id}, 'disable');
-                                            }
-                                        "
-                                        class="float-right stop-suspension-action action ${stopSuspensionVisibility}"
-                                        title="Stop suspension"
-                                        data-toggle="tooltip">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                                          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
-                                        </svg>
-                                    </a>
-                                `;
+                                let reinstate = '';
+                                if(row.suspension != null && _this.isSuspended(row.suspension.from, row.suspension.to)){
+                                    reinstate = `
+                                        <a href="#"
+                                            onclick="
+                                                event.preventDefault();
+                                                if(confirm('Do you really want to stop suspension for this worker?')){
+                                                    toogleSuspension(${row.id}, 'disable');
+                                                }
+                                            "
+                                            class="float-right stop-suspension-action action ${stopSuspensionVisibility} text-info"
+                                            title="Open"
+                                            data-toggle="tooltip">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+                                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+                                            </svg>
+                                        </a>
+                                    `;
+                                }
+                                
+                                console.log(row.suspension);
                                 // }
                                 
                                 return `
-                                <form method="post" action="${delete_url}">
-                                    ${csrf}
-                                    ${methodDelete}
-                                    <a href="${delete_url}"
-                                        onclick="event.preventDefault(); if(confirm('Do you realy want to delete this worker')){ this.closest('form').submit();}"
-                                        class="float-right delete-action action"
-                                        data-toggle="tooltip"
-                                        title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                                        </svg>
+                                <div class="dropup float-right">
+                                    <a href="#"
+                                        id="dropdownDeleteButton"
+                                        class="action text-info"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                            </svg>
                                     </a>
-                                </form>
+                                    <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton">
+                                        Do you want delete this hall?
+                                        <form method="post" action="${delete_url}">
+                                            ${csrf}
+                                            ${methodDelete}
+                                            <a href="${delete_url}"
+                                                onclick="event.preventDefault(); this.closest('form').submit();"
+                                                class="text-primary">
+                                                    Yes
+                                            </a>
+                                            <a href="${delete_url}"
+                                                onclick="event.preventDefault(); $('#dropdownDeleteButton').click();"
+                                                class="text-primary"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
+                                                    No
+                                            </a>
+                                        </form>
+                                    </div>
+                                </div>
                                 
                                 <a href="${edit_url}"
-                                    class="float-right edit-action action"
+                                    class="float-right edit-action action text-info"
                                     data-toggle="tooltip"
                                     title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
@@ -262,9 +309,9 @@
                                 
                                 <a href="#"
                                     id="employeeSuspensionBtn"
-                                    class="float-right toggle-suspension-action action"
+                                    class="float-right toggle-suspension-action action text-info"
                                     data-toggle="tooltip"
-                                    title="Employee suspension">
+                                    title="Suspension">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle-fill" viewBox="0 0 16 16">
                                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z"/>
                                     </svg>
@@ -278,9 +325,9 @@
                                        // alert(333333);
                                        //openInfoModal(${row.id});
                                     "
-                                    class="float-right show-action action"
+                                    class="float-right show-action action text-info"
                                     data-toggle="tooltip"
-                                    title="Show hall details">
+                                    title="Details">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
                                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
                                       <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
@@ -310,14 +357,46 @@
                         },
                         {
                             "targets": [2],
-                            "render": function ( data, type, row, meta ) {                                
-                                // return data;
-                                if(!data)
-                                    return `
-                                        <div class="status-circle status-circle-opened"></div>
-                                    `;
+                            'createdCell':  function (td, cellData, rowData, row, col) {
+                               // $(td).attr('id', 'otherID')
+                                console.log('cellData: ');
+                                console.log(rowData);
+                                $(td).attr('data-toggle', 'tooltip');
+                                $(td).attr('data-placement', 'auto');
+                                if(rowData.suspension != null){
+                                    if(_this.isSuspended(rowData.suspension.from, rowData.suspension.to)){
+                                        if(rowData.suspension.from == null || rowData.suspension.to == null){
+                                            $(td).attr('data-original-title', `Completely suspended`);
+                                        }else{
+                                            let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
+                                            let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
+                                            $(td).attr('data-original-title', `Suspended<br>from ${from}<br>until ${to}`);
+                                        }
+                                    }else if(_this.isSuspentionInFuture(rowData.suspension.from, rowData.suspension.to)){
+                                        let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
+                                        let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
+                                        $(td).attr('data-original-title', `Will be suspended<br>from ${from}<br>until ${to}`);
+                                    }
+                                }else{
+                                    $(td).attr('data-original-title', `Opened`);
+                                }
+                            },
+                            "render": function ( data, type, row, meta ) {
+                                if(row.suspension != null){
+                                    if(_this.isSuspended(row.suspension.from, row.suspension.to)){
+                                        // $(row).addClass('table-danger');
+                                        return `
+                                            <div class="status-circle bg-danger"></div>
+                                        `;
+                                    }else if(_this.isSuspentionInFuture(row.suspension.from, row.suspension.to)){
+                                        // $(row).addClass('table-warning');
+                                        return `
+                                            <div class="status-circle bg-warning"></div>
+                                        `;
+                                    }
+                                }
                                 return `
-                                    <div class="status-circle status-circle-closed"></div>
+                                    <div class="status-circle bg-success"></div>
                                 `;
                             }
                         },
@@ -340,7 +419,7 @@
                     //     // $(row).attr('data-name', data.Name);
                     // },
                     fnDrawCallback: function() {
-                        $('[data-toggle="tooltip"]').tooltip();
+                        $('[data-toggle="tooltip"]').tooltip({html: true});
                         _this.regClickBtns();
                     },
                     "ajax": {

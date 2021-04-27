@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Classes\Setting\Enums\Keys;
 
 class SettingsController extends Controller
 {
@@ -22,9 +23,27 @@ class SettingsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function bussinessHours(Request $request)
     {
-        //
+        // $bussiness_hours = 
+        // \Setting::sayHello();
+        // dd(11111111);
+        // dd(\Setting::getOrPlaceholder(Keys::DEFAULT_BUSSINESS_HOURS));
+        // dd(11111111);
+        
+        if($request->isMethod('post'))
+            dd($request->all());
+        
+        $business_hours = \Setting::getOrPlaceholder(Keys::DEFAULT_BUSSINESS_HOURS);
+        // return view('dashboard.hall.create', [
+        //     'business_hours' => $business_hours,
+        // ]);
+        
+        // dd($business_hours);
+        
+        return view('dashboard.settings.hall.default_bussiness_hours', [
+            'business_hours' => $business_hours,
+        ]);
     }
 
     /**

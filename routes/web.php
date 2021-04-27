@@ -82,8 +82,8 @@ Route::group([
         
         // Route::resource('worker', DashboardWorkerController::class);
         Route::post('/data-list', [DashboardHallController::class, 'dataList'])->name('data_list');
-        Route::post('{id}/toggle-closed', [DashboardWorkerController::class, 'toggleClosed'])
-            ->name('toggle_closed')->where('id', '[0-9]+');
+        Route::post('{id}/toggle-suspension', [DashboardHallController::class, 'toggleSuspension'])
+            ->name('toggle_suspension')->where('id', '[0-9]+');
         // Route::get('{id}/edit-password', [DashboardWorkerController::class, 'editPassword'])
         //     ->name('edit_password')->where('id', '[0-9]+');
         // Route::put('{id}/update-password', [DashboardWorkerController::class, 'updatePassword'])
@@ -142,7 +142,9 @@ Route::group([
         'as' => 'settings.'
     ], function () {
         
-        Route::get('/', [DashboardSettingsController::class, 'index'])->name('index');
+        // Route::get('/', [DashboardSettingsController::class, 'index'])->name('index');
+        
+        Route::match(['get', 'post'], '/bussiness_hours', [DashboardSettingsController::class, 'bussinessHours'])->name('bussiness_hours');
         
         // Route::resource('worker', DashboardWorkerController::class);
         // Route::post('{id}/toggle-closed', [DashboardWorkerController::class, 'toggleClosed'])

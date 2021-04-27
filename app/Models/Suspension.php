@@ -9,6 +9,8 @@ class Suspension extends Model
 {
     use HasFactory;
     
+    protected $fillable = ['from', 'to'];
+    
     /**
      * Get the parent suspensionable model
      */

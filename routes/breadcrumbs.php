@@ -38,6 +38,15 @@ Breadcrumbs::for('client', function ($trail, $inner_page = null) {
         $trail->push($inner_page);
 });
 
+Breadcrumbs::for('settings', function ($trail, $inner_page = null) {
+    $trail->parent('home');
+    // $trail->push("settings", route('dashboard.client.index'));
+    $trail->push("settings");
+    if(!is_null($inner_page))
+        $trail->push($inner_page);
+});
+
+
 // Breadcrumbs::for('create_worker', function ($trail) {
 //     $trail->parent('worker');
 //     $trail->push("new worker");

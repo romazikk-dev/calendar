@@ -57,7 +57,7 @@
         
         <script type="text/javascript">
             var dataListRoute = "{{ route('dashboard.hall.data_list') }}";
-            var toggleClosedRoute = "{{ route('dashboard.hall.toggle_closed', ':id') }}";
+            var toggleSuspension = "{{ route('dashboard.hall.toggle_suspension', ':id') }}";
             var showRoute = "{{ route('dashboard.hall.show', ':id') }}";
             var deleteRoute = '{{ route("dashboard.hall.destroy", ":id") }}';
             
@@ -78,8 +78,6 @@
             // show_url = show_url.replace(':id', row.id);
             
             
-            // var toggle_closed = '{{ route("dashboard.hall.toggle_closed", ":id") }}';
-            // toggle_closed = toggle_closed.replace(':id', row.id);
             
             
             
@@ -167,17 +165,17 @@
             //     }
             // }
             
-            $(document).on('click', '#completeSuspendBtn', function(e){
-                e.preventDefault();
-                let workerId = $('#suspendModal').attr('worker-id');
-                toogleSuspension(workerId);
-            });
+            // $(document).on('click', '#completeSuspendBtn', function(e){
+            //     e.preventDefault();
+            //     let workerId = $('#suspendModal').attr('worker-id');
+            //     toogleSuspension(workerId);
+            // });
             
-            $(document).on('click', '#periodSuspendBtn', function(e){
-                e.preventDefault();
-                let workerId = $('#suspendModal').attr('worker-id');
-                toogleSuspension(workerId, 'period');
-            });
+            // $(document).on('click', '#periodSuspendBtn', function(e){
+            //     e.preventDefault();
+            //     let workerId = $('#suspendModal').attr('worker-id');
+            //     toogleSuspension(workerId, 'period');
+            // });
             
             $(document).on('click', '#disableSuspendBtn', function(e){
                 e.preventDefault();
@@ -189,7 +187,6 @@
                 // let data = data;
                 data.type = type;
                 
-                let url = '{{ route("dashboard.hall.toggle_closed", ":id") }}';
                 url = url.replace(':id', workerId);
                 // let url = $('#suspendModal').attr('data-worker-id');
                 

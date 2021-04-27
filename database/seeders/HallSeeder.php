@@ -14,8 +14,8 @@ class HallSeeder extends Seeder
      */
     public function run()
     {
-        Hall::factory()
-            ->count(4)
-            ->create();
+        // Hall::factory()
+        //     ->count(4)
+        //     ->create();
     }
 }

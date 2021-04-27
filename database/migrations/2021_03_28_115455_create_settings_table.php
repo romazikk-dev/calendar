@@ -17,7 +17,6 @@ class CreateSettingsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('key');
-            $table->string('value');
             $table->json('data')->nullable();
             $table->timestamps();
             

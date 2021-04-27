@@ -1,4 +1,7 @@
 {
     "/js/dashboard/halls/halls-list.js": "/js/dashboard/halls/halls-list.js",
+    "/js/dashboard/halls/create-edit-status.js": "/js/dashboard/halls/create-edit-status.js",
+    "/js/dashboard/halls/hall-business-hours.js": "/js/dashboard/halls/hall-business-hours.js",
+    "/js/worker-assignment-2.js": "/js/worker-assignment-2.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

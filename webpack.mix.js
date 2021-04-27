@@ -18,6 +18,9 @@ const mix = require('laravel-mix');
 // mix.js('resources/js/vue/phone_chooser/app.js', 'public/js/phone-chooser.js').vue();
 // mix.js('resources/js/vue/calendar/booking/app.js', 'public/js/calendar-booking.js').vue();
 mix.js('resources/js/vue/dashboard/hall/index/app.js', 'public/js/dashboard/halls/halls-list.js').vue();
+mix.js('resources/js/vue/dashboard/hall/create_edit_status/app.js', 'public/js/dashboard/halls/create-edit-status.js').vue();
+mix.js('resources/js/vue/dashboard/hall/business_hours/app.js', 'public/js/dashboard/halls/hall-business-hours.js').vue();
+mix.js('resources/js/vue/worker_assignment_2/app.js', 'public/js/worker-assignment-2.js').vue();
 
 // mix.js('resources/js/ts/calendar-helper.ts', 'public/js/calendar-helper.js').webpackConfig({
 mix.webpackConfig({
