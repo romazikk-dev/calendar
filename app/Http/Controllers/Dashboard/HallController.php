@@ -172,7 +172,7 @@ class HallController extends Controller
         // if(!empty($request->old('business_hours')['monday'])){
         //     dd($request->old('business_hours')['monday']);
         // }
-        $business_hours = \Setting::getOrPlaceholder(SettingKeys::DEFAULT_BUSSINESS_HOURS);
+        $business_hours = \Setting::getOrPlaceholder(SettingKeys::DEFAULT_BUSINESS_HOURS);
         return view('dashboard.hall.create', [
             'business_hours' => $business_hours,
         ]);

@@ -14,24 +14,34 @@
         display: table-row;
         .sp-itm{
             display: table-cell;
+            vertical-align: top;
             &.sp-content{
                 // background-color: blue;
                 padding-left: 20px;
+                // padding-top: 100px;
             }
             &.sp-sidebar{
-                width: 240px;
+                width: 200px;
                 // background-color: red;
+                border-right: 1px solid #ccc;
                 ul{
                     padding: 0px;
                     margin: 0px;
-                    border-right: 1px solid #ccc;
+                    // border-right: 1px solid #ccc;
                     // padding-right: 20px;
                     li{
                         list-style: none;
                         a{
                             display: block;
                             text-decoration: none;
-                            padding: 3px 8px;
+                            padding: 6px 8px;
+                            // background-color: #ccc;
+                            // border-radius: 3px 0px 0px 3px;
+                            border-radius: 5px;
+                            line-height: 1em;
+                            &:hover{
+                                text-decoration: underline;
+                            }
                         }
                     }
                 }

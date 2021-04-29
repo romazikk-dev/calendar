@@ -19,6 +19,7 @@
 
 .setting-page .sp-wrapper .sp-itm {
   display: table-cell;
+  vertical-align: top;
 }
 
 .setting-page .sp-wrapper .sp-itm.sp-content {
@@ -26,13 +27,13 @@
 }
 
 .setting-page .sp-wrapper .sp-itm.sp-sidebar {
-  width: 240px;
+  width: 200px;
+  border-right: 1px solid #ccc;
 }
 
 .setting-page .sp-wrapper .sp-itm.sp-sidebar ul {
   padding: 0px;
   margin: 0px;
-  border-right: 1px solid #ccc;
 }
 
 .setting-page .sp-wrapper .sp-itm.sp-sidebar ul li {
@@ -42,7 +43,13 @@
 .setting-page .sp-wrapper .sp-itm.sp-sidebar ul li a {
   display: block;
   text-decoration: none;
-  padding: 3px 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  line-height: 1em;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-sidebar ul li a:hover {
+  text-decoration: underline;
 }
 
 /* EDIT CREATE NAV TABS

@@ -11,6 +11,17 @@ class Setting extends Model
     use HasFactory;
     
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id',
+        'key',
+        'data',
+    ];
+    
+    /**
      * The "booted" method of the model.
      *
      * @return void
@@ -28,6 +39,6 @@ class Setting extends Model
      */
     public function scopeByKey($query, $key)
     {
-        return $query->where('id', $key);
+        return $query->where('key', $key);
     }
 }

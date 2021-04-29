@@ -144,7 +144,14 @@ Route::group([
         
         // Route::get('/', [DashboardSettingsController::class, 'index'])->name('index');
         
-        Route::match(['get', 'post'], '/bussiness_hours', [DashboardSettingsController::class, 'bussinessHours'])->name('bussiness_hours');
+        Route::group([
+            'prefix' => '/hall',
+            'as' => 'hall.'
+        ], function () {
+            Route::match(['get', 'post'], '/business_hours', [DashboardSettingsController::class, 'businessHours'])->name('default_business_hours');
+        });
+        
+        // Route::match(['get', 'post'], '/business_hours', [DashboardSettingsController::class, 'businessHours'])->name('business_hours');
         
         // Route::resource('worker', DashboardWorkerController::class);
         // Route::post('{id}/toggle-closed', [DashboardWorkerController::class, 'toggleClosed'])

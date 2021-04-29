@@ -11,6 +11,8 @@ use Yajra\DataTables\Facades\DataTables;
 use DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use App\Classes\Enums\PhoneTypes;
+use Illuminate\Support\Facades\Validator;
 
 class WorkerController extends Controller
 {
@@ -61,7 +63,36 @@ class WorkerController extends Controller
      */
     public function create()
     {
-        return view('dashboard.worker.create');
+        // dd(PhoneTypes::all());
+        if(!empty(old('phone_0'))){
+            $old_phones = [];
+            for($i = 0; $i < 10; $i++){
+                $old_phone = [];
+                if(!empty(old('phone_' . $i))){
+                    $phone = old('phone_' . $i);
+                    $phone_id = old('phone_id_' . $i);
+                    $phone_type = old('phone_type_' . $i);
+                    $custom_phone_type = old('custom_phone_type_' . $i);
+                    $old_phones[] = [
+                        'phone' => $phone,
+                        'id' => $phone_id,
+                        'type' => $phone_type,
+                        'custom_type' => $custom_phone_type,
+                    ];
+                }
+            }
+        }
+        
+        $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
+            // dd(old('phone_0'));
+        // if(!empty($old_phones))
+        //     dd($old_phones);
+            
+        return view('dashboard.worker.create', [
+            'phone_types' => PhoneTypes::all(),
+            'old_phones' => !empty($old_phones) ? $old_phones : null,
+            'tab_errors' => $tab_errors,
+        ]);
     }
 
     /**
@@ -72,7 +103,9 @@ class WorkerController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        // dd($request->all());
+        
+        $validate_rules = [
             'first_name' => 'required|max:255',
             'last_name' => 'max:255',
             'gender' => 'required|in:male,female',
@@ -90,7 +123,139 @@ class WorkerController extends Controller
             ],
             'password' => 'required|max:255',
             'password_confirm' => 'required|same:password',
-        ]);
+            
+            // 'phone.*' => 'nullable|max:30',
+            // 'phone_type.*' => 'nullable|required_with:phone.' . $k . '|in:' . $phone_types . ''
+        ];
+        
+        $messages = [];
+        $phone_types = implode(',', PhoneTypes::all());
+        $phone_types .= ',custom';
+        // foreach($request->phone as $k => $v){
+        for($i = 0; $i <= 10; $i++){
+            // $request->has('phone_' . $k);
+            if($request->has('phone_' . $i)){
+                $validate_rules['phone_' . $i] = 'nullable|max:30';
+                // $validate_rules['phone_id_' . $i] = 'nullable|required_with:phone_' . $i . '|integer';
+                $validate_rules['phone_id_' . $i] = 'nullable|integer';
+                $validate_rules['phone_type_' . $i] = 'required_with:phone_' . $i . '|in:' . $phone_types . '';
+                $validate_rules['custom_phone_type_' . $i] = 'required_if:phone_type_' . $i . ',==,custom|max:30';
+                if(!array_key_exists("phone.max", $messages)){
+                    $messages["phone_" . $i . ".max"] = 'The phone must not be greater than :max characters.';
+                    $messages["custom_phone_type_" . $i . ".required_if"] = 'Field is required when type is custom.';
+                }
+            }
+        }
+        
+        $validator = Validator::make($request->all(), $validate_rules, $messages);
+        if ($validator->fails()){
+            $error_messages = $validator->errors()->messages();
+            
+            $phone_errors = [];
+            $phones_errors_count = 0;
+            for($i = 0; $i < 10; $i++){
+                if(array_key_exists("phone_" . $i, $error_messages) ||
+                array_key_exists("phone_id_" . $i, $error_messages) ||
+                array_key_exists("phone_type_" . $i, $error_messages) ||
+                array_key_exists("custom_phone_type_" . $i, $error_messages)){
+                    $phone_errors[$i] = [
+                        "phone" => !empty($error_messages["phone_" . $i][0]) ? $error_messages["phone_" . $i][0] : null,
+                        "id" => !empty($error_messages["phone_id_" . $i][0]) ? $error_messages["phone_id_" . $i][0] : null,
+                        "type" => !empty($error_messages["phone_type_" . $i][0]) ? $error_messages["phone_type_" . $i][0] : null,
+                        "custom_type" => !empty($error_messages["custom_phone_type_" . $i][0]) ? $error_messages["custom_phone_type_" . $i][0] : null,
+                    ];
+                    if(!is_null($phone_errors[$i]["phone"]))
+                        $phones_errors_count++;
+                    if(!is_null($phone_errors[$i]["custom_type"]))
+                        $phones_errors_count++;
+                }
+            }
+            
+            // dd($phone_errors);
+                //     @if($errors->has('custom_phone_type_' . $i) ||
+                //     $errors->has('phone' . $i) || $errors->has('phone_id' . $i) ||
+                //     $errors->has('phone_type_' . $i))
+                //         das
+                //     @endif
+                // @endfor
+                
+            $with = [];
+            if(!empty($phone_errors))
+                $with['phone_errors'] = $phone_errors;
+                
+            // $error_messages['phone_errors'] = $phone_errors;
+            
+            // $attributes_per_tab = [
+            //     "main" => ['email','first_name','last_name','gender','birthdate'],
+            //     "address" => ['country','town','street'],
+            //     "address" => ['country','town','street'],
+            // ];
+            // $error_messages = $validator->errors()->messages();
+            $attributes_per_tab = [
+                "main" => ['email','first_name','last_name','gender','birthdate'],
+                "address" => ['country','town','street'],
+                "password" => ['password','password_confirm'],
+            ];
+            
+            $main_errors_count = 0;
+            $address_errors_count = 0;
+            $password_errors_count = 0;
+            foreach($error_messages as $k => $v){
+                if(in_array($k, $attributes_per_tab['main']))
+                    $main_errors_count++;
+                if(in_array($k, $attributes_per_tab['address']))
+                    $address_errors_count++;
+                if(in_array($k, $attributes_per_tab['password']))
+                    $password_errors_count++;
+            }
+            
+            // $with['tab_errors'] = [
+            //     "phones" => $phones_errors_count,
+            //     "main" => $main_errors_count,
+            //     "address" => $address_errors_count,
+            //     "password" => $password_errors_count,
+            // ];
+            
+            $with['tab_errors'] = [
+                "phones" => $phones_errors_count,
+                "main" => $main_errors_count,
+                "address" => $address_errors_count,
+                "password" => $password_errors_count,
+            ];
+            
+            // dd($phones_errors_count, $main_errors_count, $address_errors_count, $password_errors_count);
+            // dd($with);
+            
+            // $validator_errors = $validator->errors();
+            // if(!empty($phone_errors))
+            //     $validator_errors->add('phone_errors', $phone_errors);
+            
+            
+            if(!empty($with))
+                return back()->with($with)->withInput($request->all())->withErrors($validator->errors());
+            return back()->withInput($request->all())->withErrors($validator->errors());
+        }
+
+        dd('validated');
+        // $validated = $request->validate([
+        //     'first_name' => 'required|max:255',
+        //     'last_name' => 'max:255',
+        //     'gender' => 'required|in:male,female',
+        //     'phone' => 'nullable|regex:/^\+[0-9]{3,20}$/i',
+        //     'birthdate' => 'nullable|regex:/\d{4}-\d{2}-\d{2}/i',
+        //     'country' => 'max:255',
+        //     'town' => 'max:255',
+        //     'street' => 'max:255',
+        //     'email' => 'required|email|unique:workers|max:255',
+        //     'email' => [
+        //         'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) {
+        //             // $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
+        //             $query->where('is_deleted', '=', '0');
+        //         })
+        //     ],
+        //     'password' => 'required|max:255',
+        //     'password_confirm' => 'required|same:password',
+        // ]);
         
         $validated['user_id'] = auth()->user()->id;
         $validated['password'] = Hash::make($validated['password']);
@@ -314,7 +479,13 @@ class WorkerController extends Controller
             ->where('id', $id)
             ->update($validated);
         
-        return redirect()->back()->with('success', 'Data saccessfuly saved!');
+        $route_params = ['worker' => $id];
+        if($request->has('tab'))
+            $route_params['tab'] = $request->tab;
+        
+        // return redirect()->back()->with('success', 'Data saccessfuly saved!');
+        
+        return redirect()->route('dashboard.worker.edit', $route_params)->with('success', 'Data saccessfuly saved!');
     }
     
     /**

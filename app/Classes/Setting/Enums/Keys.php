@@ -7,5 +7,5 @@ class Keys
 {
     use Enumerable;
     
-    const DEFAULT_BUSSINESS_HOURS = "default_bussiness_hours";
+    const DEFAULT_BUSINESS_HOURS = "default_bussiness_hours";
 }

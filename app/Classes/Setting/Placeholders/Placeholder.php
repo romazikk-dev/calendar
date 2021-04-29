@@ -20,7 +20,7 @@ class Placeholder{
      * @var array
      */
     private $aliases = [
-        Keys::DEFAULT_BUSSINESS_HOURS => \App\Classes\Setting\Placeholders\BussinessHoursPlaceholder::class,
+        Keys::DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Placeholders\BussinessHoursPlaceholder::class,
     ];
     
     /**

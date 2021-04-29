@@ -31,7 +31,7 @@ import App from './components/App.vue';
 
 window.app = new Vue({
 // const businessHours = new Vue({
-    el: '#phoneChooser',
+    el: '#phonePicker',
     render(h) {
         return h(App) 
     }
