@@ -165,6 +165,10 @@
     </div>
     @endif
     
+    @if($errors->any())
+        {{var_dump($errors->all())}}
+    @endif
+    
     <form id="hallData" action="{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}" method="post">
         @csrf
         @if(!empty($hall))

@@ -178,7 +178,7 @@
                     "order": [],
                     "createdRow": function(row, data, dataIndex){
                         $(row).attr('id', data.id);
-                        $(row).attr('is-closed', data.is_closed);
+                        // $(row).attr('is-closed', data.is_closed);
                         $(row).attr('workers-count', data.workers_count);
                         $(row).attr('created-at', data.created_at);
                         if(data.suspension != null){

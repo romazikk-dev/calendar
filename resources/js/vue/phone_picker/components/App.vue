@@ -8,21 +8,15 @@
             </button>
         </div> -->
         <div class="phones">
-            
             <div class="row">
-                <div class="col-lg-6">
-                    
-                    <div v-for="(phone,index) in phones" class="itm">
+                <div class="coll col-12 col-lg-6" v-for="(phone,index) in phones">
                         
-                        <div class="itm-row">
-                            <div class="coll cont">
-                                
-                                <div class="row">
-                                    <div class="co"
-                                        :class="{
-                                            'col-sm-7': phone.type != 'custom',
-                                            'col-sm-4': phone.type == 'custom'
-                                        }">
+                    <div class="contt">
+                        <div class="col-left">
+                            
+                            <div class="d-table">
+                                <div class="d-table-row">
+                                    <div class="d-table-cell">
                                         
                                         <div class="form-group">
                                             <label for="phoneInput">Phone:</label>
@@ -40,11 +34,7 @@
                                         </div>
                                         
                                     </div>
-                                    <div class="co"
-                                        :class="{
-                                            'col-sm-5': phone.type != 'custom',
-                                            'col-sm-4': phone.type == 'custom'
-                                        }">
+                                    <div class="d-table-cell">
                                         
                                         <input :name="'phone_id_'+index" 
                                             type="hidden"
@@ -77,8 +67,24 @@
                                             <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
                                         </div>
                                         
+                                        <div v-if="phone.type == 'custom'" class="form-group">
+                                            <input :name="'custom_phone_type_'+index"
+                                                type="text"
+                                                v-model="phone.custom_type"
+                                                class="form-control"
+                                                id="phoneInput"
+                                                aria-describedby="emailHelp">
+                                            <span id="emailHelp"
+                                                v-if="isPhoneError('custom_type', index)"
+                                                class="form-text text-danger small">
+                                                    {{phoneErrors[index]['custom_type']}}
+                                            </span>
+                                        </div>
+                                        
                                     </div>
-                                    <div v-if="phone.type == 'custom'" class="co col-sm-4">
+                                    <!-- <div class="d-table-cell third-size"
+                                         v-if="phone.type == 'custom'">
+                                        
                                         <div class="form-group">
                                             <label for="phoneInput">Custom type:</label>
                                             <input :name="'custom_phone_type_'+index"
@@ -93,35 +99,35 @@
                                                     {{phoneErrors[index]['custom_type']}}
                                             </span>
                                         </div>
-                                    </div>
+                                        
+                                    </div> -->
                                 </div>
-                                
                             </div>
-                            <div class="actions coll">
-                                
-                                <button class="btn btn-danger btn-remove"
-                                    @click="removeItem(index)"
-                                    v-if="showRemoveItem"
-                                    type="button">
-                                    -
-                                </button>
-                                <button class="btn btn-success btn-add"
-                                    :class="{
-                                        'on-one-item': phones.length == 1
-                                    }"
-                                    @click="addItem()"
-                                    v-if="showAddItem"
-                                    type="button">
-                                    +
-                                </button>
-                                
-                            </div>
+                            
+                        </div>
+                        <div class="col-right">
+                            
+                            <button class="btn btn-success btn-add"
+                                :class="{
+                                    'on-one-item': phones.length == 1
+                                }"
+                                @click="addItem()"
+                                v-if="showAddItem"
+                                type="button">
+                                +
+                            </button>
+                            <button class="btn btn-danger btn-remove"
+                                @click="removeItem(index)"
+                                v-if="showRemoveItem"
+                                type="button">
+                                -
+                            </button>
+                            
                         </div>
                     </div>
                     
                 </div>
             </div>
-            
         </div>
     </div>
 </template>
@@ -201,90 +207,116 @@
 </script>
 
 <style lang="scss" scoped>
-    .phones{
-        .itm{
-            display: table;
-            width: 100%;
-            .itm-row{
-                // position: relative;
-                // padding-right: 100px;
-                display: table-row;
-                .coll{
-                    display: table-cell;
-                    // min-height: 60px;
-                    vertical-align: bottom;
-                    &.cont{
-                        // td{
-                        //     &:nth-child(1){
-                        //         width: calc(100% - 400px);
-                        //         background-color: green;
-                        //     }
-                        //     &:nth-child(2){
-                        //         // width: calc((100% - 100px) / 2);
-                        //         // width: 200px;
-                        //         background-color: azure;
-                        //     }
-                        //     &:nth-child(3){
-                        //         width: 100px;
-                        //         background-color: red;
-                        //     }
-                        // }
-                        // background-color: green;
-                        .co{
-                            // &nth-child(1){
-                            // 
-                            // }
-                            input{
-                                width: 100%;
-                            }
-                            label{
-                                margin-bottom: 2px!important;
-                            }
-                            // button{
-                            //     width: 100%;
-                            //     text-align: left;
-                            // }
-                            .dropdown-toggle{
-                                width: 100%;
-                                text-align: left;
-                                &::after {
-                                    display: inline-block;
-                                    margin-left: .255em;
-                                    vertical-align: .255em;
-                                    content: "";
-                                    border-top: .3em solid;
-                                    border-right: .3em solid transparent;
-                                    border-bottom: 0;
-                                    border-left: .3em solid transparent;
-                                    float: right;
-                                    margin-top: 10px;
-                                }
-                            }
-                        }
-                    }
-                    &.actions{
-                        width: 120px;
-                        // background-color: red;
-                        button{
-                            float: right;
-                            margin-left: 10px;
-                            margin-bottom: 1rem;
-                            width: 36px;
-                            &.btn-add{
-                                &.on-one-item{
-                                    margin-right: 46px;
-                                }
-                            }
-                        }
-                        // position: absolute;
-                        // top: 0px;
-                        // right: 0px;
-                        // height: 100%;
-                        // vertical-align: bottom;
+    @media screen and (min-width: 992px) {
+        .phones{
+            .coll{
+                &:nth-child(odd){
+                    padding-right: 8px;
+                }
+                &:nth-child(even){
+                    padding-left: 8px;
+                }
+                &:nth-last-child(-n+2){
+                    .contt{
+                        margin-bottom: 0px;
                     }
                 }
             }
-            
+        }
+    }
+</style>
+
+<style lang="scss" scoped>
+    .phones{
+        .coll{
+            &:last-child{
+                .contt{
+                    margin-bottom: 0px!important;
+                }
+            }
+            .contt{
+                position: relative;
+                padding-right: 117px;
+                background-color: #e9ecef;
+                padding-left: 15px;
+                border-radius: 5px;
+                margin-bottom: 15px;
+                // &:last-child(){
+                //     margin-bottom: 0px;
+                // }
+                .col-left{
+                    // background-color: yellow;
+                    .dropdown-toggle{
+                        width: 100%;
+                        text-align: left;
+                        &::after {
+                            display: inline-block;
+                            margin-left: .255em;
+                            vertical-align: .255em;
+                            content: "";
+                            border-top: .3em solid;
+                            border-right: .3em solid transparent;
+                            border-bottom: 0;
+                            border-left: .3em solid transparent;
+                            float: right;
+                            margin-top: 10px;
+                        }
+                    }
+                    input, button{
+                        width: 100%;
+                    }
+                    label{
+                        margin-bottom: 2px!important;
+                    }
+                    .d-table{
+                        width: 100%;
+                        .d-table-row{
+                            .d-table-cell{
+                                padding-right: 15px;
+                                width: 49.9%;
+                                &:nth-child(2){
+                                    padding-right: 0px;
+                                }
+                                // &.half-size{
+                                //     width: 49.9%;
+                                //     &:nth-child(2){
+                                //         padding-right: 0px;
+                                //     }
+                                // }
+                                // &.third-size{
+                                //     width: 33.3%;
+                                //     &:nth-child(3){
+                                //         padding-right: 0px;
+                                //     }
+                                // }
+                                // &:nth-child(2){
+                                //     padding-right: 0px;
+                                // }
+                            }
+                        }
+                    }
+                }
+                .col-right{
+                    width: 102px;
+                    position: absolute;
+                    top: 0px;
+                    right: 15px;
+                    // background-color: red;
+                    height: 100%;
+                    padding-top: 25px;
+                    button{
+                        float: left;
+                        // margin-left: 29px;
+                        // margin-bottom: 1rem;
+                        width: 36px;
+                        // margin-right: 15px;
+                        margin-left: 15px;
+                        // &:first-child{
+                        //     margin-left: 15px;
+                        // }
+                    }
+                }
+            }
         }
     }
 </style>

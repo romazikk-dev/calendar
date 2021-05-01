@@ -1973,6 +1973,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     // console.log(this.phoneTypes);
@@ -2144,7 +2150,31 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".phones .itm[data-v-723d5afe] {\n  display: table;\n  width: 100%;\n}\n.phones .itm .itm-row[data-v-723d5afe] {\n  display: table-row;\n}\n.phones .itm .itm-row .coll[data-v-723d5afe] {\n  display: table-cell;\n  vertical-align: bottom;\n}\n.phones .itm .itm-row .coll.cont .co input[data-v-723d5afe] {\n  width: 100%;\n}\n.phones .itm .itm-row .coll.cont .co label[data-v-723d5afe] {\n  margin-bottom: 2px !important;\n}\n.phones .itm .itm-row .coll.cont .co .dropdown-toggle[data-v-723d5afe] {\n  width: 100%;\n  text-align: left;\n}\n.phones .itm .itm-row .coll.cont .co .dropdown-toggle[data-v-723d5afe]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  float: right;\n  margin-top: 10px;\n}\n.phones .itm .itm-row .coll.actions[data-v-723d5afe] {\n  width: 120px;\n}\n.phones .itm .itm-row .coll.actions button[data-v-723d5afe] {\n  float: right;\n  margin-left: 10px;\n  margin-bottom: 1rem;\n  width: 36px;\n}\n.phones .itm .itm-row .coll.actions button.btn-add.on-one-item[data-v-723d5afe] {\n  margin-right: 46px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "@media screen and (min-width: 992px) {\n.phones .coll[data-v-723d5afe]:nth-child(odd) {\n    padding-right: 8px;\n}\n.phones .coll[data-v-723d5afe]:nth-child(even) {\n    padding-left: 8px;\n}\n.phones .coll:nth-last-child(-n+2) .contt[data-v-723d5afe] {\n    margin-bottom: 0px;\n}\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true&":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true& ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, ".phones .coll:last-child .contt[data-v-723d5afe] {\n  margin-bottom: 0px !important;\n}\n.phones .coll .contt[data-v-723d5afe] {\n  position: relative;\n  padding-right: 117px;\n  background-color: #e9ecef;\n  padding-left: 15px;\n  border-radius: 5px;\n  margin-bottom: 15px;\n}\n.phones .coll .contt .col-left .dropdown-toggle[data-v-723d5afe] {\n  width: 100%;\n  text-align: left;\n}\n.phones .coll .contt .col-left .dropdown-toggle[data-v-723d5afe]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  float: right;\n  margin-top: 10px;\n}\n.phones .coll .contt .col-left input[data-v-723d5afe], .phones .coll .contt .col-left button[data-v-723d5afe] {\n  width: 100%;\n}\n.phones .coll .contt .col-left label[data-v-723d5afe] {\n  margin-bottom: 2px !important;\n}\n.phones .coll .contt .col-left .d-table[data-v-723d5afe] {\n  width: 100%;\n}\n.phones .coll .contt .col-left .d-table .d-table-row .d-table-cell[data-v-723d5afe] {\n  padding-right: 15px;\n  width: 49.9%;\n}\n.phones .coll .contt .col-left .d-table .d-table-row .d-table-cell[data-v-723d5afe]:nth-child(2) {\n  padding-right: 0px;\n}\n.phones .coll .contt .col-right[data-v-723d5afe] {\n  width: 102px;\n  position: absolute;\n  top: 0px;\n  right: 15px;\n  height: 100%;\n  padding-top: 25px;\n}\n.phones .coll .contt .col-right button[data-v-723d5afe] {\n  float: left;\n  width: 36px;\n  margin-left: 15px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -19676,6 +19706,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_id_723d5afe_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_id_723d5afe_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_id_723d5afe_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js":
 /*!****************************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js ***!
@@ -19969,16 +20029,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _App_vue_vue_type_template_id_723d5afe_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./App.vue?vue&type=template&id=723d5afe&scoped=true& */ "./resources/js/vue/phone_picker/components/App.vue?vue&type=template&id=723d5afe&scoped=true&");
 /* harmony import */ var _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./App.vue?vue&type=script&lang=js& */ "./resources/js/vue/phone_picker/components/App.vue?vue&type=script&lang=js&");
 /* harmony import */ var _App_vue_vue_type_style_index_0_id_723d5afe_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=0&id=723d5afe&lang=scss&scoped=true& */ "./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=0&id=723d5afe&lang=scss&scoped=true&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _App_vue_vue_type_style_index_1_id_723d5afe_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true& */ "./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
 ;
 
 
+
 /* normalize component */
 
-var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_4__.default)(
   _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
   _App_vue_vue_type_template_id_723d5afe_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
   _App_vue_vue_type_template_id_723d5afe_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
@@ -20025,6 +20087,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true&":
+/*!********************************************************************************************************************!*\
+  !*** ./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true& ***!
+  \********************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_id_723d5afe_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/style-loader/dist/cjs.js!../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/phone_picker/components/App.vue?vue&type=style&index=1&id=723d5afe&lang=scss&scoped=true&");
+
+
+/***/ }),
+
 /***/ "./resources/js/vue/phone_picker/components/App.vue?vue&type=template&id=723d5afe&scoped=true&":
 /*!*****************************************************************************************************!*\
   !*** ./resources/js/vue/phone_picker/components/App.vue?vue&type=template&id=723d5afe&scoped=true& ***!
@@ -20060,196 +20135,158 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", [
     _c("div", { staticClass: "phones" }, [
-      _c("div", { staticClass: "row" }, [
-        _c(
-          "div",
-          { staticClass: "col-lg-6" },
-          _vm._l(_vm.phones, function(phone, index) {
-            return _c("div", { staticClass: "itm" }, [
-              _c("div", { staticClass: "itm-row" }, [
-                _c("div", { staticClass: "coll cont" }, [
-                  _c("div", { staticClass: "row" }, [
-                    _c(
-                      "div",
-                      {
-                        staticClass: "co",
-                        class: {
-                          "col-sm-7": phone.type != "custom",
-                          "col-sm-4": phone.type == "custom"
-                        }
-                      },
-                      [
-                        _c("div", { staticClass: "form-group" }, [
-                          _c("label", { attrs: { for: "phoneInput" } }, [
-                            _vm._v("Phone:")
-                          ]),
-                          _vm._v(" "),
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: phone.phone,
-                                expression: "phone.phone"
-                              }
-                            ],
-                            staticClass: "form-control",
-                            attrs: {
-                              name: "phone_" + index,
-                              type: "text",
-                              id: "phoneInput_" + index,
-                              "aria-describedby": "emailHelp"
-                            },
-                            domProps: { value: phone.phone },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(phone, "phone", $event.target.value)
-                              }
-                            }
-                          }),
-                          _vm._v(" "),
-                          _vm.isPhoneError("phone", index)
-                            ? _c(
-                                "span",
-                                {
-                                  staticClass: "form-text text-danger small",
-                                  attrs: { id: "emailHelp" }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                                                " +
-                                      _vm._s(_vm.phoneErrors[index]["phone"]) +
-                                      "\n                                        "
-                                  )
-                                ]
-                              )
-                            : _vm._e()
-                        ])
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        staticClass: "co",
-                        class: {
-                          "col-sm-5": phone.type != "custom",
-                          "col-sm-4": phone.type == "custom"
-                        }
-                      },
-                      [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: phone.id,
-                              expression: "phone.id"
-                            }
-                          ],
-                          staticClass: "form-control",
-                          attrs: {
-                            name: "phone_id_" + index,
-                            type: "hidden",
-                            id: "phoneInput",
-                            "aria-describedby": "emailHelp"
-                          },
-                          domProps: { value: phone.id },
-                          on: {
-                            input: function($event) {
-                              if ($event.target.composing) {
-                                return
-                              }
-                              _vm.$set(phone, "id", $event.target.value)
-                            }
-                          }
-                        }),
+      _c(
+        "div",
+        { staticClass: "row" },
+        _vm._l(_vm.phones, function(phone, index) {
+          return _c("div", { staticClass: "coll col-12 col-lg-6" }, [
+            _c("div", { staticClass: "contt" }, [
+              _c("div", { staticClass: "col-left" }, [
+                _c("div", { staticClass: "d-table" }, [
+                  _c("div", { staticClass: "d-table-row" }, [
+                    _c("div", { staticClass: "d-table-cell" }, [
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "phoneInput" } }, [
+                          _vm._v("Phone:")
+                        ]),
                         _vm._v(" "),
                         _c("input", {
                           directives: [
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: phone.type,
-                              expression: "phone.type"
+                              value: phone.phone,
+                              expression: "phone.phone"
                             }
                           ],
                           staticClass: "form-control",
                           attrs: {
-                            name: "phone_type_" + index,
-                            type: "hidden",
-                            id: "phoneInput",
+                            name: "phone_" + index,
+                            type: "text",
+                            id: "phoneInput_" + index,
                             "aria-describedby": "emailHelp"
                           },
-                          domProps: { value: phone.type },
+                          domProps: { value: phone.phone },
                           on: {
                             input: function($event) {
                               if ($event.target.composing) {
                                 return
                               }
-                              _vm.$set(phone, "type", $event.target.value)
+                              _vm.$set(phone, "phone", $event.target.value)
                             }
                           }
                         }),
                         _vm._v(" "),
-                        _c("div", { staticClass: "form-group" }, [
-                          _c("label", { attrs: { for: "typeSelect" } }, [
-                            _vm._v("Type:")
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "dropdown" }, [
-                            _c(
-                              "button",
+                        _vm.isPhoneError("phone", index)
+                          ? _c(
+                              "span",
                               {
-                                staticClass:
-                                  "btn btn-secondary dropdown-toggle",
-                                attrs: {
-                                  type: "button",
-                                  id: "dropdownMenuButton",
-                                  "data-toggle": "dropdown",
-                                  "aria-haspopup": "true",
-                                  "aria-expanded": "false"
-                                }
+                                staticClass: "form-text text-danger small",
+                                attrs: { id: "emailHelp" }
                               },
                               [
                                 _vm._v(
                                   "\n                                                " +
-                                    _vm._s(phone.type) +
-                                    "\n                                            "
+                                    _vm._s(_vm.phoneErrors[index]["phone"]) +
+                                    "\n                                        "
                                 )
                               ]
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "div",
-                              {
-                                staticClass: "dropdown-menu",
-                                attrs: {
-                                  "aria-labelledby": "dropdownMenuButton"
-                                }
-                              },
-                              [
-                                _vm._l(_vm.phoneTypes, function(phoneType) {
-                                  return _c(
-                                    "a",
-                                    {
-                                      staticClass: "dropdown-item",
-                                      attrs: { href: "#" },
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          phone.type = phoneType
-                                        }
-                                      }
-                                    },
-                                    [_vm._v(_vm._s(phoneType))]
-                                  )
-                                }),
-                                _vm._v(" "),
-                                _c(
+                            )
+                          : _vm._e()
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "d-table-cell" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: phone.id,
+                            expression: "phone.id"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          name: "phone_id_" + index,
+                          type: "hidden",
+                          id: "phoneInput",
+                          "aria-describedby": "emailHelp"
+                        },
+                        domProps: { value: phone.id },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(phone, "id", $event.target.value)
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: phone.type,
+                            expression: "phone.type"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          name: "phone_type_" + index,
+                          type: "hidden",
+                          id: "phoneInput",
+                          "aria-describedby": "emailHelp"
+                        },
+                        domProps: { value: phone.type },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(phone, "type", $event.target.value)
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "form-group" }, [
+                        _c("label", { attrs: { for: "typeSelect" } }, [
+                          _vm._v("Type:")
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "dropdown" }, [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-secondary dropdown-toggle",
+                              attrs: {
+                                type: "button",
+                                id: "dropdownMenuButton",
+                                "data-toggle": "dropdown",
+                                "aria-haspopup": "true",
+                                "aria-expanded": "false"
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                                                " +
+                                  _vm._s(phone.type) +
+                                  "\n                                            "
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: "dropdown-menu",
+                              attrs: { "aria-labelledby": "dropdownMenuButton" }
+                            },
+                            [
+                              _vm._l(_vm.phoneTypes, function(phoneType) {
+                                return _c(
                                   "a",
                                   {
                                     staticClass: "dropdown-item",
@@ -20257,27 +20294,36 @@ var render = function() {
                                     on: {
                                       click: function($event) {
                                         $event.preventDefault()
-                                        phone.type = "custom"
+                                        phone.type = phoneType
                                       }
                                     }
                                   },
-                                  [_vm._v("Custom")]
+                                  [_vm._v(_vm._s(phoneType))]
                                 )
-                              ],
-                              2
-                            )
-                          ])
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "a",
+                                {
+                                  staticClass: "dropdown-item",
+                                  attrs: { href: "#" },
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      phone.type = "custom"
+                                    }
+                                  }
+                                },
+                                [_vm._v("Custom")]
+                              )
+                            ],
+                            2
+                          )
                         ])
-                      ]
-                    ),
-                    _vm._v(" "),
-                    phone.type == "custom"
-                      ? _c("div", { staticClass: "co col-sm-4" }, [
-                          _c("div", { staticClass: "form-group" }, [
-                            _c("label", { attrs: { for: "phoneInput" } }, [
-                              _vm._v("Custom type:")
-                            ]),
-                            _vm._v(" "),
+                      ]),
+                      _vm._v(" "),
+                      phone.type == "custom"
+                        ? _c("div", { staticClass: "form-group" }, [
                             _c("input", {
                               directives: [
                                 {
@@ -20328,61 +20374,61 @@ var render = function() {
                                 )
                               : _vm._e()
                           ])
-                        ])
-                      : _vm._e()
+                        : _vm._e()
+                    ])
                   ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "actions coll" }, [
-                  _vm.showRemoveItem
-                    ? _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-danger btn-remove",
-                          attrs: { type: "button" },
-                          on: {
-                            click: function($event) {
-                              return _vm.removeItem(index)
-                            }
-                          }
-                        },
-                        [
-                          _vm._v(
-                            "\n                                -\n                            "
-                          )
-                        ]
-                      )
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm.showAddItem
-                    ? _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-success btn-add",
-                          class: {
-                            "on-one-item": _vm.phones.length == 1
-                          },
-                          attrs: { type: "button" },
-                          on: {
-                            click: function($event) {
-                              return _vm.addItem()
-                            }
-                          }
-                        },
-                        [
-                          _vm._v(
-                            "\n                                +\n                            "
-                          )
-                        ]
-                      )
-                    : _vm._e()
                 ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-right" }, [
+                _vm.showAddItem
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-success btn-add",
+                        class: {
+                          "on-one-item": _vm.phones.length == 1
+                        },
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            return _vm.addItem()
+                          }
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            +\n                        "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.showRemoveItem
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger btn-remove",
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            return _vm.removeItem(index)
+                          }
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            -\n                        "
+                        )
+                      ]
+                    )
+                  : _vm._e()
               ])
             ])
-          }),
-          0
-        )
-      ])
+          ])
+        }),
+        0
+      )
     ])
   ])
 }

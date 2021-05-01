@@ -35,7 +35,7 @@ class HallController extends Controller
         $workers = Hall::select([
             DB::raw("halls.`id`"),
             DB::raw("halls.`title`"),
-            DB::raw("halls.`is_closed`"),
+            // DB::raw("halls.`is_closed`"),
             DB::raw("halls.`created_at`"),
             DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`hall_id` = halls.`id`) as `workers_count`")
         ])
@@ -197,7 +197,7 @@ class HallController extends Controller
             'country' => 'max:255',
             'town' => 'max:255',
             'street' => 'max:255',
-            'is_closed' => 'required|in:0,1',
+            // 'is_closed' => 'required|in:0,1',
             'assign_worker' => 'nullable|array',
             'business_hours' => 'required|array',
             'business_hours.monday.start_hour' => $business_hour_rule,

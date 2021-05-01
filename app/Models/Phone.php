@@ -9,6 +9,11 @@ class Phone extends Model
 {
     use HasFactory;
     
+    protected $fillable = [
+        'phone',
+        'type',
+    ];
+    
     public function phoneable(){
         return $this->morphTo();
     }

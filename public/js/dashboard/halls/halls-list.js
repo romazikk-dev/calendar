@@ -2018,8 +2018,8 @@ __webpack_require__.r(__webpack_exports__);
         // "order": [[ 1, "asc" ]],
         "order": [],
         "createdRow": function createdRow(row, data, dataIndex) {
-          $(row).attr('id', data.id);
-          $(row).attr('is-closed', data.is_closed);
+          $(row).attr('id', data.id); // $(row).attr('is-closed', data.is_closed);
+
           $(row).attr('workers-count', data.workers_count);
           $(row).attr('created-at', data.created_at);
 
