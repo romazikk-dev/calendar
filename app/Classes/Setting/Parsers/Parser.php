@@ -21,6 +21,7 @@ class Parser{
      */
     private $aliases = [
         Keys::DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Parsers\BussinessHoursParser::class,
+        Keys::WORKER_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Parsers\BussinessHoursParser::class,
     ];
     
     /**

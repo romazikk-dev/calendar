@@ -127,7 +127,10 @@
         </script>
         
         <script type="text/javascript" src="{{ asset('js/dashboard/halls/create-edit-status.js') }}?{{$rand}}"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/halls/hall-business-hours.js') }}?{{$rand}}"></script>
+        <!-- <script type="text/javascript" src="{{ asset('js/dashboard/halls/hall-business-hours.js') }}?{{$rand}}"></script> -->
+        
+        <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
+        
         <!-- <script src="{{ asset('js/business-hours.js') }}?{{$rand}}"></script> -->
         <script src="{{ asset('js/worker-assignment-2.js') }}?{{$rand}}"></script>
         
@@ -357,7 +360,7 @@
                     </div>
                 @endif
 
-                <div id="hallBusinessHours"></div>
+                <div id="businessHours"></div>
                 
             </div>
         </div>

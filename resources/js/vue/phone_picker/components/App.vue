@@ -20,32 +20,32 @@
                                         
                                         <div class="form-group">
                                             <label for="phoneInput">Phone:</label>
-                                            <input :name="'phone_'+index" type="text"
-                                                v-model="phone.phone"
+                                            <input :name="indexPrefixes.value+index" type="text"
+                                                v-model="phone.phone.value"
                                                 class="form-control"
                                                 :id="'phoneInput_' + index"
                                                 aria-describedby="emailHelp">
                                             <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
                                             <span id="emailHelp"
-                                                v-if="isPhoneError('phone', index)"
+                                                v-if="phone.phone.error"
                                                 class="form-text text-danger small">
-                                                    {{phoneErrors[index]['phone']}}
+                                                    {{phone.phone.error}}
                                             </span>
                                         </div>
                                         
                                     </div>
                                     <div class="d-table-cell">
                                         
-                                        <input :name="'phone_id_'+index" 
+                                        <input :name="indexPrefixes.id+index" 
                                             type="hidden"
-                                            v-model="phone.id"
+                                            v-model="phone.id.value"
                                             class="form-control"
                                             id="phoneInput"
                                             aria-describedby="emailHelp">
                                             
-                                        <input :name="'phone_type_'+index" 
+                                        <input :name="indexPrefixes.type+index" 
                                             type="hidden"
-                                            v-model="phone.type"
+                                            v-model="phone.type.value"
                                             class="form-control"
                                             id="phoneInput"
                                             aria-describedby="emailHelp">
@@ -54,57 +54,38 @@
                                             <label for="typeSelect">Type:</label>
                                             <div class="dropdown">
                                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    {{phone.type}}
+                                                    {{phone.type.value}}
                                                 </button>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                    <a @click.prevent="phone.type = phoneType"
+                                                    <a @click.prevent="phone.type.value = phoneType"
                                                         v-for="phoneType in phoneTypes"
                                                         class="dropdown-item"
                                                         href="#">{{phoneType}}</a>
-                                                    <a @click.prevent="phone.type = 'custom'" class="dropdown-item" href="#">Custom</a>
                                                 </div>
                                             </div>
                                             <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
                                         </div>
                                         
-                                        <div v-if="phone.type == 'custom'" class="form-group">
-                                            <input :name="'custom_phone_type_'+index"
+                                        <div v-if="phone.type.value == 'custom'" class="form-group">
+                                            <input :name="indexPrefixes.custom_type+index"
                                                 type="text"
-                                                v-model="phone.custom_type"
+                                                v-model="phone.custom_type.value"
                                                 class="form-control"
                                                 id="phoneInput"
                                                 aria-describedby="emailHelp">
                                             <span id="emailHelp"
-                                                v-if="isPhoneError('custom_type', index)"
+                                                v-if="phone.custom_type.error"
                                                 class="form-text text-danger small">
-                                                    {{phoneErrors[index]['custom_type']}}
+                                                    {{phone.custom_type.error}}
                                             </span>
                                         </div>
                                         
                                     </div>
-                                    <!-- <div class="d-table-cell third-size"
-                                         v-if="phone.type == 'custom'">
-                                        
-                                        <div class="form-group">
-                                            <label for="phoneInput">Custom type:</label>
-                                            <input :name="'custom_phone_type_'+index"
-                                                type="text"
-                                                v-model="phone.custom_type"
-                                                class="form-control"
-                                                id="phoneInput"
-                                                aria-describedby="emailHelp">
-                                            <span id="emailHelp"
-                                                v-if="isPhoneError('custom_type', index)"
-                                                class="form-text text-danger small">
-                                                    {{phoneErrors[index]['custom_type']}}
-                                            </span>
-                                        </div>
-                                        
-                                    </div> -->
+                                    
                                 </div>
                             </div>
                             
-                        </div>
+                        </div><!--  /.col-left -->
                         <div class="col-right">
                             
                             <button class="btn btn-success btn-add"
@@ -123,10 +104,10 @@
                                 -
                             </button>
                             
-                        </div>
-                    </div>
+                        </div><!--  /.col-right -->
+                    </div><!--  /.contt -->
                     
-                </div>
+                </div><!--  /.coll -->
             </div>
         </div>
     </div>
@@ -135,25 +116,42 @@
 <script>
     export default {
         mounted() {
-            // console.log(this.phoneTypes);
-            console.log(JSON.parse(JSON.stringify(phoneErrors)));
-            this.setOldPhones();
-            // oldPhones
+            if(phones != null)
+                this.phones = phones;
         },
         // props: ['postTitle'],
         data: function(){
             return {
                 phones: [
                     {
-                        id: null,
-                        phone: null,
-                        type: phoneTypes.mobile,
-                        custom_type: null
+                        // id: null,
+                        // phone: null,
+                        // type: phoneTypes.mobile,
+                        // custom_type: null
+                        
+                        id: {
+                            value: null,
+                            error: null,
+                        },
+                        phone: {
+                            value: null,
+                            error: null,
+                        },
+                        type: {
+                            value: phoneTypes.mobile,
+                            error: null,
+                        },
+                        custom_type: {
+                            value: null,
+                            error: null,
+                        },
+                        // type: phoneTypes.mobile,
+                        // custom_type: null
                     }
                 ],
                 phoneTypes: phoneTypes,
                 maxPhoneItems: 10,
-                phoneErrors: phoneErrors,
+                indexPrefixes: indexPrefixes,
             };
         },
         computed: {
@@ -162,37 +160,30 @@
             },
             showAddItem: function () {
                 return this.phones.length < this.maxPhoneItems;
-            }
+            },
         },
         methods: {
-            isPhoneError: function(errorType, index){
-                if(this.phoneErrors == null ||
-                typeof this.phoneErrors[index] == 'undefined')
-                    return false;
-                if(errorType == 'phone' && typeof this.phoneErrors[index]['phone'] != 'undefined')
-                    return true;
-                if(errorType == 'custom_type' && typeof this.phoneErrors[index]['custom_type'] != 'undefined'){
-                    if(typeof this.phones[index]['phone'] != 'undefined' && this.phones[index]['phone'] != null){
-                        return true;
-                    }else{
-                        delete this.phoneErrors[index]['custom_type'];
-                    }
-                }
-                return false;
-            },
-            setOldPhones: function(){
-                if(oldPhones != null)
-                    this.phones = oldPhones;
-            },
             addItem: function(){
                 console.log('addItem');
                 if(this.phones.length >= this.maxPhoneItems)
                     return;
                 this.phones.push({
-                    id: null,
-                    phone: null,
-                    type: phoneTypes.mobile,
-                    custom_type: null
+                    id: {
+                        value: null,
+                        error: null,
+                    },
+                    phone: {
+                        value: null,
+                        error: null,
+                    },
+                    type: {
+                        value: phoneTypes.mobile,
+                        error: null,
+                    },
+                    custom_type: {
+                        value: null,
+                        error: null,
+                    },
                 });
             },
             removeItem: function(index){

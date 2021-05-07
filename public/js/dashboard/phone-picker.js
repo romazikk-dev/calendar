@@ -1960,43 +1960,40 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
-    // console.log(this.phoneTypes);
-    console.log(JSON.parse(JSON.stringify(phoneErrors)));
-    this.setOldPhones(); // oldPhones
+    if (phones != null) this.phones = phones;
   },
   // props: ['postTitle'],
   data: function data() {
     return {
       phones: [{
-        id: null,
-        phone: null,
-        type: phoneTypes.mobile,
-        custom_type: null
+        // id: null,
+        // phone: null,
+        // type: phoneTypes.mobile,
+        // custom_type: null
+        id: {
+          value: null,
+          error: null
+        },
+        phone: {
+          value: null,
+          error: null
+        },
+        type: {
+          value: phoneTypes.mobile,
+          error: null
+        },
+        custom_type: {
+          value: null,
+          error: null
+        } // type: phoneTypes.mobile,
+        // custom_type: null
+
       }],
       phoneTypes: phoneTypes,
       maxPhoneItems: 10,
-      phoneErrors: phoneErrors
+      indexPrefixes: indexPrefixes
     };
   },
   computed: {
@@ -2008,31 +2005,26 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    isPhoneError: function isPhoneError(errorType, index) {
-      if (this.phoneErrors == null || typeof this.phoneErrors[index] == 'undefined') return false;
-      if (errorType == 'phone' && typeof this.phoneErrors[index]['phone'] != 'undefined') return true;
-
-      if (errorType == 'custom_type' && typeof this.phoneErrors[index]['custom_type'] != 'undefined') {
-        if (typeof this.phones[index]['phone'] != 'undefined' && this.phones[index]['phone'] != null) {
-          return true;
-        } else {
-          delete this.phoneErrors[index]['custom_type'];
-        }
-      }
-
-      return false;
-    },
-    setOldPhones: function setOldPhones() {
-      if (oldPhones != null) this.phones = oldPhones;
-    },
     addItem: function addItem() {
       console.log('addItem');
       if (this.phones.length >= this.maxPhoneItems) return;
       this.phones.push({
-        id: null,
-        phone: null,
-        type: phoneTypes.mobile,
-        custom_type: null
+        id: {
+          value: null,
+          error: null
+        },
+        phone: {
+          value: null,
+          error: null
+        },
+        type: {
+          value: phoneTypes.mobile,
+          error: null
+        },
+        custom_type: {
+          value: null,
+          error: null
+        }
       });
     },
     removeItem: function removeItem(index) {
@@ -20155,29 +20147,33 @@ var render = function() {
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: phone.phone,
-                              expression: "phone.phone"
+                              value: phone.phone.value,
+                              expression: "phone.phone.value"
                             }
                           ],
                           staticClass: "form-control",
                           attrs: {
-                            name: "phone_" + index,
+                            name: _vm.indexPrefixes.value + index,
                             type: "text",
                             id: "phoneInput_" + index,
                             "aria-describedby": "emailHelp"
                           },
-                          domProps: { value: phone.phone },
+                          domProps: { value: phone.phone.value },
                           on: {
                             input: function($event) {
                               if ($event.target.composing) {
                                 return
                               }
-                              _vm.$set(phone, "phone", $event.target.value)
+                              _vm.$set(
+                                phone.phone,
+                                "value",
+                                $event.target.value
+                              )
                             }
                           }
                         }),
                         _vm._v(" "),
-                        _vm.isPhoneError("phone", index)
+                        phone.phone.error
                           ? _c(
                               "span",
                               {
@@ -20187,7 +20183,7 @@ var render = function() {
                               [
                                 _vm._v(
                                   "\n                                                " +
-                                    _vm._s(_vm.phoneErrors[index]["phone"]) +
+                                    _vm._s(phone.phone.error) +
                                     "\n                                        "
                                 )
                               ]
@@ -20202,24 +20198,24 @@ var render = function() {
                           {
                             name: "model",
                             rawName: "v-model",
-                            value: phone.id,
-                            expression: "phone.id"
+                            value: phone.id.value,
+                            expression: "phone.id.value"
                           }
                         ],
                         staticClass: "form-control",
                         attrs: {
-                          name: "phone_id_" + index,
+                          name: _vm.indexPrefixes.id + index,
                           type: "hidden",
                           id: "phoneInput",
                           "aria-describedby": "emailHelp"
                         },
-                        domProps: { value: phone.id },
+                        domProps: { value: phone.id.value },
                         on: {
                           input: function($event) {
                             if ($event.target.composing) {
                               return
                             }
-                            _vm.$set(phone, "id", $event.target.value)
+                            _vm.$set(phone.id, "value", $event.target.value)
                           }
                         }
                       }),
@@ -20229,24 +20225,24 @@ var render = function() {
                           {
                             name: "model",
                             rawName: "v-model",
-                            value: phone.type,
-                            expression: "phone.type"
+                            value: phone.type.value,
+                            expression: "phone.type.value"
                           }
                         ],
                         staticClass: "form-control",
                         attrs: {
-                          name: "phone_type_" + index,
+                          name: _vm.indexPrefixes.type + index,
                           type: "hidden",
                           id: "phoneInput",
                           "aria-describedby": "emailHelp"
                         },
-                        domProps: { value: phone.type },
+                        domProps: { value: phone.type.value },
                         on: {
                           input: function($event) {
                             if ($event.target.composing) {
                               return
                             }
-                            _vm.$set(phone, "type", $event.target.value)
+                            _vm.$set(phone.type, "value", $event.target.value)
                           }
                         }
                       }),
@@ -20272,7 +20268,7 @@ var render = function() {
                             [
                               _vm._v(
                                 "\n                                                " +
-                                  _vm._s(phone.type) +
+                                  _vm._s(phone.type.value) +
                                   "\n                                            "
                               )
                             ]
@@ -20284,25 +20280,8 @@ var render = function() {
                               staticClass: "dropdown-menu",
                               attrs: { "aria-labelledby": "dropdownMenuButton" }
                             },
-                            [
-                              _vm._l(_vm.phoneTypes, function(phoneType) {
-                                return _c(
-                                  "a",
-                                  {
-                                    staticClass: "dropdown-item",
-                                    attrs: { href: "#" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        phone.type = phoneType
-                                      }
-                                    }
-                                  },
-                                  [_vm._v(_vm._s(phoneType))]
-                                )
-                              }),
-                              _vm._v(" "),
-                              _c(
+                            _vm._l(_vm.phoneTypes, function(phoneType) {
+                              return _c(
                                 "a",
                                 {
                                   staticClass: "dropdown-item",
@@ -20310,52 +20289,52 @@ var render = function() {
                                   on: {
                                     click: function($event) {
                                       $event.preventDefault()
-                                      phone.type = "custom"
+                                      phone.type.value = phoneType
                                     }
                                   }
                                 },
-                                [_vm._v("Custom")]
+                                [_vm._v(_vm._s(phoneType))]
                               )
-                            ],
-                            2
+                            }),
+                            0
                           )
                         ])
                       ]),
                       _vm._v(" "),
-                      phone.type == "custom"
+                      phone.type.value == "custom"
                         ? _c("div", { staticClass: "form-group" }, [
                             _c("input", {
                               directives: [
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: phone.custom_type,
-                                  expression: "phone.custom_type"
+                                  value: phone.custom_type.value,
+                                  expression: "phone.custom_type.value"
                                 }
                               ],
                               staticClass: "form-control",
                               attrs: {
-                                name: "custom_phone_type_" + index,
+                                name: _vm.indexPrefixes.custom_type + index,
                                 type: "text",
                                 id: "phoneInput",
                                 "aria-describedby": "emailHelp"
                               },
-                              domProps: { value: phone.custom_type },
+                              domProps: { value: phone.custom_type.value },
                               on: {
                                 input: function($event) {
                                   if ($event.target.composing) {
                                     return
                                   }
                                   _vm.$set(
-                                    phone,
-                                    "custom_type",
+                                    phone.custom_type,
+                                    "value",
                                     $event.target.value
                                   )
                                 }
                               }
                             }),
                             _vm._v(" "),
-                            _vm.isPhoneError("custom_type", index)
+                            phone.custom_type.error
                               ? _c(
                                   "span",
                                   {
@@ -20365,9 +20344,7 @@ var render = function() {
                                   [
                                     _vm._v(
                                       "\n                                                " +
-                                        _vm._s(
-                                          _vm.phoneErrors[index]["custom_type"]
-                                        ) +
+                                        _vm._s(phone.custom_type.error) +
                                         "\n                                        "
                                     )
                                   ]

@@ -11,6 +11,7 @@ namespace App\Classes\Suspension;
 use App\Models\Suspension;
 // use App\Exceptions\Api\Calendar\BadRangeException;
 use App\Classes\Range\Range;
+use App\Classes\Suspension\Enums\Types;
 
 class ToogleSuspension{
     
@@ -35,6 +36,23 @@ class ToogleSuspension{
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         
+    }
+    
+    public static function parseSuspensionDB($suspension){
+        $out = [];
+        if(is_null($suspension)){
+            $out['type'] = Types::ACTIVE;
+            // return null;
+        }else{
+            if(is_null($suspension->from) && is_null($suspension->to))
+                $out['type'] = Types::COMPLETELY;
+            if(!is_null($suspension->from) && !is_null($suspension->to))
+                $out['type'] = Types::PERIOD;
+            $out['from'] = $suspension->from;
+            $out['to'] = $suspension->to;
+        }
+        return $out;
+        // dd($suspension);
     }
     
     protected function periodSuspend(){

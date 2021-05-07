@@ -1,4 +1,9 @@
-<nav class="navbar navbar-expand-sm navbar-light bg-light">
+@php
+    $current_full_controller_name = request()->route()->getActionName();
+    $current_controller = controllerFromFullClassName($current_full_controller_name);
+@endphp
+
+<nav class="main-navbar navbar navbar-expand-sm navbar-light bg-light">
     <!-- <a class="navbar-brand" href="#">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
           <path fill-rule="evenodd" d="M8 3.293l6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6zm5-.793V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
@@ -14,10 +19,10 @@
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.index') active @endif">
                 <a class="nav-link" href="{{ route('dashboard.index') }}">Home</a>
             </li>
-            <li class="nav-item @if(Route::current()->getName() == 'dashboard.worker.index') active @endif">
+            <li class="nav-item @if($current_controller == 'worker') active @endif">
                 <a class="nav-link" href="{{ route('dashboard.worker.index') }}">Workers</a>
             </li>
-            <li class="nav-item @if(Route::current()->getName() == 'dashboard.hall.index') active @endif">
+            <li class="nav-item @if($current_controller == 'hall') active @endif">
                 <a class="nav-link" href="{{ route('dashboard.hall.index') }}">Halls</a>
             </li>
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.template.index') active @endif">

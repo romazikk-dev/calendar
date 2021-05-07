@@ -12,15 +12,31 @@ use App\Models\Setting as SettingModel;
 // use App\Exceptions\Api\Calendar\BadRangeException;
 // use App\Classes\Range\Range;
 
+// Setting::arrangeByKey($key, $setting)
+
 class Setting extends MainSetting{
     
-    public function getOrPlaceholder($key, $as_json = false){
+    public function getOrPlaceholder($key, $arrange = false, $as_json = false){
         $setting = $this->getSettingFromDB($key, true);
+        // dd(json_decode($setting, true));
+        // dd($this->getPlaceholderPerKey($key));
         if(empty($setting))
-            return $this->getPlaceholderPerKey($key);
-        if($as_json)
-            return $setting;
-        return json_decode($setting, true);
+            $setting = $this->getPlaceholderPerKey($key);
+        if(is_string($setting))
+            $setting = json_decode($setting, true);
+        if($arrange)
+            $setting = $this->arrangeByKey($key, $setting);
+        // dd(1111);
+        // dd($setting);
+        return $as_json === true ? json_decode($setting, true) : $setting;
+        // if($as_json)
+        //     return $setting;
+        // return json_decode($setting, true);
+    }
+    
+    public function arrangeByKey($key, $setting){
+        return $this->arranger->arrange($key, $setting);
+        // arrangePerKey
     }
     
     public function getOrNull($key, $as_json = false){

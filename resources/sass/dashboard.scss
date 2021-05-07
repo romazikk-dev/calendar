@@ -37,8 +37,17 @@
                             padding: 6px 8px;
                             // background-color: #ccc;
                             // border-radius: 3px 0px 0px 3px;
-                            border-radius: 5px;
+                            // border-radius: 5px 0px 0px 5px;
                             line-height: 1em;
+                            border: 1px solid white;
+                            color: rgba(0,0,0,.5);
+                            font-weight: bold;
+                            &.active{
+                                background-color: #e9ecef!important;
+                                // color: white;
+                                // border-radius: 0px;
+                                // border: 2px solid white;
+                            }
                             &:hover{
                                 text-decoration: underline;
                             }
@@ -111,9 +120,71 @@ input, textarea, select{
     background-color: #f9f9f9!important;
 }
 
-.page-actions .page-action svg{
-    position: relative;
-    top: -2px!important;
+
+
+/* MAIN NAVBAR
+******************************************************************/
+.main-navbar{
+    padding: 0px!important;
+    // border-bottom: 1px solid white;
+    .navbar-nav{
+        .nav-item{
+            a{
+                padding: 10px 14px;
+            }
+            &.active{
+                a{
+                    background-color: #e9ecef;
+                    // background-color: #999;
+                }
+            }
+        }
+    }
+}
+
+
+
+/* DATATABLE ACTION BUTTONS
+******************************************************************/
+.dataTable{
+    .actions{
+        
+        .action-drop{
+            .dropdown-menu{
+                -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+                -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+                box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+                padding: 4px 10px;
+                text-align: center;
+                .btnns{
+                    padding: 10px 0px;
+                    .btnn{
+                        margin-right: 20px;
+                        &:last-child{
+                            margin-right: 0px;
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+}
+
+
+
+/* PAGE ACTIONS
+******************************************************************/
+.page-actions{
+    .page-action{
+        position: relative;
+        top: 20px!important;
+        // padding: 5px 12px;
+        svg{
+           position: relative;
+           top: -2px!important;
+       }
+   }
 }
 
 

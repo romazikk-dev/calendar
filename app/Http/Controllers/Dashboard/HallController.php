@@ -330,7 +330,7 @@ class HallController extends Controller
             // dump($itm->id);
         }
         
-        // dd(1111);
+        // dd($assign_workers);
         
         return view('dashboard.hall.create', [
             'hall' => $hall,

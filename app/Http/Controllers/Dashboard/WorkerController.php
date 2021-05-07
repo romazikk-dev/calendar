@@ -6,14 +6,20 @@ use App\Http\Controllers\PersonController as Controller;
 use Illuminate\Http\Request;
 use App\Models\Worker;
 use App\Models\Phone;
-use App\Models\WorkerSuspension;
+use App\Models\Hall;
+// use App\Models\WorkerSuspension;
 use App\Providers\RouteServiceProvider;
 use Yajra\DataTables\Facades\DataTables;
 use DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
-use App\Classes\Enums\PhoneTypes;
+use App\Classes\PhonePicker\Enums\Types as PhoneTypes;
+use App\Classes\PhonePicker\Enums\IndexPrefixes;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\ViewErrorBag;
+use App\Classes\Suspension\ToogleSuspension;
+use App\Classes\Setting\Enums\Keys as SettingKeys;
+use App\Classes\Enums\Weekdays;
 
 class WorkerController extends Controller
 {
@@ -42,14 +48,10 @@ class WorkerController extends Controller
             DB::raw("workers.`last_name`"),
             DB::raw("CONCAT(workers.`first_name`,' ',workers.`last_name`) as `full_name`"),
             'email',
-            // 'created_at',
             DB::raw("workers.`created_at` as `created_at`"),
-            DB::raw("workers_suspensions.`id` as worker_suspension_id"),
-            DB::raw("workers_suspensions.`from` as worker_suspension_from"),
-            DB::raw("workers_suspensions.`to` as worker_suspension_to"),
+            // DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`worker_id` = workers.`id`) as `halls_count`")
         ])
-        ->leftJoin('workers_suspensions', 'workers.id', '=', 'workers_suspensions.worker_id')
-        ->where('is_deleted', 0);
+        ->with('halls')->with('suspension')->where('is_deleted', 0);
         
         return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
                     $sql = "CONCAT(first_name,' ',last_name)  like ?";
@@ -63,31 +65,74 @@ class WorkerController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        
-        $old_phones = [];
-        for($i = 0; $i < 10; $i++){
-            $old_phone = [];
-            if(!empty(old('phone_' . $i))){
-                $phone = old('phone_' . $i);
-                $phone_id = old('phone_id_' . $i);
-                $phone_type = old('phone_type_' . $i);
-                $custom_phone_type = old('custom_phone_type_' . $i);
-                $old_phones[] = [
-                    'phone' => $phone,
-                    'id' => $phone_id,
-                    'type' => $phone_type,
-                    'custom_type' => $custom_phone_type,
-                ];
-            }
-        }
+        $phones = \PhonePicker::getAllForVue();
         
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
+        
+        $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS, true);
+        // $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS);
+        
+        // dd(\Suspension::getOldForVue());
             
         return view('dashboard.worker.create', [
             'phone_types' => PhoneTypes::all(),
-            'old_phones' => !empty($old_phones) ? $old_phones : null,
+            'old_suspension' => \Suspension::getOldForVue(),
+            'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),
+            'phones' => !empty($phones) ? $phones : null,
             'tab_errors' => $tab_errors,
+            'business_hours' => $business_hours['data'],
+            'count_weekends' => $business_hours['count_weekends'],
+            'count_workdays' => $business_hours['count_workdays'],
         ]);
+    }
+    
+    public function mainValidationRules(){
+        $business_hour_rule = 'nullable|string|max:10|regex:/\d{2}:\d{2}/i';
+        $business_weekend_rule = 'in:on';
+        
+        return [
+            //Main rules
+            'first_name' => 'required|max:255',
+            'last_name' => 'max:255',
+            'gender' => 'required|in:male,female',
+            'phone' => 'nullable|regex:/^\+[0-9]{3,20}$/i',
+            'birthdate' => 'nullable|regex:/\d{4}-\d{2}-\d{2}/i',
+            'country' => 'max:255',
+            'town' => 'max:255',
+            'street' => 'max:255',
+            
+            //Suspension rules
+            'status' => 'required|in:disable,complete,period',
+            'suspend_from' => 'required_if:status,==,period|nullable|string|max:20|regex:/\d{2}-\d{2}-\d{4}/i',
+            'suspend_to' => 'required_if:status,==,period|nullable|string|max:20|regex:/\d{2}-\d{2}-\d{4}/i',
+            
+            //Assign halls rule
+            'assign_item' => 'nullable|array',
+            
+            //Business hours rules
+            'business_hours' => 'required|array',
+            'business_hours.monday.start_hour' => $business_hour_rule,
+            'business_hours.monday.end_hour' => $business_hour_rule,
+            'business_hours.tuesday.start_hour' => $business_hour_rule,
+            'business_hours.tuesday.end_hour' => $business_hour_rule,
+            'business_hours.wednesday.start_hour' => $business_hour_rule,
+            'business_hours.wednesday.end_hour' => $business_hour_rule,
+            'business_hours.thursday.start_hour' => $business_hour_rule,
+            'business_hours.thursday.end_hour' => $business_hour_rule,
+            'business_hours.friday.start_hour' => $business_hour_rule,
+            'business_hours.friday.end_hour' => $business_hour_rule,
+            'business_hours.saturday.start_hour' => $business_hour_rule,
+            'business_hours.saturday.end_hour' => $business_hour_rule,
+            'business_hours.sunday.start_hour' => $business_hour_rule,
+            'business_hours.sunday.end_hour' => $business_hour_rule,
+            'business_hours.monday.is_weekend' => $business_weekend_rule,
+            'business_hours.tuesday.is_weekend' => $business_weekend_rule,
+            'business_hours.wednesday.is_weekend' => $business_weekend_rule,
+            'business_hours.thursday.is_weekend' => $business_weekend_rule,
+            'business_hours.friday.is_weekend' => $business_weekend_rule,
+            'business_hours.saturday.is_weekend' => $business_weekend_rule,
+            'business_hours.sunday.is_weekend' => $business_weekend_rule,
+        ];
     }
 
     /**
@@ -98,16 +143,7 @@ class WorkerController extends Controller
      */
     public function store(Request $request){
         
-        $validate_rules = [
-            'first_name' => 'required|max:255',
-            'last_name' => 'max:255',
-            'gender' => 'required|in:male,female',
-            'phone' => 'nullable|regex:/^\+[0-9]{3,20}$/i',
-            'birthdate' => 'nullable|regex:/\d{4}-\d{2}-\d{2}/i',
-            'country' => 'max:255',
-            'town' => 'max:255',
-            'street' => 'max:255',
-            'email' => 'required|email|unique:workers|max:255',
+        $validate_rules = array_merge($this->mainValidationRules(), [
             'email' => [
                 'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) {
                     // $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
@@ -116,86 +152,33 @@ class WorkerController extends Controller
             ],
             'password' => 'required|max:255',
             'password_confirm' => 'required|same:password',
-        ];
+        ]);
         
-        $messages = [];
-        $phone_types = implode(',', PhoneTypes::all());
-        $phone_types .= ',custom';
-        
-        for($i = 0; $i <= 10; $i++){
-            // $request->has('phone_' . $k);
-            if($request->has('phone_' . $i)){
-                $validate_rules['phone_' . $i] = 'nullable|max:30';
-                // $validate_rules['phone_id_' . $i] = 'nullable|required_with:phone_' . $i . '|integer';
-                $validate_rules['phone_id_' . $i] = 'nullable|integer';
-                $validate_rules['phone_type_' . $i] = 'required_with:phone_' . $i . '|in:' . $phone_types . '';
-                $validate_rules['custom_phone_type_' . $i] = 'required_if:phone_type_' . $i . ',==,custom|max:30';
-                if(!array_key_exists("phone.max", $messages)){
-                    $messages["phone_" . $i . ".max"] = 'The phone must not be greater than :max characters.';
-                    $messages["custom_phone_type_" . $i . ".required_if"] = 'Field is required when type is custom.';
-                }
-            }
-        }
+        $rules_and_messages = \PhonePicker::getPhonesValidetionRulesAndCustomMessages($request);
+        $messages = $rules_and_messages['messages'];
+        $validate_rules = array_merge($validate_rules, $rules_and_messages['rules']);
         
         $validator = Validator::make($request->all(), $validate_rules, $messages);
-        if ($validator->fails()){
+        if($validator->fails()){
             $error_messages = $validator->errors()->messages();
+            $tab_errors = $this->getErrorsCountsPerTab($error_messages);
             
-            $phone_errors = [];
-            $phones_errors_count = 0;
-            for($i = 0; $i < 10; $i++){
-                if(array_key_exists("phone_" . $i, $error_messages) ||
-                array_key_exists("phone_id_" . $i, $error_messages) ||
-                array_key_exists("phone_type_" . $i, $error_messages) ||
-                array_key_exists("custom_phone_type_" . $i, $error_messages)){
-                    $phone_errors[$i] = [
-                        "phone" => !empty($error_messages["phone_" . $i][0]) ? $error_messages["phone_" . $i][0] : null,
-                        "id" => !empty($error_messages["phone_id_" . $i][0]) ? $error_messages["phone_id_" . $i][0] : null,
-                        "type" => !empty($error_messages["phone_type_" . $i][0]) ? $error_messages["phone_type_" . $i][0] : null,
-                        "custom_type" => !empty($error_messages["custom_phone_type_" . $i][0]) ? $error_messages["custom_phone_type_" . $i][0] : null,
-                    ];
-                    if(!is_null($phone_errors[$i]["phone"]))
-                        $phones_errors_count++;
-                    if(!is_null($phone_errors[$i]["custom_type"]))
-                        $phones_errors_count++;
-                }
-            }
-                
-            $with = [];
-            if(!empty($phone_errors))
-                $with['phone_errors'] = $phone_errors;
-                
-            $attributes_per_tab = [
-                "main" => ['email','first_name','last_name','gender','birthdate'],
-                "address" => ['country','town','street'],
-                "password" => ['password','password_confirm'],
-            ];
-            
-            $main_errors_count = 0;
-            $address_errors_count = 0;
-            $password_errors_count = 0;
-            foreach($error_messages as $k => $v){
-                if(in_array($k, $attributes_per_tab['main']))
-                    $main_errors_count++;
-                if(in_array($k, $attributes_per_tab['address']))
-                    $address_errors_count++;
-                if(in_array($k, $attributes_per_tab['password']))
-                    $password_errors_count++;
-            }
-            
-            $with['tab_errors'] = [
-                "phones" => $phones_errors_count,
-                "main" => $main_errors_count,
-                "address" => $address_errors_count,
-                "password" => $password_errors_count,
-            ];
-            
-            if(!empty($with))
-                return back()->with($with)->withInput($request->all())->withErrors($validator->errors());
-            return back()->withInput($request->all())->withErrors($validator->errors());
+            return back()->with([
+                'tab_errors' => $tab_errors
+            ])->withInput($request->all())->withErrors($validator->errors());
         }
         
         $validated = $validator->valid();
+        
+        if(!empty($validated['assign_item'])){
+            $assign_item = array_keys($validated['assign_item']);
+            unset($validated['assign_item']);
+            $halls = Hall::whereIn('id', $assign_item)->get();
+            if(count($halls) != count($assign_item))
+                return back()->withErrors(['assign_item_count', 'You trying assign not existing items']);
+        }
+        
+        $validated['business_hours'] = json_encode($validated['business_hours']);
         
         $validated['user_id'] = auth()->user()->id;
         $validated['password'] = Hash::make($validated['password']);
@@ -203,25 +186,12 @@ class WorkerController extends Controller
         $validated['birthdate'] = $this->parseToCorrectDBDate($validated['birthdate']);
         
         $worker = Worker::create($validated);
-        
-        for($i = 0; $i < 10; $i++){
-            $phone = $request->get('phone_' . $i);
-            if(!empty($phone)){
-                $phone_data = ['phone' => $request->get('phone_' . $i)];
-                if($request->has('phone_type_' . $i)){
-                    $phone_type = $request->get('phone_type_' . $i);
-                    $custom_phone_type = $request->has('custom_phone_type_' . $i) ? $request->get('custom_phone_type_' . $i) : null;
-                    if($phone_type == 'custom' && !empty($custom_phone_type)){
-                        $phone_data['type'] = $custom_phone_type;
-                    }else{
-                        $phone_data['type'] = $phone_type;
-                    }
-                }
-                $worker->phones()->create($phone_data);
+        if(!empty($assign_item)){
+            foreach($assign_item as $item_id){
+                $worker->halls()->attach($item_id);
             }
         }
-        
-        // dd('saved');
+        \PhonePicker::saveAllPhones($request, $worker);
         
         return redirect()->route('dashboard.worker.index');
     }
@@ -232,14 +202,181 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        // dd('show');
-        $worker = Worker::find($id);
-        // dd($worker);
+    public function show(Request $request, $id){
+        
+        $model = Worker::where("id", $id);
+        
+        if($request->has('with_halls'))
+            $model->with('halls');
+        if($request->has('with_suspension'))
+            $model->with('suspension');
+            
+        $worker = $model->first();
+        
+        if($request->wantsJson()){                
+            $worker->makeVisible(['business_hours']);
+            return response()->json($worker);
+        }
         return view('dashboard.worker.show', [
             'worker' => $worker
         ]);
+    }
+    
+    protected function getPhones($worker = null){
+        
+        // $phones = $worker->phones;
+        $error_messages = null;
+        $errors = session()->get('errors');
+        if(!empty($errors))
+            $error_messages = $errors->default->messages();
+        // dump($errors->default->messages());
+        $parsed_phones = [];
+        // $parsed_phones_with_id = [];
+        if(old('_token') !== null){
+            // $phones_arr = $phones->asArray();
+            for($i = 0; $i < 10; $i++){
+                
+                if(!empty(old('phone_' . $i))){
+                    $parsed_phone = [
+                        'phone' => [
+                            'value' => old('phone_' . $i),
+                            'error' => !empty($error_messages['phone_' . $i]) ? $error_messages['phone_' . $i] : null,
+                        ],
+                        'id' => [
+                            'value' => old('phone_id_' . $i),
+                            'error' => !empty($error_messages['phone_' . $i]) ? $error_messages['phone_' . $i] : null,
+                        ],
+                        // 'phone' => old('phone_' . $i),
+                        'id' => old('phone_id_' . $i),
+                        'type' => old('phone_type_' . $i),
+                        'custom_type' => old('custom_phone_type_' . $i),
+                    ];
+                    // if(!empty($parsed_phone['id']) && is_numeric($parsed_phone['id'])){
+                    //     $parsed_phones_with_id[$parsed_phone['id']] = $parsed_phone;
+                    // }else{
+                        $parsed_phones[] = $parsed_phone;
+                    // }
+                }
+                
+                // $phone_parsed = [
+                //     'phone' => $phone->phone,
+                //     'id' => $phone->id,
+                // ];
+                // if(!in_array($phone->type, PhoneTypes::all())){
+                //     $phone_parsed['type'] = 'custom';
+                //     $phone_parsed['custom_type'] = $phone->type;
+                // }else{
+                //     $phone_parsed['type'] = $phone->type;
+                //     $phone_parsed['custom_type'] = null;
+                // }
+                // $phones_parsed[] = $phone_parsed;
+            }
+            
+            
+        }else if(!is_null($worker) && $worker instanceof Worker && old('_token') === null){
+            foreach($worker->phones as $phone){
+                $parsed_phone = [
+                    'phone' => $phone->phone,
+                    'id' => $phone->id,
+                ];
+                if(!in_array($phone->type, PhoneTypes::all())){
+                    $parsed_phone['type'] = 'custom';
+                    $parsed_phone['custom_type'] = $phone->type;
+                }else{
+                    $parsed_phone['type'] = $phone->type;
+                    $parsed_phone['custom_type'] = null;
+                }
+                $parsed_phones[] = $parsed_phone;
+            }
+        }
+        
+        return $parsed_phones;
+        
+        // if(!empty($phones)){
+        // 
+        // 
+        //     if(old('_token') === null){
+        //         $phone_parsed = [
+        //             'phone' => $phone->phone,
+        //             'id' => $phone->id,
+        //         ];
+        //         if(!in_array($phone->type, PhoneTypes::all())){
+        //             $phone_parsed['type'] = 'custom';
+        //             $phone_parsed['custom_type'] = $phone->type;
+        //         }else{
+        //             $phone_parsed['type'] = $phone->type;
+        //             $phone_parsed['custom_type'] = null;
+        //         }
+        //         $phones_parsed[] = $phone_parsed;
+        //     }
+        // }
+        // 
+        // return $phone_parsed;
+        // 
+        // 
+        // 
+        // 
+        // $old_phones = [];
+        // $old_phones_by_id = [];
+        // $old_phones_new = [];
+        // for($i = 0; $i < 10; $i++){
+        //     $old_phone = [];
+        //     if(!empty(old('phone_' . $i))){
+        //         $phone = old('phone_' . $i);
+        //         $phone_id = old('phone_id_' . $i);
+        //         $phone_type = old('phone_type_' . $i);
+        //         $custom_phone_type = old('custom_phone_type_' . $i);
+        //         $old_phone = [
+        //             'phone' => $phone,
+        //             'id' => $phone_id,
+        //             'type' => $phone_type,
+        //             'custom_type' => $custom_phone_type,
+        //         ];
+        //         $old_phones[] = $old_phone;
+        //         if(!empty($phone_id)){
+        //             $old_phones_by_id[$phone_id] = $old_phone;
+        //         }else{
+        //             $old_phones_new[] = $old_phone;
+        //         }
+        //     }
+        // }
+        // 
+        // //Set values of phones for VUE which sent from inputs that already in DB
+        // $phones = $worker->phones;
+        // if(!empty($phones)){
+        //     $phones_parsed = [];
+        //     foreach($phones as $phone){
+        //         // dd($phone->phone);
+        //         if(!empty($old_phones_by_id[$phone->id])){
+        //             dump($phone->id);
+        //             $phones_parsed[] = $old_phones_by_id[$phone->id];
+        //             // unset($old_phones_by_id[$phone->id]);
+        //             continue;
+        //         }
+        //         if(old('_token') === null){
+        //             $phone_parsed = [
+        //                 'phone' => $phone->phone,
+        //                 'id' => $phone->id,
+        //             ];
+        //             if(!in_array($phone->type, PhoneTypes::all())){
+        //                 $phone_parsed['type'] = 'custom';
+        //                 $phone_parsed['custom_type'] = $phone->type;
+        //             }else{
+        //                 $phone_parsed['type'] = $phone->type;
+        //                 $phone_parsed['custom_type'] = null;
+        //             }
+        //             $phones_parsed[] = $phone_parsed;
+        //         }
+        //     }
+        // }
+        // 
+        // //Set new added phones for VUE which not persisted yet in DB
+        // if(!empty($old_phones_new))
+        //     foreach($old_phones_new as $old_phone_new)
+        //         $phones_parsed[] = $old_phone_new;
+        
+        // dd($phones_parsed);
+        
     }
 
     /**
@@ -248,79 +385,78 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        //Set an old(values sent from inputs) phones
-        $old_phones = [];
-        $old_phones_by_id = [];
-        $old_phones_new = [];
-        for($i = 0; $i < 10; $i++){
-            $old_phone = [];
-            if(!empty(old('phone_' . $i))){
-                $phone = old('phone_' . $i);
-                $phone_id = old('phone_id_' . $i);
-                $phone_type = old('phone_type_' . $i);
-                $custom_phone_type = old('custom_phone_type_' . $i);
-                $old_phone = [
-                    'phone' => $phone,
-                    'id' => $phone_id,
-                    'type' => $phone_type,
-                    'custom_type' => $custom_phone_type,
-                ];
-                $old_phones[] = $old_phone;
-                if(!empty($phone_id)){
-                    $old_phones_by_id[$phone_id] = $old_phone;
-                }else{
-                    $old_phones_new[] = $old_phone;
-                }
-            }
-        }
+    public function edit($id){
         
-        // dd(111);
         $worker = Worker::find($id);
-        // dd($worker);
         
-        //Set values of phones for VUE which sent from inputs that already in DB
-        $phones = $worker->phones;
-        if(!empty($phones)){
-            $phones_parsed = [];
-            foreach($phones as $phone){
-                // dd($phone->phone);
-                if(!empty($old_phones_by_id[$phone->id])){
-                    dump($phone->id);
-                    $phones_parsed[] = $old_phones_by_id[$phone->id];
-                    // unset($old_phones_by_id[$phone->id]);
-                    continue;
-                }
-                if(old('_token') === null){
-                    $phone_parsed = [
-                        'phone' => $phone->phone,
-                        'id' => $phone->id,
-                    ];
-                    if(!in_array($phone->type, PhoneTypes::all())){
-                        $phone_parsed['type'] = 'custom';
-                        $phone_parsed['custom_type'] = $phone->type;
-                    }else{
-                        $phone_parsed['type'] = $phone->type;
-                        $phone_parsed['custom_type'] = null;
-                    }
-                    $phones_parsed[] = $phone_parsed;
-                }
-            }
-        }
+        // dd($worker->halls);
+        $assign_halls = [];
+        foreach($worker->halls as $itm)
+            $assign_halls[$itm->id] = 'on';
         
-        //Set new added phones for VUE which not persisted yet in DB
-        if(!empty($old_phones_new))
-            foreach($old_phones_new as $old_phone_new)
-                $phones_parsed[] = $old_phone_new;
+        $phones = \PhonePicker::getAllForVue($worker);
         
-        // dd($phones_parsed);
+        $business_hours = \Setting::arrangeByKey(
+            SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS,
+            json_decode($worker->business_hours, true)
+        );
+        
+        // dd($worker->suspension);
+        // dd(ToogleSuspension::parseSuspensionDB($worker->suspension));
         
         return view('dashboard.worker.create', [
             'worker' => $worker,
+            // 'suspension' => ToogleSuspension::parseSuspensionDB($worker->suspension),
+            'suspension' => $worker->suspension,
+            'old_suspension' => \Suspension::getOldForVue(),
+            // 'notice' => \Suspension::getNotice($worker->suspension),
             'phone_types' => PhoneTypes::all(),
-            'old_phones' => !empty($old_phones) ? $old_phones : null,
-            'phones' => !empty($phones_parsed) ? $phones_parsed : null,
+            'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),
+            'phones' => !empty($phones) ? $phones : null,
+            'tab_errors' => \Session::has('tab_errors') ? \Session::get('tab_errors') : null,
+            'business_hours' => $business_hours['data'],
+            'count_weekends' => $business_hours['count_weekends'],
+            'count_workdays' => $business_hours['count_workdays'],
+            'assign_halls' => $assign_halls,
+        ]);
+    }
+    
+    /**
+     * Toggle hall suspension.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function toggleSuspension(Request $request, $id)
+    {        
+        $validated = $request->validate([
+            'type' => 'required|in:complete,period,disable',
+            'from' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i',
+            'to' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i'
+        ]);
+    
+        $worker = Worker::find($id);
+    
+        if(empty($worker))
+            return response()->json([
+                'status' => 'fail',
+                'msg' => 'Worker with `id` - ' . $id . ' does not exist'
+            ]);
+        
+        $toogle_suspension = new ToogleSuspension(
+            $validated['type'],
+            $worker,
+            $validated['from'] ?? null,
+            $validated['to'] ?? null
+        );
+        $toogle_suspension->toogle();
+        
+        return response()->json([
+            'status' => 'success',
+            'worker' => $worker,
+            'type' => $validated['type'],
+            'from' => $toogle_suspension->getFromDate(),
+            'to' => $toogle_suspension->getToDate(),
         ]);
     }
     
@@ -330,8 +466,8 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function toggleSuspension(Request $request, $id)
-    {        
+    public function old_toggleSuspension(Request $request, $id){
+        
         $validated = $request->validate([
             'type' => 'required|in:complete,period,disable',
             'from' => 'required_if:type,period|nullable|regex:/\d{2}-\d{2}-\d{4}/i',
@@ -353,6 +489,7 @@ class WorkerController extends Controller
         $workerSuspension = WorkerSuspension::where('worker_id', $worker->id)->first();
         
         if(!empty($workerSuspension)){
+            
             if($validated['type'] == 'disable'){
                 $workerSuspension->forceDelete();
                 return response()->json([
@@ -385,7 +522,9 @@ class WorkerController extends Controller
                     'to' => $workerSuspension->to
                 ]);
             }
+            
         }else{
+            
             $workerSuspension = new WorkerSuspension;
             if($validated['type'] == 'complete'){
                 $workerSuspension->worker_id = $worker->id;
@@ -412,6 +551,7 @@ class WorkerController extends Controller
                     'to' => $workerSuspension->to
                 ]);
             }
+            
         }
         
         return response()->json([
@@ -429,8 +569,7 @@ class WorkerController extends Controller
      * @param string $date
      * @return string
      */
-     protected function formatDate($date)
-     {
+     protected function formatDate($date){
          $arr = explode('-', $date);
          return $arr[2] . '-' . $arr[1] . '-' . $arr[0];
      }
@@ -441,15 +580,44 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function editPassword($id)
-    {
+    public function editPassword($id){
         // dd(111);
         $worker = Worker::find($id);
         return view('dashboard.worker.create_password', [
             'worker' => $worker
         ]);
     }
-
+    
+    protected function getErrorsCountsPerTab($error_messages){
+        $attributes_per_tab = [
+            "main" => ['email','first_name','last_name','gender','birthdate'],
+            "address" => ['country','town','street'],
+            "password" => ['password','password_confirm'],
+        ];
+        
+        $main_errors_count = 0;
+        $address_errors_count = 0;
+        $password_errors_count = 0;
+        $phones_errors_count = 0;
+        foreach($error_messages as $k => $v){
+            if(in_array($k, $attributes_per_tab['main']))
+                $main_errors_count++;
+            if(in_array($k, $attributes_per_tab['address']))
+                $address_errors_count++;
+            if(in_array($k, $attributes_per_tab['password']))
+                $password_errors_count++;
+            if(str_starts_with($k, 'phone'))
+                $phones_errors_count++;
+        }
+        
+        return [
+            "phones" => $phones_errors_count,
+            "main" => $main_errors_count,
+            "address" => $address_errors_count,
+            "password" => $password_errors_count,
+        ];
+    }
+    
     /**
      * Update the specified resource in storage.
      *
@@ -457,21 +625,9 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        // foreach($request->all() as $k => $v){
-        // 
-        // }
+    public function update(Request $request, $id){
         
-        $validate_rules = [
-            'first_name' => 'required|max:255',
-            'last_name' => 'max:255',
-            'gender' => 'required|in:male,female',
-            'phone' => 'nullable|regex:/^\+[0-9]{3,20}$/i',
-            'birthdate' => 'nullable|regex:/\d{4}-\d{2}-\d{2}/i',
-            'country' => 'max:255',
-            'town' => 'max:255',
-            'street' => 'max:255',
+        $validate_rules = array_merge($this->mainValidationRules(), [
             'email' => [
                 'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) use ($id) {
                     $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
@@ -479,108 +635,37 @@ class WorkerController extends Controller
             ],
             'password' => 'max:255',
             'password_confirm' => 'required_with:password|same:password',
-        ];
+        ]);
         
-        $messages = [];
-        $phone_types = implode(',', PhoneTypes::all());
-        $phone_types .= ',custom';
-        
-        for($i = 0; $i <= 10; $i++){
-            // $request->has('phone_' . $k);
-            if($request->has('phone_' . $i)){
-                $validate_rules['phone_' . $i] = 'nullable|max:30';
-                // $validate_rules['phone_id_' . $i] = 'nullable|required_with:phone_' . $i . '|integer';
-                $validate_rules['phone_id_' . $i] = 'nullable|integer';
-                $validate_rules['phone_type_' . $i] = 'required_with:phone_' . $i . '|in:' . $phone_types . '';
-                $validate_rules['custom_phone_type_' . $i] = 'required_if:phone_type_' . $i . ',==,custom|max:30';
-                if(!array_key_exists("phone.max", $messages)){
-                    $messages["phone_" . $i . ".max"] = 'The phone must not be greater than :max characters.';
-                    $messages["custom_phone_type_" . $i . ".required_if"] = 'Field is required when type is custom.';
-                }
-            }
-        }
+        $phone_rules_and_messages = \PhonePicker::getPhonesValidetionRulesAndCustomMessages($request);
+        $messages = $phone_rules_and_messages['messages'];
+        $validate_rules = array_merge($validate_rules, $phone_rules_and_messages['rules']);
         
         $validator = Validator::make($request->all(), $validate_rules, $messages);
         if ($validator->fails()){
-            
-            // dd($validator->errors()->messages());
-            
             $error_messages = $validator->errors()->messages();
+            $tab_errors = $this->getErrorsCountsPerTab($error_messages);
             
-            $phone_errors = [];
-            $phones_errors_count = 0;
-            $input = $request->all();
+            // dd($validator->errors());
             
-            $k = 0;
-            for($i = 0; $i < 10; $i++){
-                // if(!empty($input["phone_" . $i])){
-                if($request->has("phone_" . $i))
-                    $phone_input = $request->get("phone_" . $i);
-                if(!empty($phone_input)){
-                    
-                    if(array_key_exists("phone_" . $i, $error_messages) ||
-                    array_key_exists("phone_id_" . $i, $error_messages) ||
-                    array_key_exists("phone_type_" . $i, $error_messages) ||
-                    array_key_exists("custom_phone_type_" . $i, $error_messages)){
-                        
-                        $phone_errors[$k] = [
-                            "phone" => !empty($error_messages["phone_" . $i][0]) ? $error_messages["phone_" . $i][0] : null,
-                            "id" => !empty($error_messages["phone_id_" . $i][0]) ? $error_messages["phone_id_" . $i][0] : null,
-                            "type" => !empty($error_messages["phone_type_" . $i][0]) ? $error_messages["phone_type_" . $i][0] : null,
-                            "custom_type" => !empty($error_messages["custom_phone_type_" . $i][0]) ? $error_messages["custom_phone_type_" . $i][0] : null,
-                        ];
-                        if(!is_null($phone_errors[$k]["phone"]))
-                            $phones_errors_count++;
-                        if(!is_null($phone_errors[$k]["custom_type"]))
-                            $phones_errors_count++;
-                    }
-                    $k++;
-                    
-                }
-            }
-            
-            // dd($phones_errors_count);
-                
-            $with = [];
-            if(!empty($phone_errors)){
-                $with['phone_errors'] = $phone_errors;
-                // $with['phones_errors_count'] = $phones_errors_count;
-                // dd($phone_errors);
-            }
-                
-            $attributes_per_tab = [
-                "main" => ['email','first_name','last_name','gender','birthdate'],
-                "address" => ['country','town','street'],
-                "password" => ['password','password_confirm'],
-            ];
-            
-            $main_errors_count = 0;
-            $address_errors_count = 0;
-            $password_errors_count = 0;
-            foreach($error_messages as $k => $v){
-                if(in_array($k, $attributes_per_tab['main']))
-                    $main_errors_count++;
-                if(in_array($k, $attributes_per_tab['address']))
-                    $address_errors_count++;
-                if(in_array($k, $attributes_per_tab['password']))
-                    $password_errors_count++;
-            }
-            
-            $with['tab_errors'] = [
-                "phones" => $phones_errors_count,
-                "main" => $main_errors_count,
-                "address" => $address_errors_count,
-                "password" => $password_errors_count,
-            ];
-            
-            if(!empty($with))
-                return back()->with($with)->withInput($request->all())->withErrors($validator->errors());
-            return back()->withInput($request->all())->withErrors($validator->errors());
+            return back()->with([
+                'tab_errors' => $tab_errors
+            ])->withInput($request->all())->withErrors($validator->errors());
         }
         
         $validated = $validator->valid();
+        
+        // Set suspension variable for further applying a proper suspension
+        if(!empty($validated['status']))
+            $suspension = [
+                'status' => $validated['status'],
+                'from' => !empty($validated['suspend_from']) ? $validated['suspend_from'] : null,
+                'to' => !empty($validated['suspend_to']) ? $validated['suspend_to'] : null,
+            ];
+        
+        // Set suspension variable for further applying a proper suspension
         foreach($validated as $k => $v){
-            if(in_array($k, ['_token', '_method', 'tab', 'password_confirm'])){
+            if(in_array($k, ['_token', '_method', 'tab', 'password_confirm', 'status', 'suspend_from', 'suspend_to'])){
                 unset($validated[$k]);
             }else if(str_starts_with($k, "phone")){
                 unset($validated[$k]);
@@ -589,52 +674,55 @@ class WorkerController extends Controller
             }
         }
         
-        // dd($validated);
-        
+        // Apply hashing to password
         if(!empty($validated['password'])){
             $validated['password'] = Hash::make($validated['password']);
         }else{
             unset($validated['password']);
         }
         
+        // Fix birthdate to right format
         if(!empty($validated['birthdate']))
             $validated['birthdate'] = $this->parseToCorrectDBDate($validated['birthdate']);
+        
+        // Fix birthdate to right format
+        if(!empty($validated['assign_item'])){
+            $assign_item = array_keys($validated['assign_item']);
+            unset($validated['assign_item']);
+            $halls = Hall::whereIn('id', $assign_item)->get();
+            if(count($halls) != count($assign_item))
+                return back()->withErrors(['assign_item_count', 'You trying assign not existing items']);
+        }
         
         DB::table('workers')
             ->where('id', $id)
             ->update($validated);
-            
-        // dd($worker);
         
         $worker = Worker::find($id);
-        $worker->phones()->delete();
+        
+        if(!empty($suspension)){
+            $toogle_suspension = new ToogleSuspension(
+                $suspension['status'],
+                $worker,
+                $suspension['from'] ?? null,
+                $suspension['to'] ?? null
+            );
+            $toogle_suspension->toogle();
+        }
+        
+        $worker->halls()->detach();
+        
+        if(!empty($assign_item)){
+            foreach($assign_item as $item_id){
+                $worker->halls()->attach($item_id);
+            }
+        }
         
         $route_params = ['worker' => $id];
         if($request->has('tab'))
             $route_params['tab'] = $request->tab;
-            
-        for($i = 0; $i < 10; $i++){
-            $phone = $request->get('phone_' . $i);
-            if(!empty($phone)){
-                $phone_data = ['phone' => $request->get('phone_' . $i)];
-                if($request->has('phone_type_' . $i)){
-                    $phone_type = $request->get('phone_type_' . $i);
-                    $custom_phone_type = $request->has('custom_phone_type_' . $i) ? $request->get('custom_phone_type_' . $i) : null;
-                    if($phone_type == 'custom' && !empty($custom_phone_type)){
-                        $phone_data['type'] = $custom_phone_type;
-                    }else{
-                        $phone_data['type'] = $phone_type;
-                    }
-                }
-                $worker->phones()->create($phone_data);
-            }
-        }
         
-        // dd($request->has('tab'));
-        // dd($route_params);
-        // dd(route('dashboard.worker.edit', $route_params));
-        
-        // return redirect()->back()->with('success', 'Data saccessfuly saved!');
+        \PhonePicker::saveAllPhones($request, $worker);
         
         return redirect()->route('dashboard.worker.edit', $route_params)->with('success', 'Data saccessfuly saved!');
     }
@@ -688,6 +776,9 @@ class WorkerController extends Controller
      */
     public function destroy($id)
     {
+        // $worker = Worker::where('id', $id)
+        //     ->where('is_deleted', 0)
+        // $worker->halls()->detach();
         Worker::where('id', $id)
             ->where('is_deleted', 0)
             ->update(['is_deleted' => 1]);

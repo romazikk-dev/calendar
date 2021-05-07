@@ -25,6 +25,7 @@ class CreateWorkersTable extends Migration
             $table->string('country')->nullable();
             $table->string('town')->nullable();
             $table->string('street')->nullable();
+            $table->json('business_hours')->nullable();
             // $table->string('email')->unique();
             $table->string('email');
             $table->timestamp('email_verified_at')->nullable();

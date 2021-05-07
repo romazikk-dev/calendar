@@ -177,7 +177,12 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         
+        /*
+         * My Service Providers...
+         */
         App\Providers\SettingServiceProvider::class,
+        App\Providers\PhonePickerServiceProvider::class,
+        App\Providers\SuspensionServiceProvider::class,
 
     ],
 
@@ -231,7 +236,12 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         
-        'Setting'   =>  App\Classes\Setting\SettingFacade::class
+        /*
+         * My aliases...
+         */
+        'Setting'   =>  App\Classes\Setting\SettingFacade::class,
+        'PhonePicker'   =>  App\Classes\PhonePicker\PhoneFacade::class,
+        'Suspension'   =>  App\Classes\Suspension\SuspensionFacade::class,
 
     ],
 

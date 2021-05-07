@@ -21,6 +21,7 @@ class Placeholder{
      */
     private $aliases = [
         Keys::DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Placeholders\BussinessHoursPlaceholder::class,
+        Keys::WORKER_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Placeholders\BussinessHoursPlaceholder::class,
     ];
     
     /**

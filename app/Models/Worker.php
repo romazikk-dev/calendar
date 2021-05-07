@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Scopes\UserScope;
+use App\Scopes\NotDeletedScope;
 
 class Worker extends Authenticatable
 {
@@ -34,6 +35,7 @@ class Worker extends Authenticatable
         'street',
         'email',
         'password',
+        'business_hours',
     ];
     
     /**
@@ -100,6 +102,13 @@ class Worker extends Authenticatable
     }
     
     /**
+     * Get the worker's suspension.
+     */
+    public function suspension(){
+        return $this->morphOne(Suspension::class, 'suspensionable');
+    }
+    
+    /**
      * Reference to pivot table.
      *
      * @return Model
@@ -122,6 +131,7 @@ class Worker extends Authenticatable
      */
     protected static function booted(){
         static::addGlobalScope(new UserScope);
+        static::addGlobalScope(new NotDeletedScope);
     }
     
     /**

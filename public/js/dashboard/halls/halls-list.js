@@ -2042,8 +2042,7 @@ __webpack_require__.r(__webpack_exports__);
           name: 'title',
           className: 'coll-title'
         }, {
-          data: 'is_closed',
-          name: 'is_closed',
+          data: null,
           className: 'coll-status',
           width: '20px'
         }, {

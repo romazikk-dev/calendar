@@ -44,8 +44,14 @@
   display: block;
   text-decoration: none;
   padding: 6px 8px;
-  border-radius: 5px;
   line-height: 1em;
+  border: 1px solid white;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+}
+
+.setting-page .sp-wrapper .sp-itm.sp-sidebar ul li a.active {
+  background-color: #e9ecef !important;
 }
 
 .setting-page .sp-wrapper .sp-itm.sp-sidebar ul li a:hover {
@@ -108,6 +114,50 @@ input,
 textarea,
 select {
   background-color: #f9f9f9 !important;
+}
+
+/* MAIN NAVBAR
+******************************************************************/
+
+.main-navbar {
+  padding: 0px !important;
+}
+
+.main-navbar .navbar-nav .nav-item a {
+  padding: 10px 14px;
+}
+
+.main-navbar .navbar-nav .nav-item.active a {
+  background-color: #e9ecef;
+}
+
+/* DATATABLE ACTION BUTTONS
+******************************************************************/
+
+.dataTable .actions .action-drop .dropdown-menu {
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+  padding: 4px 10px;
+  text-align: center;
+}
+
+.dataTable .actions .action-drop .dropdown-menu .btnns {
+  padding: 10px 0px;
+}
+
+.dataTable .actions .action-drop .dropdown-menu .btnns .btnn {
+  margin-right: 20px;
+}
+
+.dataTable .actions .action-drop .dropdown-menu .btnns .btnn:last-child {
+  margin-right: 0px;
+}
+
+/* PAGE ACTIONS
+******************************************************************/
+
+.page-actions .page-action {
+  position: relative;
+  top: 20px !important;
 }
 
 .page-actions .page-action svg {

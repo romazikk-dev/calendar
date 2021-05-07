@@ -1,8 +1,7 @@
 {
-    "/js/dashboard/phone-picker.js": "/js/dashboard/phone-picker.js",
-    "/js/dashboard/halls/halls-list.js": "/js/dashboard/halls/halls-list.js",
-    "/js/dashboard/halls/create-edit-status.js": "/js/dashboard/halls/create-edit-status.js",
-    "/js/dashboard/halls/hall-business-hours.js": "/js/dashboard/halls/hall-business-hours.js",
-    "/js/worker-assignment-2.js": "/js/worker-assignment-2.js",
+    "/js/dashboard/worker/workers-list.js": "/js/dashboard/worker/workers-list.js",
+    "/js/dashboard/business-hours.js": "/js/dashboard/business-hours.js",
+    "/js/dashboard/hall-assignment.js": "/js/dashboard/hall-assignment.js",
+    "/js/dashboard/suspension.js": "/js/dashboard/suspension.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

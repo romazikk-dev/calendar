@@ -69,6 +69,9 @@ Route::group([
             ->name('edit_password')->where('id', '[0-9]+');
         Route::put('{id}/update-password', [DashboardWorkerController::class, 'updatePassword'])
             ->name('update_password')->where('id', '[0-9]+');
+        // Route::post('{id}/toggle-suspension', [DashboardWorkerController::class, 'toggleSuspension'])
+        //     ->name('toggle_suspension')->where('id', '[0-9]+');
+            
         Route::post('{id}/toggle-suspension', [DashboardWorkerController::class, 'toggleSuspension'])
             ->name('toggle_suspension')->where('id', '[0-9]+');
     
@@ -149,6 +152,13 @@ Route::group([
             'as' => 'hall.'
         ], function () {
             Route::match(['get', 'post'], '/business_hours', [DashboardSettingsController::class, 'businessHours'])->name('default_business_hours');
+        });
+        
+        Route::group([
+            'prefix' => '/worker',
+            'as' => 'worker.'
+        ], function () {
+            Route::match(['get', 'post'], '/worker_business_hours', [DashboardSettingsController::class, 'workerDefaultBusinessHours'])->name('default_business_hours');
         });
         
         // Route::match(['get', 'post'], '/business_hours', [DashboardSettingsController::class, 'businessHours'])->name('business_hours');

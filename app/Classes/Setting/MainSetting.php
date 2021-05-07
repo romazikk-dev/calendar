@@ -3,6 +3,7 @@
 namespace App\Classes\Setting;
 
 // use App\Classes\Setting\Enums\Keys;
+use App\Classes\Setting\Arrangers\Arranger;
 use App\Classes\Setting\Placeholders\Placeholder;
 use App\Classes\Setting\Parsers\Parser;
 use App\Classes\Setting\Nav;
@@ -13,6 +14,7 @@ use Auth;
 class MainSetting{
     
     protected $placeholder;
+    protected $arranger;
     protected $parser;
     protected $nav;
     
@@ -20,6 +22,7 @@ class MainSetting{
         $this->placeholder = new Placeholder();
         $this->parser = new Parser();
         $this->nav = new Nav();
+        $this->arranger = new Arranger();
     }
     
     protected function getSettingFromDB($key, $only_data = false){
@@ -29,7 +32,6 @@ class MainSetting{
                 Setting::where('key', $key)->delete();
             return null;
         }
-        // if($only_data)
         return (is_bool($only_data) && $only_data) ? $setting['data'] : $setting;
     }
     
@@ -40,7 +42,7 @@ class MainSetting{
         if(empty($setting)){
             $setting = Setting::create([
                 'user_id' => Auth::user()->id,
-                'key' => Keys::DEFAULT_BUSINESS_HOURS,
+                'key' => $key,
                 'data' => json_encode($parsed_data)
             ]);
         }else{
@@ -53,6 +55,10 @@ class MainSetting{
     protected function getPlaceholderPerKey($key){
         return $this->placeholder->get($key);
     }
+    
+    // protected function arrangePerKey($key, $setting){
+    //     return $this->arranger->arrange($key, $setting);
+    // }
     
     public function getNav($key = false){
         return $this->nav->get($key);

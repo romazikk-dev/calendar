@@ -11,11 +11,43 @@
         
         <script src="{{asset('/dists/mc-calendar/mc-calendar.min.js')}}"></script>
         <script>
+        
+            @if(!empty($suspension))
+                let suspensionDB =  @json($suspension);
+                // console.log(suspensionDB);
+            @endif
+            
+            @if(!empty($old_suspension))
+                var oldSuspension =  @json($old_suspension);
+                // console.log('oldSuspension');
+                // console.log(oldSuspension);
+            @endif
+            // console.log(suspensionDB);
+        
+            var assignHalls = @json(old('assign_item'));
+            @if(old('assign_item'))
+                var assignHalls = @json(old('assign_item'));
+                // console.log(JSON.parse(JSON.stringify(oldAssignWorker)));
+            @elseif(!empty($assign_halls))
+                var assignHalls = @json($assign_halls);
+            @endif
+            
+            // console.log(JSON.parse(JSON.stringify(assignHalls)));
+            
+            var dataListUrl = '{{ route('dashboard.hall.data_list') }}';
             
             var phoneTypes = @json($phone_types);
-            var oldPhones = @if(!empty($phones)) @json($phones) @else @json($old_phones) @endif;
+            var indexPrefixes = @json($index_prefixes);
+            var phones = @json($phones);
             
-            var phoneErrors = @if(\Session::has('phone_errors')) @json(\Session::get('phone_errors')) @else null @endif;
+            @if(old('business_hours'))
+                var businessHours = @json(old('business_hours'));
+                // console.log(JSON.parse(JSON.stringify(businessHours)));
+            @elseif(!empty($business_hours))
+                var businessHours = @json($business_hours);
+            @endif
+            
+            // var phoneErrors = @if(\Session::has('phone_errors')) @json(\Session::get('phone_errors')) @else null @endif;
             // console.log(phoneErrors);
             
             let createCalendarData = {
@@ -23,7 +55,7 @@
                 dateFormat: 'YYYY-MM-DD',
             }
             
-            @if($worker && !empty($worker->birthdate))
+            @if(!empty($worker) && !empty($worker->birthdate))
                 createCalendarData.selectedDate = new Date('{{$worker->birthdate}}');
             @endif
             
@@ -78,6 +110,9 @@
     	</script>
         
         <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
+        <script src="{{ asset('js/dashboard/hall-assignment.js') }}?{{$rand}}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/suspension.js') }}?{{$rand}}"></script>
         
     </x-slot>
     
@@ -116,6 +151,14 @@
             </a>
         </li>
         <li class="nav-item" role="presentation">
+            <a class="nav-link @if(Request::get('tab') == 'suspension') active @endif" id="suspension-tab" data-toggle="tab" href="#suspension" tab-name="suspension" role="tab" aria-controls="suspension" aria-selected="true">
+                Status
+                @if(!empty($old_suspension) && !empty($old_suspension['count_status_error']))
+                    <span class="badge badge-pill badge-danger">{{$old_suspension['count_status_error']}}</span>
+                @endif
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'address') active @endif" id="address-tab" data-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false" tab-name="address">
                 Address
                 @if(!empty($tab_errors['address']))
@@ -125,10 +168,56 @@
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
+                @if(!empty($phones))
+                    <span class="badge badge-pill badge-success"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Currently has {{count($phones)}} phones">{{count($phones)}}</span>
+                @endif
                 Phones
                 @if(!empty($tab_errors['phones']))
                     <span class="badge badge-pill badge-danger">{{$tab_errors['phones']}}</span>
                 @endif
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link @if(Request::get('tab') == 'hall') active @endif" id="hall-tab" data-toggle="tab" href="#hall" tab-name="hall" role="tab" aria-controls="hall" aria-selected="false">
+                @if(empty($assign_halls))
+                    <span class="text-warning"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Currently assign to 0 halls">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                    </span>
+                @else
+                    <span class="badge badge-pill badge-success"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Currently assigned to {{count($assign_halls)}} halls">{{count($assign_halls)}}</span>
+                @endif
+                Halls
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link @if(Request::get('tab') == 'hours') active @endif" id="hours-tab" data-toggle="tab" href="#hours" tab-name="hours" role="tab" aria-controls="hours" aria-selected="false">
+                @if(empty($count_workdays))
+                    <span class="text-warning"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="All days of week are weekends">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                    </span>
+                @else
+                    <span class="badge badge-pill badge-success"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Currently {{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
+                @endif
+                Business hours
             </a>
         </li>
         <li class="nav-item" role="presentation">
@@ -251,6 +340,11 @@
                 </div>
                 
             </div>
+            <div class="tab-pane fade @if(Request::get('tab') == 'suspension') show active @endif" id="suspension" role="tabpanel" aria-labelledby="suspension-tab">
+                
+                <div id="handleSuspension"></div>
+                
+            </div>
             <div class="tab-pane fade @if(Request::has('tab') && Request::get('tab') == 'address') show active @endif" id="address" role="tabpanel" aria-labelledby="address-tab">
                 
                 <div class="row">
@@ -281,6 +375,27 @@
             <div class="tab-pane fade @if(Request::has('tab') && Request::get('tab') == 'phones') show active @endif" id="phones" role="tabpanel" aria-labelledby="phones-tab">
                 
                 <div id="phonePicker"></div>
+                
+            </div>
+            <div class="tab-pane fade @if(Request::get('tab') == 'hall') show active @endif" id="hall" role="tabpanel" aria-labelledby="hall-tab">
+                
+                @if(empty($assign_halls))
+                    <div class="alert alert-warning" role="alert">
+                        This employee currently assigned to <b class="text-uppercase">0</b> halls!
+                    </div>
+                @endif
+                <div id="hallAssignment"></div>
+            
+            </div>
+            <div class="tab-pane fade @if(Request::get('tab') == 'hours') show active @endif" id="hours" role="tabpanel" aria-labelledby="hours-tab">
+                
+                @if(!empty($all_days_closed))
+                    <div class="alert alert-warning" role="alert">
+                        All days currently are weekends(<b class="text-uppercase text-danger">closed</b>)
+                    </div>
+                @endif
+
+                <div id="businessHours"></div>
                 
             </div>
             <div class="tab-pane fade @if(Request::has('tab') && Request::get('tab') == 'password') show active @endif" id="password" role="tabpanel" aria-labelledby="password-tab">
