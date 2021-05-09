@@ -51,7 +51,18 @@
                 var businessHours = @json($business_hours);
             @endif
             
-            var suspension = @if(!empty($suspension)) @json($suspension) @else null @endif;
+            @if(!empty($suspension))
+                let suspensionDB =  @json($suspension);
+                // console.log(suspensionDB);
+            @endif
+            
+            @if(!empty($old_suspension))
+                var oldSuspension =  @json($old_suspension);
+                // console.log('oldSuspension');
+                // console.log(oldSuspension);
+            @endif
+            
+            // var suspension = @if(!empty($suspension)) @json($suspension) @else null @endif;
             
             var oldAssignWorker = @json(old('assign_worker'));
             @if(old('assign_worker'))
@@ -60,6 +71,10 @@
             @elseif(!empty($assign_workers))
                 var oldAssignWorker = @json($assign_workers);
             @endif
+            
+            var phoneTypes = @json($phone_types);
+            var indexPrefixes = @json($index_prefixes);
+            var phones = @json($phones);
             
             var dataListUrl = '{{ route('dashboard.worker.data_list') }}';
             
@@ -126,13 +141,16 @@
             });
         </script>
         
-        <script type="text/javascript" src="{{ asset('js/dashboard/halls/create-edit-status.js') }}?{{$rand}}"></script>
+        <!-- <script type="text/javascript" src="{{ asset('js/dashboard/halls/create-edit-status.js') }}?{{$rand}}"></script> -->
+        <script type="text/javascript" src="{{ asset('js/dashboard/suspension.js') }}?{{$rand}}"></script>
         <!-- <script type="text/javascript" src="{{ asset('js/dashboard/halls/hall-business-hours.js') }}?{{$rand}}"></script> -->
         
         <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
         
         <!-- <script src="{{ asset('js/business-hours.js') }}?{{$rand}}"></script> -->
         <script src="{{ asset('js/worker-assignment-2.js') }}?{{$rand}}"></script>
+        
+        <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
         
     </x-slot>
     
@@ -172,11 +190,7 @@
         {{var_dump($errors->all())}}
     @endif
     
-    <form id="hallData" action="{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}" method="post">
-        @csrf
-        @if(!empty($hall))
-            @method('PUT')
-        @endif
+    
         
         <ul class="nav nav-tabs edit-create-nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -189,18 +203,35 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'suspension') active @endif" id="suspension-tab" data-toggle="tab" href="#suspension" tab-name="suspension" role="tab" aria-controls="suspension" aria-selected="true">
                     Status
+                    @if(!empty($old_suspension) && !empty($old_suspension['count_status_error']))
+                        <span class="badge badge-pill badge-danger">{{$old_suspension['count_status_error']}}</span>
+                    @endif
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link @if(Request::get('tab') == 'address') active @endif" id="address-tab" data-toggle="tab" href="#address" tab-name="address" role="tab" aria-controls="address" aria-selected="false">Address
+                <a class="nav-link @if(Request::get('tab') == 'address') active @endif" id="address-tab" data-toggle="tab" href="#address" tab-name="address" role="tab" aria-controls="address" aria-selected="false">
+                    Address
                     @if(!empty($addressErrorsCount))
                         <span class="badge badge-pill badge-danger">{{$addressErrorsCount}}</span>
                     @endif
                 </a>
             </li>
             <li class="nav-item" role="presentation">
+                <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
+                    @if(!empty($current_phones))
+                        <span class="badge badge-pill badge-success"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="Currently has {{count($current_phones)}} phones">{{count($current_phones)}}</span>
+                    @endif
+                    Phones
+                    @if(!empty($tab_errors['phones']))
+                        <span class="badge badge-pill badge-danger">{{$tab_errors['phones']}}</span>
+                    @endif
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'worker') active @endif" id="worker-tab" data-toggle="tab" href="#worker" tab-name="worker" role="tab" aria-controls="worker" aria-selected="false">
-                    Employees
                     @if(empty($assign_workers))
                         <span class="badge badge-pill badge-warning"
                             data-toggle="tooltip"
@@ -212,27 +243,35 @@
                             data-placement="bottom"
                             title="This hall currently has {{count($assign_workers)}} assigned employees!">{{count($assign_workers)}}</span>
                     @endif
+                    Employees
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'hours') active @endif" id="hours-tab" data-toggle="tab" href="#hours" tab-name="hours" role="tab" aria-controls="hours" aria-selected="false">
-                    Business hours
-                    @if(!empty($all_days_closed))
-                        <span class="badge badge-pill badge-warning"
+                    @if(empty($count_workdays))
+                        <span class="text-warning"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="All days of week are weekends!">!</span>
+                            title="All days of week are weekends">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                        </span>
                     @else
                         <span class="badge badge-pill badge-success"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="Currently {{$count_opened_days ?? 0}} days opened">{{$count_opened_days ?? 0}}</span>
+                            title="Currently {{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
                     @endif
+                    Business hours
                 </a>
             </li>
             <li class="action-btn">
                 
-                <button type="submit" class="btn btn-success btn-sm float-right">
+                <button onclick="
+                    event.preventDefault();
+                    $('#hallData').submit();
+                " class="btn btn-success btn-sm float-right">
                     {{ !empty($hall) ? 'Update' : 'Create'}}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z"/>
@@ -241,153 +280,135 @@
                 
                 @if(!empty($hall))
                 
-                <div class="dropdown float-right pr-2">
-                    <button class="btn btn-danger btn-sm" type="button" id="dropdownDeleteBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Delete
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right mt-1"
-                        onclick="event.stopPropagation()"
-                        aria-labelledby="dropdownDeleteBtn">
-                            Do you want delete this hall?<br>
-                            <form class="pt-1" method="post" action="${delete_url}">
-                                @csrf
-                                @method('delete')
-                                <a href="${delete_url}"
-                                    onclick="event.preventDefault(); this.closest('form').submit();"
-                                    class="text-primary">
-                                        Yes
-                                </a>
-                                <a href="${delete_url}"
-                                    onclick="event.preventDefault(); $('#dropdownDeleteBtn').click();"
-                                    class="text-primary"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                        No
-                                </a>
-                            </form>
+                    <div class="dropdown float-right pr-2">
+                        <button class="btn btn-danger btn-sm" type="button" id="dropdownDeleteBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Delete
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right mt-1"
+                            onclick="event.stopPropagation()"
+                            aria-labelledby="dropdownDeleteBtn">
+                                Do you want delete this hall?<br>
+                                <form class="pt-1" method="post" action="{{route('dashboard.hall.destroy', [$hall->id])}}">
+                                    @csrf
+                                    @method('delete')
+                                    <a href="#"
+                                        onclick="event.preventDefault(); this.closest('form').submit();"
+                                        class="text-primary">
+                                            Yes
+                                    </a>
+                                    <a href="#"
+                                        onclick="event.preventDefault(); $('#dropdownDeleteBtn').click();"
+                                        class="text-primary"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                            No
+                                    </a>
+                                </form>
+                        </div>
                     </div>
-                </div>
                 
-                <!-- <button type="submit" class="btn btn-danger btn-sm">
-                    Delete
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                    </svg>
-                </button> -->
                 @endif
                 
             </li>
         </ul>
         
-        <div class="edit-create-tab-content tab-content" id="myTabContent">
-            <div class="tab-pane fade @if(!Request::has('tab') || Request::get('tab') == 'main') show active @endif" id="main" role="tabpanel" aria-labelledby="main-tab">
-                
-                <!-- <div class="form-group">
-                    <x-label for="status" value="Status" />
-                    <x-select name="is_closed" id="status"
-                        :default="!empty($hall->is_closed) ? ($hall->is_closed == 1 ? 'closed' : 'opened') : 'opened'"
-                        :options="['1' => 'Closed', '0' => 'Opened']"
-                        :selected="!empty($hall->is_closed) ? ($hall->is_closed == 1 ? 'closed' : 'opened') : null" />
-                    <x-error-small name="status" />
-                </div> -->
-                <div class="form-group">
-                    <x-label for="title" value="Title*" />
-                    <x-input type="text" name="title" id="title" :value="
-                        (old('title') || $errors->has('title')) ? (old('title') ?? '') : ($hall->title ?? '')
-                    " />
-                    <x-error-small name="title" />
-                </div>
-                <div class="form-group">
-                    <x-label for="description" value="Description" />
-                    <textarea name="description" class="form-control" id="description">{{ old('description') ?? ($hall->description ?? '') }}</textarea>
-                    <x-error-small name="description" />
-                </div>
-                <div class="form-group">
-                    <x-label for="shortDescription" value="Short description" />
-                    <textarea name="short_description" class="form-control" id="shortDescription">{{ old('short_description') ?? ($hall->short_description ?? '') }}</textarea>
-                    <x-error-small name="short_description" />
-                </div>
-                <div class="form-group">
-                    <x-label for="notice" value="Notice" />
-                    <textarea name="notice" class="form-control" id="notice">{{ old('notice') ?? ($hall->notice ?? '') }}</textarea>
-                    <x-error-small name="notice" />
-                </div>
-                
-            </div>
-            <div class="tab-pane fade @if(Request::get('tab') == 'suspension') show active @endif" id="suspension" role="tabpanel" aria-labelledby="suspension-tab">
-                
-                <div id="createEditStatus"></div>
-                
-            </div>
-            <div class="tab-pane fade @if(Request::get('tab') == 'address') show active @endif" id="address" role="tabpanel" aria-labelledby="address-tab">
-                
-                <div class="form-group">
-                    <x-label for="country" value="Country" />
-                    <x-input type="text" name="country" id="country" :value="old('country') ?? ($hall->country ?? '')" />
-                    <x-error-small name="country" />
-                </div>
-                <div class="form-group">
-                    <x-label for="town" value="Town" />
-                    <x-input type="text" name="town" id="town" :value="old('town') ?? ($hall->town ?? '')" />
-                    <x-error-small name="town" />
-                </div>
-                <div class="form-group">
-                    <x-label for="street" value="Street" />
-                    <x-input type="text" name="street" id="street" :value="old('street') ?? ($hall->street ?? '')" />
-                    <x-error-small name="street" />
-                </div>
-                
-            </div>
-            <div class="tab-pane fade @if(Request::get('tab') == 'worker') show active @endif" id="worker" role="tabpanel" aria-labelledby="worker-tab">
-                
-                @if(empty($assign_workers))
-                    <div class="alert alert-warning" role="alert">
-                        This hall currently has <b class="text-uppercase">0</b> assign employees!
-                    </div>
-                @endif
-                <div id="workerAssignment2"></div>
+        <form id="hallData" action="{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}" method="post">
+            @csrf
+            @if(!empty($hall))
+                @method('PUT')
+            @endif
             
-            </div>
-            <div class="tab-pane fade @if(Request::get('tab') == 'hours') show active @endif" id="hours" role="tabpanel" aria-labelledby="hours-tab">
-                
-                @if(!empty($all_days_closed))
-                    <div class="alert alert-warning" role="alert">
-                        All days currently are weekends(<b class="text-uppercase text-danger">closed</b>)
+            <div class="edit-create-tab-content tab-content" id="myTabContent">
+                <div class="tab-pane fade @if(!Request::has('tab') || Request::get('tab') == 'main') show active @endif" id="main" role="tabpanel" aria-labelledby="main-tab">
+                    
+                    <!-- <div class="form-group">
+                        <x-label for="status" value="Status" />
+                        <x-select name="is_closed" id="status"
+                            :default="!empty($hall->is_closed) ? ($hall->is_closed == 1 ? 'closed' : 'opened') : 'opened'"
+                            :options="['1' => 'Closed', '0' => 'Opened']"
+                            :selected="!empty($hall->is_closed) ? ($hall->is_closed == 1 ? 'closed' : 'opened') : null" />
+                        <x-error-small name="status" />
+                    </div> -->
+                    <div class="form-group">
+                        <x-label for="title" value="Title*" />
+                        <x-input type="text" name="title" id="title" :value="
+                            (old('title') || $errors->has('title')) ? (old('title') ?? '') : ($hall->title ?? '')
+                        " />
+                        <x-error-small name="title" />
                     </div>
-                @endif
+                    <div class="form-group">
+                        <x-label for="description" value="Description" />
+                        <textarea name="description" class="form-control" id="description">{{ old('description') ?? ($hall->description ?? '') }}</textarea>
+                        <x-error-small name="description" />
+                    </div>
+                    <div class="form-group">
+                        <x-label for="shortDescription" value="Short description" />
+                        <textarea name="short_description" class="form-control" id="shortDescription">{{ old('short_description') ?? ($hall->short_description ?? '') }}</textarea>
+                        <x-error-small name="short_description" />
+                    </div>
+                    <div class="form-group">
+                        <x-label for="notice" value="Notice" />
+                        <textarea name="notice" class="form-control" id="notice">{{ old('notice') ?? ($hall->notice ?? '') }}</textarea>
+                        <x-error-small name="notice" />
+                    </div>
+                    
+                </div>
+                <div class="tab-pane fade @if(Request::get('tab') == 'suspension') show active @endif" id="suspension" role="tabpanel" aria-labelledby="suspension-tab">
+                    
+                    <div id="handleSuspension"></div>
+                    
+                </div>
+                <div class="tab-pane fade @if(Request::get('tab') == 'address') show active @endif" id="address" role="tabpanel" aria-labelledby="address-tab">
+                    
+                    <div class="form-group">
+                        <x-label for="country" value="Country" />
+                        <x-input type="text" name="country" id="country" :value="old('country') ?? ($hall->country ?? '')" />
+                        <x-error-small name="country" />
+                    </div>
+                    <div class="form-group">
+                        <x-label for="town" value="Town" />
+                        <x-input type="text" name="town" id="town" :value="old('town') ?? ($hall->town ?? '')" />
+                        <x-error-small name="town" />
+                    </div>
+                    <div class="form-group">
+                        <x-label for="street" value="Street" />
+                        <x-input type="text" name="street" id="street" :value="old('street') ?? ($hall->street ?? '')" />
+                        <x-error-small name="street" />
+                    </div>
+                    
+                </div>
+                <div class="tab-pane fade @if(Request::has('tab') && Request::get('tab') == 'phones') show active @endif" id="phones" role="tabpanel" aria-labelledby="phones-tab">
+                    
+                    <div id="phonePicker"></div>
+                    
+                </div>
+                <div class="tab-pane fade @if(Request::get('tab') == 'worker') show active @endif" id="worker" role="tabpanel" aria-labelledby="worker-tab">
+                    
+                    @if(empty($assign_workers))
+                        <div class="alert alert-warning" role="alert">
+                            This hall currently has <b class="text-uppercase">0</b> assign employees!
+                        </div>
+                    @endif
+                    <div id="workerAssignment2"></div>
+                
+                </div>
+                <div class="tab-pane fade @if(Request::get('tab') == 'hours') show active @endif" id="hours" role="tabpanel" aria-labelledby="hours-tab">
+                    
+                    @if(!empty($all_days_closed))
+                        <div class="alert alert-warning" role="alert">
+                            All days currently are weekends(<b class="text-uppercase text-danger">closed</b>)
+                        </div>
+                    @endif
 
-                <div id="businessHours"></div>
-                
+                    <div id="businessHours"></div>
+                    
+                </div>
             </div>
-        </div>
         
-        <div class="row">
-            <div class="col-sm">
-                
-                
-                <!-- <div id="usersAssignment"></div> -->
-                
-            </div>
-            <div class="col-sm">
-                
-                <!-- <div class="form-group">
-                    <x-label for="status" value="Status*" />
-                    <x-select name="is_closed" id="status"
-                        :default="!empty($hall->is_closed) ? ($hall->is_closed == 1 ? 'closed' : 'opened') : 'opened'"
-                        :options="['1' => 'Closed', '0' => 'Opened']"
-                        :selected="!empty($hall->is_closed) ? ($hall->is_closed == 1 ? 'closed' : 'opened') : null" />
-                    <x-error-small name="status" />
-                </div> -->
-                
-                
-                
-            </div>
-        </div>
-        <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
-    </form>
+        </form>
     
 </x-dashboard-layout>

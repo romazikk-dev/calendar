@@ -13,6 +13,18 @@ class Hall extends Model
     
     protected $guarded = [];
     
+    protected $fillable = [
+        'user_id',
+        'title',
+        'description',
+        'short_description',
+        'notice',
+        'country',
+        'town',
+        'street',
+        'business_hours',
+    ];
+    
     public function workers(){
         return $this->belongsToMany('App\Models\Worker');
         // return $this->belongsToMany('App\Models\Worker');
@@ -82,6 +94,13 @@ class Hall extends Model
     // {
     //     return $query->where('is_deleted', '=', 0);
     // }
+    
+    /**
+     * Get the post's image.
+     */
+    public function phones(){
+        return $this->morphMany(Phone::class, 'phoneable');
+    }
     
     /**
      * The "booted" method of the model.

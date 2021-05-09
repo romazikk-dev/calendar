@@ -15,16 +15,16 @@ use App\Classes\Suspension\Enums\Types;
 
 class MainSuspension{
     
-    protected function periodSuspend(){
-        if(!empty($this->model->suspension)){
-            $this->model->suspension->update([
-                'from' => \Carbon\Carbon::parse($this->start_date)->format('Y-m-d 00:00:00'),
-                'to' => \Carbon\Carbon::parse($this->end_date)->format('Y-m-d 23:59:59'),
+    protected function periodSuspend($model, $start_date, $end_date){
+        if(!empty($model->suspension)){
+            $model->suspension->update([
+                'from' => \Carbon\Carbon::parse($start_date)->format('Y-m-d 00:00:00'),
+                'to' => \Carbon\Carbon::parse($end_date)->format('Y-m-d 23:59:59'),
             ]);
         }else{
-            $this->model->suspension()->create([
-                'from' => \Carbon\Carbon::parse($this->start_date)->format('Y-m-d 00:00:00'),
-                'to' => \Carbon\Carbon::parse($this->end_date)->format('Y-m-d 23:59:59'),
+            $model->suspension()->create([
+                'from' => \Carbon\Carbon::parse($start_date)->format('Y-m-d 00:00:00'),
+                'to' => \Carbon\Carbon::parse($end_date)->format('Y-m-d 23:59:59'),
             ]);
         }
     }
@@ -43,9 +43,9 @@ class MainSuspension{
         }
     }
     
-    protected function disableSuspend(){
-        if(!empty($this->model->suspension))
-            $this->model->suspension->forceDelete();
+    protected function disableSuspend($model){
+        if(!empty($model->suspension))
+            $model->suspension->forceDelete();
     }
     
 }

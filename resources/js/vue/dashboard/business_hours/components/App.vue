@@ -1,16 +1,11 @@
 <template>
     <div>
         
-        <!-- <div class="card text-white bg-info mb-3">
-  <div class="card-header">Monday</div>
-  <div class="card-body">
-    <h5 class="card-title">Dark card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-  </div>
-</div> -->
-        
-        <!-- isAllDaysClosed - {{isAllDaysClosed}}<br>
-        isAllDaysOpened - {{isAllDaysOpened}} -->
+        <transition name="wrapper">
+            <div v-if="isAllDaysClosed" class="alert alert-warning" role="alert">
+                All days of week are weekends!
+            </div>
+        </transition>
         
         <ul class="actions">
             <li>
@@ -18,44 +13,12 @@
                     href="#"
                     class="btn-action-link"
                     :class="{disabled: isAllDaysClosed}">All weekends</a>
-                <!-- <div class="drop dropdown">
-                    <a href="#" class="btn-drop" id="allWeekendsDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        All weekends
-                    </a>
-                    <div @click.stop class="dropdown-menu" aria-labelledby="allWeekendsDropdownButton">
-                        Set all days weekends?
-                        <div class="btn-actions">
-                            <a @click.prevent="setAllWeekends(true)" href="#" class="btn-action">
-                                Yes
-                            </a>
-                            <a href="#" class="btn-action" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                No
-                            </a>
-                        </div>
-                    </div>
-                </div> -->
             </li>
             <li>
                 <a @click.prevent="setAllWeekends(false)"
                     href="#"
                     class="btn-action-link"
                     :class="{disabled: isAllDaysOpened}">All opened</a>
-                <!-- <div class="drop dropdown">
-                    <a href="#" class="btn-drop" id="allOpenedDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        All opened
-                    </a>
-                    <div @click.stop class="dropdown-menu" aria-labelledby="allOpenedDropdownButton">
-                        Set all days opened?
-                        <div class="btn-actions">
-                            <a @click.prevent="setAllWeekends(false)" href="#" class="btn-action">
-                                Yes
-                            </a>
-                            <a href="#" class="btn-action" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                No
-                            </a>
-                        </div>
-                    </div>
-                </div> -->
             </li>
         </ul>
         
@@ -108,78 +71,9 @@
                                     :hide-clear-button="true"></vue-timepicker>
                             </div>
                         </div>
-                        <!-- <table>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div>start:</div>
-                                        <vue-timepicker
-                                            :input-class="{disabled: itm.is_weekend, 'form-control': true}"
-                                            :name="`business_hours[` + itm.weekday + `][start_hour]`"
-                                            v-model="itm.start"
-                                            :disabled="itm.is_weekend"
-                                            format="HH:mm"
-                                            :hide-clear-button="true"></vue-timepicker>
-                                    </td>
-                                    <td>
-                                        <div>end:</div>
-                                        <vue-timepicker
-                                            :input-class="{disabled: itm.is_weekend, 'form-control': true}"
-                                            :name="`business_hours[` + itm.weekday + `][end_hour]`"
-                                            v-model="itm.end"
-                                            :disabled="itm.is_weekend"
-                                            format="HH:mm"
-                                            :hide-clear-button="true"></vue-timepicker>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> -->
+                        
                     </div>
                 </div>
-        
-                <table>
-                    <tbody>
-                        <tr class="start">
-                            <td>
-                                <!-- {{itm.weekday}}<br> -->
-                                <!-- {{itm.start}}<br>
-                                {{itm.end}}<br>
-                                {{itm.is_weekend}} -->
-                            </td>
-                            <td>
-                                <!-- <small>start:</small> -->
-                                <!-- <vue-timepicker
-                                    :input-class="{disabled: itm.is_weekend, 'form-control': true}"
-                                    :name="`business_hours[` + itm.weekday + `][start_hour]`"
-                                    v-model="itm.start"
-                                    :disabled="itm.is_weekend"
-                                    format="HH:mm"
-                                    :hide-clear-button="true"></vue-timepicker> -->
-                            </td>
-                            <td>
-                                <!-- <small>end:</small> -->
-                                <!-- <vue-timepicker
-                                    :input-class="{disabled: itm.is_weekend, 'form-control': true}"
-                                    :name="`business_hours[` + itm.weekday + `][end_hour]`"
-                                    v-model="itm.end"
-                                    :disabled="itm.is_weekend"
-                                    format="HH:mm"
-                                    :hide-clear-button="true"></vue-timepicker> -->
-                            </td>
-                        </tr>
-                        <tr class="end">
-                            <td></td>
-                            <!-- <td colspan="2">
-                                <input class=""
-                                    :id="`isWeekend_` + itm.weekday"
-                                    :name="`business_hours[` + itm.weekday + `][is_weekend]`"
-                                    type="checkbox"
-                                    v-model="itm.is_weekend">
-                                <label :for="`isWeekend_` + itm.weekday">Weekend</label>
-                            </td> -->
-                        </tr>
-                    </tbody>
-                </table>
                 
             </div>
         </div>
@@ -273,7 +167,7 @@
         },
         methods: {
             reCalculateTabValue: function(){
-                return;
+                // return;
                 
                 let workDays = 0;
                 this.weekdays.forEach((item, i) => {
@@ -281,13 +175,16 @@
                         workDays++;
                 });
                 
-                let badge = $("#hours-tab").find('.badge');
-                badge.removeClass('badge-success badge-danger');
                 
+                let noticeBadges = $("#hours-tab").find('.notice-badges');
+                // console.log(noticeBadge);
+                
+                noticeBadges.find('.notice-badge').addClass('d-none');
                 if(workDays > 0){
-                    badge.removeClass('badge-warning').addClass('badge-success').text(workDays);
+                    noticeBadges.find('.notice-badge-success').removeClass('d-none')
+                        .attr('data-original-title', 'Currently ' + workDays + ' days opened').text(workDays);
                 }else{
-                    badge.removeClass('badge-success').addClass('badge-warning').text('!');
+                    noticeBadges.find('.notice-badge-warning').removeClass('d-none');
                 }
             },
             onWeekendChange: function(){
@@ -350,6 +247,23 @@
         },
     }
 </script>
+
+<style lang="scss" scoped>
+    .wrapper-enter-active {
+        transition: opacity .3s;
+        opacity: 1;
+    }
+    .wrapper-leave-active {
+        // transition: opacity .3s;
+        opacity: 1;
+    }
+    .wrapper-enter{
+        opacity: 0;
+    }
+    .wrapper-leave-to{
+        opacity: 0;
+    }
+</style>
 
 <style lang="scss">
     input.disabled{

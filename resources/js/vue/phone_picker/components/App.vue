@@ -26,11 +26,9 @@
                                                 :id="'phoneInput_' + index"
                                                 aria-describedby="emailHelp">
                                             <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
-                                            <span id="emailHelp"
-                                                v-if="phone.phone.error"
-                                                class="form-text text-danger small">
-                                                    {{phone.phone.error}}
-                                            </span>
+                                            <span :id="'error_phone_value_' + index"
+                                                class="form-text text-danger small"
+                                                v-model='phone.phone.error'></span>
                                         </div>
                                         
                                     </div>
@@ -116,6 +114,7 @@
 <script>
     export default {
         mounted() {
+            this.setTabData(this.phonesCount);
             if(phones != null)
                 this.phones = phones;
         },
@@ -161,6 +160,18 @@
             showAddItem: function () {
                 return this.phones.length < this.maxPhoneItems;
             },
+            phonesPhoneCustomTypeProperty() {
+                return this.phones.map(phone => phone.custom_type.value);
+            },
+            phonesCount() {
+                let phonesCount = 0;
+                this.phones.forEach(function(item, index){
+                    // console.log(item.phone.value);
+                    if(typeof item.phone.value != 'undefined' && item.phone.value != '' && item.phone.value != null)
+                        phonesCount++;
+                });
+                return phonesCount;
+            }
         },
         methods: {
             addItem: function(){
@@ -190,10 +201,41 @@
                 console.log('removeItem');
                 this.phones.splice(index, 1);
             },
+            setTabData: function(val){
+                let noticeBadges = $("#phones-tab").find('.notice-badges');
+                
+                if(val > 0){
+                    noticeBadges.find('.notice-badge-success')
+                        .attr('data-original-title', 'Currently has ' + val + ' phones')
+                        .removeClass('d-none').text(val);
+                }else{
+                    // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+                    noticeBadges.find('.notice-badge').addClass('d-none');
+                }
+            },
         },
         components: {
             
         },
+        watch: {
+            phonesPhoneCustomTypeProperty: function (val) {
+                console.log(val);
+            },
+            phonesCount: function (val) {
+                console.log(val);
+                this.setTabData(val);
+                // let noticeBadges = $("#phones-tab").find('.notice-badges');
+                // 
+                // if(val > 0){
+                //     noticeBadges.find('.notice-badge-success')
+                //         .attr('data-original-title', 'Currently has ' + val + ' phones')
+                //         .removeClass('d-none').text(val);
+                // }else{
+                //     // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+                //     noticeBadges.find('.notice-badge').addClass('d-none');
+                // }
+            },
+        }
     }
 </script>
 

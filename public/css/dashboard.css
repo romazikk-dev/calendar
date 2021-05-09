@@ -5,6 +5,15 @@
   padding-top: 20px;
 }
 
+/* NOTICE BADGES
+******************************************************************/
+
+.notice-badges .notice-badge {
+  transition: opacity 0.3s ease;
+  width: 22px;
+  display: inline-block;
+}
+
 /* SETTING PAGE
 ******************************************************************/
 

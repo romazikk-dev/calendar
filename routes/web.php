@@ -64,6 +64,7 @@ Route::group([
     ], function () {
         
         // Route::resource('worker', DashboardWorkerController::class);
+        Route::post('/check-email', [DashboardWorkerController::class, 'checkEmail'])->name('check_email');
         Route::post('/data-list', [DashboardWorkerController::class, 'dataList'])->name('data_list');
         Route::get('{id}/edit-password', [DashboardWorkerController::class, 'editPassword'])
             ->name('edit_password')->where('id', '[0-9]+');

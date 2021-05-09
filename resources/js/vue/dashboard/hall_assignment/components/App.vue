@@ -108,6 +108,17 @@
                     }
                     this.selectedItems = JSON.parse(JSON.stringify(selectedItems));
                     $("#itemAssignmentModal").modal('hide');
+                    
+                    let noticeBadges = $("#hall-tab").find('.notice-badges');
+                    // console.log(noticeBadge);
+                    
+                    noticeBadges.find('.notice-badge').addClass('d-none');
+                    if(selectedItems.length > 0){
+                        noticeBadges.find('.notice-badge-success').removeClass('d-none')
+                            .attr('data-original-title', 'Currently ' + selectedItems.length + ' days opened').text(selectedItems.length);
+                    }else{
+                        noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+                    }
                 }
             },
             dismissSelected: function(item){

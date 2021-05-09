@@ -2079,8 +2079,9 @@ __webpack_require__.r(__webpack_exports__);
               var isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension.from, row.suspension.to);
 
               var reinstateAttrTitle = isSuspentionInFuture ? "\n                                        Undo future<br>\n                                        employee suspension<br>\n                                        from <b>" + _this.formatDataDateForDateChooser(row.suspension.from) + "</b><br>\n                                        to <b>" + _this.formatDataDateForDateChooser(row.suspension.to) + "</b>\n                                    " : "Reinstate worker";
+              var reinstateDropQuestion = isSuspentionInFuture ? "\n                                        Do you want undo future suspension for this employee?\n                                    " : "\n                                        Do you want reinstate an employee?\n                                    ";
               var reinstateIcon = isSuspentionInFuture ? "\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-x-circle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z\"/>\n                                        </svg>\n                                    " : "\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-play-circle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z\"/>\n                                        </svg>\n                                    ";
-              reinstate = "\n                                    <div class=\"action-drop dropup float-right\">\n                                        <a href=\"#\"\n                                            id=\"dropdownReinstateButton\"\n                                            class=\"action text-info data-tooltip\"\n                                            data-toggle=\"dropdown\"\n                                            data-placement=\"bottom\"\n                                            title=\"".concat(reinstateAttrTitle, "\"\n                                            aria-haspopup=\"true\"\n                                            aria-expanded=\"false\">\n                                                ").concat(reinstateIcon, "\n                                        </a>\n                                        <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownReinstateButton\">\n                                            Do you want undo future suspension of this employee?\n                                            <div class=\"btnns\">\n                                                \n                                                <a href=\"#\" class=\"btnn text-primary stop-suspension-action\">\n                                                        Yes\n                                                </a>\n                                                \n                                                <a href=\"#\"\n                                                    onclick=\"\n                                                        event.preventDefault();\n                                                        $('#dropdownReinstateButton').click();\n                                                    \" class=\"btnn text-primary\">\n                                                        No\n                                                </a>\n                                                    \n                                            </div>\n                                        </div>\n                                    </div>\n                                ");
+              reinstate = "\n                                    <div class=\"action-drop dropup float-right\">\n                                        <a href=\"#\"\n                                            id=\"dropdownReinstateButton\"\n                                            class=\"action text-info data-tooltip\"\n                                            data-toggle=\"dropdown\"\n                                            data-placement=\"bottom\"\n                                            title=\"".concat(reinstateAttrTitle, "\"\n                                            aria-haspopup=\"true\"\n                                            aria-expanded=\"false\">\n                                                ").concat(reinstateIcon, "\n                                        </a>\n                                        <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownReinstateButton\">\n                                            ").concat(reinstateDropQuestion, "\n                                            <div class=\"btnns\">\n                                                \n                                                <a href=\"#\" class=\"btnn text-primary stop-suspension-action\">\n                                                        Yes\n                                                </a>\n                                                \n                                                <a href=\"#\"\n                                                    onclick=\"\n                                                        event.preventDefault();\n                                                        $('#dropdownReinstateButton').click();\n                                                    \" class=\"btnn text-primary\">\n                                                        No\n                                                </a>\n                                                    \n                                            </div>\n                                        </div>\n                                    </div>\n                                ");
             }
 
             return "\n                                <div class=\"action-drop dropup float-right\">\n                                    <a href=\"#\"\n                                        id=\"dropdownDeleteButton\"\n                                        class=\"action text-info data-tooltip\"\n                                        data-toggle=\"dropdown\"\n                                        data-placement=\"bottom\"\n                                        aria-haspopup=\"true\"\n                                        aria-expanded=\"false\"\n                                        title=\"Delete\">\n                                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash-fill\" viewBox=\"0 0 16 16\">\n                                                <path d=\"M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z\"/>\n                                            </svg>\n                                    </a>\n                                    <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownDeleteButton\">\n                                        Do you want delete this employee?\n                                        <div class=\"btnns\">\n                                            <form method=\"post\" action=\"".concat(delete_url, "\">\n                                                ").concat(csrf, "\n                                                ").concat(methodDelete, "\n                                                <a href=\"").concat(delete_url, "\"\n                                                    onclick=\"event.preventDefault(); this.closest('form').submit();\"\n                                                    class=\"btnn text-primary\">\n                                                        Yes\n                                                </a>\n                                                <a href=\"").concat(delete_url, "\"\n                                                    onclick=\"event.preventDefault(); $('#dropdownDeleteButton').click();\"\n                                                    class=\"btnn text-primary\"\n                                                    data-toggle=\"dropdown\"\n                                                    aria-haspopup=\"true\"\n                                                    aria-expanded=\"false\">\n                                                        No\n                                                </a>\n                                            </form>\n                                        </div>\n                                    </div>\n                                </div>\n                                \n                                <a href=\"").concat(edit_url, "\"\n                                    class=\"float-right edit-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Edit\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-pencil-fill\" viewBox=\"0 0 16 16\">\n                                        <path d=\"M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z\"/>\n                                    </svg>\n                                </a>\n                                \n                                <a href=\"#\"\n                                    id=\"employeeSuspensionBtn\"\n                                    class=\"float-right toggle-suspension-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Handle suspension\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-stop-circle-fill\" viewBox=\"0 0 16 16\">\n                                      <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z\"/>\n                                    </svg>\n                                </a>\n                                \n                                ").concat(reinstate, "\n                                \n                                <a href=\"").concat(show_url, "\"\n                                    onclick=\"\n                                       // event.preventDefault();\n                                       // alert(333333);\n                                       //openInfoModal(").concat(row.id, ");\n                                    \"\n                                    class=\"float-right show-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Details\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-eye-fill\" viewBox=\"0 0 16 16\">\n                                      <path d=\"M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z\"/>\n                                      <path d=\"M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z\"/>\n                                    </svg>\n                                </a>\n                            ");
@@ -2698,78 +2699,6 @@ __webpack_require__.r(__webpack_exports__);
   },
   components: {}
 });
-
-/***/ }),
-
-/***/ "./resources/js/vue/dashboard/worker/index/app.js":
-/*!********************************************************!*\
-  !*** ./resources/js/vue/dashboard/worker/index/app.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/dashboard/worker/index/components/App.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/dashboard/worker/index/bootstrap.js");
-
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-
-window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-Vue.mixin({
-  data: function data() {
-    return {// weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-    };
-  },
-  methods: {
-    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
-      var component = null;
-      if (_thisComponent.$options.name === componentName) return _thisComponent;
-      var parent = _thisComponent.$parent;
-
-      while (parent && !component) {
-        if (parent.$options.name === componentName) {
-          component = parent;
-        }
-
-        parent = parent.$parent;
-      }
-
-      return component;
-    },
-    formatDataDateForDateChooser: function formatDataDateForDateChooser(dataDate) {
-      return moment(dataDate).format('DD-MM-YYYY');
-    }
-  }
-});
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-
-window.app = new Vue({
-  // const businessHours = new Vue({
-  el: '#workersList',
-  render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default);
-  }
-}); // alert(11);
 
 /***/ }),
 
@@ -20172,19 +20101,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   // Check for `exports` after `define` in case a build optimizer adds it.
   else {}
 }.call(this));
-
-
-/***/ }),
-
-/***/ "./resources/sass/dashboard.scss":
-/*!***************************************!*\
-  !*** ./resources/sass/dashboard.scss ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -55528,41 +55444,7 @@ Vue.compile = compileToFunctions;
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = __webpack_modules__;
-/******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/chunk loaded */
-/******/ 	(() => {
-/******/ 		var deferred = [];
-/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
-/******/ 			if(chunkIds) {
-/******/ 				priority = priority || 0;
-/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
-/******/ 				deferred[i] = [chunkIds, fn, priority];
-/******/ 				return;
-/******/ 			}
-/******/ 			var notFulfilled = Infinity;
-/******/ 			for (var i = 0; i < deferred.length; i++) {
-/******/ 				var [chunkIds, fn, priority] = deferred[i];
-/******/ 				var fulfilled = true;
-/******/ 				for (var j = 0; j < chunkIds.length; j++) {
-/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
-/******/ 						chunkIds.splice(j--, 1);
-/******/ 					} else {
-/******/ 						fulfilled = false;
-/******/ 						if(priority < notFulfilled) notFulfilled = priority;
-/******/ 					}
-/******/ 				}
-/******/ 				if(fulfilled) {
-/******/ 					deferred.splice(i--, 1)
-/******/ 					result = fn();
-/******/ 				}
-/******/ 			}
-/******/ 			return result;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -55624,66 +55506,77 @@ Vue.compile = compileToFunctions;
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/jsonp chunk loading */
-/******/ 	(() => {
-/******/ 		// no baseURI
-/******/ 		
-/******/ 		// object to store loaded and loading chunks
-/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
-/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
-/******/ 			"/js/dashboard/worker/workers-list": 0,
-/******/ 			"css/dashboard": 0
-/******/ 		};
-/******/ 		
-/******/ 		// no chunk on demand loading
-/******/ 		
-/******/ 		// no prefetching
-/******/ 		
-/******/ 		// no preloaded
-/******/ 		
-/******/ 		// no HMR
-/******/ 		
-/******/ 		// no HMR manifest
-/******/ 		
-/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
-/******/ 		
-/******/ 		// install a JSONP callback for chunk loading
-/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
-/******/ 			var [chunkIds, moreModules, runtime] = data;
-/******/ 			// add "moreModules" to the modules object,
-/******/ 			// then flag all "chunkIds" as loaded and fire callback
-/******/ 			var moduleId, chunkId, i = 0;
-/******/ 			for(moduleId in moreModules) {
-/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
-/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
-/******/ 				}
-/******/ 			}
-/******/ 			if(runtime) runtime(__webpack_require__);
-/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
-/******/ 			for(;i < chunkIds.length; i++) {
-/******/ 				chunkId = chunkIds[i];
-/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
-/******/ 					installedChunks[chunkId][0]();
-/******/ 				}
-/******/ 				installedChunks[chunkIds[i]] = 0;
-/******/ 			}
-/******/ 			__webpack_require__.O();
-/******/ 		}
-/******/ 		
-/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
-/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
-/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
-/******/ 	})();
-/******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/js/vue/dashboard/worker/index/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/sass/dashboard.scss")))
-/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!********************************************************!*\
+  !*** ./resources/js/vue/dashboard/worker/index/app.js ***!
+  \********************************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/dashboard/worker/index/components/App.vue");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/dashboard/worker/index/bootstrap.js");
+
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// const files = require.context('./', true, /\.vue$/i)
+// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+
+window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+Vue.mixin({
+  data: function data() {
+    return {// weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    };
+  },
+  methods: {
+    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
+      var component = null;
+      if (_thisComponent.$options.name === componentName) return _thisComponent;
+      var parent = _thisComponent.$parent;
+
+      while (parent && !component) {
+        if (parent.$options.name === componentName) {
+          component = parent;
+        }
+
+        parent = parent.$parent;
+      }
+
+      return component;
+    },
+    formatDataDateForDateChooser: function formatDataDateForDateChooser(dataDate) {
+      return moment(dataDate).format('DD-MM-YYYY');
+    }
+  }
+});
+/**
+ * Next, we will create a fresh Vue application instance and attach it to
+ * the page. Then, you may begin adding components to this application
+ * or customize the JavaScript scaffolding to fit your unique needs.
+ */
+
+
+window.app = new Vue({
+  // const businessHours = new Vue({
+  el: '#workersList',
+  render: function render(h) {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default);
+  }
+}); // alert(11);
+})();
+
 /******/ })()
 ;

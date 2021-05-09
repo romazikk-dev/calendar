@@ -258,6 +258,13 @@
                                             from <b>` + _this.formatDataDateForDateChooser(row.suspension.from) + `</b><br>
                                             to <b>` + _this.formatDataDateForDateChooser(row.suspension.to) + `</b>
                                         ` : `Reinstate worker`;
+                                    let reinstateDropQuestion = isSuspentionInFuture ?
+                                        `
+                                            Do you want undo future suspension for this employee?
+                                        ` :
+                                        `
+                                            Do you want reinstate an employee?
+                                        `;
                                     let reinstateIcon = isSuspentionInFuture ?
                                         `
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
@@ -283,7 +290,7 @@
                                                     ${reinstateIcon}
                                             </a>
                                             <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownReinstateButton">
-                                                Do you want undo future suspension of this employee?
+                                                ${reinstateDropQuestion}
                                                 <div class="btnns">
                                                     
                                                     <a href="#" class="btnn text-primary stop-suspension-action">

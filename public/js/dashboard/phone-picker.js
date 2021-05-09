@@ -1958,10 +1958,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
+    this.setTabData(this.phonesCount);
     if (phones != null) this.phones = phones;
   },
   // props: ['postTitle'],
@@ -2002,6 +2001,19 @@ __webpack_require__.r(__webpack_exports__);
     },
     showAddItem: function showAddItem() {
       return this.phones.length < this.maxPhoneItems;
+    },
+    phonesPhoneCustomTypeProperty: function phonesPhoneCustomTypeProperty() {
+      return this.phones.map(function (phone) {
+        return phone.custom_type.value;
+      });
+    },
+    phonesCount: function phonesCount() {
+      var phonesCount = 0;
+      this.phones.forEach(function (item, index) {
+        // console.log(item.phone.value);
+        if (typeof item.phone.value != 'undefined' && item.phone.value != '' && item.phone.value != null) phonesCount++;
+      });
+      return phonesCount;
     }
   },
   methods: {
@@ -2030,9 +2042,37 @@ __webpack_require__.r(__webpack_exports__);
     removeItem: function removeItem(index) {
       console.log('removeItem');
       this.phones.splice(index, 1);
+    },
+    setTabData: function setTabData(val) {
+      var noticeBadges = $("#phones-tab").find('.notice-badges');
+
+      if (val > 0) {
+        noticeBadges.find('.notice-badge-success').attr('data-original-title', 'Currently has ' + val + ' phones').removeClass('d-none').text(val);
+      } else {
+        // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+        noticeBadges.find('.notice-badge').addClass('d-none');
+      }
     }
   },
-  components: {}
+  components: {},
+  watch: {
+    phonesPhoneCustomTypeProperty: function phonesPhoneCustomTypeProperty(val) {
+      console.log(val);
+    },
+    phonesCount: function phonesCount(val) {
+      console.log(val);
+      this.setTabData(val); // let noticeBadges = $("#phones-tab").find('.notice-badges');
+      // 
+      // if(val > 0){
+      //     noticeBadges.find('.notice-badge-success')
+      //         .attr('data-original-title', 'Currently has ' + val + ' phones')
+      //         .removeClass('d-none').text(val);
+      // }else{
+      //     // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+      //     noticeBadges.find('.notice-badge').addClass('d-none');
+      // }
+    }
+  }
 });
 
 /***/ }),
@@ -20173,22 +20213,17 @@ var render = function() {
                           }
                         }),
                         _vm._v(" "),
-                        phone.phone.error
-                          ? _c(
-                              "span",
-                              {
-                                staticClass: "form-text text-danger small",
-                                attrs: { id: "emailHelp" }
-                              },
-                              [
-                                _vm._v(
-                                  "\n                                                " +
-                                    _vm._s(phone.phone.error) +
-                                    "\n                                        "
-                                )
-                              ]
-                            )
-                          : _vm._e()
+                        _c("span", {
+                          staticClass: "form-text text-danger small",
+                          attrs: { id: "error_phone_value_" + index },
+                          model: {
+                            value: phone.phone.error,
+                            callback: function($$v) {
+                              _vm.$set(phone.phone, "error", $$v)
+                            },
+                            expression: "phone.phone.error"
+                          }
+                        })
                       ])
                     ]),
                     _vm._v(" "),

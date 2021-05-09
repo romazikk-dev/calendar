@@ -65,6 +65,12 @@ class WorkerController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
+        
+        // dd(\Lang::get('validation'));
+        // dd(\Lang::get('validation.email'));
+        // dd(app());
+        // dd(app('path.lang'));
+        
         $phones = \PhonePicker::getAllForVue();
         
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
@@ -73,6 +79,8 @@ class WorkerController extends Controller
         // $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS);
         
         // dd(\Suspension::getOldForVue());
+        
+        
             
         return view('dashboard.worker.create', [
             'phone_types' => PhoneTypes::all(),
@@ -83,6 +91,7 @@ class WorkerController extends Controller
             'business_hours' => $business_hours['data'],
             'count_weekends' => $business_hours['count_weekends'],
             'count_workdays' => $business_hours['count_workdays'],
+            'validation_messages' => \Lang::get('validation'),
         ]);
     }
     
@@ -134,6 +143,25 @@ class WorkerController extends Controller
             'business_hours.sunday.is_weekend' => $business_weekend_rule,
         ];
     }
+    
+    public function checkEmail(Request $request){
+        $validate_rules = [
+            'email' => [
+                'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) {
+                    // $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
+                    $query->where('is_deleted', '=', '0');
+                })
+            ]
+        ];
+        
+        $validator = Validator::make($request->all(), $validate_rules);
+        if($validator->fails())
+            return response()->json(false);
+        return response()->json(true);
+            // return 'ddddddd';
+            // return false;
+        // return 'ddddddd';
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -184,6 +212,8 @@ class WorkerController extends Controller
         $validated['password'] = Hash::make($validated['password']);
         
         $validated['birthdate'] = $this->parseToCorrectDBDate($validated['birthdate']);
+        
+        // dd($validated);
         
         $worker = Worker::create($validated);
         if(!empty($assign_item)){
@@ -413,6 +443,7 @@ class WorkerController extends Controller
             'phone_types' => PhoneTypes::all(),
             'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),
             'phones' => !empty($phones) ? $phones : null,
+            'current_phones' => !empty($worker->phones) ? $worker->phones : null,
             'tab_errors' => \Session::has('tab_errors') ? \Session::get('tab_errors') : null,
             'business_hours' => $business_hours['data'],
             'count_weekends' => $business_hours['count_weekends'],
@@ -592,7 +623,7 @@ class WorkerController extends Controller
         $attributes_per_tab = [
             "main" => ['email','first_name','last_name','gender','birthdate'],
             "address" => ['country','town','street'],
-            "password" => ['password','password_confirm'],
+            "pass" => ['password','password_confirm'],
         ];
         
         $main_errors_count = 0;
@@ -604,7 +635,7 @@ class WorkerController extends Controller
                 $main_errors_count++;
             if(in_array($k, $attributes_per_tab['address']))
                 $address_errors_count++;
-            if(in_array($k, $attributes_per_tab['password']))
+            if(in_array($k, $attributes_per_tab['pass']))
                 $password_errors_count++;
             if(str_starts_with($k, 'phone'))
                 $phones_errors_count++;
@@ -614,7 +645,7 @@ class WorkerController extends Controller
             "phones" => $phones_errors_count,
             "main" => $main_errors_count,
             "address" => $address_errors_count,
-            "password" => $password_errors_count,
+            "pass" => $password_errors_count,
         ];
     }
     

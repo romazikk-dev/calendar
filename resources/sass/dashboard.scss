@@ -5,6 +5,17 @@
 }
 
 
+/* NOTICE BADGES
+******************************************************************/
+.notice-badges{
+    .notice-badge{
+        transition: opacity .3s ease;
+        width: 22px;
+        display: inline-block;
+    }
+}
+
+
 /* SETTING PAGE
 ******************************************************************/
 .setting-page{

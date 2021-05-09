@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 
 class Phone extends MainPhone{
     
-    public function saveAllPhones(Request $request, Worker $worker, $delete_old = true){
+    public function saveAllPhones(Request $request, $model, $delete_old = true){
         if($delete_old)
-            $worker->phones()->delete();
+            $model->phones()->delete();
         for($i = 0; $i < 10; $i++){
             $phone_value = $request->get(IndexPrefixes::VALUE . $i);
             if(!empty($phone_value)){
@@ -25,7 +25,7 @@ class Phone extends MainPhone{
                     $phone_data['type'] = $phone_type == Types::CUSTOM && !empty($phone_custom_type) ?
                         $phone_custom_type : $phone_type;
                 }
-                $worker->phones()->create($phone_data);
+                $model->phones()->create($phone_data);
             }
         }
     }
@@ -64,7 +64,7 @@ class Phone extends MainPhone{
         ];
     }
     
-    public function getAllForVue($worker = null){
+    public function getAllForVue($model = null){
         
         $error_messages = null;
         $errors = session()->get('errors');
@@ -106,9 +106,9 @@ class Phone extends MainPhone{
                 }
             }
             
-        }else if(old('_token') === null && !is_null($worker) && $worker instanceof Worker){
+        }else if(old('_token') === null && !is_null($model)){
             
-            foreach($worker->phones as $phone){
+            foreach($model->phones as $phone){
                 $parsed_phone = [
                     'phone' => [
                         'value' => $phone->phone,
