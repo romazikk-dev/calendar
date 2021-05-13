@@ -1948,16 +1948,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     this.setTabData(this.phonesCount);
@@ -2002,6 +1992,11 @@ __webpack_require__.r(__webpack_exports__);
     showAddItem: function showAddItem() {
       return this.phones.length < this.maxPhoneItems;
     },
+    phonesPhoneTypeProperty: function phonesPhoneTypeProperty() {
+      return this.phones.map(function (phone) {
+        return phone.type.value;
+      });
+    },
     phonesPhoneCustomTypeProperty: function phonesPhoneCustomTypeProperty() {
       return this.phones.map(function (phone) {
         return phone.custom_type.value;
@@ -2017,6 +2012,15 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    onChangeType: function onChangeType(index, phoneType) {
+      var _this = this;
+
+      if (phoneType != 'custom' && !$(document).find('#error_phone_custom_type_' + index).val()) {
+        _this.triggerFormValidation();
+      }
+
+      return phoneType;
+    },
     addItem: function addItem() {
       console.log('addItem');
       if (this.phones.length >= this.maxPhoneItems) return;
@@ -2039,9 +2043,17 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     },
+    triggerFormValidation: function triggerFormValidation() {
+      setTimeout(function () {
+        console.log('triggerFormValidation'); // $('form#workerForm').valid();
+
+        jqueryValidation.triggerFormValidation();
+      }, 50);
+    },
     removeItem: function removeItem(index) {
       console.log('removeItem');
       this.phones.splice(index, 1);
+      this.triggerFormValidation();
     },
     setTabData: function setTabData(val) {
       var noticeBadges = $("#phones-tab").find('.notice-badges');
@@ -2059,6 +2071,34 @@ __webpack_require__.r(__webpack_exports__);
     phonesPhoneCustomTypeProperty: function phonesPhoneCustomTypeProperty(val) {
       console.log(val);
     },
+    // phonesPhoneTypeProperty: function (val) {
+    //     if(val[0] == 'custom'){
+    //         console.log(val[0]);
+    //         for(let i = 0; i < 10; i++){
+    //             let input_value = $('input[name=phone_value_' + i + ']');
+    //             let input_type = $('input[name=phone_type_' + i + ']');
+    //             let input_custom_type = $('input[name=phone_custom_type_' + i + ']');
+    //             if(input_value.length > 0){
+    //                 // clearInterval(interval);
+    //                 console.log(input_value);
+    //                 input_value.rules("remove");
+    //                 input_value.rules("add", {
+    //                     required: true,
+    //                     maxlength: 255
+    //                 });
+    //                 if(input_type.length > 0 && input_type.val() == 'custom' && input_custom_type.length > 0){
+    //                     console.log(input_custom_type);
+    //                     input_custom_type.rules("remove");
+    //                     input_custom_type.rules("add", {
+    //                         required: true,
+    //                         maxlength: 255
+    //                     });
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // console.log(val[0]);
+    // },
     phonesCount: function phonesCount(val) {
       console.log(val);
       this.setTabData(val); // let noticeBadges = $("#phones-tab").find('.notice-badges');
@@ -2074,51 +2114,6 @@ __webpack_require__.r(__webpack_exports__);
     }
   }
 });
-
-/***/ }),
-
-/***/ "./resources/js/vue/phone_picker/app.js":
-/*!**********************************************!*\
-  !*** ./resources/js/vue/phone_picker/app.js ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/phone_picker/components/App.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/phone_picker/bootstrap.js");
-
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-
-window.app = new Vue({
-  // const businessHours = new Vue({
-  el: '#phonePicker',
-  render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default);
-  }
-}); // alert(11);
 
 /***/ }),
 
@@ -19501,19 +19496,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ }),
 
-/***/ "./resources/sass/dashboard.scss":
-/*!***************************************!*\
-  !*** ./resources/sass/dashboard.scss ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/process/browser.js":
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
@@ -20178,7 +20160,7 @@ var render = function() {
                   _c("div", { staticClass: "d-table-row" }, [
                     _c("div", { staticClass: "d-table-cell" }, [
                       _c("div", { staticClass: "form-group" }, [
-                        _c("label", { attrs: { for: "phoneInput" } }, [
+                        _c("label", { attrs: { for: "phoneValue_" + index } }, [
                           _vm._v("Phone:")
                         ]),
                         _vm._v(" "),
@@ -20195,8 +20177,7 @@ var render = function() {
                           attrs: {
                             name: _vm.indexPrefixes.value + index,
                             type: "text",
-                            id: "phoneInput_" + index,
-                            "aria-describedby": "emailHelp"
+                            id: "phoneValue_" + index
                           },
                           domProps: { value: phone.phone.value },
                           on: {
@@ -20213,17 +20194,14 @@ var render = function() {
                           }
                         }),
                         _vm._v(" "),
-                        _c("span", {
-                          staticClass: "form-text text-danger small",
-                          attrs: { id: "error_phone_value_" + index },
-                          model: {
-                            value: phone.phone.error,
-                            callback: function($$v) {
-                              _vm.$set(phone.phone, "error", $$v)
-                            },
-                            expression: "phone.phone.error"
-                          }
-                        })
+                        _c(
+                          "span",
+                          {
+                            staticClass: "form-text text-danger small",
+                            attrs: { id: "error_phone_value_" + index }
+                          },
+                          [_vm._v(_vm._s(phone.phone.error))]
+                        )
                       ])
                     ]),
                     _vm._v(" "),
@@ -20240,9 +20218,7 @@ var render = function() {
                         staticClass: "form-control",
                         attrs: {
                           name: _vm.indexPrefixes.id + index,
-                          type: "hidden",
-                          id: "phoneInput",
-                          "aria-describedby": "emailHelp"
+                          type: "hidden"
                         },
                         domProps: { value: phone.id.value },
                         on: {
@@ -20267,9 +20243,7 @@ var render = function() {
                         staticClass: "form-control",
                         attrs: {
                           name: _vm.indexPrefixes.type + index,
-                          type: "hidden",
-                          id: "phoneInput",
-                          "aria-describedby": "emailHelp"
+                          type: "hidden"
                         },
                         domProps: { value: phone.type.value },
                         on: {
@@ -20283,7 +20257,7 @@ var render = function() {
                       }),
                       _vm._v(" "),
                       _c("div", { staticClass: "form-group" }, [
-                        _c("label", { attrs: { for: "typeSelect" } }, [
+                        _c("label", { attrs: { for: "dropdownMenuButton" } }, [
                           _vm._v("Type:")
                         ]),
                         _vm._v(" "),
@@ -20324,7 +20298,10 @@ var render = function() {
                                   on: {
                                     click: function($event) {
                                       $event.preventDefault()
-                                      phone.type.value = phoneType
+                                      phone.type.value = _vm.onChangeType(
+                                        index,
+                                        phoneType
+                                      )
                                     }
                                   }
                                 },
@@ -20350,9 +20327,7 @@ var render = function() {
                               staticClass: "form-control",
                               attrs: {
                                 name: _vm.indexPrefixes.custom_type + index,
-                                type: "text",
-                                id: "phoneInput",
-                                "aria-describedby": "emailHelp"
+                                type: "text"
                               },
                               domProps: { value: phone.custom_type.value },
                               on: {
@@ -20369,22 +20344,25 @@ var render = function() {
                               }
                             }),
                             _vm._v(" "),
-                            phone.custom_type.error
-                              ? _c(
-                                  "span",
-                                  {
-                                    staticClass: "form-text text-danger small",
-                                    attrs: { id: "emailHelp" }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                                                " +
-                                        _vm._s(phone.custom_type.error) +
-                                        "\n                                        "
-                                    )
-                                  ]
+                            _c(
+                              "span",
+                              {
+                                staticClass: "form-text text-danger small",
+                                attrs: {
+                                  id:
+                                    "error_" +
+                                    _vm.indexPrefixes.custom_type +
+                                    index
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                                " +
+                                    _vm._s(phone.custom_type.error) +
+                                    "\n                                        "
                                 )
-                              : _vm._e()
+                              ]
+                            )
                           ])
                         : _vm._e()
                     ])
@@ -20410,7 +20388,7 @@ var render = function() {
                       },
                       [
                         _vm._v(
-                          "\n                            +\n                        "
+                          "\n                                +\n                        "
                         )
                       ]
                     )
@@ -20430,7 +20408,7 @@ var render = function() {
                       },
                       [
                         _vm._v(
-                          "\n                            -\n                        "
+                          "\n                                -\n                        "
                         )
                       ]
                     )
@@ -32588,41 +32566,7 @@ Vue.compile = compileToFunctions;
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = __webpack_modules__;
-/******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/chunk loaded */
-/******/ 	(() => {
-/******/ 		var deferred = [];
-/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
-/******/ 			if(chunkIds) {
-/******/ 				priority = priority || 0;
-/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
-/******/ 				deferred[i] = [chunkIds, fn, priority];
-/******/ 				return;
-/******/ 			}
-/******/ 			var notFulfilled = Infinity;
-/******/ 			for (var i = 0; i < deferred.length; i++) {
-/******/ 				var [chunkIds, fn, priority] = deferred[i];
-/******/ 				var fulfilled = true;
-/******/ 				for (var j = 0; j < chunkIds.length; j++) {
-/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
-/******/ 						chunkIds.splice(j--, 1);
-/******/ 					} else {
-/******/ 						fulfilled = false;
-/******/ 						if(priority < notFulfilled) notFulfilled = priority;
-/******/ 					}
-/******/ 				}
-/******/ 				if(fulfilled) {
-/******/ 					deferred.splice(i--, 1)
-/******/ 					result = fn();
-/******/ 				}
-/******/ 			}
-/******/ 			return result;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -32684,66 +32628,50 @@ Vue.compile = compileToFunctions;
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/jsonp chunk loading */
-/******/ 	(() => {
-/******/ 		// no baseURI
-/******/ 		
-/******/ 		// object to store loaded and loading chunks
-/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
-/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
-/******/ 			"/js/dashboard/phone-picker": 0,
-/******/ 			"css/dashboard": 0
-/******/ 		};
-/******/ 		
-/******/ 		// no chunk on demand loading
-/******/ 		
-/******/ 		// no prefetching
-/******/ 		
-/******/ 		// no preloaded
-/******/ 		
-/******/ 		// no HMR
-/******/ 		
-/******/ 		// no HMR manifest
-/******/ 		
-/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
-/******/ 		
-/******/ 		// install a JSONP callback for chunk loading
-/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
-/******/ 			var [chunkIds, moreModules, runtime] = data;
-/******/ 			// add "moreModules" to the modules object,
-/******/ 			// then flag all "chunkIds" as loaded and fire callback
-/******/ 			var moduleId, chunkId, i = 0;
-/******/ 			for(moduleId in moreModules) {
-/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
-/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
-/******/ 				}
-/******/ 			}
-/******/ 			if(runtime) runtime(__webpack_require__);
-/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
-/******/ 			for(;i < chunkIds.length; i++) {
-/******/ 				chunkId = chunkIds[i];
-/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
-/******/ 					installedChunks[chunkId][0]();
-/******/ 				}
-/******/ 				installedChunks[chunkIds[i]] = 0;
-/******/ 			}
-/******/ 			__webpack_require__.O();
-/******/ 		}
-/******/ 		
-/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
-/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
-/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
-/******/ 	})();
-/******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/js/vue/phone_picker/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/sass/dashboard.scss")))
-/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!**********************************************!*\
+  !*** ./resources/js/vue/phone_picker/app.js ***!
+  \**********************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/phone_picker/components/App.vue");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/phone_picker/bootstrap.js");
+
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// const files = require.context('./', true, /\.vue$/i)
+// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+
+/**
+ * Next, we will create a fresh Vue application instance and attach it to
+ * the page. Then, you may begin adding components to this application
+ * or customize the JavaScript scaffolding to fit your unique needs.
+ */
+
+
+window.app = new Vue({
+  // const businessHours = new Vue({
+  el: '#phonePicker',
+  render: function render(h) {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default);
+  }
+}); // alert(11);
+})();
+
 /******/ })()
 ;

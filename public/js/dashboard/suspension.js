@@ -1955,6 +1955,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 // import ModalInfoContent from "./ModalInfoContent.vue";
 // import ModalSuspensionContent from "./ModalSuspensionContent.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -1974,28 +1975,27 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       currentDate: new Date(),
-      hall: hall,
       suspension: typeof suspensionDB == 'undefined' || suspensionDB == null ? null : suspensionDB,
       oldSuspension: typeof oldSuspension == 'undefined' || oldSuspension == null ? null : oldSuspension,
       // suspension: suspension,
       status: {
         type: 'disable',
-        title: 'Open'
+        title: 'Active'
       },
       statuses: [{
         type: 'disable',
-        title: 'Open'
+        title: 'Active'
       }, {
         type: 'complete',
-        title: 'Suspend completely'
+        title: 'Completely suspended'
       }, {
         type: 'period',
-        title: 'Suspend for period'
+        title: 'Suspended for period'
       }],
       from: null,
       to: null,
-      fromErr: null,
-      toErr: null
+      fromErr: typeof fromErr == 'undefined' || fromErr == null ? null : fromErr,
+      toErr: typeof toErr == 'undefined' || toErr == null ? null : toErr
     };
   },
   computed: {
@@ -2039,6 +2039,16 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    isJqueryValidationEnabled: function isJqueryValidationEnabled() {
+      return typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating();
+    },
+    validateTo: function validateTo() {
+      if (this.isJqueryValidationEnabled()) $('#to').valid();
+    },
+    validateFrom: function validateFrom() {
+      this.isJqueryValidationEnabled();
+      $('#from').valid();
+    },
     setFromAndToVars: function setFromAndToVars() {
       if (this.isCurrentlyPeriodSuspended || this.isCurrentlyFuterSuspension) {
         this.from = this.formatDataDateForDateChooser(this.suspension.from);
@@ -2082,15 +2092,22 @@ __webpack_require__.r(__webpack_exports__);
 
         if (this.oldSuspension.suspend_from != null) {
           this.from = this.oldSuspension.suspend_from;
-        } else {
-          this.fromErr = 'Required';
         }
 
         if (this.oldSuspension.suspend_to != null) {
           this.to = this.oldSuspension.suspend_to;
-        } else {
-          this.toErr = 'Required';
-        }
+        } // if(this.oldSuspension.suspend_from != null){
+        //     this.from = this.oldSuspension.suspend_from;
+        // }else{
+        //     this.fromErr = 'Required';
+        // }
+        // 
+        // if(this.oldSuspension.suspend_to != null){
+        //     this.to = this.oldSuspension.suspend_to;
+        // }else{
+        //     this.toErr = 'Required';
+        // }
+
       }
     },
     setTabBadgeStatus: function setTabBadgeStatus() {
@@ -2105,9 +2122,40 @@ __webpack_require__.r(__webpack_exports__);
         $("#suspension-tab").prepend("\n                    <span class=\"".concat(textClass, "\" data-toggle=\"tooltip\" title=\"").concat(_title, "\">\n                        ").concat(badgeCont, "\n                    </span>\n                "));
       }
     },
+    triggerFormValidation: function triggerFormValidation() {
+      if (this.isJqueryValidationEnabled()) {
+        setTimeout(function () {
+          console.log('triggerFormValidation'); // $('form#workerForm').valid();
+
+          jqueryValidation.triggerFormValidation();
+        }, 50);
+      }
+    },
+    addStatusValidationRules: function addStatusValidationRules() {
+      if (this.isJqueryValidationEnabled()) {
+        setTimeout(function () {
+          console.log('addStatusValidationRules');
+          jqueryValidation.addStatusRules();
+        }, 50);
+      }
+    },
     switchStatus: function switchStatus(status) {
       this.status = status;
-      console.log(this.status);
+
+      if (this.status.type == 'period') {
+        // this.triggerFormValidation();
+        this.addStatusValidationRules();
+      } else {
+        if (this.isJqueryValidationEnabled()) {
+          $("#statusErrorBadge").addClass('d-none');
+          $('#error_suspend_from').text('');
+          $('#error_suspend_to').text('');
+        } // this.from = null;
+        // this.to = null;
+
+      } // console.log(JSON.parse(JSON.stringify(this.status)));
+      // console.log(this.status);
+
     },
     isCurrentDateInRange: function isCurrentDateInRange(from, to) {
       var currentDateMoment = moment(this.currentDate);
@@ -2128,8 +2176,8 @@ __webpack_require__.r(__webpack_exports__);
           minDate: new Date()
         }).on("change", function () {
           var date = getDate(this);
-          to.datepicker("option", "minDate", date);
-          _this.fromErr = false;
+          to.datepicker("option", "minDate", date); // _this.fromErr = false;
+
           _this.from = _this.formatDataDateForDateChooser(date);
         }),
             to = $("#to").datepicker({
@@ -2140,8 +2188,8 @@ __webpack_require__.r(__webpack_exports__);
           minDate: new Date()
         }).on("change", function () {
           var date = getDate(this);
-          from.datepicker("option", "maxDate", date);
-          _this.toErr = false;
+          from.datepicker("option", "maxDate", date); // _this.toErr = false;
+
           _this.to = _this.formatDataDateForDateChooser(date);
         });
 
@@ -2162,14 +2210,15 @@ __webpack_require__.r(__webpack_exports__);
   components: {// ModalInfoContent,
     // ModalSuspensionContent
   },
-  watch: {// status: function (val) {
-    //     console.log(status);
-    //     if(status.type == 'suspend_period')
-    //         setTimeout(() => {
-    //             this.initDatePicker();
-    //         }, 1000);
-    //         // this.initDatePicker();
-    // },
+  watch: {
+    to: function to(val) {
+      // this.triggerFormValidation();
+      this.validateTo(); // $('#to').valid();
+    },
+    from: function from(val) {
+      // this.triggerFormValidation();
+      this.validateFrom(); // $('#from').valid();
+    }
   }
 });
 
@@ -41571,57 +41620,6 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c(
-      "div",
-      {
-        staticClass: "alert",
-        class: {
-          "alert-success":
-            !_vm.isCurrentlySuspended && !_vm.isCurrentlyFuterSuspension,
-          "alert-danger": _vm.isCurrentlySuspended,
-          "alert-warning": _vm.isCurrentlyFuterSuspension
-        },
-        attrs: { role: "alert" }
-      },
-      [
-        !_vm.isCurrentlySuspended && !_vm.isCurrentlyFuterSuspension
-          ? [_c("b", { staticClass: "text-uppercase" }, [_vm._v("Active")])]
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.isCurrentlyTotallySuspended
-          ? [_c("b", [_vm._v("Completely suspended")])]
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.isCurrentlyPeriodSuspended
-          ? [
-              _c("b", [_vm._v("Suspended")]),
-              _vm._v(" for period"),
-              _c("br"),
-              _vm._v("\n                from "),
-              _c("b", [_vm._v(_vm._s(_vm.suspensionFrom))]),
-              _vm._v(" until "),
-              _c("b", [_vm._v(_vm._s(_vm.suspensionTo))])
-            ]
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.isCurrentlyFuterSuspension
-          ? [
-              _c("b", { staticClass: "text-uppercase text-success" }, [
-                _vm._v("Active")
-              ]),
-              _c("br"),
-              _vm._v("\n                but will be suspended for period"),
-              _c("br"),
-              _vm._v("\n                from "),
-              _c("b", [_vm._v(_vm._s(_vm.suspensionFrom))]),
-              _vm._v(" until "),
-              _c("b", [_vm._v(_vm._s(_vm.suspensionTo))])
-            ]
-          : _vm._e()
-      ],
-      2
-    ),
-    _vm._v(" "),
     _c("input", {
       directives: [
         {
@@ -41662,10 +41660,11 @@ var render = function() {
           },
           attrs: {
             type: "button",
-            id: "dropdownMenuButton",
+            id: "statusDropdownMenuBtn",
             "data-toggle": "dropdown",
             "aria-haspopup": "true",
-            "aria-expanded": "false"
+            "aria-expanded": "false",
+            "data-status": _vm.status.type
           }
         },
         [_vm._v("\n                " + _vm._s(_vm.status.title) + "\n        ")]
@@ -41675,7 +41674,7 @@ var render = function() {
         "div",
         {
           staticClass: "dropdown-menu",
-          attrs: { "aria-labelledby": "dropdownMenuButton" }
+          attrs: { "aria-labelledby": "statusDropdownMenuBtn" }
         },
         _vm._l(_vm.statuses, function(st) {
           return _c(
@@ -41744,11 +41743,14 @@ var render = function() {
             }),
             _c("br"),
             _vm._v(" "),
-            _vm.fromErr
-              ? _c("span", { staticClass: "small text-danger" }, [
-                  _vm._v(_vm._s(_vm.fromErr))
-                ])
-              : _vm._e()
+            _c(
+              "span",
+              {
+                staticClass: "small text-danger",
+                attrs: { id: "error_suspend_from" }
+              },
+              [_vm._v(_vm._s(_vm.fromErr ? _vm.fromErr : ""))]
+            )
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "coll col col-sm-4" }, [
@@ -41781,11 +41783,14 @@ var render = function() {
             }),
             _c("br"),
             _vm._v(" "),
-            _vm.toErr
-              ? _c("span", { staticClass: "small text-danger" }, [
-                  _vm._v(_vm._s(_vm.toErr))
-                ])
-              : _vm._e()
+            _c(
+              "span",
+              {
+                staticClass: "small text-danger",
+                attrs: { id: "error_suspend_to" }
+              },
+              [_vm._v(_vm._s(_vm.toErr ? _vm.toErr : ""))]
+            )
           ])
         ])
       ]

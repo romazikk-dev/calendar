@@ -49,6 +49,23 @@ class WorkerController extends Controller
             DB::raw("CONCAT(workers.`first_name`,' ',workers.`last_name`) as `full_name`"),
             'email',
             DB::raw("workers.`created_at` as `created_at`"),
+            DB::raw("(SELECT COUNT(*) FROM `suspensions` WHERE `suspensionable_type` = 'worker' AND `suspensionable_id` = workers.`id`) as sort_status"),
+            DB::raw("(SELECT COUNT(*) FROM `suspensions` WHERE `suspensionable_type` = 'worker' AND `suspensionable_id` = workers.`id` AND `from` IS NULL AND `to` IS NULL) as sort_status_2"),
+            DB::raw("
+                (
+                    SELECT COUNT(*)
+                    FROM `hall_worker` hw
+                    WHERE
+                        hw.`worker_id` = workers.`id` AND
+                        (
+                            SELECT COUNT(*)
+                            FROM `halls` h
+                            WHERE
+                                h.id = hw.`hall_id` AND
+                                h.is_deleted = 0
+                        )
+                ) as halls_count
+            "),
             // DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`worker_id` = workers.`id`) as `halls_count`")
         ])
         ->with('halls')->with('suspension')->where('is_deleted', 0);
@@ -56,7 +73,15 @@ class WorkerController extends Controller
         return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
                     $sql = "CONCAT(first_name,' ',last_name)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
-                })->toJson(true);
+                })
+                ->orderColumn('status', function ($query, $order) {
+                    $query->orderBy('sort_status', $order);
+                    $query->orderBy('sort_status_2', $order);
+                })
+                ->orderColumn('halls_count', function ($query, $order) {
+                    $query->orderBy('halls_count', $order);
+                })
+                ->toJson(true);
     }
 
     /**
@@ -144,12 +169,21 @@ class WorkerController extends Controller
         ];
     }
     
-    public function checkEmail(Request $request){
+    public function checkEmail(Request $request, $id = null){
+        
         $validate_rules = [
             'email' => [
-                'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) {
-                    // $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
+                'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) use ($id) {
                     $query->where('is_deleted', '=', '0');
+                    if(!is_null($id)){
+                        // $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
+                        $query->where('id', '!=', $id);
+                    }
+                    // else{
+                    //     $query->where('is_deleted', '=', '0');
+                    // }
+                    // $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
+                    // $query->where('is_deleted', '=', '0');
                 })
             ]
         ];
@@ -236,6 +270,8 @@ class WorkerController extends Controller
         
         $model = Worker::where("id", $id);
         
+        if($request->has('with_phones'))
+            $model->with('phones');
         if($request->has('with_halls'))
             $model->with('halls');
         if($request->has('with_suspension'))
@@ -449,6 +485,7 @@ class WorkerController extends Controller
             'count_weekends' => $business_hours['count_weekends'],
             'count_workdays' => $business_hours['count_workdays'],
             'assign_halls' => $assign_halls,
+            'validation_messages' => \Lang::get('validation'),
         ]);
     }
     

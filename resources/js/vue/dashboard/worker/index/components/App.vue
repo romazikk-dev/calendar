@@ -6,7 +6,10 @@
                 <tr>
                     <th>ID</th>
                     <th>
-                        Title
+                        Name
+                    </th>
+                    <th>
+                        Email
                     </th>
                     <th data-toggle="tooltip" data-placement="auto" title="Status of employee (suspended/active)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check-fill" viewBox="0 0 16 16">
@@ -61,6 +64,9 @@
             };
         },
         methods: {
+            isStatus: function(type, suspension){
+                return helper.isStatus(type, (typeof suspension == 'undefined' || suspension == null ? null : suspension));
+            },
             regActionsOnModalClose: function(){
                 $("#modal").on('hidden.bs.modal', () => {
                     this.infoModalData = null;
@@ -73,12 +79,13 @@
                 $('#dataTable').DataTable().ajax.reload();
                 this.updateSuspendModalData();
             },
-            openModal: function(type){
-                if(type == 'info'){
-                    let url = showRoute.replace(':id', id);
-                    axios.get()
-                }
-            },
+            // openModal: function(type){
+            //     if(type == 'info'){
+            //         // console.log('openModal');
+            //         let url = showRoute.replace(':id', id);
+            //         axios.get()
+            //     }
+            // },
             regClickBtns: function(){
                 this.regClickReinstateBtn();
                 this.regClickMoreInfoBtn();
@@ -140,7 +147,7 @@
                     
                     let id = parseInt($(e.target).closest('tr').attr('id'));
                     let url = showRoute.replace(':id', id);
-                    url += '?with_halls=1&with_suspension=1';
+                    url += '?with_phones=1&with_halls=1&with_suspension=1';
                     axios.get(url)
                     .then((response) => {
                         this.infoModalData = response.data;
@@ -160,42 +167,28 @@
                 this.showContent = showContent;
                 $('#modal').modal('show');
             },
-            isSuspended: function(from, to){
-                if(from == null || from == null)
-                    return true;
-                let currentDateMoment = moment(this.currentDate);
-                let fromMoment = moment(from);
-                let toMoment = moment(to);
-                return (currentDateMoment.diff(fromMoment) >= 0 && currentDateMoment.diff(toMoment) <= 0);
-                // console.log(currentDateMoment.format('YYYY-MM-DD HH-mm-ss'));
-                // console.log(fromMoment.format('YYYY-MM-DD HH-mm-ss'));
-                // console.log(toMoment.format('YYYY-MM-DD HH-mm-ss'));
-                // return false;
+            isSuspended: function(suspension){
+                return this.isStatus('suspended', suspension);
             },
-            isSuspentionInFuture: function(from, to){
-                if(from == null || from == null)
-                    return false;
-                let currentDateMoment = moment(this.currentDate);
-                let fromMoment = moment(from);
-                // let toMoment = moment(to);
-                return (currentDateMoment.diff(fromMoment) < 0);
+            isSuspentionInFuture: function(suspension){
+                return this.isStatus('future_suspension', suspension);
             },
             initDataTable: function(){
                 let _this = this;
                 $('#dataTable').DataTable({
                     "processing": true,
                     "serverSide": true,
-                    // "order": [[ 1, "asc" ]],
-                    "order": [],
+                    "order": [[ 5, "desc" ]],
+                    // "order": [],
                     "createdRow": function(row, data, dataIndex){
                         $(row).attr('id', data.id);
                         // $(row).attr('is-closed', data.is_closed);
                         $(row).attr('halls-count', data.workers_count);
                         $(row).attr('created-at', data.created_at);
                         if(data.suspension != null){
-                            if(_this.isSuspended(data.suspension.from, data.suspension.to)){
+                            if(_this.isSuspended(data.suspension)){
                                 $(row).addClass('table-danger');
-                            }else if(_this.isSuspentionInFuture(data.suspension.from, data.suspension.to)){
+                            }else if(_this.isSuspentionInFuture(data.suspension)){
                                 $(row).addClass('table-warning');
                             }
                         }
@@ -214,7 +207,13 @@
                             className: 'coll-title',
                         },
                         {
+                            data: 'email',
+                            name: 'email',
+                            className: 'coll-email',
+                        },
+                        {
                             data: null,
+                            name: 'status',
                             className: 'coll-status',
                             width: '20px',
                         },
@@ -235,8 +234,8 @@
                             data: null,
                             className: "actions",
                             render: function ( data, type, row, meta ) {
-                                console.log('data');
-                                console.log(data);
+                                // console.log('data');
+                                // console.log(data);
                                 
                                 var delete_url = deleteRoute.replace(':id', row.id);
                                 var edit_url = editRoute.replace(':id', row.id);
@@ -247,10 +246,10 @@
                                 
                                 let reinstate = '';
                                 if(row.suspension != null &&
-                                    (_this.isSuspended(row.suspension.from, row.suspension.to) ||
-                                    _this.isSuspentionInFuture(row.suspension.from, row.suspension.to))){
+                                    (_this.isSuspended(row.suspension) ||
+                                    _this.isSuspentionInFuture(row.suspension))){
                                         
-                                    let isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension.from, row.suspension.to);
+                                    let isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension);
                                     let reinstateAttrTitle = isSuspentionInFuture ?
                                         `
                                             Undo future<br>
@@ -280,7 +279,7 @@
                                     reinstate = `
                                         <div class="action-drop dropup float-right">
                                             <a href="#"
-                                                id="dropdownReinstateButton"
+                                                id="dropdownReinstateButton_${row.id}"
                                                 class="action text-info data-tooltip"
                                                 data-toggle="dropdown"
                                                 data-placement="bottom"
@@ -289,7 +288,7 @@
                                                 aria-expanded="false">
                                                     ${reinstateIcon}
                                             </a>
-                                            <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownReinstateButton">
+                                            <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownReinstateButton_${row.id}">
                                                 ${reinstateDropQuestion}
                                                 <div class="btnns">
                                                     
@@ -300,7 +299,7 @@
                                                     <a href="#"
                                                         onclick="
                                                             event.preventDefault();
-                                                            $('#dropdownReinstateButton').click();
+                                                            $('#dropdownReinstateButton_${row.id}').click();
                                                         " class="btnn text-primary">
                                                             No
                                                     </a>
@@ -314,7 +313,7 @@
                                 return `
                                     <div class="action-drop dropup float-right">
                                         <a href="#"
-                                            id="dropdownDeleteButton"
+                                            id="dropdownDeleteButton_${row.id}"
                                             class="action text-info data-tooltip"
                                             data-toggle="dropdown"
                                             data-placement="bottom"
@@ -325,7 +324,7 @@
                                                     <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
                                                 </svg>
                                         </a>
-                                        <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton">
+                                        <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton_${row.id}">
                                             Do you want delete this employee?
                                             <div class="btnns">
                                                 <form method="post" action="${delete_url}">
@@ -337,7 +336,7 @@
                                                             Yes
                                                     </a>
                                                     <a href="${delete_url}"
-                                                        onclick="event.preventDefault(); $('#dropdownDeleteButton').click();"
+                                                        onclick="event.preventDefault(); $('#dropdownDeleteButton_${row.id}').click();"
                                                         class="btnn text-primary"
                                                         data-toggle="dropdown"
                                                         aria-haspopup="true"
@@ -396,7 +395,7 @@
                     ],
                     "columnDefs": [
                         {
-                            "targets": [4],
+                            "targets": [5],
                             "render": function ( data, type, row, meta ) {
                                 // console.log(row);
                                 let date = new Date(data);
@@ -411,42 +410,26 @@
                             }
                         },
                         {
-                            "targets": [2],
+                            "targets": [3],
                             'createdCell':  function (td, cellData, rowData, row, col) {
-                               // $(td).attr('id', 'otherID')
-                                // console.log('cellData: ');
-                                // console.log(rowData);
                                 $(td).attr('data-toggle', 'tooltip');
                                 $(td).attr('data-placement', 'auto');
-                                $(td).attr('data-html', 'true');
                                 
-                                if(rowData.suspension != null){
-                                    if(_this.isSuspended(rowData.suspension.from, rowData.suspension.to)){
-                                        if(rowData.suspension.from == null || rowData.suspension.to == null){
-                                            $(td).attr('title', `Completely suspended`);
-                                        }else{
-                                            let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-                                            let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-                                            $(td).attr('title', `Suspended<br>from ${from}<br>until ${to}`);
-                                        }
-                                    }else if(_this.isSuspentionInFuture(rowData.suspension.from, rowData.suspension.to)){
-                                        let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-                                        let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-                                        $(td).attr('title', `Active<br>Will be suspended<br>from <b>${from}</b><br>until <b>${to}</b>`);
-                                    }
-                                }else{
-                                    $(td).attr('title', `Active`);
-                                }
+                                $(td).attr(
+                                    'title',
+                                    helper.getStatusTooltipTitle(
+                                        typeof rowData.suspension == 'undefined' || rowData.suspension == null ?
+                                        null : rowData.suspension
+                                    )
+                                );
                             },
                             "render": function ( data, type, row, meta ) {
                                 if(row.suspension != null){
-                                    if(_this.isSuspended(row.suspension.from, row.suspension.to)){
-                                        // $(row).addClass('table-danger');
-                                        // console.log(22222);
+                                    if(_this.isSuspended(row.suspension)){
                                         return `
                                             <div class="status-circle bg-danger"></div>
                                         `;
-                                    }else if(_this.isSuspentionInFuture(row.suspension.from, row.suspension.to)){
+                                    }else if(_this.isSuspentionInFuture(row.suspension)){
                                         // $(row).addClass('table-warning');
                                         return `
                                             <div class="status-circle bg-warning"></div>
@@ -459,16 +442,18 @@
                             }
                         },
                         {
-                            "targets": [3],
+                            "targets": [4],
                             'createdCell':  function (td, cellData, rowData, row, col) {
                                  $(td).attr('data-toggle', 'tooltip');
                                  $(td).attr('data-placement', 'bottom');
                                  $(td).attr('data-html', 'true');
-                                 $(td).attr('title', 'Number of halls employee works in');
+                                 $(td).attr('title', 'Number of hall`s an employee works in');
                             },
                             "render": function ( data, type, row, meta ) {
+                                let hallsCount = row.halls.length;
+                                let textClass = hallsCount > 0 ? '' : 'text-warning';
                                 return `
-                                    <div>${row.halls.length}</div>
+                                    <div class="${textClass}">${hallsCount}</div>
                                 `;
                             }
                         }

@@ -1,6 +1,6 @@
 // alert(111);
 
-(new function(){
+var jqueryValidationFunc = function(){
     
     this.enableJsValidation = true;
     // this.enableJsValidation = false;
@@ -15,6 +15,8 @@
     this.mainErrorAttrs = [];
     this.addressErrorAttrs = [];
     this.passwordErrorAttrs = [];
+    this.phoneErrorAttrs = [];
+    this.statusErrorAttrs = [];
     
     this.init = function(){
         this.regSubmitBtn();
@@ -22,14 +24,36 @@
             this.initValidator();
     }
     
+    this.isValidating = function(){
+        return this.enableJsValidation;
+    }
+    
+    this.resetErrorAttrs = function(){
+        this.mainErrorAttrs = [];
+        this.addressErrorAttrs = [];
+        this.passwordErrorAttrs = [];
+        this.phoneErrorAttrs = [];
+        this.statusErrorAttrs = [];
+    }
+    
+    this.triggerFormValidation = function(){
+        this.resetErrorAttrs();
+        this.addPhoneRules();
+        this.addStatusRules();
+        $('form#workerForm').valid();
+    }
+    
     this.regSubmitBtn = function(){
         let _this = this;
         
         $("#submitBtn").click(function(e){
             e.preventDefault();
+            // _this.addPhoneRules();
             if(_this.enableJsValidation){
+                _this.addPhoneRules();
+                _this.addStatusRules();
                 if($('form#workerForm').valid()){
-                    console.log('validated');
+                    // console.log('validated');
                     $('form#workerForm').submit();
                 }
             }else{
@@ -44,28 +68,70 @@
         let _this = this;
         
         if(_this.mainErrorAttrs.length > 0){
-            $('#mainErrorBadge').removeClass('d-none').text(_this.mainErrorAttrs.length);
+            let errorsCount = _this.mainErrorAttrs.length;
+            $('#mainErrorBadge').removeClass('d-none')
+                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
         }else{
             // console.log('no mainErrorsCount');
             $('#mainErrorBadge').addClass('d-none').text('');
         }
         
         if(_this.passwordErrorAttrs.length > 0){
-            $('#passwordErrorBadge').removeClass('d-none').text(_this.passwordErrorAttrs.length);
+            let errorsCount = _this.passwordErrorAttrs.length;
+            $('#passwordErrorBadge').removeClass('d-none')
+                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
         }else{
             // console.log('no mainErrorsCount');
             $('#passwordErrorBadge').addClass('d-none').text('');
         }
         
         if(_this.addressErrorAttrs.length > 0){
-            $('#addressErrorBadge').removeClass('d-none').text(_this.addressErrorAttrs.length);
+            let errorsCount = _this.addressErrorAttrs.length;
+            $('#addressErrorBadge').removeClass('d-none')
+                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
         }else{
             $('#addressErrorBadge').addClass('d-none').text('');
+        }
+        
+        if(_this.phoneErrorAttrs.length > 0){
+            let errorsCount = _this.phoneErrorAttrs.length;
+            $('#phoneErrorBadge').removeClass('d-none')
+                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
+        }else{
+            $('#phoneErrorBadge').addClass('d-none').text('');
+        }
+        
+        if(_this.statusErrorAttrs.length > 0){
+            let errorsCount = _this.statusErrorAttrs.length;
+            $('#statusErrorBadge').removeClass('d-none')
+                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
+        }else{
+            $('#statusErrorBadge').addClass('d-none').text('');
         }
     }
     
     this.handleErrorAttrs = function(type, attr){
         let _this = this;
+        
+        if(attr.startsWith("suspend")){
+            if(type == 'add' && !_this.statusErrorAttrs.includes(attr))
+                _this.statusErrorAttrs.push(attr);
+            if(type == 'delete' && _this.statusErrorAttrs.includes(attr)){
+                let index = _this.statusErrorAttrs.indexOf(attr);
+                _this.statusErrorAttrs.splice(index, 1);
+            }
+        }
+        
+        if(attr.startsWith("phone")){
+            // console.log(attr);
+            if(type == 'add' && !_this.phoneErrorAttrs.includes(attr))
+                _this.phoneErrorAttrs.push(attr);
+            if(type == 'delete' && _this.phoneErrorAttrs.includes(attr)){
+                let index = _this.phoneErrorAttrs.indexOf(attr);
+                _this.phoneErrorAttrs.splice(index, 1);
+            }
+            // console.log(_this.phoneErrorAttrs);
+        }
         
         if(_this.attributes_per_tab.main.includes(attr)){
             if(type == 'add' && !_this.mainErrorAttrs.includes(attr))
@@ -93,8 +159,179 @@
         }
     }
     
+    this.addStatusRules = function(){
+        let input_from = $('input[name=suspend_from]');
+        let input_to = $('input[name=suspend_to]');
+        
+        let status = $('#statusDropdownMenuBtn').attr('data-status');
+        // console.log(status);
+        
+        // return;
+        // console.log(validationMessages);
+        if(status != 'period'){
+            input_from.rules("remove");
+            input_to.rules("remove");
+            // $("#statusErrorBadge").addClass('d-none');
+            return;
+        }
+            
+        if(input_from.length > 0){
+            // console.log(input_from);
+            input_from.rules("remove");
+            input_from.rules("add", {
+                required: true,
+                // maxlength: 255,
+                messages: {
+                    required: (
+                        (
+                            validationMessages.required_if.replace(':attribute', 'from')
+                        ).replace(':other', 'status')
+                    ).replace(':value', 'period'),
+                    maxlength: (validationMessages.max.string.replace(':attribute', 'phone')).replace(':max', '255'),
+                }
+            });
+        }
+        
+        if(input_to.length > 0){
+            // console.log();
+            input_to.rules("remove");
+            input_to.rules("add", {
+                required: true,
+                // maxlength: 255,
+                messages: {
+                    // required: validationMessages.required_if.replace(':attribute', 'to'),
+                    required: (
+                        (
+                            validationMessages.required_if.replace(':attribute', 'to')
+                        ).replace(':other', 'status')
+                    ).replace(':value', 'period'),
+                    // maxlength: (validationMessages.max.string.replace(':attribute', 'phone')).replace(':max', '255'),
+                }
+            });
+        }
+    }
+    
+    this.addPhoneRules = function(){
+        for(let i = 0; i < 10; i++){
+            let input_value = $('input[name=phone_value_' + i + ']');
+            let input_type = $('input[name=phone_type_' + i + ']');
+            let input_custom_type = $('input[name=phone_custom_type_' + i + ']');
+            if(input_value.length > 0){
+                // clearInterval(interval);
+                // console.log(input_value);
+                input_value.rules("remove");
+                input_value.rules("add", {
+                    // required: true,
+                    maxlength: 255,
+                    messages: {
+                        // required: validationMessages.required.replace(':attribute', 'first name'),
+                        maxlength: (validationMessages.max.string.replace(':attribute', 'phone')).replace(':max', '255'),
+                    }
+                });
+                if(input_type.length > 0 && input_type.val() == 'custom' && input_custom_type.length > 0){
+                    // console.log('input_custom_type 3333333333333');
+                    input_custom_type.rules("remove");
+                    input_custom_type.rules("add", {
+                        // required: true,
+                        required: function(element){
+                            let inputValueVal = input_value.val();
+                            return inputValueVal != '';
+                        },
+                        maxlength: 255,
+                        messages: {
+                            required: validationMessages.required.replace(':attribute', 'custom type'),
+                            maxlength: (validationMessages.max.string.replace(':attribute', 'custom type')).replace(':max', '255'),
+                        }
+                    });
+                }
+            }
+        }
+    }
+    
     this.initValidator = function(){
         let _this = this;
+        
+        let rules = {
+            // Main tab rules
+            email: {
+                required: true,
+                email: true,
+                remote: {
+                    url: checkEmailUrl,
+                    type: "post",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    dataType: 'json'
+                }
+            },
+            first_name: {
+                required: true,
+                maxlength: 255,
+            },
+            last_name: {
+                maxlength: 255,
+            },
+            gender: {
+                required: true,
+                in: ['male','female'],
+                // minlength: 5
+            },
+            // Address tab rules
+            country: {
+                maxlength: 255,
+            },
+            town: {
+                maxlength: 255,
+            },
+            street: {
+                maxlength: 255,
+            },
+            // Password tab rules
+            // password: {
+            //     required: true,
+            //     // minlength: 5
+            // },
+            // password_confirm: {
+            //     required: true,
+            //     // required: function(element){
+            //     //     let passwordVal = $("#password").val();
+            //     //     return passwordVal != '';
+            //     // },
+            //     equalTo : "#password"
+            // }
+        }
+        
+        if(typeof worker === 'undefined' || worker === null){
+            rules.password = {
+                required: true,
+            }
+            rules.password_confirm = {
+                required: true,
+                // required: function(element){
+                //     let passwordVal = $("#password").val();
+                //     return passwordVal != '';
+                // },
+                equalTo : "#password"
+            }
+            // rules.email.remote.data = {
+            //     current
+            // }
+        }else{
+            // rules.password = {
+            //     required: true,
+            // }
+            rules.password_confirm = {
+                // required: true,
+                required: function(element){
+                    let passwordVal = $("#password").val();
+                    return passwordVal != '';
+                },
+                equalTo : "#password"
+            }
+        }
+            // console.log(worker);
+        // if
         
         jQuery.validator.addMethod("in", function(value, element, params){
             return params.includes(value);
@@ -103,22 +340,6 @@
         $.validator.addMethod("maxlength", function (value, element, len) {
             return value == "" || value.length <= len;
         });
-        
-        function addPhoneRules(){
-            let interval = setInterval(function(){
-                for(let i = 0; i < 10; i++){
-                    let input = $('input[name=phone_value_' + i + ']');
-                    if(input.length){
-                        clearInterval(interval);
-                    // if(input){
-                        console.log(input);
-                        input.rules("add", {
-                            minlength: 20
-                        });
-                    }
-                }
-            }, 50);
-        }
         
         $("form#workerForm").validate({
             // Specify validation rules
@@ -129,64 +350,15 @@
                 let attrName = element.attr("name");
                 let errorId = 'error_' + attrName;
                 let errorText = $(error).text();
-                console.log(errorId);
-                console.log(errorText);
+                // console.log(errorId);
+                // console.log(errorText);
                 $("#" + errorId).text(errorText);
                 
                 _this.handleErrorAttrs((errorText == '' ? 'delete' : 'add'), attrName);
                 _this.handleErrorNotices();
             },
             // onfocusout: false,
-            rules: {
-                // Main tab rules
-                email: {
-                    required: true,
-                    email: true,
-                    remote: {
-                        url: checkEmailUrl,
-                        type: "post",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        dataType: 'json'
-                    }
-                },
-                first_name: {
-                    required: true,
-                    maxlength: 255,
-                },
-                last_name: {
-                    maxlength: 255,
-                },
-                gender: {
-                    required: true,
-                    in: ['male','female'],
-                    // minlength: 5
-                },
-                // Address tab rules
-                country: {
-                    maxlength: 255,
-                },
-                town: {
-                    maxlength: 255,
-                },
-                street: {
-                    maxlength: 255,
-                },
-                // Password tab rules
-                password: {
-                    required: true,
-                    // minlength: 5
-                },
-                password_confirm: {
-                    required: true,
-                    // required: function(element){
-                    //     let passwordVal = $("#password").val();
-                    //     return passwordVal != '';
-                    // },
-                    equalTo : "#password"
-                }
-            },
+            rules: rules,
             // Specify validation error messages
             messages: {
                 // Main tab rules messages
@@ -228,8 +400,6 @@
             submitHandler: function(form) {
                 // console.log('submitHandler');
                 form.submit();
-                
-                
             },
             success: function(label) {
                 // console.log('success');
@@ -238,10 +408,13 @@
             //     console.log('error');
             // }
             invalidHandler: function(form, validator){
+                
+                _this.resetErrorAttrs();
+                
                 // var invalidKeys = Object.keys(validator.invalid);
                 // invalidKeys.forEach((item, i) => {
-                //     console.log('item: ' + item);
-                //     console.log(validator.invalid[item] == false);
+                //     // console.log('item: ' + item);
+                //     // console.log(validator.invalid[item] == false);
                 //     if (validator.invalid[item] == false){
                 //         console.log('false');
                 //         _this.handleErrorAttrs('delete', item);
@@ -265,8 +438,17 @@
             }
         });
         
-        addPhoneRules();
+        let interval = setInterval(function(){
+            if($('input[name=phone_value_0]').length > 0){
+                clearInterval(interval);
+                _this.addPhoneRules();
+            }
+        }, 50);
         
     }
     
-}).init();
+}
+
+var jqueryValidation = new jqueryValidationFunc();
+jqueryValidation.init();
+// ).init();

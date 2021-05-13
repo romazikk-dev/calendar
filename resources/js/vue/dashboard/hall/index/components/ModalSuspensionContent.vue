@@ -4,10 +4,30 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">
-                    {{ data.title }}
+                    {{ title }}
                     <!-- <span class="badge badge-pill badge-success text-uppercase" v-if="!suspended">opened</span> -->
-                    <span class="badge badge-pill badge-danger text-uppercase" v-if="suspended">suspended</span>
-                    <span class="badge badge-pill badge-success text-uppercase" v-else>opened</span>
+                    <!-- <span class="badge badge-pill badge-danger text-uppercase" v-if="suspended">suspended</span>
+                    <span class="badge badge-pill badge-success text-uppercase" v-else>opened</span> -->
+                    
+                    <span class="badge badge-pill badge-danger text-uppercase"
+                        v-if="suspended"
+                        data-toggle="modal-info-dropdown"
+                        data-placement="auto"
+                        :title="getTooltipStatusTitle"
+                        :data-original-title="getTooltipStatusTitle">suspended</span>
+                    <span class="badge badge-pill badge-warning text-uppercase"
+                        v-if="!suspended && suspentionInFuture"
+                        data-toggle="modal-info-dropdown"
+                        data-placement="auto"
+                        :title="getTooltipStatusTitle"
+                        :data-original-title="getTooltipStatusTitle">active</span>
+                    <span class="badge badge-pill badge-success text-uppercase"
+                        v-if="!suspended && !suspentionInFuture"
+                        data-toggle="modal-info-dropdown"
+                        data-placement="auto"
+                        :title="getTooltipStatusTitle"
+                        :data-original-title="getTooltipStatusTitle">active</span>
+                        
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -169,6 +189,7 @@
             this.setFromAndToVars();
             // this.setSuspendUrl();
             // this.regClickMoreInfoBtn();
+            $('[data-toggle="modal-info-dropdown"]').tooltip({ html: true });
         },
         props: ['data'],
         data: function(){
@@ -181,6 +202,12 @@
             };
         },
         computed: {
+            title: function(){
+                return helper.capitalizeFirstLetter(this.data.title);
+            },
+            getTooltipStatusTitle: function(){
+                return helper.getStatusTooltipTitle(typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+            },
             isSuspendRangeSetted: function(){
                 return this.from != null && this.to != null;
             },
@@ -191,30 +218,34 @@
                 return this.periodSuspended|| this.suspentionInFuture ? this.formatDataDateForDateChooser(this.data.suspension.to) : null;
             },
             suspended: function(){
-                let componentApp = this.getParentComponentByName(this, 'app');
-                return this.data != null &&
-                    typeof this.data.suspension != 'undefined' &&
-                    this.data.suspension != null &&
-                    componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
+                return this.isStatus('suspended');
+                // let componentApp = this.getParentComponentByName(this, 'app');
+                // return this.data != null &&
+                //     typeof this.data.suspension != 'undefined' &&
+                //     this.data.suspension != null &&
+                //     componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
             },
             suspentionInFuture: function(){
-                let componentApp = this.getParentComponentByName(this, 'app');
-                return this.data != null &&
-                    typeof this.data.suspension != 'undefined' &&
-                    this.data.suspension != null &&
-                    componentApp.isSuspentionInFuture(this.data.suspension.from, this.data.suspension.to);
+                return this.isStatus('future_suspension');
+                // let componentApp = this.getParentComponentByName(this, 'app');
+                // return this.data != null &&
+                //     typeof this.data.suspension != 'undefined' &&
+                //     this.data.suspension != null &&
+                //     componentApp.isSuspentionInFuture(this.data.suspension.from, this.data.suspension.to);
             },
             periodSuspended: function(){
-                return this.suspended &&
-                    typeof this.data.suspension.from != 'undefined' &&
-                    this.data.suspension.from != null &&
-                    typeof this.data.suspension.to != 'undefined' &&
-                    this.data.suspension.to != null;
+                return this.isStatus('period_suspended');
+                // return this.suspended &&
+                //     typeof this.data.suspension.from != 'undefined' &&
+                //     this.data.suspension.from != null &&
+                //     typeof this.data.suspension.to != 'undefined' &&
+                //     this.data.suspension.to != null;
             },
             completelySuspended: function(){
-                return this.suspended &&
-                    this.data.suspension.from == null &&
-                    this.data.suspension.to == null;
+                return this.suspended && !this.periodSuspended;
+                // return this.suspended &&
+                //     this.data.suspension.from == null &&
+                //     this.data.suspension.to == null;
             },
             periodSuspendBtnDisabled: function(){
                 // if(this.periodSuspended){
@@ -232,6 +263,9 @@
             },
         },
         methods: {
+            isStatus: function(type){
+                return helper.isStatus(type, (typeof this.data.suspension == 'undefined' ? null : this.data.suspension));
+            },
             // setSuspendUrl: function(){
             //     this.suspendUrl = toggleSuspension.replace(':id', this.data.id);
             // },

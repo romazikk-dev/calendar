@@ -19,16 +19,14 @@
                                     <div class="d-table-cell">
                                         
                                         <div class="form-group">
-                                            <label for="phoneInput">Phone:</label>
+                                            <label :for="'phoneValue_' + index">Phone:</label>
                                             <input :name="indexPrefixes.value+index" type="text"
                                                 v-model="phone.phone.value"
                                                 class="form-control"
-                                                :id="'phoneInput_' + index"
-                                                aria-describedby="emailHelp">
+                                                :id="'phoneValue_' + index">
                                             <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
                                             <span :id="'error_phone_value_' + index"
-                                                class="form-text text-danger small"
-                                                v-model='phone.phone.error'></span>
+                                                class="form-text text-danger small">{{phone.phone.error}}</span>
                                         </div>
                                         
                                     </div>
@@ -37,42 +35,34 @@
                                         <input :name="indexPrefixes.id+index" 
                                             type="hidden"
                                             v-model="phone.id.value"
-                                            class="form-control"
-                                            id="phoneInput"
-                                            aria-describedby="emailHelp">
+                                            class="form-control">
                                             
                                         <input :name="indexPrefixes.type+index" 
                                             type="hidden"
                                             v-model="phone.type.value"
-                                            class="form-control"
-                                            id="phoneInput"
-                                            aria-describedby="emailHelp">
+                                            class="form-control">
                                         
                                         <div class="form-group">
-                                            <label for="typeSelect">Type:</label>
+                                            <label for="dropdownMenuButton">Type:</label>
                                             <div class="dropdown">
                                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     {{phone.type.value}}
                                                 </button>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                    <a @click.prevent="phone.type.value = phoneType"
+                                                    <a @click.prevent="phone.type.value = onChangeType(index, phoneType)"
                                                         v-for="phoneType in phoneTypes"
                                                         class="dropdown-item"
                                                         href="#">{{phoneType}}</a>
                                                 </div>
                                             </div>
-                                            <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
                                         </div>
                                         
                                         <div v-if="phone.type.value == 'custom'" class="form-group">
                                             <input :name="indexPrefixes.custom_type+index"
                                                 type="text"
                                                 v-model="phone.custom_type.value"
-                                                class="form-control"
-                                                id="phoneInput"
-                                                aria-describedby="emailHelp">
-                                            <span id="emailHelp"
-                                                v-if="phone.custom_type.error"
+                                                class="form-control">
+                                            <span :id="'error_' + indexPrefixes.custom_type + index"
                                                 class="form-text text-danger small">
                                                     {{phone.custom_type.error}}
                                             </span>
@@ -93,13 +83,13 @@
                                 @click="addItem()"
                                 v-if="showAddItem"
                                 type="button">
-                                +
+                                    +
                             </button>
                             <button class="btn btn-danger btn-remove"
                                 @click="removeItem(index)"
                                 v-if="showRemoveItem"
                                 type="button">
-                                -
+                                    -
                             </button>
                             
                         </div><!--  /.col-right -->
@@ -160,6 +150,9 @@
             showAddItem: function () {
                 return this.phones.length < this.maxPhoneItems;
             },
+            phonesPhoneTypeProperty() {
+                return this.phones.map(phone => phone.type.value);
+            },
             phonesPhoneCustomTypeProperty() {
                 return this.phones.map(phone => phone.custom_type.value);
             },
@@ -174,6 +167,15 @@
             }
         },
         methods: {
+            onChangeType: function(index, phoneType){
+                let _this = this;
+                
+                if(phoneType != 'custom' && !$(document).find('#error_phone_custom_type_' + index).val()){
+                     _this.triggerFormValidation();
+                }
+                
+                return phoneType;
+            },
             addItem: function(){
                 console.log('addItem');
                 if(this.phones.length >= this.maxPhoneItems)
@@ -197,9 +199,17 @@
                     },
                 });
             },
+            triggerFormValidation: function(){
+                setTimeout(function(){
+                    console.log('triggerFormValidation');
+                 	// $('form#workerForm').valid();
+                    jqueryValidation.triggerFormValidation();
+                }, 50);
+            },
             removeItem: function(index){
                 console.log('removeItem');
                 this.phones.splice(index, 1);
+                this.triggerFormValidation();
             },
             setTabData: function(val){
                 let noticeBadges = $("#phones-tab").find('.notice-badges');
@@ -221,6 +231,34 @@
             phonesPhoneCustomTypeProperty: function (val) {
                 console.log(val);
             },
+            // phonesPhoneTypeProperty: function (val) {
+            //     if(val[0] == 'custom'){
+            //         console.log(val[0]);
+            //         for(let i = 0; i < 10; i++){
+            //             let input_value = $('input[name=phone_value_' + i + ']');
+            //             let input_type = $('input[name=phone_type_' + i + ']');
+            //             let input_custom_type = $('input[name=phone_custom_type_' + i + ']');
+            //             if(input_value.length > 0){
+            //                 // clearInterval(interval);
+            //                 console.log(input_value);
+            //                 input_value.rules("remove");
+            //                 input_value.rules("add", {
+            //                     required: true,
+            //                     maxlength: 255
+            //                 });
+            //                 if(input_type.length > 0 && input_type.val() == 'custom' && input_custom_type.length > 0){
+            //                     console.log(input_custom_type);
+            //                     input_custom_type.rules("remove");
+            //                     input_custom_type.rules("add", {
+            //                         required: true,
+            //                         maxlength: 255
+            //                     });
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     // console.log(val[0]);
+            // },
             phonesCount: function (val) {
                 console.log(val);
                 this.setTabData(val);

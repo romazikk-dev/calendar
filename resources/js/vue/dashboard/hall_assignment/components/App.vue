@@ -1,6 +1,10 @@
 <template>
     <div>
         
+        <div v-if="showWarningAlert" class="alert alert-warning" role="alert">
+            Assigned to <b class="text-uppercase">0</b> halls!
+        </div>
+        
         <div>
             <button @click="openModal()" type="button" class="btn btn-primary btn-sm open-select-item-modal">
                 Select
@@ -9,7 +13,7 @@
                 </svg>
             </button>
             
-            <div v-for="(item,index) in selectedItems" class="alert alert-primary" role="alert">
+            <div v-for="(item,index) in selectedItems" class="alert-item alert alert-primary" role="alert">
                 <b>{{item.title}}</b><br>
                 <input class="assign-item" :name="`assign_item[` + item.id + `]`" type="checkbox" checked>
                 <button @click="dismissSelected(item)" type="button" class="close">
@@ -69,6 +73,7 @@
     		// }, 300);
             
             this.setAssignHalls();
+            this.recalculateBadgeValue(true);
         },
         // props: ['postTitle'],
         data: function(){
@@ -78,7 +83,23 @@
                 assignHalls: assignHalls
             };
         },
+        computed: {
+            showWarningAlert: function () {
+                // if(this.items == null || this.selectedItems.length == 0)
+                //     return false;
+                // console.log('showWarningAlert');
+                if(this.isJqueryValidationEnabled())
+                    return this.selectedItems.length == 0;
+                let assignHallsIds = this.assignHalls == null ? [] : Object.keys(this.assignHalls);
+                console.log('showWarningAlert');
+                // console.log(JSON.parse(JSON.stringify(this.assignHalls)));
+                return assignHallsIds.length == 0;
+            },
+        },
         methods: {
+            isJqueryValidationEnabled: function(){
+                return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            },
             openModal: function(){
                 // e.preventDefault();
                 if(this.items == null){
@@ -98,7 +119,42 @@
                     $("#itemAssignmentModal").modal('show');
                 }
             },
+            recalculateBadgeValue: function(init = false){
+                let _this = this;
+                
+                if(init == true && this.showWarningAlert && !this.isJqueryValidationEnabled()){
+                    $("#hall-tab").find('.notice-badges').find('.notice-badge-warning').removeClass('d-none');
+                    return;
+                }
+                if(init == true && !this.showWarningAlert && !this.isJqueryValidationEnabled()){
+                    let interval = setInterval(function(){
+                        if(_this.selectedItems.length > 0){
+                            clearInterval(interval);
+                            recalculateBadgeValue();
+                        }
+                    }, 50);
+                }
+                if(!this.isJqueryValidationEnabled())
+                    return;
+                
+                recalculateBadgeValue();
+                
+                function recalculateBadgeValue(){
+                    let noticeBadges = $("#hall-tab").find('.notice-badges');
+                    // console.log(noticeBadge);
+                    
+                    noticeBadges.find('.notice-badge').addClass('d-none');
+                    if(_this.selectedItems.length > 0){
+                        noticeBadges.find('.notice-badge-success').removeClass('d-none')
+                            .attr('data-original-title', _this.selectedItems.length + ' halls').text(_this.selectedItems.length);
+                    }else{
+                        noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+                    }
+                }
+            },
             applySelect: function(){
+                // if()
+                // console.log(1111111);
                 // e.preventDefault();
                 if(this.items != null){
                     let selectedItems = [];
@@ -109,16 +165,23 @@
                     this.selectedItems = JSON.parse(JSON.stringify(selectedItems));
                     $("#itemAssignmentModal").modal('hide');
                     
-                    let noticeBadges = $("#hall-tab").find('.notice-badges');
-                    // console.log(noticeBadge);
-                    
-                    noticeBadges.find('.notice-badge').addClass('d-none');
-                    if(selectedItems.length > 0){
-                        noticeBadges.find('.notice-badge-success').removeClass('d-none')
-                            .attr('data-original-title', 'Currently ' + selectedItems.length + ' days opened').text(selectedItems.length);
-                    }else{
-                        noticeBadges.find('.notice-badge-warning').removeClass('d-none');
-                    }
+                    this.recalculateBadgeValue();
+                    // if(!this.isJqueryValidationEnabled())
+                    //     return;
+                        
+                    // let noticeBadges = $("#hall-tab").find('.notice-badges');
+                    // // console.log(noticeBadge);
+                    // 
+                    // noticeBadges.find('.notice-badge').addClass('d-none');
+                    // if(selectedItems.length > 0){
+                    //     noticeBadges.find('.notice-badge-success').removeClass('d-none')
+                    //         .attr('data-original-title', selectedItems.length + ' halls').text(selectedItems.length);
+                    // }else{
+                    //     noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+                    // }
+                }else{
+                    // let noticeBadges = $("#hall-tab").find('.notice-badges');
+                    // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
                 }
             },
             dismissSelected: function(item){
@@ -201,7 +264,7 @@
     .assign-item{
         display: none;
     }
-    .alert{
+    .alert-item{
         margin-bottom: 0px;
         margin-top: 10px;
         line-height: 1em;

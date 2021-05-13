@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 // use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use App\Scopes\UserScope;
+use App\Scopes\NotDeletedScope;
 use Laravel\Sanctum\HasApiTokens;
 
 class Client extends Authenticatable
@@ -27,6 +28,24 @@ class Client extends Authenticatable
         }
         return $arr;
     }
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id',
+        'first_name',
+        'last_name',
+        'gender',
+        'birthdate',
+        'country',
+        'town',
+        'street',
+        'email',
+        'password',
+    ];
     
     /**
      * The labels for attributes.
@@ -57,7 +76,8 @@ class Client extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'is_deleted'
+        'is_deleted',
+        'user_id'
     ];
     
     /**
@@ -65,7 +85,22 @@ class Client extends Authenticatable
      *
      * @return void
      */
-    // protected static function booted(){
-    //     static::addGlobalScope(new UserScope);
-    // }
+    protected static function booted(){
+        static::addGlobalScope(new UserScope);
+        static::addGlobalScope(new NotDeletedScope);
+    }
+    
+    /**
+     * Get the client's phones.
+     */
+    public function phones(){
+        return $this->morphMany(Phone::class, 'phoneable');
+    }
+    
+    /**
+     * Get the client's suspension.
+     */
+    public function suspension(){
+        return $this->morphOne(Suspension::class, 'suspensionable');
+    }
 }

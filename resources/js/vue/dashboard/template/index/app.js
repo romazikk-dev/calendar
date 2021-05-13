@@ -59,7 +59,7 @@ import App from './components/App.vue';
 
 window.app = new Vue({
 // const businessHours = new Vue({
-    el: '#hallsList',
+    el: '#templatesList',
     render(h) {
         return h(App) 
     }

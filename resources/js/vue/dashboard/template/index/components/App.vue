@@ -8,16 +8,22 @@
                     <th>
                         Title
                     </th>
-                    <th data-toggle="tooltip" data-placement="auto" title="Status of hall (closed/opened)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-open-fill" viewBox="0 0 16 16">
-                            <path d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.57-.495l-7 1A.5.5 0 0 0 3 1.5V15H1.5zM11 2h.5a.5.5 0 0 1 .5.5V15h-1V2zm-2.5 8c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z"/>
+                    <th data-toggle="tooltip" data-placement="auto" title="Price">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cash" viewBox="0 0 16 16">
+                            <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                            <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z"/>
                         </svg>
                     </th>
-                    <th data-toggle="tooltip" data-placement="auto" title="Number of employees">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
-                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                            <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
-                            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                    <th data-toggle="tooltip" data-placement="auto" title="Duration">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hourglass-split" viewBox="0 0 16 16">
+                            <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
+                        </svg>
+                    </th>
+                    <th data-toggle="tooltip" data-placement="auto" title="Assigned to employees">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="bi bi-people-fill">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
+                            <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"></path>
+                            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"></path>
                         </svg>
                     </th>
                     <th>Created</th>
@@ -72,17 +78,9 @@
                 });
             },
             updateData: function(){
-                // alert(123123);
-                // this.initDataTable();
-                // $('#dataTable').data.reload();
                 $('#dataTable').DataTable().ajax.reload();
                 this.updateSuspendModalData();
             },
-            // resetAllModalsData: function(){
-            //     this.infoModalData = null;
-            //     this.suspendModalData = null;
-            //     this.showContent = null;
-            // },
             openModal: function(type){
                 if(type == 'info'){
                     let url = showRoute.replace(':id', id);
@@ -91,7 +89,7 @@
             },
             regClickBtns: function(){
                 this.regClickMoreInfoBtn();
-                this.regClickToggleSuspensionActionBtn();
+                // this.regClickToggleSuspensionActionBtn();
             },
             updateSuspendModalData: function(){
                 axios.get(this.modalDataUrl)
@@ -99,37 +97,15 @@
                     this.suspendModalData = response.data;
                 }).catch((error) => {}).then(() => {});
             },
-            regClickToggleSuspensionActionBtn: function(){
-                $('.toggle-suspension-action').off('click');
-                $('.toggle-suspension-action').on('click', (e) => {
-                    e.preventDefault();
-                    // this.resetAllModalsData();
-                    
-                    let id = parseInt($(e.target).closest('tr').attr('id'));
-                    let url = showRoute.replace(':id', id);
-                    url += '?with_suspension=1';
-                    axios.get(url)
-                    .then((response) => {
-                        this.modalDataUrl = url;
-                        this.suspendModalData = response.data;
-                        // this.showContent = 'info';
-                        this.showModal('suspension');
-                        // console.log(this.suspendModalData);
-                    }).catch((error) => {
-                        
-                    }).then(() => {
-                        
-                    });
-                });
-            },
             regClickMoreInfoBtn: function(){
                 $('.show-action').off('click');
                 $('.show-action').on('click', (e) => {
                     e.preventDefault();
+                    
                     // this.resetAllModalsData();
                     let id = parseInt($(e.target).closest('tr').attr('id'));
                     let url = showRoute.replace(':id', id);
-                    url += '?with_workers=1&with_suspension=1';
+                    url += '?with_workers=1';
                     axios.get(url)
                     .then((response) => {
                         this.infoModalData = response.data;
@@ -174,8 +150,8 @@
                 $('#dataTable').DataTable({
                     "processing": true,
                     "serverSide": true,
-                    // "order": [[ 1, "asc" ]],
-                    "order": [],
+                    "order": [[ 5, "desc" ]],
+                    // "order": [],
                     "createdRow": function(row, data, dataIndex){
                         $(row).attr('id', data.id);
                         // $(row).attr('is-closed', data.is_closed);
@@ -203,15 +179,29 @@
                             className: 'coll-title',
                         },
                         {
-                            data: null,
-                            className: 'coll-status',
+                            // data: null,
+                            // className: 'coll-status',
+                            // width: '20px',
+                            data: 'price',
+                            name: 'price',
+                            className: 'coll-price',
                             width: '20px',
                         },
                         {
-                            data: 'workers_count',
+                            // data: null,
+                            // className: 'coll-status',
+                            // width: '20px',
+                            data: 'duration',
+                            name: 'duration',
+                            className: 'coll-duration',
+                            width: '20px',
+                        },
+                        {
+                            // data: 'workers_count',
+                            data: null,
                             name: 'workers_count',
                             searchable: false,
-                            width: '10px',
+                            width: '20px',
                             className: 'workers-count',
                         },
                         {
@@ -225,107 +215,62 @@
                             render: function ( data, type, row, meta ) {
                                 console.log(data);
                                 
-                                // var delete_url = '{{ route("dashboard.hall.destroy", ":id") }}';
                                 var delete_url = deleteRoute.replace(':id', row.id);
-                                
-                                // var edit_url = '{{ route("dashboard.hall.edit", ":id") }}';
                                 var edit_url = editRoute.replace(':id', row.id);
-                                
-                                // var show_url = '{{ route("dashboard.hall.show", ":id") }}';
                                 var show_url = showRoute.replace(':id', row.id);
                                 
-                                
-                                // var toggle_closed = '{{ route("dashboard.hall.toggle_closed", ":id") }}';
-                                var toggle_closed = toggleSuspension.replace(':id', row.id);
-                                
-                                let stopSuspensionVisibility = data.worker_suspension_id !== null ? '' : 'd-none';
-                                
-                                let reinstate = '';
-                                if(row.suspension != null && _this.isSuspended(row.suspension.from, row.suspension.to)){
-                                    reinstate = `
-                                        <a href="#"
-                                            onclick="
-                                                event.preventDefault();
-                                                if(confirm('Do you really want to stop suspension for this worker?')){
-                                                    toogleSuspension(${row.id}, 'disable');
-                                                }
-                                            "
-                                            class="float-right stop-suspension-action action ${stopSuspensionVisibility} text-info"
-                                            title="Open"
-                                            data-toggle="tooltip">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
-                                            </svg>
-                                        </a>
-                                    `;
-                                }
-                                
-                                console.log(row.suspension);
-                                // }
-                                
                                 return `
-                                <div class="dropup float-right">
+                                <div class="action-drop dropup float-right">
                                     <a href="#"
-                                        id="dropdownDeleteButton"
-                                        class="action text-info"
+                                        id="dropdownDeleteButton_${row.id}"
+                                        class="action text-info data-tooltip"
                                         data-toggle="dropdown"
+                                        data-placement="bottom"
                                         aria-haspopup="true"
-                                        aria-expanded="false">
+                                        aria-expanded="false"
+                                        title="Delete">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                                 <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
                                             </svg>
                                     </a>
-                                    <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton">
+                                    <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton_${row.id}">
                                         Do you want delete this hall?
-                                        <form method="post" action="${delete_url}">
-                                            ${csrf}
-                                            ${methodDelete}
-                                            <a href="${delete_url}"
-                                                onclick="event.preventDefault(); this.closest('form').submit();"
-                                                class="text-primary">
-                                                    Yes
-                                            </a>
-                                            <a href="${delete_url}"
-                                                onclick="event.preventDefault(); $('#dropdownDeleteButton').click();"
-                                                class="text-primary"
-                                                data-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false">
-                                                    No
-                                            </a>
-                                        </form>
+                                        <div class="btnns">
+                                            <form method="post" action="${delete_url}">
+                                                ${csrf}
+                                                ${methodDelete}
+                                                <a href="${delete_url}"
+                                                    onclick="event.preventDefault(); this.closest('form').submit();"
+                                                    class="btnn text-primary">
+                                                        Yes
+                                                </a>
+                                                <a href="${delete_url}"
+                                                    onclick="event.preventDefault(); $('#dropdownDeleteButton_${row.id}').click();"
+                                                    class="btnn text-primary"
+                                                    data-toggle="dropdown"
+                                                    aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                        No
+                                                </a>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <a href="${edit_url}"
                                     class="float-right edit-action action text-info"
                                     data-toggle="tooltip"
+                                    data-placement="bottom"
                                     title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                                         <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                     </svg>
                                 </a>
                                 
-                                <a href="#"
-                                    id="employeeSuspensionBtn"
-                                    class="float-right toggle-suspension-action action text-info"
-                                    data-toggle="tooltip"
-                                    title="Suspension">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle-fill" viewBox="0 0 16 16">
-                                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z"/>
-                                    </svg>
-                                </a>
-                                
-                                ${reinstate}
-                                
                                 <a href="${show_url}"
-                                    onclick="
-                                       // event.preventDefault();
-                                       // alert(333333);
-                                       //openInfoModal(${row.id});
-                                    "
                                     class="float-right show-action action text-info"
                                     data-toggle="tooltip"
+                                    data-placement="bottom"
                                     title="Details">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
                                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
@@ -340,85 +285,74 @@
                     ],
                     "columnDefs": [
                         {
-                            "targets": [4],
+                            "targets": [5],
+                            'createdCell':  function (td, cellData, rowData, row, col) {
+                                $(td).attr('data-toggle', 'tooltip');
+                                $(td).attr('data-placement', 'auto');
+                                $(td).attr('data-original-title', 'Created at');
+                            },
                             "render": function ( data, type, row, meta ) {
-                                // console.log(row);
-                                let date = new Date(data);
-                                
-                                let dateOfMonth = date.getDate();
-                                dateOfMonth = dateOfMonth < 10 ? '0' + dateOfMonth.toString() : dateOfMonth;
-                                
-                                let month = date.getMonth();
-                                month = month < 10 ? '0' + month.toString() : month;
-                                
-                                return dateOfMonth + '/' + month + '/' + date.getFullYear();
+                                return helper.formatCreatedDate(data);
                             }
                         },
                         {
                             "targets": [2],
                             'createdCell':  function (td, cellData, rowData, row, col) {
-                               // $(td).attr('id', 'otherID')
-                                console.log('cellData: ');
-                                console.log(rowData);
                                 $(td).attr('data-toggle', 'tooltip');
                                 $(td).attr('data-placement', 'auto');
-                                if(rowData.suspension != null){
-                                    if(_this.isSuspended(rowData.suspension.from, rowData.suspension.to)){
-                                        if(rowData.suspension.from == null || rowData.suspension.to == null){
-                                            $(td).attr('data-original-title', `Completely suspended`);
-                                        }else{
-                                            let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-                                            let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-                                            $(td).attr('data-original-title', `Suspended<br>from ${from}<br>until ${to}`);
-                                        }
-                                    }else if(_this.isSuspentionInFuture(rowData.suspension.from, rowData.suspension.to)){
-                                        let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-                                        let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-                                        $(td).attr('data-original-title', `Will be suspended<br>from ${from}<br>until ${to}`);
-                                    }
-                                }else{
-                                    $(td).attr('data-original-title', `Opened`);
-                                }
+                                $(td).attr('data-original-title', 'Price');
                             },
                             "render": function ( data, type, row, meta ) {
-                                if(row.suspension != null){
-                                    if(_this.isSuspended(row.suspension.from, row.suspension.to)){
-                                        // $(row).addClass('table-danger');
-                                        return `
-                                            <div class="status-circle bg-danger"></div>
-                                        `;
-                                    }else if(_this.isSuspentionInFuture(row.suspension.from, row.suspension.to)){
-                                        // $(row).addClass('table-warning');
-                                        return `
-                                            <div class="status-circle bg-warning"></div>
-                                        `;
-                                    }
-                                }
-                                return `
-                                    <div class="status-circle bg-success"></div>
-                                `;
+                                return row.price != null ? row.price : '---';
                             }
                         },
                         {
                             "targets": [3],
+                            'createdCell':  function (td, cellData, rowData, row, col) {
+                                $(td).attr('data-toggle', 'tooltip');
+                                $(td).attr('data-placement', 'auto');
+                                $(td).attr('data-original-title', 'Duration');
+                            },
                             "render": function ( data, type, row, meta ) {                                
                                 return `
                                     <div>${data}</div>
                                 `;
                             }
+                        },
+                        {
+                            "targets": [4],
+                            'createdCell':  function (td, cellData, rowData, row, col) {
+                                let workersCount = typeof rowData.workers == 'undefined' ? 0 : rowData.workers.length;
+                                $(td).attr('data-toggle', 'tooltip');
+                                $(td).attr('data-placement', 'auto');
+                                if(workersCount > 0){
+                                    $(td).attr('data-original-title', 'Assigned to employees');
+                                }else{
+                                    $(td).attr('data-original-title', 'Do not assigned to any employee');
+                                }
+                            },
+                            "render": function ( data, type, row, meta ) {
+                                let workersCount = typeof data.workers == 'undefined' ? 0 : data.workers.length;
+                                if(workersCount > 0){
+                                    return `
+                                        <div>${workersCount}</div>
+                                    `;
+                                }else{
+                                    return `
+                                        <span class="notice-badge notice-badge-warning text-warning">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+                                            </svg>
+                                        </span>
+                                    `;
+                                }
+                            }
                         }
                     ],
-                    // "ajax": "{{ route('dashboard.worker.data_list') }}",
-                    // 'createdRow': function (row, data, dataIndex) {
-                    //     $('td.coll-title', row).attr('data-toggle', "tooltip");
-                    //     $('td.coll-title', row).attr('data-placement', "top");
-                    //     $('td.coll-title', row).attr('title', "Hall`s title");
-                    //      // data-toggle="tooltip" data-placement="top" title="Hall`s title"
-                    //     // $(row).attr('data-code', data.Code);
-                    //     // $(row).attr('data-name', data.Name);
-                    // },
                     fnDrawCallback: function() {
                         $('[data-toggle="tooltip"]').tooltip({html: true});
+                        $('.data-tooltip').tooltip({html: true});
+                        
                         _this.regClickBtns();
                     },
                     "ajax": {

@@ -1,25 +1,4 @@
 <x-dashboard-layout>
-    @if($errors->any())
-        @php
-            
-            $mainErrorsCount = 0;
-            $addressErrorsCount = 0;
-            
-            $mainTabAttrs = ['is_closed','title','description','short_description','notice'];
-            $addressTabAttrs = ['country','town','street'];
-            
-            foreach($mainTabAttrs as $mainTabAttr){
-                if($errors->has($mainTabAttr))
-                    $mainErrorsCount++;
-            }
-            
-            foreach($addressTabAttrs as $addressTabAttr){
-                if($errors->has($addressTabAttr))
-                    $addressErrorsCount++;
-            }
-            
-        @endphp
-    @endif
     <x-slot name="breadcrumbs">
         @if(!empty($hall))
             {{ Breadcrumbs::render('hall', 'edit - ' . $hall->title) }}
@@ -35,14 +14,24 @@
         <!-- <script type="text/javascript" src="{{ asset('js/dashboard/halls/create-edit-status.js') }}?{{$rand}}"></script> -->
         
         <script type="text/javascript">
-            $(function(){
-                $("#birthdate").datepicker({
-                    dateFormat: "dd-mm-yy"
-                });
-            });
+        
+            @if($errors->has('suspend_from'))
+                var fromErr = '{{ $errors->first('suspend_from') }}';
+            @endif
             
-            let hall = @if(!empty($hall)) @json($hall) @else null @endif;
-            // console.log(hall);
+            @if($errors->has('suspend_to'))
+                var toErr = '{{ $errors->first('suspend_to') }}';
+            @endif
+        
+            @if(!empty($hall))
+                let hall = @json($hall);
+            @endif
+        
+            @if(!empty($validation_messages))
+                let validationMessages =  @json($validation_messages);
+                // console.log(validationMessages);
+            @endif
+            
             
             @if(old('business_hours'))
                 var businessHours = @json(old('business_hours'));
@@ -62,15 +51,7 @@
                 // console.log(oldSuspension);
             @endif
             
-            // var suspension = @if(!empty($suspension)) @json($suspension) @else null @endif;
-            
-            var oldAssignWorker = @json(old('assign_worker'));
-            @if(old('assign_worker'))
-                var oldAssignWorker = @json(old('assign_worker'));
-                // console.log(JSON.parse(JSON.stringify(oldAssignWorker)));
-            @elseif(!empty($assign_workers))
-                var oldAssignWorker = @json($assign_workers);
-            @endif
+            var assignWorkers = @if(!empty($assign_workers)) @json($assign_workers) @else null @endif;
             
             var phoneTypes = @json($phone_types);
             var indexPrefixes = @json($index_prefixes);
@@ -82,74 +63,27 @@
                 var deleteRoute = '{{ route("dashboard.hall.destroy", $hall->id) }}';
             @endif
             
-            var hallDataFormUrl = '{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}';
-            // var hallEditUrl = '{{ !empty($hall) ? route('dashboard.hall.edit', [$hall->id]) : null }}';
+            // var hallFormUrl = '{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}';
             
             $(document).ready(function(){
-                $('.nav-tabs a.nav-link').on('shown.bs.tab', function(){
-                    // alert('The new tab is now fully shown.');
-                    let tab = $('.nav-tabs a.nav-link.active').attr('tab-name');
-                    let newHallDataFormUrl = hallDataFormUrl + '?tab=' + tab;
-                    $("#hallData").attr('action', newHallDataFormUrl);
-                    
-                    let currentUrl = location.protocol + '//' + location.host + location.pathname + '?tab=' + tab;
-                    window.history.pushState({}, null, currentUrl);
-                    
-                    console.log('The new tab is now fully shown.');
-                });
-                
-                let params = (new URL(document.location)).searchParams;
-                let tab = params.get("tab");
-                if(tab != null && tab != 'main'){
-                    
-                    let newHallDataFormUrl = hallDataFormUrl + '?tab=' + tab;
-                    $("#hallData").attr('action', newHallDataFormUrl);
-                    // $("#" + tab + "-tab").click();
-                }
-                
                 $('[data-toggle=tooltip').tooltip({
                     boundary: 'window',
                     html: true
                 });
-                
-                // setErrorsCountInTabs();
-                // 
-                // function setErrorsCountInTabs(){
-                //     let main = 0;
-                //     let address = 0;
-                // 
-                //     let mainAttrs = ['is_closed','title','description','short_description','notice'];
-                //     let addressAttrs = ['country','town','street'];
-                // 
-                //     $('.attr-error').each((index) => {
-                //         // if()
-                //         let attr = $('.attr-error').eq(index).attr('data-attr');
-                //         if(mainAttrs.includes(attr))
-                //             main++;
-                //         if(addressAttrs.includes(attr))
-                //             main++;
-                //     });
-                // 
-                //     if(main > 0)
-                //         $("#main-tab").append('<span class="badge badge-pill badge-danger">' + main + '</span>');
-                //     if(address > 0)
-                //         $("#address-tab").append('<span class="badge badge-pill badge-danger">' + address + '</span>');
-                //     console.log(main);
-                //     console.log(address);
-                // }
-                // console.log(tab);
             });
+            
         </script>
         
-        <!-- <script type="text/javascript" src="{{ asset('js/dashboard/halls/create-edit-status.js') }}?{{$rand}}"></script> -->
+        <script type="text/javascript" src="{{ asset('js/dashboard/tab-switcher.js') }}?{{$rand}}"
+            name="tab-switcher"
+            form_url="{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}"
+            form_id="hallForm"></script>
+        
+        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/halls/jquery-validation.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/suspension.js') }}?{{$rand}}"></script>
-        <!-- <script type="text/javascript" src="{{ asset('js/dashboard/halls/hall-business-hours.js') }}?{{$rand}}"></script> -->
-        
         <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
-        
-        <!-- <script src="{{ asset('js/business-hours.js') }}?{{$rand}}"></script> -->
-        <script src="{{ asset('js/worker-assignment-2.js') }}?{{$rand}}"></script>
-        
+        <script src="{{ asset('js/dashboard/worker-assignment.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
         
     </x-slot>
@@ -194,84 +128,102 @@
         
         <ul class="nav nav-tabs edit-create-nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link @if(!Request::has('tab') || Request::get('tab') == 'main') active @endif" id="main-tab" data-toggle="tab" href="#main" tab-name="main" role="tab" aria-controls="main" aria-selected="true">Main
-                    @if(!empty($mainErrorsCount))
-                        <span class="badge badge-pill badge-danger">{{$mainErrorsCount}}</span>
-                    @endif
+                <a class="nav-link @if(!Request::has('tab') || Request::get('tab') == 'main') active @endif" id="main-tab" data-toggle="tab" href="#main" tab-name="main" role="tab" aria-controls="main" aria-selected="true">
+                    Main
+                    <span id="mainErrorBadge"
+                        class="error-badge badge badge-pill badge-danger @if(empty($tab_errors['main'])) d-none @endif"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($tab_errors) && !empty($tab_errors['main']) ? $tab_errors['main'] : ''}} errors">
+                        {{!empty($tab_errors) && !empty($tab_errors['main']) ? $tab_errors['main'] : ''}}
+                    </span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'suspension') active @endif" id="suspension-tab" data-toggle="tab" href="#suspension" tab-name="suspension" role="tab" aria-controls="suspension" aria-selected="true">
                     Status
-                    @if(!empty($old_suspension) && !empty($old_suspension['count_status_error']))
-                        <span class="badge badge-pill badge-danger">{{$old_suspension['count_status_error']}}</span>
-                    @endif
+                    <span id="statusErrorBadge"
+                        class="badge badge-pill badge-danger @if(empty($old_suspension['count_status_error'])) d-none @endif"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($old_suspension['count_status_error']) ? $old_suspension['count_status_error'] : 0}} errors">
+                            {{!empty($old_suspension['count_status_error']) ? $old_suspension['count_status_error'] : 0}}
+                    </span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'address') active @endif" id="address-tab" data-toggle="tab" href="#address" tab-name="address" role="tab" aria-controls="address" aria-selected="false">
                     Address
-                    @if(!empty($addressErrorsCount))
-                        <span class="badge badge-pill badge-danger">{{$addressErrorsCount}}</span>
-                    @endif
+                    <span id="addressErrorBadge"
+                        class="badge badge-pill badge-danger @if(empty($tab_errors['address'])) d-none @endif"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($tab_errors) && !empty($tab_errors['address']) ? $tab_errors['address'] : ''}} errors">
+                            {{!empty($tab_errors['address']) ? $tab_errors['address'] : ''}}
+                    </span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
-                    @if(!empty($current_phones))
-                        <span class="badge badge-pill badge-success"
+                    <span class="notice-badges">
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($phones)) d-none @endif"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="Currently has {{count($current_phones)}} phones">{{count($current_phones)}}</span>
-                    @endif
+                            title="{{!empty($phones) ? count($phones) : 0}} phones">
+                                {{!empty($phones) ? count($phones) : 0}}
+                        </span>
+                    </span>
                     Phones
-                    @if(!empty($tab_errors['phones']))
-                        <span class="badge badge-pill badge-danger">{{$tab_errors['phones']}}</span>
-                    @endif
+                    <span id="phoneErrorBadge"
+                        class="badge badge-pill badge-danger @if(empty($tab_errors['phones'])) d-none @endif"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($tab_errors) && !empty($tab_errors['phones']) ? $tab_errors['phones'] : ''}} errors">
+                            {{!empty($tab_errors['phones']) ? $tab_errors['phones'] : ''}}
+                    </span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'worker') active @endif" id="worker-tab" data-toggle="tab" href="#worker" tab-name="worker" role="tab" aria-controls="worker" aria-selected="false">
-                    @if(empty($assign_workers))
-                        <span class="badge badge-pill badge-warning"
+                    <span class="notice-badges">
+                        <span class="notice-badge notice-badge-warning text-warning d-none"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="This hall currently has 0 assign employees!">!</span>
-                    @else
-                        <span class="badge badge-pill badge-success"
+                            title="0 employees">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                        </span>
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-success d-none"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="This hall currently has {{count($assign_workers)}} assigned employees!">{{count($assign_workers)}}</span>
-                    @endif
+                            title="This hall currently has {{!empty($assign_worker) ? count($assign_worker) : 0}} assigned employees!">{{!empty($assign_worker) ? count($assign_worker) : 0}}</span>
+                    </span>
                     Employees
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'hours') active @endif" id="hours-tab" data-toggle="tab" href="#hours" tab-name="hours" role="tab" aria-controls="hours" aria-selected="false">
-                    @if(empty($count_workdays))
-                        <span class="text-warning"
+                    <span class="notice-badges">
+                        <span class="notice-badge notice-badge-warning text-warning @if(!empty($count_workdays)) d-none @endif"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="All days of week are weekends">
+                            title="All days are weekends">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
                                 <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                             </svg>
                         </span>
-                    @else
-                        <span class="badge badge-pill badge-success"
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($count_workdays)) d-none @endif"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="Currently {{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
-                    @endif
+                            title="{{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
+                    </span>
                     Business hours
                 </a>
             </li>
             <li class="action-btn">
                 
-                <button onclick="
-                    event.preventDefault();
-                    $('#hallData').submit();
-                " class="btn btn-success btn-sm float-right">
+                <button id="submitBtn" class="btn btn-success btn-sm float-right">
                     {{ !empty($hall) ? 'Update' : 'Create'}}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z"/>
@@ -280,7 +232,7 @@
                 
                 @if(!empty($hall))
                 
-                    <div class="dropdown float-right pr-2">
+                    <div class="action-drop dropdown float-right pr-2">
                         <button class="btn btn-danger btn-sm" type="button" id="dropdownDeleteBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Delete
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
@@ -291,23 +243,25 @@
                             onclick="event.stopPropagation()"
                             aria-labelledby="dropdownDeleteBtn">
                                 Do you want delete this hall?<br>
-                                <form class="pt-1" method="post" action="{{route('dashboard.hall.destroy', [$hall->id])}}">
-                                    @csrf
-                                    @method('delete')
-                                    <a href="#"
-                                        onclick="event.preventDefault(); this.closest('form').submit();"
-                                        class="text-primary">
-                                            Yes
-                                    </a>
-                                    <a href="#"
-                                        onclick="event.preventDefault(); $('#dropdownDeleteBtn').click();"
-                                        class="text-primary"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true"
-                                        aria-expanded="false">
-                                            No
-                                    </a>
-                                </form>
+                                <div class="btnns">
+                                    <form class="pt-1" method="post" action="{{route('dashboard.hall.destroy', [$hall->id])}}">
+                                        @csrf
+                                        @method('delete')
+                                        <a href="#"
+                                            onclick="event.preventDefault(); this.closest('form').submit();"
+                                            class="btnn text-primary">
+                                                Yes
+                                        </a>
+                                        <a href="#"
+                                            onclick="event.preventDefault(); $('#dropdownDeleteBtn').click();"
+                                            class="btnn text-primary"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                                No
+                                        </a>
+                                    </form>
+                                </div>
                         </div>
                     </div>
                 
@@ -316,7 +270,7 @@
             </li>
         </ul>
         
-        <form id="hallData" action="{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}" method="post">
+        <form id="hallForm" action="{{ !empty($hall) ? route('dashboard.hall.update', [$hall->id]) : route('dashboard.hall.store') }}" method="post">
             @csrf
             @if(!empty($hall))
                 @method('PUT')
@@ -388,11 +342,6 @@
                 </div>
                 <div class="tab-pane fade @if(Request::get('tab') == 'worker') show active @endif" id="worker" role="tabpanel" aria-labelledby="worker-tab">
                     
-                    @if(empty($assign_workers))
-                        <div class="alert alert-warning" role="alert">
-                            This hall currently has <b class="text-uppercase">0</b> assign employees!
-                        </div>
-                    @endif
                     <div id="workerAssignment2"></div>
                 
                 </div>
@@ -408,7 +357,8 @@
                     
                 </div>
             </div>
-        
+            
+            <input type="submit" style="position: absolute; left: -9999px"/>
         </form>
     
 </x-dashboard-layout>

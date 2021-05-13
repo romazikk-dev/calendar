@@ -1,7 +1,7 @@
 <template>
     <div>
         
-        <div class="alert"
+        <!-- <div class="alert"
             :class="{
                 'alert-success': !isCurrentlySuspended && !isCurrentlyFuterSuspension,
                 'alert-danger': isCurrentlySuspended,
@@ -23,7 +23,7 @@
                     but will be suspended for period<br>
                     from <b>{{suspensionFrom}}</b> until <b>{{suspensionTo}}</b>
                 </template>
-        </div>
+        </div> -->
         
         <input type="hidden"
             id="status"
@@ -41,13 +41,14 @@
                     'btn-warning': status.type == 'period',
                 }"
                 type="button"
-                id="dropdownMenuButton"
+                id="statusDropdownMenuBtn"
                 data-toggle="dropdown"
                 aria-haspopup="true"
-                aria-expanded="false">
+                aria-expanded="false"
+                :data-status="status.type">
                     {{status.title}}
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <div class="dropdown-menu" aria-labelledby="statusDropdownMenuBtn">
                 <a v-for="st in statuses"
                     @click.prevent="switchStatus(st)"
                     class="dropdown-item"
@@ -77,7 +78,7 @@
                         name="suspend_from"
                         autocomplete="off"
                         readonly="readonly"><br>
-                    <span v-if="fromErr" class="small text-danger">{{fromErr}}</span>
+                    <span id="error_suspend_from" class="small text-danger">{{fromErr ? fromErr : ""}}</span>
                 </div>
                 <div class="coll col col-sm-4">
                     <input type="text"
@@ -87,7 +88,7 @@
                         name="suspend_to"
                         autocomplete="off"
                         readonly="readonly"><br>
-                    <span v-if="toErr" class="small text-danger">{{toErr}}</span>
+                    <span id="error_suspend_to" class="small text-danger">{{toErr ? toErr : ""}}</span>
                 </div>
                 
             </div>
@@ -130,34 +131,33 @@
         data: function(){
             return {
                 currentDate: new Date(),
-                hall: hall,
                 suspension: typeof suspensionDB == 'undefined' || suspensionDB == null ? null : suspensionDB,
                 oldSuspension: typeof oldSuspension == 'undefined' || oldSuspension == null ? null : oldSuspension,
                 // suspension: suspension,
                 status: {
                     type: 'disable',
-                    title: 'Open'
+                    title: 'Active'
                 },
                 statuses: [
                     {
                         type: 'disable',
-                        title: 'Open'
+                        title: 'Active'
                     },
                     {
                         type: 'complete',
-                        title: 'Suspend completely'
+                        title: 'Completely suspended'
                     },
                     {
                         type: 'period',
-                        title: 'Suspend for period'
+                        title: 'Suspended for period'
                     },
                 ],
                 
                 from: null,
                 to: null,
                 
-                fromErr: null,
-                toErr: null,
+                fromErr: typeof fromErr == 'undefined' || fromErr == null ? null : fromErr,
+                toErr: typeof toErr == 'undefined' || toErr == null ? null : toErr,
             };
         },
         computed: {
@@ -217,6 +217,17 @@
             }
         },
         methods: {
+            isJqueryValidationEnabled: function(){
+                return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            },
+            validateTo: function(){
+                if(this.isJqueryValidationEnabled())
+                    $('#to').valid();
+            },
+            validateFrom: function(){
+                this.isJqueryValidationEnabled()
+                    $('#from').valid();
+            },
             setFromAndToVars: function(){
                 if(this.isCurrentlyPeriodSuspended || this.isCurrentlyFuterSuspension){
                     this.from = this.formatDataDateForDateChooser(this.suspension.from);
@@ -258,15 +269,21 @@
                     
                     if(this.oldSuspension.suspend_from != null){
                         this.from = this.oldSuspension.suspend_from;
-                    }else{
-                        this.fromErr = 'Required';
                     }
-                    
                     if(this.oldSuspension.suspend_to != null){
                         this.to = this.oldSuspension.suspend_to;
-                    }else{
-                        this.toErr = 'Required';
                     }
+                    // if(this.oldSuspension.suspend_from != null){
+                    //     this.from = this.oldSuspension.suspend_from;
+                    // }else{
+                    //     this.fromErr = 'Required';
+                    // }
+                    // 
+                    // if(this.oldSuspension.suspend_to != null){
+                    //     this.to = this.oldSuspension.suspend_to;
+                    // }else{
+                    //     this.toErr = 'Required';
+                    // }
                 }
             },
             setTabBadgeStatus: function(){
@@ -309,9 +326,39 @@
                     `);
                 }
             },
+            triggerFormValidation: function(){
+                if(this.isJqueryValidationEnabled()){
+                    setTimeout(function(){
+                        console.log('triggerFormValidation');
+                     	// $('form#workerForm').valid();
+                        jqueryValidation.triggerFormValidation();
+                    }, 50);
+                }
+            },
+            addStatusValidationRules: function(){
+                if(this.isJqueryValidationEnabled()){
+                    setTimeout(function(){
+                        console.log('addStatusValidationRules');
+                        jqueryValidation.addStatusRules();
+                    }, 50);
+                }
+            },
             switchStatus: function(status){
                 this.status = status;
-                console.log(this.status);
+                if(this.status.type == 'period'){
+                    // this.triggerFormValidation();
+                    this.addStatusValidationRules();
+                }else{
+                    if(this.isJqueryValidationEnabled()){
+                        $("#statusErrorBadge").addClass('d-none');
+                        $('#error_suspend_from').text('');
+                        $('#error_suspend_to').text('');
+                    }
+                    // this.from = null;
+                    // this.to = null;
+                }
+                // console.log(JSON.parse(JSON.stringify(this.status)));
+                // console.log(this.status);
             },
             isCurrentDateInRange: function(from, to){
                 let currentDateMoment = moment(this.currentDate);
@@ -332,7 +379,7 @@
                         }).on( "change", function() {
                             let date = getDate(this);
                             to.datepicker("option", "minDate", date);
-                            _this.fromErr = false;
+                            // _this.fromErr = false;
                             _this.from = _this.formatDataDateForDateChooser(date);
                         }),
                         to = $( "#to" ).datepicker({
@@ -344,7 +391,7 @@
                         }).on( "change", function() {
                             let date = getDate(this);
                             from.datepicker( "option", "maxDate", date);
-                            _this.toErr = false;
+                            // _this.toErr = false;
                             _this.to = _this.formatDataDateForDateChooser(date);
                         });
 
@@ -366,14 +413,16 @@
             // ModalSuspensionContent
         },
         watch: {
-            // status: function (val) {
-            //     console.log(status);
-            //     if(status.type == 'suspend_period')
-            //         setTimeout(() => {
-            //             this.initDatePicker();
-            //         }, 1000);
-            //         // this.initDatePicker();
-            // },
+            to: function(val){
+                // this.triggerFormValidation();
+                this.validateTo();
+                // $('#to').valid();
+            },
+            from: function(val){
+                // this.triggerFormValidation();
+                this.validateFrom();
+                // $('#from').valid();
+            }
         }
     }
 </script>

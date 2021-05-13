@@ -5,9 +5,26 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">
                     {{ data.title }}
-                    <!-- <span class="badge badge-pill badge-success text-uppercase" v-if="!suspended">opened</span> -->
-                    <span class="badge badge-pill badge-danger text-uppercase" v-if="suspended">suspended</span>
-                    <span class="badge badge-pill badge-success text-uppercase" v-else>opened</span>
+                    
+                    <span class="badge badge-pill badge-danger text-uppercase"
+                        v-if="suspended"
+                        data-toggle="modal-info-dropdown"
+                        data-placement="auto"
+                        :title="getTooltipStatusTitle"
+                        :data-original-title="getTooltipStatusTitle">suspended</span>
+                    <span class="badge badge-pill badge-warning text-uppercase"
+                        v-if="!suspended && suspentionInFuture"
+                        data-toggle="modal-info-dropdown"
+                        data-placement="auto"
+                        :title="getTooltipStatusTitle"
+                        :data-original-title="getTooltipStatusTitle">active</span>
+                    <span class="badge badge-pill badge-success text-uppercase"
+                        v-if="!suspended && !suspentionInFuture"
+                        data-toggle="modal-info-dropdown"
+                        data-placement="auto"
+                        :title="getTooltipStatusTitle"
+                        :data-original-title="getTooltipStatusTitle">active</span>
+                        
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -129,29 +146,9 @@
                             </template>
                         </template>
                         
-                        <!-- <template v-if="periodSuspended || suspentionInFuture">
-                            Do you realy want to save suspension period?<br>
-                            <a @click.prevent="periodSuspend()" class="btn btn-link" href="#">Yes</a>
-                            <a @click.prevent="$refs.periodSuspendBtn.click()" data-toggle="dropdown" class="btn btn-link" href="#">No</a>
-                        </template>
-                        <template v-if="completelySuspended && !isSuspendRangeSetted">
-                            Please fill required fields!
-                        </template>
-                        <template v-if="completelySuspended && isSuspendRangeSetted">
-                            Do you realy want to set up suspension period?<br>
-                            <a @click.prevent="periodSuspend()" class="btn btn-link" href="#">Yes</a>
-                            <a @click.prevent="$refs.periodSuspendBtn.click()" data-toggle="dropdown" class="btn btn-link" href="#">No</a>
-                        </template> -->
                     </div>
                 </div>
-                <!-- <button id="periodSuspendBtn"
-                    v-else
-                    type="button"
-                    :disabled="periodSuspendBtnDisabled"
-                    @click="periodSuspend()"
-                    class="btn btn-warning">
-                        {{periodSuspended || suspentionInFuture ? 'Save period' : 'Suspend for a period'}}
-                    </button> -->
+                
             </div>
         </div>
         
@@ -162,14 +159,10 @@
     export default {
         name: 'modalSuspensionContent',
         mounted() {
-            
-            // console.log('data:');
-            // console.log(JSON.parse(JSON.stringify(this.data)));
-            
             this.initDatePicker();
             this.setFromAndToVars();
-            // this.setSuspendUrl();
-            // this.regClickMoreInfoBtn();
+            
+            $('[data-toggle="modal-info-dropdown"]').tooltip({ html: true });
         },
         props: ['data'],
         data: function(){
@@ -179,9 +172,13 @@
                 to: null,
                 fromErr: null,
                 toErr: null,
+                // helper: helper,
             };
         },
         computed: {
+            getTooltipStatusTitle: function(){
+                return helper.getStatusTooltipTitle(typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+            },
             isSuspendRangeSetted: function(){
                 return this.from != null && this.to != null;
             },
@@ -192,37 +189,18 @@
                 return this.periodSuspended|| this.suspentionInFuture ? this.formatDataDateForDateChooser(this.data.suspension.to) : null;
             },
             suspended: function(){
-                let componentApp = this.getParentComponentByName(this, 'app');
-                return this.data != null &&
-                    typeof this.data.suspension != 'undefined' &&
-                    this.data.suspension != null &&
-                    componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
+                return this.isStatus('suspended');
             },
             suspentionInFuture: function(){
-                let componentApp = this.getParentComponentByName(this, 'app');
-                return this.data != null &&
-                    typeof this.data.suspension != 'undefined' &&
-                    this.data.suspension != null &&
-                    componentApp.isSuspentionInFuture(this.data.suspension.from, this.data.suspension.to);
+                return this.isStatus('future_suspension');
             },
             periodSuspended: function(){
-                return this.suspended &&
-                    typeof this.data.suspension.from != 'undefined' &&
-                    this.data.suspension.from != null &&
-                    typeof this.data.suspension.to != 'undefined' &&
-                    this.data.suspension.to != null;
+                return this.isStatus('period_suspended');
             },
             completelySuspended: function(){
-                return this.suspended &&
-                    this.data.suspension.from == null &&
-                    this.data.suspension.to == null;
+                return this.suspended && !this.periodSuspended;
             },
             periodSuspendBtnDisabled: function(){
-                // if(this.periodSuspended){
-                //     console.log(this.periodSuspended);
-                //     console.log(this.formatDataDateForDateChooser(this.data.suspension.from) == this.from);
-                //     console.log(this.formatDataDateForDateChooser(this.data.suspension.to) == this.to);
-                // }
                 return ((this.periodSuspended || this.suspentionInFuture) &&
                     this.formatDataDateForDateChooser(this.data.suspension.from) == this.from &&
                     this.formatDataDateForDateChooser(this.data.suspension.to) == this.to) ||
@@ -234,6 +212,9 @@
             },
         },
         methods: {
+            isStatus: function(type){
+                return helper.isStatus(type, (typeof this.data.suspension == 'undefined' ? null : this.data.suspension));
+            },
             // setSuspendUrl: function(){
             //     this.suspendUrl = toggleSuspension.replace(':id', this.data.id);
             // },
@@ -366,6 +347,11 @@
             //     left: 10px;
             //     bottom: 5px;
             // }
+            .modal-title{
+                .badge{
+                    cursor: default;
+                }
+            }
         }
         .btn-group{
             // position: relative;
@@ -475,43 +461,5 @@
                 }
             }
         }
-        // .modal-body{
-        //     max-height: 300px;
-        //     overflow-x: auto;
-        //     .info-table{
-        //         width: 100%;
-        //         tr{
-        //             td{
-        //                 vertical-align: top;
-        //                 padding: 3px;
-        //                 padding: 6px;
-        //                 &:first-child{
-        //                     width: 120px;
-        //                     text-transform: uppercase;
-        //                 }
-        //                 // .alert{
-        //                 //     padding: 4px 10px;
-        //                 //     &.bh-alert{
-        //                 //         margin-bottom: 4px;
-        //                 //         text-align: right;
-        //                 //         .bh-weekday{
-        //                 //             display: inline-block;
-        //                 //             width: 100px;
-        //                 //             text-align: left;
-        //                 //             padding-right: 15px;
-        //                 //             text-transform: uppercase;
-        //                 //             float: left;
-        //                 //         }
-        //                 //     }
-        //                 // }
-        //             }
-        //             &:nth-of-type(odd) {
-        //                 td{
-        //                     background-color: rgba(0,0,0,.05);
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
     }
 </style>

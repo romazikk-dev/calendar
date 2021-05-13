@@ -64,7 +64,8 @@ Route::group([
     ], function () {
         
         // Route::resource('worker', DashboardWorkerController::class);
-        Route::post('/check-email', [DashboardWorkerController::class, 'checkEmail'])->name('check_email');
+        Route::post('/check-email/{id?}', [DashboardWorkerController::class, 'checkEmail'])
+            ->name('check_email')->where('id', '[0-9]+');
         Route::post('/data-list', [DashboardWorkerController::class, 'dataList'])->name('data_list');
         Route::get('{id}/edit-password', [DashboardWorkerController::class, 'editPassword'])
             ->name('edit_password')->where('id', '[0-9]+');
@@ -122,12 +123,17 @@ Route::group([
         'as' => 'client.'
     ], function () {
         
+        Route::post('/check-email/{id?}', [DashboardClientController::class, 'checkEmail'])
+            ->name('check_email')->where('id', '[0-9]+');
         Route::post('/data-list', [DashboardClientController::class, 'dataList'])->name('data_list');
         Route::get('{id}/edit-password', [DashboardClientController::class, 'editPassword'])
             ->name('edit_password')->where('id', '[0-9]+');
         Route::put('{id}/update-password', [DashboardClientController::class, 'updatePassword'])
             ->name('update_password')->where('id', '[0-9]+');
         // Route::get('/', [DashboardSettingsController::class, 'index'])->name('index');
+        
+        Route::post('{id}/toggle-suspension', [DashboardClientController::class, 'toggleSuspension'])
+            ->name('toggle_suspension')->where('id', '[0-9]+');
         
         // Route::resource('worker', DashboardWorkerController::class);
         // Route::post('{id}/toggle-closed', [DashboardWorkerController::class, 'toggleClosed'])

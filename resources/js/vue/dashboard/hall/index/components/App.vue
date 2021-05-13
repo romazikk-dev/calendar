@@ -63,6 +63,9 @@
             };
         },
         methods: {
+            isStatus: function(type, suspension){
+                return helper.isStatus(type, (typeof suspension == 'undefined' || suspension == null ? null : suspension));
+            },
             regActionsOnModalClose: function(){
                 $("#modal").on('hidden.bs.modal', () => {
                     this.infoModalData = null;
@@ -90,6 +93,7 @@
                 }
             },
             regClickBtns: function(){
+                this.regClickReinstateBtn();
                 this.regClickMoreInfoBtn();
                 this.regClickToggleSuspensionActionBtn();
             },
@@ -98,6 +102,26 @@
                 .then((response) => {
                     this.suspendModalData = response.data;
                 }).catch((error) => {}).then(() => {});
+            },
+            regClickReinstateBtn: function(){
+                $('.stop-suspension-action').off('click');
+                $('.stop-suspension-action').on('click', (e) => {
+                    e.preventDefault();
+                    let tr = $(e.target).closest('tr');
+                    let id = tr.attr('id');
+                    let url = toggleSuspension.replace(':id', id);
+                    
+                    axios.post(url, {
+                        type: 'disable'
+                    }).then((response) => {
+                        // this.$emit('changed');
+                        this.updateData();
+                    }).catch((error) => {
+                    
+                    }).then(() => {
+                    
+                    });
+                });
             },
             regClickToggleSuspensionActionBtn: function(){
                 $('.toggle-suspension-action').off('click');
@@ -129,13 +153,13 @@
                     // this.resetAllModalsData();
                     let id = parseInt($(e.target).closest('tr').attr('id'));
                     let url = showRoute.replace(':id', id);
-                    url += '?with_workers=1&with_suspension=1';
+                    url += '?with_phones=1&with_workers=1&with_suspension=1';
                     axios.get(url)
                     .then((response) => {
                         this.infoModalData = response.data;
                         // this.showContent = 'info';
                         this.showModal('info');
-                        console.log(this.infoModalData);
+                        // console.log(this.infoModalData);
                     }).catch((error) => {
                         
                     }).then(() => {
@@ -149,25 +173,11 @@
                 this.showContent = showContent;
                 $('#modal').modal('show');
             },
-            isSuspended: function(from, to){
-                if(from == null || from == null)
-                    return true;
-                let currentDateMoment = moment(this.currentDate);
-                let fromMoment = moment(from);
-                let toMoment = moment(to);
-                return (currentDateMoment.diff(fromMoment) >= 0 && currentDateMoment.diff(toMoment) <= 0);
-                // console.log(currentDateMoment.format('YYYY-MM-DD HH-mm-ss'));
-                // console.log(fromMoment.format('YYYY-MM-DD HH-mm-ss'));
-                // console.log(toMoment.format('YYYY-MM-DD HH-mm-ss'));
-                // return false;
+            isSuspended: function(suspension){
+                return this.isStatus('suspended', suspension);
             },
-            isSuspentionInFuture: function(from, to){
-                if(from == null || from == null)
-                    return false;
-                let currentDateMoment = moment(this.currentDate);
-                let fromMoment = moment(from);
-                // let toMoment = moment(to);
-                return (currentDateMoment.diff(fromMoment) < 0);
+            isSuspentionInFuture: function(suspension){
+                return this.isStatus('future_suspension', suspension);
             },
             initDataTable: function(){
                 let _this = this;
@@ -182,9 +192,9 @@
                         $(row).attr('workers-count', data.workers_count);
                         $(row).attr('created-at', data.created_at);
                         if(data.suspension != null){
-                            if(_this.isSuspended(data.suspension.from, data.suspension.to)){
+                            if(_this.isSuspended(data.suspension)){
                                 $(row).addClass('table-danger');
-                            }else if(_this.isSuspentionInFuture(data.suspension.from, data.suspension.to)){
+                            }else if(_this.isSuspentionInFuture(data.suspension)){
                                 $(row).addClass('table-warning');
                             }
                         }
@@ -223,7 +233,7 @@
                             data: null,
                             className: "actions",
                             render: function ( data, type, row, meta ) {
-                                console.log(data);
+                                // console.log(data);
                                 
                                 // var delete_url = '{{ route("dashboard.hall.destroy", ":id") }}';
                                 var delete_url = deleteRoute.replace(':id', row.id);
@@ -241,65 +251,113 @@
                                 let stopSuspensionVisibility = data.worker_suspension_id !== null ? '' : 'd-none';
                                 
                                 let reinstate = '';
-                                if(row.suspension != null && _this.isSuspended(row.suspension.from, row.suspension.to)){
-                                    reinstate = `
-                                        <a href="#"
-                                            onclick="
-                                                event.preventDefault();
-                                                if(confirm('Do you really want to stop suspension for this worker?')){
-                                                    toogleSuspension(${row.id}, 'disable');
-                                                }
-                                            "
-                                            class="float-right stop-suspension-action action ${stopSuspensionVisibility} text-info"
-                                            title="Open"
-                                            data-toggle="tooltip">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+                                if(row.suspension != null &&
+                                    (_this.isSuspended(row.suspension) ||
+                                    _this.isSuspentionInFuture(row.suspension))){
+                                        
+                                    let isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension);
+                                    let reinstateAttrTitle = isSuspentionInFuture ?
+                                        `
+                                            Undo future<br>
+                                            employee suspension<br>
+                                            from <b>` + _this.formatDataDateForDateChooser(row.suspension.from) + `</b><br>
+                                            to <b>` + _this.formatDataDateForDateChooser(row.suspension.to) + `</b>
+                                        ` : `Reinstate worker`;
+                                    let reinstateDropQuestion = isSuspentionInFuture ?
+                                        `
+                                            Do you want undo future suspension for this employee?
+                                        ` :
+                                        `
+                                            Do you want reinstate an employee?
+                                        `;
+                                    let reinstateIcon = isSuspentionInFuture ?
+                                        `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
                                             </svg>
-                                        </a>
+                                        ` :
+                                        `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+                                            </svg>
+                                        `;
+                                    
+                                    reinstate = `
+                                        <div class="action-drop dropup float-right">
+                                            <a href="#"
+                                                id="dropdownReinstateButton_${row.id}"
+                                                class="action text-info data-tooltip"
+                                                data-toggle="dropdown"
+                                                data-placement="bottom"
+                                                title="${reinstateAttrTitle}"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
+                                                    ${reinstateIcon}
+                                            </a>
+                                            <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownReinstateButton_${row.id}">
+                                                ${reinstateDropQuestion}
+                                                <div class="btnns">
+                                                    
+                                                    <a href="#" class="btnn text-primary stop-suspension-action">
+                                                            Yes
+                                                    </a>
+                                                    
+                                                    <a href="#"
+                                                        onclick="
+                                                            event.preventDefault();
+                                                            $('#dropdownReinstateButton_${row.id}').click();
+                                                        " class="btnn text-primary">
+                                                            No
+                                                    </a>
+                                                        
+                                                </div>
+                                            </div>
+                                        </div>
                                     `;
                                 }
                                 
-                                console.log(row.suspension);
-                                // }
-                                
                                 return `
-                                <div class="dropup float-right">
+                                <div class="action-drop dropup float-right">
                                     <a href="#"
-                                        id="dropdownDeleteButton"
-                                        class="action text-info"
+                                        id="dropdownDeleteButton_${row.id}"
+                                        class="action text-info data-tooltip"
                                         data-toggle="dropdown"
+                                        data-placement="bottom"
                                         aria-haspopup="true"
-                                        aria-expanded="false">
+                                        aria-expanded="false"
+                                        title="Delete">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                                 <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
                                             </svg>
                                     </a>
-                                    <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton">
+                                    <div onclick="event.stopPropagation()" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownDeleteButton_${row.id}">
                                         Do you want delete this hall?
-                                        <form method="post" action="${delete_url}">
-                                            ${csrf}
-                                            ${methodDelete}
-                                            <a href="${delete_url}"
-                                                onclick="event.preventDefault(); this.closest('form').submit();"
-                                                class="text-primary">
-                                                    Yes
-                                            </a>
-                                            <a href="${delete_url}"
-                                                onclick="event.preventDefault(); $('#dropdownDeleteButton').click();"
-                                                class="text-primary"
-                                                data-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false">
-                                                    No
-                                            </a>
-                                        </form>
+                                        <div class="btnns">
+                                            <form method="post" action="${delete_url}">
+                                                ${csrf}
+                                                ${methodDelete}
+                                                <a href="${delete_url}"
+                                                    onclick="event.preventDefault(); this.closest('form').submit();"
+                                                    class="btnn text-primary">
+                                                        Yes
+                                                </a>
+                                                <a href="${delete_url}"
+                                                    onclick="event.preventDefault(); $('#dropdownDeleteButton_${row.id}').click();"
+                                                    class="btnn text-primary"
+                                                    data-toggle="dropdown"
+                                                    aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                        No
+                                                </a>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <a href="${edit_url}"
                                     class="float-right edit-action action text-info"
                                     data-toggle="tooltip"
+                                    data-placement="bottom"
                                     title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                                         <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
@@ -310,6 +368,7 @@
                                     id="employeeSuspensionBtn"
                                     class="float-right toggle-suspension-action action text-info"
                                     data-toggle="tooltip"
+                                    data-placement="bottom"
                                     title="Suspension">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle-fill" viewBox="0 0 16 16">
                                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z"/>
@@ -326,6 +385,7 @@
                                     "
                                     class="float-right show-action action text-info"
                                     data-toggle="tooltip"
+                                    data-placement="bottom"
                                     title="Details">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
                                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
@@ -357,37 +417,25 @@
                         {
                             "targets": [2],
                             'createdCell':  function (td, cellData, rowData, row, col) {
-                               // $(td).attr('id', 'otherID')
-                                console.log('cellData: ');
-                                console.log(rowData);
                                 $(td).attr('data-toggle', 'tooltip');
                                 $(td).attr('data-placement', 'auto');
-                                if(rowData.suspension != null){
-                                    if(_this.isSuspended(rowData.suspension.from, rowData.suspension.to)){
-                                        if(rowData.suspension.from == null || rowData.suspension.to == null){
-                                            $(td).attr('data-original-title', `Completely suspended`);
-                                        }else{
-                                            let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-                                            let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-                                            $(td).attr('data-original-title', `Suspended<br>from ${from}<br>until ${to}`);
-                                        }
-                                    }else if(_this.isSuspentionInFuture(rowData.suspension.from, rowData.suspension.to)){
-                                        let from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-                                        let to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-                                        $(td).attr('data-original-title', `Will be suspended<br>from ${from}<br>until ${to}`);
-                                    }
-                                }else{
-                                    $(td).attr('data-original-title', `Opened`);
-                                }
+                                
+                                $(td).attr(
+                                    'title',
+                                    helper.getStatusTooltipTitle(
+                                        typeof rowData.suspension == 'undefined' || rowData.suspension == null ?
+                                        null : rowData.suspension
+                                    )
+                                );
                             },
                             "render": function ( data, type, row, meta ) {
                                 if(row.suspension != null){
-                                    if(_this.isSuspended(row.suspension.from, row.suspension.to)){
+                                    if(_this.isSuspended(row.suspension)){
                                         // $(row).addClass('table-danger');
                                         return `
                                             <div class="status-circle bg-danger"></div>
                                         `;
-                                    }else if(_this.isSuspentionInFuture(row.suspension.from, row.suspension.to)){
+                                    }else if(_this.isSuspentionInFuture(row.suspension)){
                                         // $(row).addClass('table-warning');
                                         return `
                                             <div class="status-circle bg-warning"></div>
@@ -419,6 +467,8 @@
                     // },
                     fnDrawCallback: function() {
                         $('[data-toggle="tooltip"]').tooltip({html: true});
+                        $('.data-tooltip').tooltip({html: true});
+                        
                         _this.regClickBtns();
                     },
                     "ajax": {

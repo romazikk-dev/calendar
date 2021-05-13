@@ -26,27 +26,37 @@ class TemplateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function dataList()
-    {        
+    public function dataList(){
         $templates = Template::select([
             DB::raw("templates.`id`"),
             DB::raw("templates.`title`"),
-            // DB::raw("DATE_FORMAT(FROM_UNIXTIME(templates.`duration`), '%H:%i') as duration"),
+            DB::raw("templates.`price`"),
             DB::raw("templates.`duration`"),
             DB::raw("templates.`created_at`"),
-            // DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`hall_id` = halls.`id`) as `workers_count`")
-        ])
-        ->where('is_deleted', 0);
+            DB::raw("(SELECT COUNT(*) FROM template_worker WHERE template_worker.`template_id` = templates.`id`) as `workers_count`")
+        ])->with('workers')->where('is_deleted', 0);
         
         return Datatables::eloquent($templates)
             ->editColumn('duration', function(Template $template) {
                 return date('H:i', $template->duration);
             })
+            ->orderColumn('workers_count', function ($query, $order) {
+                $query->orderBy('workers_count', $order);
+            })
             ->toJson(true);
+            
         // return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
         //             $sql = "CONCAT(first_name,' ',last_name)  like ?";
         //             $query->whereRaw($sql, ["%{$keyword}%"]);
-        //         })->toJson(true);
+        //         })
+        //         ->orderColumn('status', function ($query, $order) {
+        //             $query->orderBy('sort_status', $order);
+        //             $query->orderBy('sort_status_2', $order);
+        //         })
+        //         ->orderColumn('halls_count', function ($query, $order) {
+        //             $query->orderBy('halls_count', $order);
+        //         })
+        //         ->toJson(true);
     }
 
     /**
@@ -54,9 +64,10 @@ class TemplateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        return view('dashboard.template.create');
+    public function create(){
+        return view('dashboard.template.create', [
+            'validation_messages' => \Lang::get('validation'),
+        ]);
     }
 
     /**
@@ -65,37 +76,30 @@ class TemplateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request){
+        
+        // dd($request->all());
+        
         $validated = $request->validate([
+            // Main validation rules
             'title' => 'required|max:255',
+            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
+            'short_description' => 'max:255',
             'price' => 'nullable|regex:/^([0-9]){1,6}(\.[0-9]{2})?$/',
             'description' => 'max:1000',
-            'short_description' => 'max:255',
             'notice' => 'max:1000',
-            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
-            'assign_worker' => 'nullable|array',
+            
+            // Assign worker validation rules
+            'assign_workers' => 'nullable|array',
         ]);
-        
-        // $duration_arr = explode(':', $validated['duration']);
-        // 
-        // $duration = '1970-01-01 ' . $validated['duration'] .':00';
-        // dd(
-        //     \Carbon\Carbon::parse('1970-01-01 ' . $validated['duration'] .':00')->format('s'),
-        //     $duration,
-        //     strtotime($duration)
-        // );
         
         $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
         
-        if(!empty($validated['assign_worker'])){
-            $assign_workers = array_keys($validated['assign_worker']);
-            unset($validated['assign_worker']);
-            
+        if(!empty($validated['assign_workers'])){
+            $assign_workers = array_keys($validated['assign_workers']);
             $workers = Worker::whereIn('id', $assign_workers)->get();
-            
             if(count($workers) != count($assign_workers))
-                return back()->withErrors(['assign_workers_count', 'You trying assign not existing workers']);
+                return back()->withErrors(['assign_worker_count', 'You trying assign to hall not existing workers']);
         }
         
         $validated['user_id'] = auth()->user()->id;
@@ -113,10 +117,19 @@ class TemplateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        $template = Template::find($id);
-        return view('dashboard.template.show', [
+    public function show(Request $request, $id){
+        $model = Template::where("id", $id);
+        
+        if($request->has('with_workers'))
+            $model->with('workers');
+        
+        $template = $model->first();
+        
+        if($request->wantsJson()){                
+            // $template->makeVisible(['business_hours']);
+            return response()->json($template);
+        }
+        return view('dashboard.hall.show', [
             'template' => $template
         ]);
     }
@@ -131,28 +144,20 @@ class TemplateController extends Controller
     {
         $template = Template::find($id);
         
-        // $business_hours_raw = json_decode($template->business_hours);
-        // $business_hours = [];
-        // foreach($business_hours_raw as $itm){
-        //     $business_hours[$itm->weekday]['start_hour'] = $itm->start;
-        //     $business_hours[$itm->weekday]['end_hour'] = $itm->end;
-        //     if(is_bool($itm->is_weekend) && $itm->is_weekend)
-        //         $business_hours[$itm->weekday]['is_weekend'] = 'on';
-        // }
-        
         $assign_workers = [];
         // dd($assign_worker);
-        foreach($template->workers as $itm){
-            $assign_workers[$itm->id] = 'on';
-            // dump($itm->id);
+        if(old('assign_workers')){
+            $assign_workers = old('assign_workers');
+        }else{
+            foreach($template->workers as $itm){
+                $assign_workers[$itm->id] = 'on';
+            }
         }
-        
-        // dd(1111);
         
         return view('dashboard.template.create', [
             'template' => $template,
-            // 'business_hours' => $business_hours,
             'assign_workers' => $assign_workers,
+            'validation_messages' => \Lang::get('validation'),
         ]);
     }
 
@@ -163,28 +168,28 @@ class TemplateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id){
         $validated = $request->validate([
+            // Main validation rules
             'title' => 'required|max:255',
+            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
             'price' => 'nullable|regex:/^([0-9]){1,6}(\.[0-9]{2})?$/',
             'description' => 'max:1000',
             'short_description' => 'max:255',
             'notice' => 'max:1000',
-            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
-            'assign_worker' => 'nullable|array',
+            
+            // Assign worker validation rules
+            'assign_workers' => 'nullable|array',
         ]);
         
         // dd($validated['duration']);
         $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
         // dd($validated['duration']);
         
-        if(!empty($validated['assign_worker'])){
-            $assign_workers = array_keys($validated['assign_worker']);
-            unset($validated['assign_worker']);
-            
+        if(!empty($validated['assign_workers'])){
+            $assign_workers = array_keys($validated['assign_workers']);
+            unset($validated['assign_workers']);
             $workers = Worker::whereIn('id', $assign_workers)->get();
-            
             if(count($workers) != count($assign_workers))
                 return back()->withErrors(['assign_workers_count', 'You trying assign not existing workers']);
         }

@@ -1910,6 +1910,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    isStatus: function isStatus(type, suspension) {
+      return helper.isStatus(type, typeof suspension == 'undefined' || suspension == null ? null : suspension);
+    },
     regActionsOnModalClose: function regActionsOnModalClose() {
       var _this2 = this;
 
@@ -1939,6 +1942,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     regClickBtns: function regClickBtns() {
+      this.regClickReinstateBtn();
       this.regClickMoreInfoBtn();
       this.regClickToggleSuspensionActionBtn();
     },
@@ -1949,8 +1953,25 @@ __webpack_require__.r(__webpack_exports__);
         _this3.suspendModalData = response.data;
       })["catch"](function (error) {}).then(function () {});
     },
-    regClickToggleSuspensionActionBtn: function regClickToggleSuspensionActionBtn() {
+    regClickReinstateBtn: function regClickReinstateBtn() {
       var _this4 = this;
+
+      $('.stop-suspension-action').off('click');
+      $('.stop-suspension-action').on('click', function (e) {
+        e.preventDefault();
+        var tr = $(e.target).closest('tr');
+        var id = tr.attr('id');
+        var url = toggleSuspension.replace(':id', id);
+        axios.post(url, {
+          type: 'disable'
+        }).then(function (response) {
+          // this.$emit('changed');
+          _this4.updateData();
+        })["catch"](function (error) {}).then(function () {});
+      });
+    },
+    regClickToggleSuspensionActionBtn: function regClickToggleSuspensionActionBtn() {
+      var _this5 = this;
 
       $('.toggle-suspension-action').off('click');
       $('.toggle-suspension-action').on('click', function (e) {
@@ -1960,16 +1981,16 @@ __webpack_require__.r(__webpack_exports__);
         var url = showRoute.replace(':id', id);
         url += '?with_suspension=1';
         axios.get(url).then(function (response) {
-          _this4.modalDataUrl = url;
-          _this4.suspendModalData = response.data; // this.showContent = 'info';
+          _this5.modalDataUrl = url;
+          _this5.suspendModalData = response.data; // this.showContent = 'info';
 
-          _this4.showModal('suspension'); // console.log(this.suspendModalData);
+          _this5.showModal('suspension'); // console.log(this.suspendModalData);
 
         })["catch"](function (error) {}).then(function () {});
       });
     },
     regClickMoreInfoBtn: function regClickMoreInfoBtn() {
-      var _this5 = this;
+      var _this6 = this;
 
       $('.show-action').off('click');
       $('.show-action').on('click', function (e) {
@@ -1977,13 +1998,12 @@ __webpack_require__.r(__webpack_exports__);
 
         var id = parseInt($(e.target).closest('tr').attr('id'));
         var url = showRoute.replace(':id', id);
-        url += '?with_workers=1&with_suspension=1';
+        url += '?with_phones=1&with_workers=1&with_suspension=1';
         axios.get(url).then(function (response) {
-          _this5.infoModalData = response.data; // this.showContent = 'info';
+          _this6.infoModalData = response.data; // this.showContent = 'info';
 
-          _this5.showModal('info');
+          _this6.showModal('info'); // console.log(this.infoModalData);
 
-          console.log(_this5.infoModalData);
         })["catch"](function (error) {}).then(function () {}); // this.openModal('info', e);
         // $('#interactionModal').modal('show');
       });
@@ -1992,22 +2012,11 @@ __webpack_require__.r(__webpack_exports__);
       this.showContent = showContent;
       $('#modal').modal('show');
     },
-    isSuspended: function isSuspended(from, to) {
-      if (from == null || from == null) return true;
-      var currentDateMoment = moment(this.currentDate);
-      var fromMoment = moment(from);
-      var toMoment = moment(to);
-      return currentDateMoment.diff(fromMoment) >= 0 && currentDateMoment.diff(toMoment) <= 0; // console.log(currentDateMoment.format('YYYY-MM-DD HH-mm-ss'));
-      // console.log(fromMoment.format('YYYY-MM-DD HH-mm-ss'));
-      // console.log(toMoment.format('YYYY-MM-DD HH-mm-ss'));
-      // return false;
+    isSuspended: function isSuspended(suspension) {
+      return this.isStatus('suspended', suspension);
     },
-    isSuspentionInFuture: function isSuspentionInFuture(from, to) {
-      if (from == null || from == null) return false;
-      var currentDateMoment = moment(this.currentDate);
-      var fromMoment = moment(from); // let toMoment = moment(to);
-
-      return currentDateMoment.diff(fromMoment) < 0;
+    isSuspentionInFuture: function isSuspentionInFuture(suspension) {
+      return this.isStatus('future_suspension', suspension);
     },
     initDataTable: function initDataTable() {
       var _this = this;
@@ -2024,9 +2033,9 @@ __webpack_require__.r(__webpack_exports__);
           $(row).attr('created-at', data.created_at);
 
           if (data.suspension != null) {
-            if (_this.isSuspended(data.suspension.from, data.suspension.to)) {
+            if (_this.isSuspended(data.suspension)) {
               $(row).addClass('table-danger');
-            } else if (_this.isSuspentionInFuture(data.suspension.from, data.suspension.to)) {
+            } else if (_this.isSuspentionInFuture(data.suspension)) {
               $(row).addClass('table-warning');
             }
           }
@@ -2059,8 +2068,8 @@ __webpack_require__.r(__webpack_exports__);
           data: null,
           className: "actions",
           render: function render(data, type, row, meta) {
-            console.log(data); // var delete_url = '{{ route("dashboard.hall.destroy", ":id") }}';
-
+            // console.log(data);
+            // var delete_url = '{{ route("dashboard.hall.destroy", ":id") }}';
             var delete_url = deleteRoute.replace(':id', row.id); // var edit_url = '{{ route("dashboard.hall.edit", ":id") }}';
 
             var edit_url = editRoute.replace(':id', row.id); // var show_url = '{{ route("dashboard.hall.show", ":id") }}';
@@ -2071,13 +2080,16 @@ __webpack_require__.r(__webpack_exports__);
             var stopSuspensionVisibility = data.worker_suspension_id !== null ? '' : 'd-none';
             var reinstate = '';
 
-            if (row.suspension != null && _this.isSuspended(row.suspension.from, row.suspension.to)) {
-              reinstate = "\n                                    <a href=\"#\"\n                                        onclick=\"\n                                            event.preventDefault();\n                                            if(confirm('Do you really want to stop suspension for this worker?')){\n                                                toogleSuspension(".concat(row.id, ", 'disable');\n                                            }\n                                        \"\n                                        class=\"float-right stop-suspension-action action ").concat(stopSuspensionVisibility, " text-info\"\n                                        title=\"Open\"\n                                        data-toggle=\"tooltip\">\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-play-circle-fill\" viewBox=\"0 0 16 16\">\n                                          <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z\"/>\n                                        </svg>\n                                    </a>\n                                ");
+            if (row.suspension != null && (_this.isSuspended(row.suspension) || _this.isSuspentionInFuture(row.suspension))) {
+              var isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension);
+
+              var reinstateAttrTitle = isSuspentionInFuture ? "\n                                        Undo future<br>\n                                        employee suspension<br>\n                                        from <b>" + _this.formatDataDateForDateChooser(row.suspension.from) + "</b><br>\n                                        to <b>" + _this.formatDataDateForDateChooser(row.suspension.to) + "</b>\n                                    " : "Reinstate worker";
+              var reinstateDropQuestion = isSuspentionInFuture ? "\n                                        Do you want undo future suspension for this employee?\n                                    " : "\n                                        Do you want reinstate an employee?\n                                    ";
+              var reinstateIcon = isSuspentionInFuture ? "\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-x-circle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z\"/>\n                                        </svg>\n                                    " : "\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-play-circle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z\"/>\n                                        </svg>\n                                    ";
+              reinstate = "\n                                    <div class=\"action-drop dropup float-right\">\n                                        <a href=\"#\"\n                                            id=\"dropdownReinstateButton_".concat(row.id, "\"\n                                            class=\"action text-info data-tooltip\"\n                                            data-toggle=\"dropdown\"\n                                            data-placement=\"bottom\"\n                                            title=\"").concat(reinstateAttrTitle, "\"\n                                            aria-haspopup=\"true\"\n                                            aria-expanded=\"false\">\n                                                ").concat(reinstateIcon, "\n                                        </a>\n                                        <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownReinstateButton_").concat(row.id, "\">\n                                            ").concat(reinstateDropQuestion, "\n                                            <div class=\"btnns\">\n                                                \n                                                <a href=\"#\" class=\"btnn text-primary stop-suspension-action\">\n                                                        Yes\n                                                </a>\n                                                \n                                                <a href=\"#\"\n                                                    onclick=\"\n                                                        event.preventDefault();\n                                                        $('#dropdownReinstateButton_").concat(row.id, "').click();\n                                                    \" class=\"btnn text-primary\">\n                                                        No\n                                                </a>\n                                                    \n                                            </div>\n                                        </div>\n                                    </div>\n                                ");
             }
 
-            console.log(row.suspension); // }
-
-            return "\n                            <div class=\"dropup float-right\">\n                                <a href=\"#\"\n                                    id=\"dropdownDeleteButton\"\n                                    class=\"action text-info\"\n                                    data-toggle=\"dropdown\"\n                                    aria-haspopup=\"true\"\n                                    aria-expanded=\"false\">\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z\"/>\n                                        </svg>\n                                </a>\n                                <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownDeleteButton\">\n                                    Do you want delete this hall?\n                                    <form method=\"post\" action=\"".concat(delete_url, "\">\n                                        ").concat(csrf, "\n                                        ").concat(methodDelete, "\n                                        <a href=\"").concat(delete_url, "\"\n                                            onclick=\"event.preventDefault(); this.closest('form').submit();\"\n                                            class=\"text-primary\">\n                                                Yes\n                                        </a>\n                                        <a href=\"").concat(delete_url, "\"\n                                            onclick=\"event.preventDefault(); $('#dropdownDeleteButton').click();\"\n                                            class=\"text-primary\"\n                                            data-toggle=\"dropdown\"\n                                            aria-haspopup=\"true\"\n                                            aria-expanded=\"false\">\n                                                No\n                                        </a>\n                                    </form>\n                                </div>\n                            </div>\n                            \n                            <a href=\"").concat(edit_url, "\"\n                                class=\"float-right edit-action action text-info\"\n                                data-toggle=\"tooltip\"\n                                title=\"Edit\">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-pencil-fill\" viewBox=\"0 0 16 16\">\n                                    <path d=\"M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z\"/>\n                                </svg>\n                            </a>\n                            \n                            <a href=\"#\"\n                                id=\"employeeSuspensionBtn\"\n                                class=\"float-right toggle-suspension-action action text-info\"\n                                data-toggle=\"tooltip\"\n                                title=\"Suspension\">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-stop-circle-fill\" viewBox=\"0 0 16 16\">\n                                  <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z\"/>\n                                </svg>\n                            </a>\n                            \n                            ").concat(reinstate, "\n                            \n                            <a href=\"").concat(show_url, "\"\n                                onclick=\"\n                                   // event.preventDefault();\n                                   // alert(333333);\n                                   //openInfoModal(").concat(row.id, ");\n                                \"\n                                class=\"float-right show-action action text-info\"\n                                data-toggle=\"tooltip\"\n                                title=\"Details\">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-eye-fill\" viewBox=\"0 0 16 16\">\n                                  <path d=\"M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z\"/>\n                                  <path d=\"M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z\"/>\n                                </svg>\n                            </a>");
+            return "\n                            <div class=\"action-drop dropup float-right\">\n                                <a href=\"#\"\n                                    id=\"dropdownDeleteButton_".concat(row.id, "\"\n                                    class=\"action text-info data-tooltip\"\n                                    data-toggle=\"dropdown\"\n                                    data-placement=\"bottom\"\n                                    aria-haspopup=\"true\"\n                                    aria-expanded=\"false\"\n                                    title=\"Delete\">\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z\"/>\n                                        </svg>\n                                </a>\n                                <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownDeleteButton_").concat(row.id, "\">\n                                    Do you want delete this hall?\n                                    <div class=\"btnns\">\n                                        <form method=\"post\" action=\"").concat(delete_url, "\">\n                                            ").concat(csrf, "\n                                            ").concat(methodDelete, "\n                                            <a href=\"").concat(delete_url, "\"\n                                                onclick=\"event.preventDefault(); this.closest('form').submit();\"\n                                                class=\"btnn text-primary\">\n                                                    Yes\n                                            </a>\n                                            <a href=\"").concat(delete_url, "\"\n                                                onclick=\"event.preventDefault(); $('#dropdownDeleteButton_").concat(row.id, "').click();\"\n                                                class=\"btnn text-primary\"\n                                                data-toggle=\"dropdown\"\n                                                aria-haspopup=\"true\"\n                                                aria-expanded=\"false\">\n                                                    No\n                                            </a>\n                                        </form>\n                                    </div>\n                                </div>\n                            </div>\n                            \n                            <a href=\"").concat(edit_url, "\"\n                                class=\"float-right edit-action action text-info\"\n                                data-toggle=\"tooltip\"\n                                data-placement=\"bottom\"\n                                title=\"Edit\">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-pencil-fill\" viewBox=\"0 0 16 16\">\n                                    <path d=\"M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z\"/>\n                                </svg>\n                            </a>\n                            \n                            <a href=\"#\"\n                                id=\"employeeSuspensionBtn\"\n                                class=\"float-right toggle-suspension-action action text-info\"\n                                data-toggle=\"tooltip\"\n                                data-placement=\"bottom\"\n                                title=\"Suspension\">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-stop-circle-fill\" viewBox=\"0 0 16 16\">\n                                  <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z\"/>\n                                </svg>\n                            </a>\n                            \n                            ").concat(reinstate, "\n                            \n                            <a href=\"").concat(show_url, "\"\n                                onclick=\"\n                                   // event.preventDefault();\n                                   // alert(333333);\n                                   //openInfoModal(").concat(row.id, ");\n                                \"\n                                class=\"float-right show-action action text-info\"\n                                data-toggle=\"tooltip\"\n                                data-placement=\"bottom\"\n                                title=\"Details\">\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-eye-fill\" viewBox=\"0 0 16 16\">\n                                  <path d=\"M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z\"/>\n                                  <path d=\"M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z\"/>\n                                </svg>\n                            </a>");
           },
           sortable: false,
           searchable: false,
@@ -2097,40 +2109,16 @@ __webpack_require__.r(__webpack_exports__);
         }, {
           "targets": [2],
           'createdCell': function createdCell(td, cellData, rowData, row, col) {
-            // $(td).attr('id', 'otherID')
-            console.log('cellData: ');
-            console.log(rowData);
             $(td).attr('data-toggle', 'tooltip');
             $(td).attr('data-placement', 'auto');
-
-            if (rowData.suspension != null) {
-              if (_this.isSuspended(rowData.suspension.from, rowData.suspension.to)) {
-                if (rowData.suspension.from == null || rowData.suspension.to == null) {
-                  $(td).attr('data-original-title', "Completely suspended");
-                } else {
-                  var from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-
-                  var to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-
-                  $(td).attr('data-original-title', "Suspended<br>from ".concat(from, "<br>until ").concat(to));
-                }
-              } else if (_this.isSuspentionInFuture(rowData.suspension.from, rowData.suspension.to)) {
-                var _from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-
-                var _to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-
-                $(td).attr('data-original-title', "Will be suspended<br>from ".concat(_from, "<br>until ").concat(_to));
-              }
-            } else {
-              $(td).attr('data-original-title', "Opened");
-            }
+            $(td).attr('title', helper.getStatusTooltipTitle(typeof rowData.suspension == 'undefined' || rowData.suspension == null ? null : rowData.suspension));
           },
           "render": function render(data, type, row, meta) {
             if (row.suspension != null) {
-              if (_this.isSuspended(row.suspension.from, row.suspension.to)) {
+              if (_this.isSuspended(row.suspension)) {
                 // $(row).addClass('table-danger');
                 return "\n                                        <div class=\"status-circle bg-danger\"></div>\n                                    ";
-              } else if (_this.isSuspentionInFuture(row.suspension.from, row.suspension.to)) {
+              } else if (_this.isSuspentionInFuture(row.suspension)) {
                 // $(row).addClass('table-warning');
                 return "\n                                        <div class=\"status-circle bg-warning\"></div>\n                                    ";
               }
@@ -2155,6 +2143,9 @@ __webpack_require__.r(__webpack_exports__);
         // },
         fnDrawCallback: function fnDrawCallback() {
           $('[data-toggle="tooltip"]').tooltip({
+            html: true
+          });
+          $('.data-tooltip').tooltip({
             html: true
           });
 
@@ -2300,19 +2291,150 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalInfoContent',
-  mounted: function mounted() {// this.initDataTable();
+  mounted: function mounted() {
+    // this.initDataTable();
     // this.regClickMoreInfoBtn();
+    $('[data-toggle="modal-info-dropdown"]').tooltip({
+      html: true
+    });
   },
   props: ['data'],
   data: function data() {
     return {
-      showTab: 'main' // workers: null,
-
+      showTab: 'main',
+      // workers: null,
+      weekdays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
     };
   },
   computed: {
+    title: function title() {
+      return helper.capitalizeFirstLetter(this.data.title);
+    },
+    getTooltipStatusTitle: function getTooltipStatusTitle() {
+      return helper.getStatusTooltipTitle(typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
+    suspended: function suspended() {
+      return this.isStatus('suspended');
+    },
+    suspentionInFuture: function suspentionInFuture() {
+      return this.isStatus('future_suspension');
+    },
+    periodSuspended: function periodSuspended() {
+      return this.isStatus('period_suspended');
+    },
+    businessHours: function businessHours() {
+      return JSON.parse(this.data.business_hours);
+    },
+    countActiveBusinessHours: function countActiveBusinessHours() {
+      var _this = this;
+
+      var activeBusinessHours = 0;
+
+      if (this.businessHours) {
+        this.weekdays.forEach(function (item, index) {
+          if (typeof _this.businessHours[item].is_weekend === 'undefined') {
+            activeBusinessHours++;
+          }
+        });
+      }
+
+      return activeBusinessHours;
+    },
     createdAt: function createdAt() {
       if (this.data == null || this.data.created_at == null) return '';
       return moment(this.data.created_at).format('DD-MM-YYYY');
@@ -2323,16 +2445,24 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    fullName: function fullName() {
-      var firstName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var lastName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      if (firstName == null && lastName != null) return lastName;
-      if (lastName == null && firstName != null) return firstName;
-      if (lastName != null && firstName != null) return firstName + ' ' + lastName;
-      return '';
+    isStatus: function isStatus(type) {
+      return helper.isStatus(type, typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
+    fullAddress: function fullAddress(hall) {
+      var arrAddress = [];
+      if (!helper.isPropEmpty(hall.country)) arrAddress.push(hall.country);
+      if (!helper.isPropEmpty(hall.town)) arrAddress.push(hall.town);
+      if (!helper.isPropEmpty(hall.street)) arrAddress.push(hall.street);
+      return arrAddress.join(', ');
     },
     resetAllModalsData: function resetAllModalsData() {
       this.infoModalData = null;
+    },
+    fullName: function fullName(worker) {
+      var fullNameArr = [];
+      if (!helper.isPropEmpty(worker.first_name)) fullNameArr.push(helper.capitalizeFirstLetter(worker.first_name));
+      if (!helper.isPropEmpty(worker.last_name)) fullNameArr.push(helper.capitalizeFirstLetter(worker.last_name));
+      return fullNameArr.join(' ');
     }
   },
   components: {}
@@ -2511,6 +2641,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalSuspensionContent',
   mounted: function mounted() {
@@ -2518,6 +2668,10 @@ __webpack_require__.r(__webpack_exports__);
     this.initDatePicker();
     this.setFromAndToVars(); // this.setSuspendUrl();
     // this.regClickMoreInfoBtn();
+
+    $('[data-toggle="modal-info-dropdown"]').tooltip({
+      html: true
+    });
   },
   props: ['data'],
   data: function data() {
@@ -2530,6 +2684,12 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    title: function title() {
+      return helper.capitalizeFirstLetter(this.data.title);
+    },
+    getTooltipStatusTitle: function getTooltipStatusTitle() {
+      return helper.getStatusTooltipTitle(typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
     isSuspendRangeSetted: function isSuspendRangeSetted() {
       return this.from != null && this.to != null;
     },
@@ -2540,18 +2700,30 @@ __webpack_require__.r(__webpack_exports__);
       return this.periodSuspended || this.suspentionInFuture ? this.formatDataDateForDateChooser(this.data.suspension.to) : null;
     },
     suspended: function suspended() {
-      var componentApp = this.getParentComponentByName(this, 'app');
-      return this.data != null && typeof this.data.suspension != 'undefined' && this.data.suspension != null && componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
+      return this.isStatus('suspended'); // let componentApp = this.getParentComponentByName(this, 'app');
+      // return this.data != null &&
+      //     typeof this.data.suspension != 'undefined' &&
+      //     this.data.suspension != null &&
+      //     componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
     },
     suspentionInFuture: function suspentionInFuture() {
-      var componentApp = this.getParentComponentByName(this, 'app');
-      return this.data != null && typeof this.data.suspension != 'undefined' && this.data.suspension != null && componentApp.isSuspentionInFuture(this.data.suspension.from, this.data.suspension.to);
+      return this.isStatus('future_suspension'); // let componentApp = this.getParentComponentByName(this, 'app');
+      // return this.data != null &&
+      //     typeof this.data.suspension != 'undefined' &&
+      //     this.data.suspension != null &&
+      //     componentApp.isSuspentionInFuture(this.data.suspension.from, this.data.suspension.to);
     },
     periodSuspended: function periodSuspended() {
-      return this.suspended && typeof this.data.suspension.from != 'undefined' && this.data.suspension.from != null && typeof this.data.suspension.to != 'undefined' && this.data.suspension.to != null;
+      return this.isStatus('period_suspended'); // return this.suspended &&
+      //     typeof this.data.suspension.from != 'undefined' &&
+      //     this.data.suspension.from != null &&
+      //     typeof this.data.suspension.to != 'undefined' &&
+      //     this.data.suspension.to != null;
     },
     completelySuspended: function completelySuspended() {
-      return this.suspended && this.data.suspension.from == null && this.data.suspension.to == null;
+      return this.suspended && !this.periodSuspended; // return this.suspended &&
+      //     this.data.suspension.from == null &&
+      //     this.data.suspension.to == null;
     },
     periodSuspendBtnDisabled: function periodSuspendBtnDisabled() {
       // if(this.periodSuspended){
@@ -2566,6 +2738,9 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    isStatus: function isStatus(type) {
+      return helper.isStatus(type, typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
     // setSuspendUrl: function(){
     //     this.suspendUrl = toggleSuspension.replace(':id', this.data.id);
     // },
@@ -42456,23 +42631,54 @@ var render = function() {
         _c("h5", { staticClass: "modal-title", attrs: { id: "modalLabel" } }, [
           _vm._v(
             "\n                " +
-              _vm._s(_vm.data.title) +
+              _vm._s(_vm.title) +
               "\n                \n                "
           ),
           _vm._v(" "),
-          !_vm.data.is_closed == 1
+          _vm.suspended
             ? _c(
                 "span",
                 {
-                  staticClass: "badge badge-pill badge-success text-uppercase"
+                  staticClass: "badge badge-pill badge-danger text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle
+                  }
                 },
-                [_vm._v("opened")]
+                [_vm._v("suspended")]
               )
-            : _c(
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && _vm.suspentionInFuture
+            ? _c(
                 "span",
-                { staticClass: "badge badge-pill badge-danger text-uppercase" },
-                [_vm._v("closed")]
+                {
+                  staticClass: "badge badge-pill badge-warning text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle
+                  }
+                },
+                [_vm._v("active")]
               )
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && !_vm.suspentionInFuture
+            ? _c(
+                "span",
+                {
+                  staticClass: "badge badge-pill badge-success text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle
+                  }
+                },
+                [_vm._v("active")]
+              )
+            : _vm._e()
         ]),
         _vm._v(" "),
         _vm._m(0)
@@ -42513,18 +42719,60 @@ var render = function() {
               }
             },
             [
-              _vm._v("Employees\n                    "),
-              _c("span", { staticClass: "badge badge-info badge-pill" }, [
-                _vm._v(
-                  "\n                        " +
-                    _vm._s(
-                      _vm.data.workers && _vm.data.workers.length > 0
-                        ? _vm.data.workers.length
-                        : 0
-                    ) +
-                    "\n                    "
-                )
-              ])
+              _vm._v("\n                    Employees\n                    "),
+              !_vm.data.workers.length
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "No employees"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: _vm.data.workers.length + " employees"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.data.workers.length) +
+                          "\n                    "
+                      )
+                    ]
+                  )
             ]
           ),
           _vm._v(" "),
@@ -42540,7 +42788,134 @@ var render = function() {
                 }
               }
             },
-            [_vm._v("Business hours")]
+            [
+              _vm._v(
+                "\n                    Business hours\n                    "
+              ),
+              !_vm.countActiveBusinessHours
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "All days are weekends"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: _vm.countActiveBusinessHours + " days opened"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.countActiveBusinessHours) +
+                          "\n                    "
+                      )
+                    ]
+                  )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-secondary",
+              class: { active: _vm.showTab == "phones" },
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  _vm.showTab = "phones"
+                }
+              }
+            },
+            [
+              _vm._v("\n                    Phones\n                    "),
+              !_vm.data.phones.length
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "No phones"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: _vm.data.phones.length + " phones"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.data.phones.length) +
+                          "\n                    "
+                      )
+                    ]
+                  )
+            ]
           )
         ]
       ),
@@ -42552,6 +42927,22 @@ var render = function() {
           _vm.showTab == "main"
             ? [
                 _c("table", { staticClass: "info-table" }, [
+                  _vm.data.title
+                    ? _c("tr", [
+                        _c("td", [_vm._v("Title:")]),
+                        _vm._v(" "),
+                        _c("td", [_c("b", [_vm._v(_vm._s(_vm.data.title))])])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.data.notice
+                    ? _c("tr", [
+                        _c("td", [_vm._v("Notice:")]),
+                        _vm._v(" "),
+                        _c("td", [_c("b", [_vm._v(_vm._s(_vm.data.notice))])])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
                   _vm.data.short_description
                     ? _c("tr", [
                         _c("td", [_vm._v("Short description:")]),
@@ -42600,10 +42991,33 @@ var render = function() {
                         _vm._v(" "),
                         _c("td", [_c("b", [_vm._v(_vm._s(_vm.updatedAt))])])
                       ])
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm._m(1)
+                    : _vm._e()
                 ])
+              ]
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.showTab == "phones"
+            ? [
+                _vm.data.phones && _vm.data.phones.length > 0
+                  ? [
+                      _c(
+                        "table",
+                        { staticClass: "info-table" },
+                        _vm._l(_vm.data.phones, function(phone) {
+                          return _c("tr", [
+                            _c("td", [_vm._v(_vm._s(phone.type) + ":")]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(phone.phone))])
+                          ])
+                        }),
+                        0
+                      )
+                    ]
+                  : [
+                      _vm._v(
+                        "\n                    No phones.\n                "
+                      )
+                    ]
               ]
             : _vm._e(),
           _vm._v(" "),
@@ -42617,14 +43031,7 @@ var render = function() {
                         _vm._l(_vm.data.workers, function(worker) {
                           return _c("tr", [
                             _c("td", [
-                              _vm._v(
-                                _vm._s(
-                                  _vm.fullName(
-                                    worker.first_name,
-                                    worker.last_name
-                                  )
-                                ) + ":"
-                              )
+                              _vm._v(_vm._s(_vm.fullName(worker)) + ":")
                             ]),
                             _vm._v(" "),
                             _c("td", [_c("b", [_vm._v(_vm._s(worker.email))])])
@@ -42633,29 +43040,28 @@ var render = function() {
                         0
                       )
                     ]
-                  : _vm._e()
+                  : [
+                      _vm._v(
+                        "\n                    No employees\n                "
+                      )
+                    ]
               ]
             : _vm._e(),
           _vm._v(" "),
           _vm.showTab == "business_hours"
             ? [
-                _vm.data.business_hours
+                _vm.businessHours
                   ? [
                       _c(
                         "table",
                         { staticClass: "info-table" },
                         [
-                          _vm._l(JSON.parse(_vm.data.business_hours), function(
-                            business_hour
-                          ) {
+                          _vm._l(_vm.weekdays, function(weekday) {
                             return [
-                              !business_hour.is_weekend
+                              typeof _vm.businessHours[weekday].is_weekend ==
+                              "undefined"
                                 ? _c("tr", [
-                                    _c("td", [
-                                      _vm._v(
-                                        _vm._s(business_hour.weekday) + ":"
-                                      )
-                                    ]),
+                                    _c("td", [_vm._v(_vm._s(weekday) + ":")]),
                                     _vm._v(" "),
                                     _c(
                                       "td",
@@ -42667,9 +43073,11 @@ var render = function() {
                                         _c("b", [
                                           _vm._v(
                                             _vm._s(
-                                              business_hour.start +
+                                              _vm.businessHours[weekday]
+                                                .start_hour +
                                                 " - " +
-                                                business_hour.end
+                                                _vm.businessHours[weekday]
+                                                  .end_hour
                                             )
                                           )
                                         ])
@@ -42677,13 +43085,9 @@ var render = function() {
                                     )
                                   ])
                                 : _c("tr", [
-                                    _c("td", [
-                                      _vm._v(
-                                        _vm._s(business_hour.weekday) + ":"
-                                      )
-                                    ]),
+                                    _c("td", [_vm._v(_vm._s(weekday) + ":")]),
                                     _vm._v(" "),
-                                    _vm._m(2, true)
+                                    _vm._m(1, true)
                                   ])
                             ]
                           })
@@ -42722,12 +43126,6 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("tr", [_c("td", [_vm._v("Description")]), _vm._v(" "), _c("td")])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("td", { staticClass: "text-uppercase text-danger" }, [
       _c("b", [_vm._v("closed")])
     ])
@@ -42760,22 +43158,56 @@ var render = function() {
       _c("div", { staticClass: "modal-header" }, [
         _c("h5", { staticClass: "modal-title", attrs: { id: "modalLabel" } }, [
           _vm._v(
-            "\n                " + _vm._s(_vm.data.title) + "\n                "
+            "\n                " + _vm._s(_vm.title) + "\n                "
           ),
           _vm._v(" "),
           _vm.suspended
             ? _c(
                 "span",
-                { staticClass: "badge badge-pill badge-danger text-uppercase" },
+                {
+                  staticClass: "badge badge-pill badge-danger text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle,
+                    "data-original-title": _vm.getTooltipStatusTitle
+                  }
+                },
                 [_vm._v("suspended")]
               )
-            : _c(
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && _vm.suspentionInFuture
+            ? _c(
                 "span",
                 {
-                  staticClass: "badge badge-pill badge-success text-uppercase"
+                  staticClass: "badge badge-pill badge-warning text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle,
+                    "data-original-title": _vm.getTooltipStatusTitle
+                  }
                 },
-                [_vm._v("opened")]
+                [_vm._v("active")]
               )
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && !_vm.suspentionInFuture
+            ? _c(
+                "span",
+                {
+                  staticClass: "badge badge-pill badge-success text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle,
+                    "data-original-title": _vm.getTooltipStatusTitle
+                  }
+                },
+                [_vm._v("active")]
+              )
+            : _vm._e()
         ]),
         _vm._v(" "),
         _vm._m(0)

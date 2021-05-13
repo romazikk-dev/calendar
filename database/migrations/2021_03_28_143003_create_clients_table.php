@@ -19,13 +19,11 @@ class CreateClientsTable extends Migration
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
-            $table->string('phone', 30)->nullable();
             $table->date('birthdate')->nullable();
             $table->string('country')->nullable();
             $table->string('town')->nullable();
             $table->string('street')->nullable();
-            $table->string('email')->unique();
-            // $table->string('email');
+            $table->string('email');
             $table->string('password');
             $table->tinyInteger('is_deleted')->default(0);
             $table->rememberToken();

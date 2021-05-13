@@ -1936,6 +1936,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     this.setWeekdays();
+    this.initWeekdays = JSON.parse(JSON.stringify(this.weekdays));
+    this.reCalculateTabValue(false);
   },
   // props: ['postTitle'],
   data: function data() {
@@ -1944,6 +1946,7 @@ __webpack_require__.r(__webpack_exports__);
       defaultStartTime: '10:00',
       defaultEndTime: '20:00',
       my: 'my',
+      initWeekdays: [],
       weekdays: [{
         weekday: 'monday',
         is_weekend: false,
@@ -1983,6 +1986,10 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    showWarningAlert: function showWarningAlert() {
+      if (this.isJqueryValidationEnabled() && this.isAllDaysClosed) return true;
+      return this.isAllDaysClosedInitial;
+    },
     isAllDaysOpened: function isAllDaysOpened() {
       // console.log('isAllDaysOpened');
       var isAllDaysOpened = true;
@@ -1996,6 +2003,19 @@ __webpack_require__.r(__webpack_exports__);
 
       return isAllDaysOpened;
     },
+    isAllDaysClosedInitial: function isAllDaysClosedInitial() {
+      if (this.isJqueryValidationEnabled()) return false;
+      var isAllDaysClosed = true;
+
+      for (var i = 0; i < this.initWeekdays.length; i++) {
+        if (!this.initWeekdays[i].is_weekend) {
+          isAllDaysClosed = false;
+          break;
+        }
+      }
+
+      return isAllDaysClosed;
+    },
     isAllDaysClosed: function isAllDaysClosed() {
       // console.log('isAllDaysClosed');
       var isAllDaysClosed = true;
@@ -2008,11 +2028,18 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return isAllDaysClosed;
-    }
+    } // jqueryValidationEnabled: function(){
+    //     return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+    // },
+
   },
   methods: {
+    isJqueryValidationEnabled: function isJqueryValidationEnabled() {
+      return typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating();
+    },
     reCalculateTabValue: function reCalculateTabValue() {
-      // return;
+      var checkIsJqueryValidationEnabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      if (checkIsJqueryValidationEnabled && !this.isJqueryValidationEnabled()) return;
       var workDays = 0;
       this.weekdays.forEach(function (item, i) {
         if (!item.is_weekend) workDays++;
@@ -2022,12 +2049,13 @@ __webpack_require__.r(__webpack_exports__);
       noticeBadges.find('.notice-badge').addClass('d-none');
 
       if (workDays > 0) {
-        noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', 'Currently ' + workDays + ' days opened').text(workDays);
+        noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', workDays + ' days opened').text(workDays);
       } else {
         noticeBadges.find('.notice-badge-warning').removeClass('d-none');
       }
     },
     onWeekendChange: function onWeekendChange() {
+      // if(this.isJqueryValidationEnabled())
       this.reCalculateTabValue();
     },
     setAllWeekends: function setAllWeekends(asWeekends) {
@@ -20172,11 +20200,11 @@ var render = function() {
     "div",
     [
       _c("transition", { attrs: { name: "wrapper" } }, [
-        _vm.isAllDaysClosed
+        _vm.showWarningAlert
           ? _c(
               "div",
               { staticClass: "alert alert-warning", attrs: { role: "alert" } },
-              [_vm._v("\n            All days of week are weekends!\n        ")]
+              [_vm._v("\n            All days are weekends!\n        ")]
             )
           : _vm._e()
       ]),

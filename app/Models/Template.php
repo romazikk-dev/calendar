@@ -16,6 +16,16 @@ class Template extends Model
         return $this->belongsToMany('App\Models\Worker');
     }
     
+    protected $fillable = [
+        'user_id',
+        'title',
+        'duration',
+        'price',
+        'description',
+        'short_description',
+        'notice',
+    ];
+    
     /**
      * The labels for attributes.
      *

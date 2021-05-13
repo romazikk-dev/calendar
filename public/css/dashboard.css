@@ -74,12 +74,27 @@
   position: relative;
   border: 0px !important;
   position: relative;
+  top: 1px;
+  left: 4px;
   z-index: 99;
+}
+
+.edit-create-nav-tabs li a {
+  border: 1px solid #f4f4f4 !important;
 }
 
 .edit-create-nav-tabs li a.active {
   background-color: #f8f9fa !important;
   border-bottom: 1px solid #f8f9fa !important;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#f2f2f2+0,f8f9fa+100 */
+  background: #f2f2f2;
+  /* Old browsers */
+  /* FF3.6-15 */
+  /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #f2f2f2 0%, #f8f9fa 100%);
+  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#f2f2f2", endColorstr="#f8f9fa",GradientType=0 );
+  /* IE6-9 */
 }
 
 .edit-create-nav-tabs li.action-btn {
@@ -140,24 +155,44 @@ select {
   background-color: #e9ecef;
 }
 
+/* TEMPLATES LIST
+******************************************************************/
+
+.templates-list #dataTable .coll-price,
+.templates-list #dataTable .workers-count {
+  vertical-align: middle;
+  text-align: center !important;
+}
+
+.templates-list #dataTable .actions {
+  width: 80px !important;
+}
+
+.templates-list #dataTable .actions .action {
+  margin-left: 6px;
+}
+
 /* DATATABLE ACTION BUTTONS
 ******************************************************************/
 
-.dataTable .actions .action-drop .dropdown-menu {
+.action-drop .dropdown-menu {
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   padding: 4px 10px;
   text-align: center;
 }
 
-.dataTable .actions .action-drop .dropdown-menu .btnns {
+.action-drop .dropdown-menu .btnns {
   padding: 10px 0px;
 }
 
-.dataTable .actions .action-drop .dropdown-menu .btnns .btnn {
+.action-drop .dropdown-menu .btnns .btnn {
   margin-right: 20px;
+  display: inline-block;
+  outline: none;
+  border: none !important;
 }
 
-.dataTable .actions .action-drop .dropdown-menu .btnns .btnn:last-child {
+.action-drop .dropdown-menu .btnns .btnn:last-child {
   margin-right: 0px;
 }
 

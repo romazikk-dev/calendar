@@ -171,22 +171,29 @@ class HallController extends Controller
     // public function create(Request $request)
     public function create(){
         
-        // if({{ old('business_hours') ? old('business_hours')['monday']['start_hour'] : '' }})
-        // if(!empty($request->old('business_hours')['monday'])){
-        //     dd($request->old('business_hours')['monday']);
-        // }
+        if(old('business_hours')){
+            $business_hours = \Setting::arrangeByKey(
+                SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS,
+                old('business_hours')
+            );
+        }else{
+            $business_hours = \Setting::getOrPlaceholder(SettingKeys::DEFAULT_BUSINESS_HOURS, true);
+        }
         
-        // dd(\Suspension::getOldForVue());
         $phones = \PhonePicker::getAllForVue();
-        $business_hours = \Setting::getOrPlaceholder(SettingKeys::DEFAULT_BUSINESS_HOURS);
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
+        
         return view('dashboard.hall.create', [
-            'business_hours' => $business_hours,
+            'business_hours' => $business_hours['data'],
+            'count_weekends' => $business_hours['count_weekends'],
+            'count_workdays' => $business_hours['count_workdays'],
             'old_suspension' => \Suspension::getOldForVue(),
             'phone_types' => PhoneTypes::all(),
             'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),
             'phones' => !empty($phones) ? $phones : null,
             'tab_errors' => $tab_errors,
+            'assign_worker' => old('assign_worker') ? old('assign_worker') : null,
+            'validation_messages' => \Lang::get('validation'),
         ]);
         
     }
@@ -205,6 +212,8 @@ class HallController extends Controller
         $messages = $rules_and_messages['messages'];
         $validate_rules = array_merge($validate_rules, $rules_and_messages['rules']);
         
+        // dd($validate_rules);
+        
         // $validator = Validator::make($request->all(), $validate_rules, $messages);
         $validator = Validator::make($request->all(), $validate_rules, $messages);
         if($validator->fails()){
@@ -220,18 +229,18 @@ class HallController extends Controller
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
         
-        if(!empty($validated['assign_worker'])){
-            $assign_worker = array_keys($validated['assign_worker']);
+        if(!empty($validated['assign_workers'])){
+            $assign_workers = array_keys($validated['assign_workers']);
             // unset($validated['assign_worker']);
-            $workers = Worker::whereIn('id', $assign_worker)->get();
-            if(count($workers) != count($assign_worker))
+            $workers = Worker::whereIn('id', $assign_workers)->get();
+            if(count($workers) != count($assign_workers))
                 return back()->withErrors(['assign_worker_count', 'You trying assign to hall not existing workers']);
         }
         
         $validated['user_id'] = auth()->user()->id;
         
-        if(($hall = Hall::create($validated)) && !empty($assign_worker))
-            foreach($assign_worker as $worker_id)
+        if(($hall = Hall::create($validated)) && !empty($assign_workers))
+            foreach($assign_workers as $worker_id)
                 $hall->workers()->attach($worker_id);
         
         if(!empty($hall)){
@@ -270,6 +279,8 @@ class HallController extends Controller
     {
         $hall = Hall::where("id", $id);
         
+        if($request->has('with_phones'))
+            $hall->with('phones');
         if($request->has('with_workers'))
             $hall->with('workers');
         if($request->has('with_suspension'))
@@ -302,11 +313,13 @@ class HallController extends Controller
         );
         
         $assign_workers = [];
-        // dd($assign_worker);
+        // dd($assign_workers);
         foreach($hall->workers as $itm){
             $assign_workers[$itm->id] = 'on';
             // dump($itm->id);
         }
+        
+        // dd($assign_workers);
         
         $phones = \PhonePicker::getAllForVue($hall);
         $current_phones = $hall->phones->toArray();
@@ -332,6 +345,7 @@ class HallController extends Controller
             'old_suspension' => \Suspension::getOldForVue(),
             
             'tab_errors' => $tab_errors,
+            'validation_messages' => \Lang::get('validation'),
         ]);
     }
 
@@ -365,11 +379,11 @@ class HallController extends Controller
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
         
-        if(!empty($validated['assign_worker'])){
-            $assign_worker = array_keys($validated['assign_worker']);
-            unset($validated['assign_worker']);
-            $workers = Worker::whereIn('id', $assign_worker)->get();
-            if(count($workers) != count($assign_worker))
+        if(!empty($validated['assign_workers'])){
+            $assign_workers = array_keys($validated['assign_workers']);
+            unset($validated['assign_workers']);
+            $workers = Worker::whereIn('id', $assign_workers)->get();
+            if(count($workers) != count($assign_workers))
                 return back()->withErrors(['assign_worker_count', 'You trying assign not existing workers']);
         }
         
@@ -406,8 +420,8 @@ class HallController extends Controller
         $hall = Hall::find($id);    
         $hall->workers()->detach();
         
-        if(!empty($assign_worker))
-            foreach($assign_worker as $worker_id)
+        if(!empty($assign_workers))
+            foreach($assign_workers as $worker_id)
                 $hall->workers()->attach($worker_id);
         
         // dd($suspension);
@@ -427,6 +441,10 @@ class HallController extends Controller
         $route_params = ['hall' => $id];
         if($request->has('tab'))
             $route_params['tab'] = $request->tab;
+            
+        // dd($request->all());
+        // dd($route_params);
+        
         return redirect()->route('dashboard.hall.edit', $route_params)->with('success', 'Data saccessfuly saved!');
     }
 
@@ -438,7 +456,7 @@ class HallController extends Controller
      */
     public function destroy($id)
     {
-        dd($id);
+        // dd($id);
         Hall::where('id', $id)
             ->where('is_deleted', 0)
             ->update(['is_deleted' => 1]);
@@ -491,7 +509,7 @@ class HallController extends Controller
             'suspend_to' => 'required_if:status,==,period|nullable|string|max:20|regex:/\d{2}-\d{2}-\d{4}/i',
             
             //Assign workers rule
-            'assign_worker' => 'nullable|array',
+            'assign_workers' => 'nullable|array',
             
             //Business hours rules
             'business_hours' => 'required|array',

@@ -2,8 +2,8 @@
     <div>
         
         <transition name="wrapper">
-            <div v-if="isAllDaysClosed" class="alert alert-warning" role="alert">
-                All days of week are weekends!
+            <div v-if="showWarningAlert" class="alert alert-warning" role="alert">
+                All days are weekends!
             </div>
         </transition>
         
@@ -87,6 +87,8 @@
     export default {
         mounted() {
             this.setWeekdays();
+            this.initWeekdays = JSON.parse(JSON.stringify(this.weekdays));
+            this.reCalculateTabValue(false);
         },
         // props: ['postTitle'],
         data: function(){
@@ -95,6 +97,7 @@
                 defaultStartTime: '10:00',
                 defaultEndTime: '20:00',
                 my: 'my',
+                initWeekdays: [],
                 weekdays: [
                     {
                         weekday: 'monday',
@@ -142,6 +145,11 @@
             };
         },
         computed: {
+            showWarningAlert: function () {
+                if(this.isJqueryValidationEnabled() && this.isAllDaysClosed)
+                    return true;
+                return this.isAllDaysClosedInitial;
+            },
             isAllDaysOpened: function () {
                 // console.log('isAllDaysOpened');
                 let isAllDaysOpened = true;
@@ -153,6 +161,18 @@
                 }
                 return isAllDaysOpened;
             },
+            isAllDaysClosedInitial: function () {
+                if(this.isJqueryValidationEnabled())
+                    return false;
+                let isAllDaysClosed = true;
+                for(let i = 0; i < this.initWeekdays.length; i++){
+                    if(!this.initWeekdays[i].is_weekend){
+                        isAllDaysClosed = false;
+                        break;
+                    }
+                }
+                return isAllDaysClosed;
+            },
             isAllDaysClosed: function () {
                 // console.log('isAllDaysClosed');
                 let isAllDaysClosed = true;
@@ -163,11 +183,18 @@
                     }
                 }
                 return isAllDaysClosed;
-            }
+            },
+            // jqueryValidationEnabled: function(){
+            //     return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            // },
         },
         methods: {
-            reCalculateTabValue: function(){
-                // return;
+            isJqueryValidationEnabled: function(){
+                return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            },
+            reCalculateTabValue: function(checkIsJqueryValidationEnabled = true){
+                if(checkIsJqueryValidationEnabled && !this.isJqueryValidationEnabled())
+                    return;
                 
                 let workDays = 0;
                 this.weekdays.forEach((item, i) => {
@@ -182,12 +209,13 @@
                 noticeBadges.find('.notice-badge').addClass('d-none');
                 if(workDays > 0){
                     noticeBadges.find('.notice-badge-success').removeClass('d-none')
-                        .attr('data-original-title', 'Currently ' + workDays + ' days opened').text(workDays);
+                        .attr('data-original-title', workDays + ' days opened').text(workDays);
                 }else{
                     noticeBadges.find('.notice-badge-warning').removeClass('d-none');
                 }
             },
             onWeekendChange: function(){
+                // if(this.isJqueryValidationEnabled())
                 this.reCalculateTabValue();
             },
             setAllWeekends: function(asWeekends){

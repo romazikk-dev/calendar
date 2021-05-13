@@ -1,8 +1,13 @@
 {
+    "/js/dashboard/time-picker.js": "/js/dashboard/time-picker.js",
     "/js/dashboard/phone-picker.js": "/js/dashboard/phone-picker.js",
+    "/js/dashboard/halls/halls-list.js": "/js/dashboard/halls/halls-list.js",
+    "/js/dashboard/template/templates-list.js": "/js/dashboard/template/templates-list.js",
+    "/js/dashboard/client/clients-list.js": "/js/dashboard/client/clients-list.js",
     "/js/dashboard/worker/workers-list.js": "/js/dashboard/worker/workers-list.js",
     "/js/dashboard/business-hours.js": "/js/dashboard/business-hours.js",
     "/js/dashboard/hall-assignment.js": "/js/dashboard/hall-assignment.js",
     "/js/dashboard/suspension.js": "/js/dashboard/suspension.js",
+    "/js/dashboard/worker-assignment.js": "/js/dashboard/worker-assignment.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

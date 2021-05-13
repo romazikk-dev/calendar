@@ -1906,6 +1906,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     // console.log(assignHalls);
@@ -1914,6 +1918,7 @@ __webpack_require__.r(__webpack_exports__);
     // 	this.setAssignHalls();
     // }, 300);
     this.setAssignHalls();
+    this.recalculateBadgeValue(true);
   },
   // props: ['postTitle'],
   data: function data() {
@@ -1923,9 +1928,24 @@ __webpack_require__.r(__webpack_exports__);
       assignHalls: assignHalls
     };
   },
+  computed: {
+    showWarningAlert: function showWarningAlert() {
+      // if(this.items == null || this.selectedItems.length == 0)
+      //     return false;
+      // console.log('showWarningAlert');
+      if (this.isJqueryValidationEnabled()) return this.selectedItems.length == 0;
+      var assignHallsIds = this.assignHalls == null ? [] : Object.keys(this.assignHalls);
+      console.log('showWarningAlert'); // console.log(JSON.parse(JSON.stringify(this.assignHalls)));
+
+      return assignHallsIds.length == 0;
+    }
+  },
   methods: {
+    isJqueryValidationEnabled: function isJqueryValidationEnabled() {
+      return typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating();
+    },
     openModal: function openModal() {
-      var _this = this;
+      var _this2 = this;
 
       // e.preventDefault();
       if (this.items == null) {
@@ -1936,8 +1956,8 @@ __webpack_require__.r(__webpack_exports__);
             items[idx].selected = false;
           }
 
-          _this.items = items;
-          console.log(JSON.parse(JSON.stringify(_this.items)));
+          _this2.items = items;
+          console.log(JSON.parse(JSON.stringify(_this2.items)));
           $("#itemAssignmentModal").modal('show');
         })["catch"](function (error) {
           console.log(error);
@@ -1947,7 +1967,43 @@ __webpack_require__.r(__webpack_exports__);
         $("#itemAssignmentModal").modal('show');
       }
     },
+    recalculateBadgeValue: function recalculateBadgeValue() {
+      var init = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      var _this = this;
+
+      if (init == true && this.showWarningAlert && !this.isJqueryValidationEnabled()) {
+        $("#hall-tab").find('.notice-badges').find('.notice-badge-warning').removeClass('d-none');
+        return;
+      }
+
+      if (init == true && !this.showWarningAlert && !this.isJqueryValidationEnabled()) {
+        var interval = setInterval(function () {
+          if (_this.selectedItems.length > 0) {
+            clearInterval(interval);
+            recalculateBadgeValue();
+          }
+        }, 50);
+      }
+
+      if (!this.isJqueryValidationEnabled()) return;
+      recalculateBadgeValue();
+
+      function recalculateBadgeValue() {
+        var noticeBadges = $("#hall-tab").find('.notice-badges'); // console.log(noticeBadge);
+
+        noticeBadges.find('.notice-badge').addClass('d-none');
+
+        if (_this.selectedItems.length > 0) {
+          noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', _this.selectedItems.length + ' halls').text(_this.selectedItems.length);
+        } else {
+          noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+        }
+      }
+    },
     applySelect: function applySelect() {
+      // if()
+      // console.log(1111111);
       // e.preventDefault();
       if (this.items != null) {
         var selectedItems = [];
@@ -1958,16 +2014,21 @@ __webpack_require__.r(__webpack_exports__);
 
         this.selectedItems = JSON.parse(JSON.stringify(selectedItems));
         $("#itemAssignmentModal").modal('hide');
-        var noticeBadges = $("#hall-tab").find('.notice-badges'); // console.log(noticeBadge);
-
-        noticeBadges.find('.notice-badge').addClass('d-none');
-
-        if (selectedItems.length > 0) {
-          noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', 'Currently ' + selectedItems.length + ' days opened').text(selectedItems.length);
-        } else {
-          noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+        this.recalculateBadgeValue(); // if(!this.isJqueryValidationEnabled())
+        //     return;
+        // let noticeBadges = $("#hall-tab").find('.notice-badges');
+        // // console.log(noticeBadge);
+        // 
+        // noticeBadges.find('.notice-badge').addClass('d-none');
+        // if(selectedItems.length > 0){
+        //     noticeBadges.find('.notice-badge-success').removeClass('d-none')
+        //         .attr('data-original-title', selectedItems.length + ' halls').text(selectedItems.length);
+        // }else{
+        //     noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+        // }
+      } else {// let noticeBadges = $("#hall-tab").find('.notice-badges');
+          // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
         }
-      }
     },
     dismissSelected: function dismissSelected(item) {
       // e.preventDefault();
@@ -1980,7 +2041,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     setAssignHalls: function setAssignHalls() {
-      var _this2 = this;
+      var _this3 = this;
 
       if (typeof this.assignHalls != 'undefined' && this.assignHalls != null) {
         console.log('setAssignHalls'); // console.log(JSON.parse(JSON.stringify(this.assignHalls)));
@@ -2001,9 +2062,9 @@ __webpack_require__.r(__webpack_exports__);
             } // this.items = JSON.parse(JSON.stringify(items));
 
 
-            _this2.items = items;
+            _this3.items = items;
 
-            _this2.applySelect(); // console.log(JSON.parse(JSON.stringify(this.items)));
+            _this3.applySelect(); // console.log(JSON.parse(JSON.stringify(this.items)));
 
           })["catch"](function (error) {
             console.log(error);
@@ -2089,7 +2150,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "h5[data-v-13db6174] {\n  position: relative;\n  top: 5px;\n}\n#itemAssignmentModal ul[data-v-13db6174] {\n  padding: 0px;\n  margin: 0px;\n}\n#itemAssignmentModal ul li[data-v-13db6174] {\n  padding: 0px;\n  margin: 0px;\n  list-style: none;\n}\n.open-select-item-modal svg[data-v-13db6174] {\n  position: relative;\n  top: -2px;\n}\n.assign-item[data-v-13db6174] {\n  display: none;\n}\n.alert[data-v-13db6174] {\n  margin-bottom: 0px;\n  margin-top: 10px;\n  line-height: 1em;\n}\n.alert span.small[data-v-13db6174] {\n  line-height: 1em;\n}\n.alert .close[data-v-13db6174] {\n  position: absolute;\n  top: 5px;\n  right: 10px;\n}\ntable.all-items-list[data-v-13db6174] {\n  width: 100%;\n}\ntable.all-items-list tr td[data-v-13db6174] {\n  vertical-align: top;\n  line-height: 1em;\n  border-top: 1px solid #dee2e6;\n}\ntable.all-items-list tr td label[data-v-13db6174] {\n  cursor: pointer;\n}\ntable.all-items-list tr td[data-v-13db6174]:first-child {\n  width: 40px;\n  padding-left: 14px;\n}\ntable.all-items-list tr td[data-v-13db6174]:last-child {\n  padding-top: 7px;\n}\ntable.all-items-list tr td:last-child label[data-v-13db6174] {\n  display: block;\n  width: 100%;\n}\ntable.all-items-list tr:nth-child(odd) td[data-v-13db6174] {\n  background-color: rgba(0, 0, 0, 0.05);\n}\ntable.all-items-list tr:last-child td[data-v-13db6174] {\n  border-bottom: 1px solid #dee2e6;\n}\n\n/* .card-body{\n    padding: 0px;\n}\n.card-padding{\n    padding-top: 15px;\n    padding-left: 15px;\n    padding-right: 15px;\n} */", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "h5[data-v-13db6174] {\n  position: relative;\n  top: 5px;\n}\n#itemAssignmentModal ul[data-v-13db6174] {\n  padding: 0px;\n  margin: 0px;\n}\n#itemAssignmentModal ul li[data-v-13db6174] {\n  padding: 0px;\n  margin: 0px;\n  list-style: none;\n}\n.open-select-item-modal svg[data-v-13db6174] {\n  position: relative;\n  top: -2px;\n}\n.assign-item[data-v-13db6174] {\n  display: none;\n}\n.alert-item[data-v-13db6174] {\n  margin-bottom: 0px;\n  margin-top: 10px;\n  line-height: 1em;\n}\n.alert-item span.small[data-v-13db6174] {\n  line-height: 1em;\n}\n.alert-item .close[data-v-13db6174] {\n  position: absolute;\n  top: 5px;\n  right: 10px;\n}\ntable.all-items-list[data-v-13db6174] {\n  width: 100%;\n}\ntable.all-items-list tr td[data-v-13db6174] {\n  vertical-align: top;\n  line-height: 1em;\n  border-top: 1px solid #dee2e6;\n}\ntable.all-items-list tr td label[data-v-13db6174] {\n  cursor: pointer;\n}\ntable.all-items-list tr td[data-v-13db6174]:first-child {\n  width: 40px;\n  padding-left: 14px;\n}\ntable.all-items-list tr td[data-v-13db6174]:last-child {\n  padding-top: 7px;\n}\ntable.all-items-list tr td:last-child label[data-v-13db6174] {\n  display: block;\n  width: 100%;\n}\ntable.all-items-list tr:nth-child(odd) td[data-v-13db6174] {\n  background-color: rgba(0, 0, 0, 0.05);\n}\ntable.all-items-list tr:last-child td[data-v-13db6174] {\n  border-bottom: 1px solid #dee2e6;\n}\n\n/* .card-body{\n    padding: 0px;\n}\n.card-padding{\n    padding-top: 15px;\n    padding-left: 15px;\n    padding-right: 15px;\n} */", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -19991,6 +20052,18 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
+    _vm.showWarningAlert
+      ? _c(
+          "div",
+          { staticClass: "alert alert-warning", attrs: { role: "alert" } },
+          [
+            _vm._v("\n        Assigned to "),
+            _c("b", { staticClass: "text-uppercase" }, [_vm._v("0")]),
+            _vm._v(" halls!\n    ")
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
     _c(
       "div",
       [
@@ -20034,7 +20107,10 @@ var render = function() {
         _vm._l(_vm.selectedItems, function(item, index) {
           return _c(
             "div",
-            { staticClass: "alert alert-primary", attrs: { role: "alert" } },
+            {
+              staticClass: "alert-item alert alert-primary",
+              attrs: { role: "alert" }
+            },
             [
               _c("b", [_vm._v(_vm._s(item.title))]),
               _c("br"),

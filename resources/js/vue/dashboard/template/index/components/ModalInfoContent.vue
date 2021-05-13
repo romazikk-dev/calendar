@@ -4,14 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">
-                    {{ data.title }}
-                    
-                    <!-- <span :class="{'badge-success': data.is_closed == 0, 'badge-danger': data.is_closed == 1}"
-                        class="badge badge-pill text-uppercase">closed</span> -->
-                        
-                        <span class="badge badge-pill badge-success text-uppercase" v-if="!data.is_closed == 1">opened</span>
-                        <span class="badge badge-pill badge-danger text-uppercase" v-else>closed</span>
-                    
+                    {{ title }}
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -25,20 +18,40 @@
                 <button type="button"
                     :class="{'active': showTab == 'employees'}"
                     @click="showTab = 'employees'"
-                    class="btn btn-secondary">Employees
-                        <span class="badge badge-info badge-pill">
-                            {{data.workers && data.workers.length > 0 ? data.workers.length : 0}}
+                    class="btn btn-secondary">
+                        Employees
+                        <span class="text-warning"
+                            v-if="!data.workers.length"
+                            data-toggle="modal-info-dropdown"
+                            data-placement="top"
+                            title="No employees">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+                                </svg>
                         </span>
+                        <span class="badge badge-pill badge-info" v-else
+                            data-toggle="modal-info-dropdown"
+                            data-placement="top"
+                            :title="data.workers.length + ' employees'">
+                                {{data.workers.length}}
+                        </span>
+                        <!-- <span class="badge badge-info badge-pill">
+                            {{data.workers && data.workers.length > 0 ? data.workers.length : 0}}
+                        </span> -->
                 </button>
-                <button type="button"
-                    :class="{'active': showTab == 'business_hours'}"
-                    @click="showTab = 'business_hours'"
-                    class="btn btn-secondary">Business hours</button>
             </div>
             <div class="modal-body">
                 
                 <template v-if="showTab == 'main'">
                     <table class="info-table">
+                        <tr v-if="data.title">
+                            <td>Title:</td>
+                            <td><b>{{ data.title }}</b></td>
+                        </tr>
+                        <tr v-if="data.notice">
+                            <td>Notice:</td>
+                            <td><b>{{ data.notice }}</b></td>
+                        </tr>
                         <tr v-if="data.short_description">
                             <td>Short description:</td>
                             <td><b>{{ data.short_description }}</b></td>
@@ -63,10 +76,6 @@
                             <td>Updated At:</td>
                             <td><b>{{ updatedAt }}</b></td>
                         </tr>
-                        <tr>
-                            <td>Description</td>
-                            <td></td>
-                        </tr>
                     </table>
                 </template>
                 
@@ -74,29 +83,15 @@
                     <template v-if="data.workers && data.workers.length > 0">
                         <table class="info-table">
                             <tr v-for="worker in data.workers">
-                                <td>{{ fullName(worker.first_name, worker.last_name) }}:</td>
+                                <td>{{ fullName(worker) }}:</td>
                                 <td>
                                     <b>{{ worker.email }}</b>
                                 </td>
                             </tr>
                         </table>
                     </template>
-                </template>
-                
-                <template v-if="showTab == 'business_hours'">
-                    <template v-if="data.business_hours">
-                        <table class="info-table">
-                            <template v-for="business_hour in JSON.parse(data.business_hours)">
-                                <tr v-if="!business_hour.is_weekend">
-                                    <td>{{ business_hour.weekday }}:</td>
-                                    <td class="text-uppercase text-success"><b>{{ business_hour.start + ' - ' + business_hour.end }}</b></td>
-                                </tr>
-                                <tr v-else>
-                                    <td>{{ business_hour.weekday }}:</td>
-                                    <td class="text-uppercase text-danger"><b>closed</b></td>
-                                </tr>
-                            </template>
-                        </table>
+                    <template v-else>
+                        No employees
                     </template>
                 </template>
                 
@@ -112,15 +107,20 @@
         mounted() {
             // this.initDataTable();
             // this.regClickMoreInfoBtn();
+            $('[data-toggle="modal-info-dropdown"]').tooltip({ html: true });
         },
         props: ['data'],
         data: function(){
             return {
                 showTab: 'main',
                 // workers: null,
+                weekdays: ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'],
             };
         },
         computed: {
+            title: function(){
+                return helper.capitalizeFirstLetter(this.data.title);
+            },
             createdAt: function(){
                 if(this.data == null || this.data.created_at == null)
                     return '';
@@ -133,17 +133,17 @@
             },
         },
         methods: {
-            fullName: function(firstName = null, lastName = null){
-                if(firstName == null && lastName != null)
-                    return lastName;
-                if(lastName == null && firstName != null)
-                    return firstName;
-                if(lastName != null && firstName != null)
-                    return firstName + ' ' + lastName;
-                return '';
-            },
             resetAllModalsData: function(){
                 this.infoModalData = null;
+            },
+            fullName: function(worker){
+                let fullNameArr = [];
+                if(!helper.isPropEmpty(worker.first_name))
+                    fullNameArr.push(helper.capitalizeFirstLetter(worker.first_name));
+                if(!helper.isPropEmpty(worker.last_name))
+                    fullNameArr.push(helper.capitalizeFirstLetter(worker.last_name));
+            
+                return fullNameArr.join(' ');
             },
         },
         components: {

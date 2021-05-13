@@ -1890,6 +1890,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -1909,6 +1912,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    isStatus: function isStatus(type, suspension) {
+      return helper.isStatus(type, typeof suspension == 'undefined' || suspension == null ? null : suspension);
+    },
     regActionsOnModalClose: function regActionsOnModalClose() {
       var _this2 = this;
 
@@ -1923,12 +1929,13 @@ __webpack_require__.r(__webpack_exports__);
       $('#dataTable').DataTable().ajax.reload();
       this.updateSuspendModalData();
     },
-    openModal: function openModal(type) {
-      if (type == 'info') {
-        var url = showRoute.replace(':id', id);
-        axios.get();
-      }
-    },
+    // openModal: function(type){
+    //     if(type == 'info'){
+    //         // console.log('openModal');
+    //         let url = showRoute.replace(':id', id);
+    //         axios.get()
+    //     }
+    // },
     regClickBtns: function regClickBtns() {
       this.regClickReinstateBtn();
       this.regClickMoreInfoBtn();
@@ -1983,7 +1990,7 @@ __webpack_require__.r(__webpack_exports__);
         e.preventDefault();
         var id = parseInt($(e.target).closest('tr').attr('id'));
         var url = showRoute.replace(':id', id);
-        url += '?with_halls=1&with_suspension=1';
+        url += '?with_phones=1&with_halls=1&with_suspension=1';
         axios.get(url).then(function (response) {
           _this6.infoModalData = response.data; // this.showContent = 'info';
 
@@ -1998,22 +2005,11 @@ __webpack_require__.r(__webpack_exports__);
       this.showContent = showContent;
       $('#modal').modal('show');
     },
-    isSuspended: function isSuspended(from, to) {
-      if (from == null || from == null) return true;
-      var currentDateMoment = moment(this.currentDate);
-      var fromMoment = moment(from);
-      var toMoment = moment(to);
-      return currentDateMoment.diff(fromMoment) >= 0 && currentDateMoment.diff(toMoment) <= 0; // console.log(currentDateMoment.format('YYYY-MM-DD HH-mm-ss'));
-      // console.log(fromMoment.format('YYYY-MM-DD HH-mm-ss'));
-      // console.log(toMoment.format('YYYY-MM-DD HH-mm-ss'));
-      // return false;
+    isSuspended: function isSuspended(suspension) {
+      return this.isStatus('suspended', suspension);
     },
-    isSuspentionInFuture: function isSuspentionInFuture(from, to) {
-      if (from == null || from == null) return false;
-      var currentDateMoment = moment(this.currentDate);
-      var fromMoment = moment(from); // let toMoment = moment(to);
-
-      return currentDateMoment.diff(fromMoment) < 0;
+    isSuspentionInFuture: function isSuspentionInFuture(suspension) {
+      return this.isStatus('future_suspension', suspension);
     },
     initDataTable: function initDataTable() {
       var _this = this;
@@ -2021,8 +2017,8 @@ __webpack_require__.r(__webpack_exports__);
       $('#dataTable').DataTable({
         "processing": true,
         "serverSide": true,
-        // "order": [[ 1, "asc" ]],
-        "order": [],
+        "order": [[5, "desc"]],
+        // "order": [],
         "createdRow": function createdRow(row, data, dataIndex) {
           $(row).attr('id', data.id); // $(row).attr('is-closed', data.is_closed);
 
@@ -2030,9 +2026,9 @@ __webpack_require__.r(__webpack_exports__);
           $(row).attr('created-at', data.created_at);
 
           if (data.suspension != null) {
-            if (_this.isSuspended(data.suspension.from, data.suspension.to)) {
+            if (_this.isSuspended(data.suspension)) {
               $(row).addClass('table-danger');
-            } else if (_this.isSuspentionInFuture(data.suspension.from, data.suspension.to)) {
+            } else if (_this.isSuspentionInFuture(data.suspension)) {
               $(row).addClass('table-warning');
             }
           }
@@ -2048,7 +2044,12 @@ __webpack_require__.r(__webpack_exports__);
           name: 'full_name',
           className: 'coll-title'
         }, {
+          data: 'email',
+          name: 'email',
+          className: 'coll-email'
+        }, {
           data: null,
+          name: 'status',
           className: 'coll-status',
           width: '20px'
         }, {
@@ -2066,8 +2067,8 @@ __webpack_require__.r(__webpack_exports__);
           data: null,
           className: "actions",
           render: function render(data, type, row, meta) {
-            console.log('data');
-            console.log(data);
+            // console.log('data');
+            // console.log(data);
             var delete_url = deleteRoute.replace(':id', row.id);
             var edit_url = editRoute.replace(':id', row.id);
             var show_url = showRoute.replace(':id', row.id);
@@ -2075,23 +2076,23 @@ __webpack_require__.r(__webpack_exports__);
             var stopSuspensionVisibility = data.worker_suspension_id !== null ? '' : 'd-none';
             var reinstate = '';
 
-            if (row.suspension != null && (_this.isSuspended(row.suspension.from, row.suspension.to) || _this.isSuspentionInFuture(row.suspension.from, row.suspension.to))) {
-              var isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension.from, row.suspension.to);
+            if (row.suspension != null && (_this.isSuspended(row.suspension) || _this.isSuspentionInFuture(row.suspension))) {
+              var isSuspentionInFuture = _this.isSuspentionInFuture(row.suspension);
 
               var reinstateAttrTitle = isSuspentionInFuture ? "\n                                        Undo future<br>\n                                        employee suspension<br>\n                                        from <b>" + _this.formatDataDateForDateChooser(row.suspension.from) + "</b><br>\n                                        to <b>" + _this.formatDataDateForDateChooser(row.suspension.to) + "</b>\n                                    " : "Reinstate worker";
               var reinstateDropQuestion = isSuspentionInFuture ? "\n                                        Do you want undo future suspension for this employee?\n                                    " : "\n                                        Do you want reinstate an employee?\n                                    ";
               var reinstateIcon = isSuspentionInFuture ? "\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-x-circle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z\"/>\n                                        </svg>\n                                    " : "\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-play-circle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z\"/>\n                                        </svg>\n                                    ";
-              reinstate = "\n                                    <div class=\"action-drop dropup float-right\">\n                                        <a href=\"#\"\n                                            id=\"dropdownReinstateButton\"\n                                            class=\"action text-info data-tooltip\"\n                                            data-toggle=\"dropdown\"\n                                            data-placement=\"bottom\"\n                                            title=\"".concat(reinstateAttrTitle, "\"\n                                            aria-haspopup=\"true\"\n                                            aria-expanded=\"false\">\n                                                ").concat(reinstateIcon, "\n                                        </a>\n                                        <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownReinstateButton\">\n                                            ").concat(reinstateDropQuestion, "\n                                            <div class=\"btnns\">\n                                                \n                                                <a href=\"#\" class=\"btnn text-primary stop-suspension-action\">\n                                                        Yes\n                                                </a>\n                                                \n                                                <a href=\"#\"\n                                                    onclick=\"\n                                                        event.preventDefault();\n                                                        $('#dropdownReinstateButton').click();\n                                                    \" class=\"btnn text-primary\">\n                                                        No\n                                                </a>\n                                                    \n                                            </div>\n                                        </div>\n                                    </div>\n                                ");
+              reinstate = "\n                                    <div class=\"action-drop dropup float-right\">\n                                        <a href=\"#\"\n                                            id=\"dropdownReinstateButton_".concat(row.id, "\"\n                                            class=\"action text-info data-tooltip\"\n                                            data-toggle=\"dropdown\"\n                                            data-placement=\"bottom\"\n                                            title=\"").concat(reinstateAttrTitle, "\"\n                                            aria-haspopup=\"true\"\n                                            aria-expanded=\"false\">\n                                                ").concat(reinstateIcon, "\n                                        </a>\n                                        <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownReinstateButton_").concat(row.id, "\">\n                                            ").concat(reinstateDropQuestion, "\n                                            <div class=\"btnns\">\n                                                \n                                                <a href=\"#\" class=\"btnn text-primary stop-suspension-action\">\n                                                        Yes\n                                                </a>\n                                                \n                                                <a href=\"#\"\n                                                    onclick=\"\n                                                        event.preventDefault();\n                                                        $('#dropdownReinstateButton_").concat(row.id, "').click();\n                                                    \" class=\"btnn text-primary\">\n                                                        No\n                                                </a>\n                                                    \n                                            </div>\n                                        </div>\n                                    </div>\n                                ");
             }
 
-            return "\n                                <div class=\"action-drop dropup float-right\">\n                                    <a href=\"#\"\n                                        id=\"dropdownDeleteButton\"\n                                        class=\"action text-info data-tooltip\"\n                                        data-toggle=\"dropdown\"\n                                        data-placement=\"bottom\"\n                                        aria-haspopup=\"true\"\n                                        aria-expanded=\"false\"\n                                        title=\"Delete\">\n                                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash-fill\" viewBox=\"0 0 16 16\">\n                                                <path d=\"M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z\"/>\n                                            </svg>\n                                    </a>\n                                    <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownDeleteButton\">\n                                        Do you want delete this employee?\n                                        <div class=\"btnns\">\n                                            <form method=\"post\" action=\"".concat(delete_url, "\">\n                                                ").concat(csrf, "\n                                                ").concat(methodDelete, "\n                                                <a href=\"").concat(delete_url, "\"\n                                                    onclick=\"event.preventDefault(); this.closest('form').submit();\"\n                                                    class=\"btnn text-primary\">\n                                                        Yes\n                                                </a>\n                                                <a href=\"").concat(delete_url, "\"\n                                                    onclick=\"event.preventDefault(); $('#dropdownDeleteButton').click();\"\n                                                    class=\"btnn text-primary\"\n                                                    data-toggle=\"dropdown\"\n                                                    aria-haspopup=\"true\"\n                                                    aria-expanded=\"false\">\n                                                        No\n                                                </a>\n                                            </form>\n                                        </div>\n                                    </div>\n                                </div>\n                                \n                                <a href=\"").concat(edit_url, "\"\n                                    class=\"float-right edit-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Edit\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-pencil-fill\" viewBox=\"0 0 16 16\">\n                                        <path d=\"M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z\"/>\n                                    </svg>\n                                </a>\n                                \n                                <a href=\"#\"\n                                    id=\"employeeSuspensionBtn\"\n                                    class=\"float-right toggle-suspension-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Handle suspension\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-stop-circle-fill\" viewBox=\"0 0 16 16\">\n                                      <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z\"/>\n                                    </svg>\n                                </a>\n                                \n                                ").concat(reinstate, "\n                                \n                                <a href=\"").concat(show_url, "\"\n                                    onclick=\"\n                                       // event.preventDefault();\n                                       // alert(333333);\n                                       //openInfoModal(").concat(row.id, ");\n                                    \"\n                                    class=\"float-right show-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Details\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-eye-fill\" viewBox=\"0 0 16 16\">\n                                      <path d=\"M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z\"/>\n                                      <path d=\"M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z\"/>\n                                    </svg>\n                                </a>\n                            ");
+            return "\n                                <div class=\"action-drop dropup float-right\">\n                                    <a href=\"#\"\n                                        id=\"dropdownDeleteButton_".concat(row.id, "\"\n                                        class=\"action text-info data-tooltip\"\n                                        data-toggle=\"dropdown\"\n                                        data-placement=\"bottom\"\n                                        aria-haspopup=\"true\"\n                                        aria-expanded=\"false\"\n                                        title=\"Delete\">\n                                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash-fill\" viewBox=\"0 0 16 16\">\n                                                <path d=\"M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z\"/>\n                                            </svg>\n                                    </a>\n                                    <div onclick=\"event.stopPropagation()\" class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownDeleteButton_").concat(row.id, "\">\n                                        Do you want delete this employee?\n                                        <div class=\"btnns\">\n                                            <form method=\"post\" action=\"").concat(delete_url, "\">\n                                                ").concat(csrf, "\n                                                ").concat(methodDelete, "\n                                                <a href=\"").concat(delete_url, "\"\n                                                    onclick=\"event.preventDefault(); this.closest('form').submit();\"\n                                                    class=\"btnn text-primary\">\n                                                        Yes\n                                                </a>\n                                                <a href=\"").concat(delete_url, "\"\n                                                    onclick=\"event.preventDefault(); $('#dropdownDeleteButton_").concat(row.id, "').click();\"\n                                                    class=\"btnn text-primary\"\n                                                    data-toggle=\"dropdown\"\n                                                    aria-haspopup=\"true\"\n                                                    aria-expanded=\"false\">\n                                                        No\n                                                </a>\n                                            </form>\n                                        </div>\n                                    </div>\n                                </div>\n                                \n                                <a href=\"").concat(edit_url, "\"\n                                    class=\"float-right edit-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Edit\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-pencil-fill\" viewBox=\"0 0 16 16\">\n                                        <path d=\"M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z\"/>\n                                    </svg>\n                                </a>\n                                \n                                <a href=\"#\"\n                                    id=\"employeeSuspensionBtn\"\n                                    class=\"float-right toggle-suspension-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Handle suspension\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-stop-circle-fill\" viewBox=\"0 0 16 16\">\n                                      <path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z\"/>\n                                    </svg>\n                                </a>\n                                \n                                ").concat(reinstate, "\n                                \n                                <a href=\"").concat(show_url, "\"\n                                    onclick=\"\n                                       // event.preventDefault();\n                                       // alert(333333);\n                                       //openInfoModal(").concat(row.id, ");\n                                    \"\n                                    class=\"float-right show-action action text-info\"\n                                    data-toggle=\"tooltip\"\n                                    data-placement=\"bottom\"\n                                    title=\"Details\">\n                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-eye-fill\" viewBox=\"0 0 16 16\">\n                                      <path d=\"M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z\"/>\n                                      <path d=\"M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z\"/>\n                                    </svg>\n                                </a>\n                            ");
           },
           sortable: false,
           searchable: false,
           width: '10px'
         }],
         "columnDefs": [{
-          "targets": [4],
+          "targets": [5],
           "render": function render(data, type, row, meta) {
             // console.log(row);
             var date = new Date(data);
@@ -2102,44 +2103,17 @@ __webpack_require__.r(__webpack_exports__);
             return dateOfMonth + '/' + month + '/' + date.getFullYear();
           }
         }, {
-          "targets": [2],
+          "targets": [3],
           'createdCell': function createdCell(td, cellData, rowData, row, col) {
-            // $(td).attr('id', 'otherID')
-            // console.log('cellData: ');
-            // console.log(rowData);
             $(td).attr('data-toggle', 'tooltip');
             $(td).attr('data-placement', 'auto');
-            $(td).attr('data-html', 'true');
-
-            if (rowData.suspension != null) {
-              if (_this.isSuspended(rowData.suspension.from, rowData.suspension.to)) {
-                if (rowData.suspension.from == null || rowData.suspension.to == null) {
-                  $(td).attr('title', "Completely suspended");
-                } else {
-                  var from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-
-                  var to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-
-                  $(td).attr('title', "Suspended<br>from ".concat(from, "<br>until ").concat(to));
-                }
-              } else if (_this.isSuspentionInFuture(rowData.suspension.from, rowData.suspension.to)) {
-                var _from = _this.formatDataDateForDateChooser(rowData.suspension.from);
-
-                var _to = _this.formatDataDateForDateChooser(rowData.suspension.to);
-
-                $(td).attr('title', "Active<br>Will be suspended<br>from <b>".concat(_from, "</b><br>until <b>").concat(_to, "</b>"));
-              }
-            } else {
-              $(td).attr('title', "Active");
-            }
+            $(td).attr('title', helper.getStatusTooltipTitle(typeof rowData.suspension == 'undefined' || rowData.suspension == null ? null : rowData.suspension));
           },
           "render": function render(data, type, row, meta) {
             if (row.suspension != null) {
-              if (_this.isSuspended(row.suspension.from, row.suspension.to)) {
-                // $(row).addClass('table-danger');
-                // console.log(22222);
+              if (_this.isSuspended(row.suspension)) {
                 return "\n                                        <div class=\"status-circle bg-danger\"></div>\n                                    ";
-              } else if (_this.isSuspentionInFuture(row.suspension.from, row.suspension.to)) {
+              } else if (_this.isSuspentionInFuture(row.suspension)) {
                 // $(row).addClass('table-warning');
                 return "\n                                        <div class=\"status-circle bg-warning\"></div>\n                                    ";
               }
@@ -2148,15 +2122,17 @@ __webpack_require__.r(__webpack_exports__);
             return "\n                                <div class=\"status-circle bg-success\"></div>\n                            ";
           }
         }, {
-          "targets": [3],
+          "targets": [4],
           'createdCell': function createdCell(td, cellData, rowData, row, col) {
             $(td).attr('data-toggle', 'tooltip');
             $(td).attr('data-placement', 'bottom');
             $(td).attr('data-html', 'true');
-            $(td).attr('title', 'Number of halls employee works in');
+            $(td).attr('title', 'Number of hall`s an employee works in');
           },
           "render": function render(data, type, row, meta) {
-            return "\n                                <div>".concat(row.halls.length, "</div>\n                            ");
+            var hallsCount = row.halls.length;
+            var textClass = hallsCount > 0 ? '' : 'text-warning';
+            return "\n                                <div class=\"".concat(textClass, "\">").concat(hallsCount, "</div>\n                            ");
           }
         }],
         fnDrawCallback: function fnDrawCallback() {
@@ -2310,6 +2286,109 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalInfoContent',
   mounted: function mounted() {
@@ -2317,6 +2396,11 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(this.data);
     // this.initDataTable();
     // this.regClickMoreInfoBtn();
+    // console.log($('[data-toggle="modal-info-dropdown"]'));
+
+    $('[data-toggle="modal-info-dropdown"]').tooltip({
+      html: true
+    });
   },
   props: ['data'],
   data: function data() {
@@ -2327,12 +2411,35 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    getTooltipStatusTitle: function getTooltipStatusTitle() {
+      return helper.getStatusTooltipTitle(typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
     suspended: function suspended() {
-      var componentApp = this.getParentComponentByName(this, 'app');
-      return this.data != null && typeof this.data.suspension != 'undefined' && this.data.suspension != null && componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
+      return this.isStatus('suspended');
+    },
+    suspentionInFuture: function suspentionInFuture() {
+      return this.isStatus('future_suspension');
+    },
+    periodSuspended: function periodSuspended() {
+      return this.isStatus('period_suspended');
     },
     businessHours: function businessHours() {
       return JSON.parse(this.data.business_hours);
+    },
+    countActiveBusinessHours: function countActiveBusinessHours() {
+      var _this = this;
+
+      var activeBusinessHours = 0;
+
+      if (this.businessHours) {
+        this.weekdays.forEach(function (item, index) {
+          if (typeof _this.businessHours[item].is_weekend === 'undefined') {
+            activeBusinessHours++;
+          }
+        });
+      }
+
+      return activeBusinessHours;
     },
     createdAt: function createdAt() {
       if (this.data == null || this.data.created_at == null) return '';
@@ -2341,17 +2448,34 @@ __webpack_require__.r(__webpack_exports__);
     updatedAt: function updatedAt() {
       if (this.data == null || this.data.updated_at == null) return '';
       return moment(this.data.updated_at).format('DD-MM-YYYY');
+    },
+    fullName: function fullName() {
+      var fullNameArr = [];
+      if (!helper.isPropEmpty(this.data.first_name)) fullNameArr.push(helper.capitalizeFirstLetter(this.data.first_name));
+      if (!helper.isPropEmpty(this.data.last_name)) fullNameArr.push(helper.capitalizeFirstLetter(this.data.last_name));
+      return fullNameArr.join(' ');
     }
   },
   methods: {
-    fullName: function fullName() {
-      var firstName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var lastName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      if (firstName == null && lastName != null) return lastName;
-      if (lastName == null && firstName != null) return firstName;
-      if (lastName != null && firstName != null) return firstName + ' ' + lastName;
-      return '';
+    isStatus: function isStatus(type) {
+      return helper.isStatus(type, typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
     },
+    fullAddress: function fullAddress(hall) {
+      var arrAddress = [];
+      if (!helper.isPropEmpty(hall.country)) arrAddress.push(hall.country);
+      if (!helper.isPropEmpty(hall.town)) arrAddress.push(hall.town);
+      if (!helper.isPropEmpty(hall.street)) arrAddress.push(hall.street);
+      return arrAddress.join(', ');
+    },
+    // fullName: function(){
+    //     let fullNameArr = [];
+    //     if(!helper.isPropEmpty(this.data.first_name))
+    //         fullNameArr.push(this.data.first_name);
+    //     if(!helper.isPropEmpty(this.data.last_name))
+    //         fullNameArr.push(this.data.last_name);
+    // 
+    //     return fullNameArr.join(' ');
+    // },
     resetAllModalsData: function resetAllModalsData() {
       this.infoModalData = null;
     }
@@ -2529,17 +2653,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalSuspensionContent',
   mounted: function mounted() {
-    // console.log('data:');
-    // console.log(JSON.parse(JSON.stringify(this.data)));
     this.initDatePicker();
-    this.setFromAndToVars(); // this.setSuspendUrl();
-    // this.regClickMoreInfoBtn();
+    this.setFromAndToVars();
+    $('[data-toggle="modal-info-dropdown"]').tooltip({
+      html: true
+    });
   },
   props: ['data'],
   data: function data() {
@@ -2548,10 +2669,14 @@ __webpack_require__.r(__webpack_exports__);
       from: null,
       to: null,
       fromErr: null,
-      toErr: null
+      toErr: null // helper: helper,
+
     };
   },
   computed: {
+    getTooltipStatusTitle: function getTooltipStatusTitle() {
+      return helper.getStatusTooltipTitle(typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
     isSuspendRangeSetted: function isSuspendRangeSetted() {
       return this.from != null && this.to != null;
     },
@@ -2562,25 +2687,18 @@ __webpack_require__.r(__webpack_exports__);
       return this.periodSuspended || this.suspentionInFuture ? this.formatDataDateForDateChooser(this.data.suspension.to) : null;
     },
     suspended: function suspended() {
-      var componentApp = this.getParentComponentByName(this, 'app');
-      return this.data != null && typeof this.data.suspension != 'undefined' && this.data.suspension != null && componentApp.isSuspended(this.data.suspension.from, this.data.suspension.to);
+      return this.isStatus('suspended');
     },
     suspentionInFuture: function suspentionInFuture() {
-      var componentApp = this.getParentComponentByName(this, 'app');
-      return this.data != null && typeof this.data.suspension != 'undefined' && this.data.suspension != null && componentApp.isSuspentionInFuture(this.data.suspension.from, this.data.suspension.to);
+      return this.isStatus('future_suspension');
     },
     periodSuspended: function periodSuspended() {
-      return this.suspended && typeof this.data.suspension.from != 'undefined' && this.data.suspension.from != null && typeof this.data.suspension.to != 'undefined' && this.data.suspension.to != null;
+      return this.isStatus('period_suspended');
     },
     completelySuspended: function completelySuspended() {
-      return this.suspended && this.data.suspension.from == null && this.data.suspension.to == null;
+      return this.suspended && !this.periodSuspended;
     },
     periodSuspendBtnDisabled: function periodSuspendBtnDisabled() {
-      // if(this.periodSuspended){
-      //     console.log(this.periodSuspended);
-      //     console.log(this.formatDataDateForDateChooser(this.data.suspension.from) == this.from);
-      //     console.log(this.formatDataDateForDateChooser(this.data.suspension.to) == this.to);
-      // }
       return (this.periodSuspended || this.suspentionInFuture) && this.formatDataDateForDateChooser(this.data.suspension.from) == this.from && this.formatDataDateForDateChooser(this.data.suspension.to) == this.to || this.data == null;
     },
     suspendUrl: function suspendUrl() {
@@ -2589,6 +2707,9 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    isStatus: function isStatus(type) {
+      return helper.isStatus(type, typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
+    },
     // setSuspendUrl: function(){
     //     this.suspendUrl = toggleSuspension.replace(':id', this.data.id);
     // },
@@ -2786,7 +2907,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-25ffceaa] {\n  overflow: hidden;\n}\n.modal-content .btn-group[data-v-25ffceaa] {\n  margin-top: -1px;\n  border-radius: 0px;\n}\n.modal-content .btn-group .btn[data-v-25ffceaa] {\n  border-radius: 0px !important;\n}\n.modal-content .modal-body[data-v-25ffceaa] {\n  max-height: 300px;\n  overflow-x: auto;\n}\n.modal-content .modal-body .info-table[data-v-25ffceaa] {\n  width: 100%;\n}\n.modal-content .modal-body .info-table tr td[data-v-25ffceaa] {\n  vertical-align: top;\n  padding: 3px;\n  padding: 6px;\n}\n.modal-content .modal-body .info-table tr td[data-v-25ffceaa]:first-child {\n  width: 120px;\n  text-transform: uppercase;\n}\n.modal-content .modal-body .info-table tr:nth-of-type(odd) td[data-v-25ffceaa] {\n  background-color: rgba(0, 0, 0, 0.05);\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-25ffceaa] {\n  overflow: hidden;\n}\n.modal-content .modal-header .modal-title .badge[data-v-25ffceaa] {\n  cursor: default;\n}\n.modal-content .btn-group[data-v-25ffceaa] {\n  margin-top: -1px;\n  border-radius: 0px;\n}\n.modal-content .btn-group .btn[data-v-25ffceaa] {\n  border-radius: 0px !important;\n}\n.modal-content .modal-body[data-v-25ffceaa] {\n  max-height: 300px;\n  overflow-x: auto;\n}\n.modal-content .modal-body .info-table[data-v-25ffceaa] {\n  width: 100%;\n}\n.modal-content .modal-body .info-table tr td[data-v-25ffceaa] {\n  vertical-align: top;\n  padding: 3px;\n  padding: 6px;\n}\n.modal-content .modal-body .info-table tr td[data-v-25ffceaa]:first-child {\n  width: 120px;\n  text-transform: uppercase;\n}\n.modal-content .modal-body .info-table tr:nth-of-type(odd) td[data-v-25ffceaa] {\n  background-color: rgba(0, 0, 0, 0.05);\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -2810,7 +2931,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-d844e7c8] {\n  overflow: hidden;\n}\n.modal-content .modal-footer .disabled[data-v-d844e7c8] {\n  cursor: not-allowed;\n}\n.modal-content .modal-footer .dropdown-menu[data-v-d844e7c8] {\n  padding: 10px;\n  text-align: center;\n  min-width: 200px;\n  top: -4px !important;\n}\n.modal-content .modal-body .range-picker[data-v-d844e7c8] {\n  padding-bottom: 20px;\n  margin-left: 0px;\n  margin-right: 0px;\n  border: 1px solid #e4e4e4;\n  border-radius: 3px;\n  position: relative;\n  margin-top: 30px;\n  background-color: #e4e4e4;\n  padding-top: 5px;\n}\n.modal-content .modal-body .range-picker .range-picker-titt[data-v-d844e7c8] {\n  padding: 0px 6px;\n  height: 24px;\n  line-height: 24px;\n  position: absolute;\n  top: -24px;\n  left: 10px;\n  z-index: 99;\n  border-radius: 3px 3px 0px 0px;\n}\n.modal-content .modal-body .range-picker .coll .titt[data-v-d844e7c8] {\n  display: block;\n}\n.modal-content .modal-body .range-picker .coll .small[data-v-d844e7c8] {\n  position: absolute;\n  margin-top: -2px;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-d844e7c8] {\n  width: 100%;\n  text-align: center;\n  font-weight: bold;\n  color: #666;\n  border-radius: 3px;\n  background-color: #f6f6f6 !important;\n  border: 2px solid #e4e4e4;\n  cursor: pointer;\n  font-size: 20px;\n  outline: none;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-d844e7c8]:focus {\n  background-color: #fff !important;\n  border: 2px solid rgba(198, 71, 70, 0.6) !important;\n  box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-d844e7c8] {\n  overflow: hidden;\n}\n.modal-content .modal-header .modal-title .badge[data-v-d844e7c8] {\n  cursor: default;\n}\n.modal-content .modal-footer .disabled[data-v-d844e7c8] {\n  cursor: not-allowed;\n}\n.modal-content .modal-footer .dropdown-menu[data-v-d844e7c8] {\n  padding: 10px;\n  text-align: center;\n  min-width: 200px;\n  top: -4px !important;\n}\n.modal-content .modal-body .range-picker[data-v-d844e7c8] {\n  padding-bottom: 20px;\n  margin-left: 0px;\n  margin-right: 0px;\n  border: 1px solid #e4e4e4;\n  border-radius: 3px;\n  position: relative;\n  margin-top: 30px;\n  background-color: #e4e4e4;\n  padding-top: 5px;\n}\n.modal-content .modal-body .range-picker .range-picker-titt[data-v-d844e7c8] {\n  padding: 0px 6px;\n  height: 24px;\n  line-height: 24px;\n  position: absolute;\n  top: -24px;\n  left: 10px;\n  z-index: 99;\n  border-radius: 3px 3px 0px 0px;\n}\n.modal-content .modal-body .range-picker .coll .titt[data-v-d844e7c8] {\n  display: block;\n}\n.modal-content .modal-body .range-picker .coll .small[data-v-d844e7c8] {\n  position: absolute;\n  margin-top: -2px;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-d844e7c8] {\n  width: 100%;\n  text-align: center;\n  font-weight: bold;\n  color: #666;\n  border-radius: 3px;\n  background-color: #f6f6f6 !important;\n  border: 2px solid #e4e4e4;\n  cursor: pointer;\n  font-size: 20px;\n  outline: none;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-d844e7c8]:focus {\n  background-color: #fff !important;\n  border: 2px solid rgba(198, 71, 70, 0.6) !important;\n  box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -42392,7 +42513,9 @@ var render = function() {
           _c("tr", [
             _c("th", [_vm._v("ID")]),
             _vm._v(" "),
-            _c("th", [_vm._v("\n                    Title\n                ")]),
+            _c("th", [_vm._v("\n                    Name\n                ")]),
+            _vm._v(" "),
+            _c("th", [_vm._v("\n                    Email\n                ")]),
             _vm._v(" "),
             _c(
               "th",
@@ -42542,23 +42665,53 @@ var render = function() {
         _c("h5", { staticClass: "modal-title", attrs: { id: "modalLabel" } }, [
           _vm._v(
             "\n                " +
-              _vm._s(_vm.data.title) +
+              _vm._s(_vm.fullName) +
               "\n                \n                "
           ),
-          _vm._v(" "),
           _vm.suspended
             ? _c(
                 "span",
-                { staticClass: "badge badge-pill badge-danger text-uppercase" },
+                {
+                  staticClass: "badge badge-pill badge-danger text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle
+                  }
+                },
                 [_vm._v("suspended")]
               )
-            : _c(
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && _vm.suspentionInFuture
+            ? _c(
                 "span",
                 {
-                  staticClass: "badge badge-pill badge-success text-uppercase"
+                  staticClass: "badge badge-pill badge-warning text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle
+                  }
                 },
-                [_vm._v("works")]
+                [_vm._v("active")]
               )
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && !_vm.suspentionInFuture
+            ? _c(
+                "span",
+                {
+                  staticClass: "badge badge-pill badge-success text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle
+                  }
+                },
+                [_vm._v("active")]
+              )
+            : _vm._e()
         ]),
         _vm._v(" "),
         _vm._m(0)
@@ -42599,18 +42752,60 @@ var render = function() {
               }
             },
             [
-              _vm._v("Halls\n                    "),
-              _c("span", { staticClass: "badge badge-info badge-pill" }, [
-                _vm._v(
-                  "\n                        " +
-                    _vm._s(
-                      _vm.data.halls && _vm.data.halls.length > 0
-                        ? _vm.data.halls.length
-                        : 0
-                    ) +
-                    "\n                    "
-                )
-              ])
+              _vm._v("\n                    Halls\n                    "),
+              !_vm.data.halls.length
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "No halls"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: _vm.data.halls.length + " halls"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.data.halls.length) +
+                          "\n                    "
+                      )
+                    ]
+                  )
             ]
           ),
           _vm._v(" "),
@@ -42626,7 +42821,134 @@ var render = function() {
                 }
               }
             },
-            [_vm._v("Business hours")]
+            [
+              _vm._v(
+                "\n                    Business hours\n                    "
+              ),
+              !_vm.countActiveBusinessHours
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "All days are weekends"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: _vm.countActiveBusinessHours + " days opened"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.countActiveBusinessHours) +
+                          "\n                    "
+                      )
+                    ]
+                  )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-secondary",
+              class: { active: _vm.showTab == "phones" },
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  _vm.showTab = "phones"
+                }
+              }
+            },
+            [
+              _vm._v("\n                    Phones\n                    "),
+              !_vm.data.phones.length
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "No phones"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: _vm.data.phones.length + " phones"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.data.phones.length) +
+                          "\n                    "
+                      )
+                    ]
+                  )
+            ]
           )
         ]
       ),
@@ -42638,12 +42960,62 @@ var render = function() {
           _vm.showTab == "main"
             ? [
                 _c("table", { staticClass: "info-table" }, [
-                  _vm.data.short_description
+                  _vm.data.first_name
                     ? _c("tr", [
-                        _c("td", [_vm._v("Short description:")]),
+                        _c("td", [_vm._v("First Name:")]),
                         _vm._v(" "),
                         _c("td", [
-                          _c("b", [_vm._v(_vm._s(_vm.data.short_description))])
+                          _c("b", [
+                            _vm._v(
+                              _vm._s(
+                                _vm.data.first_name.charAt(0).toUpperCase() +
+                                  _vm.data.first_name.slice(1)
+                              )
+                            )
+                          ])
+                        ])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.data.last_name
+                    ? _c("tr", [
+                        _c("td", [_vm._v("Last Name:")]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("b", [
+                            _vm._v(
+                              _vm._s(
+                                _vm.data.last_name.charAt(0).toUpperCase() +
+                                  _vm.data.last_name.slice(1)
+                              )
+                            )
+                          ])
+                        ])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.data.email
+                    ? _c("tr", [
+                        _c("td", [_vm._v("Email:")]),
+                        _vm._v(" "),
+                        _c("td", [_c("b", [_vm._v(_vm._s(_vm.data.email))])])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.data.gender
+                    ? _c("tr", [
+                        _c("td", [_vm._v("Gender:")]),
+                        _vm._v(" "),
+                        _c("td", [_c("b", [_vm._v(_vm._s(_vm.data.gender))])])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.data.birthdate
+                    ? _c("tr", [
+                        _c("td", [_vm._v("Birthdate:")]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("b", [_vm._v(_vm._s(_vm.data.birthdate))])
                         ])
                       ])
                     : _vm._e(),
@@ -42693,6 +43065,31 @@ var render = function() {
               ]
             : _vm._e(),
           _vm._v(" "),
+          _vm.showTab == "phones"
+            ? [
+                _vm.data.phones && _vm.data.phones.length > 0
+                  ? [
+                      _c(
+                        "table",
+                        { staticClass: "info-table" },
+                        _vm._l(_vm.data.phones, function(phone) {
+                          return _c("tr", [
+                            _c("td", [_vm._v(_vm._s(phone.type) + ":")]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(phone.phone))])
+                          ])
+                        }),
+                        0
+                      )
+                    ]
+                  : [
+                      _vm._v(
+                        "\n                    No phones.\n                "
+                      )
+                    ]
+              ]
+            : _vm._e(),
+          _vm._v(" "),
           _vm.showTab == "halls"
             ? [
                 _vm.data.halls && _vm.data.halls.length > 0
@@ -42702,23 +43099,54 @@ var render = function() {
                         { staticClass: "info-table" },
                         _vm._l(_vm.data.halls, function(hall) {
                           return _c("tr", [
-                            _c("td", [_vm._v(_vm._s(hall.title) + ":")]),
-                            _vm._v(" "),
-                            _c("td", [
-                              _vm._v(
-                                _vm._s(
-                                  hall.short_description
-                                    ? hall.short_description
-                                    : "no description"
-                                )
-                              )
-                            ])
+                            _c(
+                              "td",
+                              { attrs: { colspan: "2" } },
+                              [
+                                _c("b", [_vm._v(_vm._s(hall.title) + ":")]),
+                                _c("br"),
+                                _vm._v(" "),
+                                hall.country || hall.town || hall.street
+                                  ? [
+                                      _c(
+                                        "span",
+                                        { staticClass: "text-capitalize" },
+                                        [
+                                          _vm._v(
+                                            "\n                                        " +
+                                              _vm._s(_vm.fullAddress(hall)) +
+                                              "\n                                    "
+                                          )
+                                        ]
+                                      ),
+                                      _c("br")
+                                    ]
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _c("span", { staticClass: "text-lowercase" }, [
+                                  _vm._v(
+                                    "\n                                    " +
+                                      _vm._s(
+                                        hall.short_description
+                                          ? hall.short_description
+                                          : "no description"
+                                      ) +
+                                      "\n                                "
+                                  )
+                                ])
+                              ],
+                              2
+                            )
                           ])
                         }),
                         0
                       )
                     ]
-                  : _vm._e()
+                  : [
+                      _vm._v(
+                        "\n                    No halls.\n                "
+                      )
+                    ]
               ]
             : _vm._e(),
           _vm._v(" "),
@@ -42838,22 +43266,57 @@ var render = function() {
       _c("div", { staticClass: "modal-header" }, [
         _c("h5", { staticClass: "modal-title", attrs: { id: "modalLabel" } }, [
           _vm._v(
-            "\n                " + _vm._s(_vm.data.title) + "\n                "
+            "\n                " +
+              _vm._s(_vm.data.title) +
+              "\n                \n                "
           ),
-          _vm._v(" "),
           _vm.suspended
             ? _c(
                 "span",
-                { staticClass: "badge badge-pill badge-danger text-uppercase" },
+                {
+                  staticClass: "badge badge-pill badge-danger text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle,
+                    "data-original-title": _vm.getTooltipStatusTitle
+                  }
+                },
                 [_vm._v("suspended")]
               )
-            : _c(
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && _vm.suspentionInFuture
+            ? _c(
                 "span",
                 {
-                  staticClass: "badge badge-pill badge-success text-uppercase"
+                  staticClass: "badge badge-pill badge-warning text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle,
+                    "data-original-title": _vm.getTooltipStatusTitle
+                  }
                 },
-                [_vm._v("opened")]
+                [_vm._v("active")]
               )
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.suspended && !_vm.suspentionInFuture
+            ? _c(
+                "span",
+                {
+                  staticClass: "badge badge-pill badge-success text-uppercase",
+                  attrs: {
+                    "data-toggle": "modal-info-dropdown",
+                    "data-placement": "auto",
+                    title: _vm.getTooltipStatusTitle,
+                    "data-original-title": _vm.getTooltipStatusTitle
+                  }
+                },
+                [_vm._v("active")]
+              )
+            : _vm._e()
         ]),
         _vm._v(" "),
         _vm._m(0)

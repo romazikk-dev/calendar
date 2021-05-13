@@ -12,9 +12,21 @@
         <script src="{{asset('/dists/mc-calendar/mc-calendar.min.js')}}"></script>
         <script>
         
+            @if($errors->has('suspend_from'))
+                var fromErr = '{{ $errors->first('suspend_from') }}';
+            @endif
+            
+            @if($errors->has('suspend_to'))
+                var toErr = '{{ $errors->first('suspend_to') }}';
+            @endif
+        
+            @if(!empty($worker))
+                let worker = @json($worker);
+            @endif
+        
             @if(!empty($validation_messages))
                 let validationMessages =  @json($validation_messages);
-                console.log(validationMessages);
+                // console.log(validationMessages);
             @endif
         
             @if(!empty($suspension))
@@ -40,7 +52,13 @@
             // console.log(JSON.parse(JSON.stringify(assignHalls)));
             
             var dataListUrl = '{{ route('dashboard.hall.data_list') }}';
-            var checkEmailUrl = '{{ route('dashboard.worker.check_email') }}';
+            @if(!empty($worker))
+                var checkEmailUrl = '{{ route('dashboard.worker.check_email', ['id' => $worker->id]) }}';
+            @else
+                var checkEmailUrl = '{{ route('dashboard.worker.check_email') }}';
+            @endif
+            
+            // console.log(checkEmailUrl);
             
             var phoneTypes = @json($phone_types);
             var indexPrefixes = @json($index_prefixes);
@@ -88,35 +106,20 @@
                 $("body").find('.birthday-calendar-background').remove();
             }
             
-            var workerDataFormUrl = '{{ !empty($worker) ? route('dashboard.worker.update', [$worker->id]) : route('dashboard.worker.store') }}';
+            // var workerDataFormUrl = '{{ !empty($worker) ? route('dashboard.worker.update', [$worker->id]) : route('dashboard.worker.store') }}';
+            
             $(document).ready(function(){
-                $('.nav-tabs a.nav-link').on('shown.bs.tab', function(){
-                    let tab = $('.nav-tabs a.nav-link.active').attr('tab-name');
-                    setFormActionAttributeWithTab(tab);
-                    
-                    let currentUrl = location.protocol + '//' + location.host + location.pathname + '?tab=' + tab;
-                    window.history.pushState({}, null, currentUrl);
-                    
-                    // console.log('The new tab is now fully shown.');
-                });
-                
-                let params = (new URL(document.location)).searchParams;
-                
-                let tab = params.get("tab");
-                if(tab != null && tab != 'main')
-                    setFormActionAttributeWithTab(tab);
-                    
-                function setFormActionAttributeWithTab(tab){
-                    let newWorkerDataFormUrl = workerDataFormUrl + '?tab=' + tab;
-                    $("#workerForm").attr('action', newWorkerDataFormUrl);
-                }
-                
                 $('[data-toggle=tooltip').tooltip({
                     boundary: 'window',
                     html: true
                 });
             });
     	</script>
+        
+        <script type="text/javascript" src="{{ asset('js/dashboard/tab-switcher.js') }}?{{$rand}}"
+            name="tab-switcher"
+            form_url="{{ !empty($worker) ? route('dashboard.worker.update', [$worker->id]) : route('dashboard.worker.store') }}"
+            form_id="workerForm"></script>
         
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/worker/jquery-validation.js') }}?{{$rand}}"></script>
@@ -157,7 +160,11 @@
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(!Request::has('tab') || Request::get('tab') == 'main') active @endif" id="main-tab" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true" tab-name="main">
                 Main
-                <span id="mainErrorBadge" class="error-badge badge badge-pill badge-danger @if(empty($tab_errors['main'])) d-none @endif">
+                <span id="mainErrorBadge"
+                    class="error-badge badge badge-pill badge-danger @if(empty($tab_errors['main'])) d-none @endif"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="{{!empty($tab_errors) && !empty($tab_errors['main']) ? $tab_errors['main'] : ''}} errors">
                     {{!empty($tab_errors) && !empty($tab_errors['main']) ? $tab_errors['main'] : ''}}
                 </span>
             </a>
@@ -165,50 +172,62 @@
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::get('tab') == 'suspension') active @endif" id="suspension-tab" data-toggle="tab" href="#suspension" tab-name="suspension" role="tab" aria-controls="suspension" aria-selected="true">
                 Status
-                @if(!empty($old_suspension) && !empty($old_suspension['count_status_error']))
-                    <span class="badge badge-pill badge-danger">{{$old_suspension['count_status_error']}}</span>
-                @endif
+                <span id="statusErrorBadge"
+                    class="badge badge-pill badge-danger @if(empty($old_suspension['count_status_error'])) d-none @endif"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="{{!empty($old_suspension['count_status_error']) ? $old_suspension['count_status_error'] : 0}} errors">
+                        {{!empty($old_suspension['count_status_error']) ? $old_suspension['count_status_error'] : 0}}
+                </span>
             </a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'address') active @endif" id="address-tab" data-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false" tab-name="address">
                 Address
-                <span id="addressErrorBadge" class="badge badge-pill badge-danger @if(empty($tab_errors['address'])) d-none @endif">
-                    {{!empty($tab_errors['address']) ? $tab_errors['address'] : ''}}
+                <span id="addressErrorBadge"
+                    class="badge badge-pill badge-danger @if(empty($tab_errors['address'])) d-none @endif"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="{{!empty($tab_errors) && !empty($tab_errors['address']) ? $tab_errors['address'] : ''}} errors">
+                        {{!empty($tab_errors['address']) ? $tab_errors['address'] : ''}}
                 </span>
             </a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
                 <span class="notice-badges">
-                    <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($current_phones)) d-none @endif"
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($phones)) d-none @endif"
                         data-toggle="tooltip"
                         data-placement="bottom"
-                        title="Currently has {{!empty($current_phones) ? count($current_phones) : 0}} phones">
-                            {{!empty($current_phones) ? count($current_phones) : 0}}
+                        title="{{!empty($phones) ? count($phones) : 0}} phones">
+                            {{!empty($phones) ? count($phones) : 0}}
                     </span>
                 </span>
                 Phones
-                @if(!empty($tab_errors['phones']))
-                    <span class="badge badge-pill badge-danger">{{$tab_errors['phones']}}</span>
-                @endif
+                <span id="phoneErrorBadge"
+                    class="badge badge-pill badge-danger @if(empty($tab_errors['phones'])) d-none @endif"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="{{!empty($tab_errors) && !empty($tab_errors['phones']) ? $tab_errors['phones'] : ''}} errors">
+                        {{!empty($tab_errors['phones']) ? $tab_errors['phones'] : ''}}
+                </span>
             </a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::get('tab') == 'hall') active @endif" id="hall-tab" data-toggle="tab" href="#hall" tab-name="hall" role="tab" aria-controls="hall" aria-selected="false">
                 <span class="notice-badges">
-                    <span class="notice-badge notice-badge-warning text-warning @if(!empty($assign_halls)) d-none @endif"
+                    <span class="notice-badge notice-badge-warning text-warning d-none"
                         data-toggle="tooltip"
                         data-placement="bottom"
-                        title="Currently assign to 0 halls">
+                        title="0 halls">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
                             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </svg>
                     </span>
-                    <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($assign_halls)) d-none @endif"
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-success d-none"
                         data-toggle="tooltip"
                         data-placement="bottom"
-                        title="Currently assigned to {{!empty($assign_halls) ? count($assign_halls) : 0}} halls">
+                        title="{{!empty($assign_halls) ? count($assign_halls) : 0}} halls">
                             {{!empty($assign_halls) ? count($assign_halls) : 0}}
                     </span>
                 </span>
@@ -221,7 +240,7 @@
                     <span class="notice-badge notice-badge-warning text-warning @if(!empty($count_workdays)) d-none @endif"
                         data-toggle="tooltip"
                         data-placement="bottom"
-                        title="All days of week are weekends">
+                        title="All days are weekends">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
                             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </svg>
@@ -229,7 +248,7 @@
                     <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($count_workdays)) d-none @endif"
                         data-toggle="tooltip"
                         data-placement="bottom"
-                        title="Currently {{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
+                        title="{{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
                 </span>
                 Business hours
             </a>
@@ -238,8 +257,11 @@
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'pass') active @endif" id="pass-tab" data-toggle="tab" href="#pass" role="tab" aria-controls="pass" aria-selected="false" tab-name="pass">
                 Password
                 <span id="passwordErrorBadge"
-                    class="badge badge-pill badge-danger @if(empty($tab_errors['pass'])) d-none @endif">
-                    {{!empty($tab_errors['pass']) ? $tab_errors['pass'] : ''}}
+                    class="badge badge-pill badge-danger @if(empty($tab_errors['pass'])) d-none @endif"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="{{!empty($tab_errors) && !empty($tab_errors['pass']) ? $tab_errors['pass'] : ''}} errors">
+                        {{!empty($tab_errors['pass']) ? $tab_errors['pass'] : ''}}
                 </span>
             </a>
         </li>
@@ -394,11 +416,6 @@
             </div>
             <div class="tab-pane fade @if(Request::get('tab') == 'hall') show active @endif" id="hall" role="tabpanel" aria-labelledby="hall-tab">
                 
-                @if(empty($assign_halls))
-                    <div class="alert alert-warning" role="alert">
-                        This employee currently assigned to <b class="text-uppercase">0</b> halls!
-                    </div>
-                @endif
                 <div id="hallAssignment"></div>
             
             </div>
