@@ -2005,16 +2005,13 @@ __webpack_require__.r(__webpack_exports__);
         noticeBadges.find('.notice-badge').addClass('d-none');
 
         if (_this.selectedItems.length > 0) {
-          noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', _this.selectedItems.length + ' halls').text(_this.selectedItems.length);
+          noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', _this.selectedItems.length + ' employees').text(_this.selectedItems.length);
         } else {
           noticeBadges.find('.notice-badge-warning').removeClass('d-none');
         }
       }
     },
     applySelect: function applySelect() {
-      // if()
-      // console.log(1111111);
-      // e.preventDefault();
       if (this.items != null) {
         var selectedItems = [];
 
@@ -2024,21 +2021,8 @@ __webpack_require__.r(__webpack_exports__);
 
         this.selectedItems = JSON.parse(JSON.stringify(selectedItems));
         $("#itemAssignmentModal").modal('hide');
-        this.recalculateBadgeValue(); // if(!this.isJqueryValidationEnabled())
-        //     return;
-        // let noticeBadges = $(tabId).find('.notice-badges');
-        // // console.log(noticeBadge);
-        // 
-        // noticeBadges.find('.notice-badge').addClass('d-none');
-        // if(selectedItems.length > 0){
-        //     noticeBadges.find('.notice-badge-success').removeClass('d-none')
-        //         .attr('data-original-title', selectedItems.length + ' halls').text(selectedItems.length);
-        // }else{
-        //     noticeBadges.find('.notice-badge-warning').removeClass('d-none');
-        // }
-      } else {// let noticeBadges = $(tabId).find('.notice-badges');
-          // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
-        }
+        this.recalculateBadgeValue();
+      }
     },
     dismissSelected: function dismissSelected(item) {
       // e.preventDefault();

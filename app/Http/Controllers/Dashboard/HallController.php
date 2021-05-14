@@ -34,20 +34,24 @@ class HallController extends Controller
      */
     public function dataList()
     {        
-        $workers = Hall::select([
+        $halls = Hall::select([
             DB::raw("halls.`id`"),
             DB::raw("halls.`title`"),
-            // DB::raw("halls.`is_closed`"),
             DB::raw("halls.`created_at`"),
-            DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`hall_id` = halls.`id`) as `workers_count`")
+            DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`hall_id` = halls.`id`) as `workers_count`"),
+            DB::raw("(SELECT COUNT(*) FROM `suspensions` WHERE `suspensionable_type` = 'hall' AND `suspensionable_id` = halls.`id`) as sort_status"),
+            DB::raw("(SELECT COUNT(*) FROM `suspensions` WHERE `suspensionable_type` = 'hall' AND `suspensionable_id` = halls.`id` AND `from` IS NULL AND `to` IS NULL) as sort_status_2"),
         ])
         ->with('suspension')->where('is_deleted', 0);
         
-        return Datatables::eloquent($workers)->toJson(true);
-        // return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
-        //             $sql = "CONCAT(first_name,' ',last_name)  like ?";
-        //             $query->whereRaw($sql, ["%{$keyword}%"]);
-        //         })->toJson(true);
+        return Datatables::eloquent($halls)->orderColumn('status', function ($query, $order) {
+                    $query->orderBy('sort_status', $order);
+                    $query->orderBy('sort_status_2', $order);
+                })
+                ->orderColumn('workers_count', function ($query, $order) {
+                    $query->orderBy('workers_count', $order);
+                })
+                ->toJson(true);
     }
     
     /**
@@ -227,6 +231,8 @@ class HallController extends Controller
         
         $validated = $validator->valid();
         
+        // dd($validated);
+        
         $validated['business_hours'] = json_encode($validated['business_hours']);
         
         if(!empty($validated['assign_workers'])){
@@ -303,8 +309,7 @@ class HallController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id){
         $hall = Hall::find($id);
         
         $business_hours = \Setting::arrangeByKey(
@@ -327,6 +332,8 @@ class HallController extends Controller
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
         // dd($assign_workers);
         
+        // dd(\Holiday::getAllForVue($hall));
+        
         return view('dashboard.hall.create', [
             'hall' => $hall,
             
@@ -334,6 +341,8 @@ class HallController extends Controller
             'phone_types' => PhoneTypes::all(),
             'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),
             'current_phones' => !empty($current_phones) ? $current_phones : null,
+            
+            'holidays' => \Holiday::getAllForVue($hall),
             
             // business hours
             'business_hours' => $business_hours['data'],
@@ -377,6 +386,49 @@ class HallController extends Controller
         
         $validated = $validator->valid();
         
+        // dd($validated);
+        if(!empty($validated['holiday_title'])){
+            $holidays = [];
+            foreach($validated['holiday_title'] as $k => $v){
+                $holiday = [];
+                
+                if(!empty($validated['holiday_title'][$k])){
+                    $holiday['title'] = $validated['holiday_title'][$k];
+                }else{
+                    continue;
+                }
+                
+                if(!empty($validated['holiday_from'][$k])){
+                    // $holiday['from'] = $validated['holiday_from'][$k];
+                    $holiday['from'] = \Carbon\Carbon::parse($validated['holiday_from'][$k]);
+                }else{
+                    continue;
+                }
+                
+                if(!empty($validated['holiday_to'][$k])){
+                    // $holiday['to'] = $validated['holiday_to'][$k];
+                    $holiday['to'] = \Carbon\Carbon::parse($validated['holiday_to'][$k]);
+                }else{
+                    continue;
+                }
+                
+                if(!empty($validated['holiday_description'][$k])){
+                    $holiday['description'] = $validated['holiday_description'][$k];
+                }else{
+                    $holiday['description'] = null;
+                }
+                
+                $holidays[] = $holiday;
+            }
+            
+            unset(
+                $validated['holiday_title'],
+                $validated['holiday_from'],
+                $validated['holiday_to'],
+                $validated['holiday_description']
+            );
+        }
+        
         $validated['business_hours'] = json_encode($validated['business_hours']);
         
         if(!empty($validated['assign_workers'])){
@@ -419,11 +471,15 @@ class HallController extends Controller
         //     dd(111);
         $hall = Hall::find($id);    
         $hall->workers()->detach();
+        $hall->holidays()->delete();
         
         if(!empty($assign_workers))
             foreach($assign_workers as $worker_id)
                 $hall->workers()->attach($worker_id);
         
+        if(!empty($holidays))
+            foreach($holidays as $holiday)
+                $hall->holidays()->create($holiday);
         // dd($suspension);
         
         if(!empty($suspension['status'])){
@@ -502,6 +558,12 @@ class HallController extends Controller
             'country' => 'max:255',
             'town' => 'max:255',
             'street' => 'max:255',
+            
+            //Holiday rules
+            'holiday_title.*' => 'required|max:255',
+            'holiday_description.*' => 'max:1000',
+            'holiday_from.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
+            'holiday_to.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
             
             //Suspension rules
             'status' => 'required|in:disable,complete,period',

@@ -39,14 +39,12 @@ class WorkerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function dataList()
-    {        
+    public function dataList(){
         $workers = Worker::select([
-            // 'workers.`id`',
             DB::raw("workers.`id` as `id`"),
             DB::raw("workers.`first_name`"),
             DB::raw("workers.`last_name`"),
-            DB::raw("CONCAT(workers.`first_name`,' ',workers.`last_name`) as `full_name`"),
+            DB::raw("CONCAT(COALESCE(workers.`first_name`,''),IF(ISNULL(workers.`first_name`) || ISNULL(workers.`last_name`), '', ' '),COALESCE(workers.`last_name`,'')) as `full_name`"),
             'email',
             DB::raw("workers.`created_at` as `created_at`"),
             DB::raw("(SELECT COUNT(*) FROM `suspensions` WHERE `suspensionable_type` = 'worker' AND `suspensionable_id` = workers.`id`) as sort_status"),
@@ -66,12 +64,15 @@ class WorkerController extends Controller
                         )
                 ) as halls_count
             "),
-            // DB::raw("(SELECT COUNT(*) FROM hall_worker WHERE hall_worker.`worker_id` = workers.`id`) as `halls_count`")
         ])
         ->with('halls')->with('suspension')->where('is_deleted', 0);
         
         return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
                     $sql = "CONCAT(first_name,' ',last_name)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->filterColumn('created_at', function($query, $keyword) {
+                    $sql = "DATE_FORMAT(workers.`created_at`, '%d/%m/%Y') like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->orderColumn('status', function ($query, $order) {
@@ -90,7 +91,6 @@ class WorkerController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        
         // dd(\Lang::get('validation'));
         // dd(\Lang::get('validation.email'));
         // dd(app());
@@ -101,12 +101,9 @@ class WorkerController extends Controller
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
         
         $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS, true);
-        // $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS);
         
         // dd(\Suspension::getOldForVue());
         
-        
-            
         return view('dashboard.worker.create', [
             'phone_types' => PhoneTypes::all(),
             'old_suspension' => \Suspension::getOldForVue(),

@@ -96,10 +96,17 @@ class Hall extends Model
     // }
     
     /**
-     * Get the post's image.
+     * Get the hall's phones.
      */
     public function phones(){
         return $this->morphMany(Phone::class, 'phoneable');
+    }
+    
+    /**
+     * Get the hall's holidays.
+     */
+    public function holidays(){
+        return $this->morphMany(Holiday::class, 'holidayable');
     }
     
     /**

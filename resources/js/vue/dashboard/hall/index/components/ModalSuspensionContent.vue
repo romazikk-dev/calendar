@@ -3,6 +3,9 @@
         
         <div class="modal-content">
             <div class="modal-header">
+                <span class="badge-information badge badge-pill badge-info text-uppercase">
+                        Hall suspension
+                </span>
                 <h5 class="modal-title" id="modalLabel">
                     {{ title }}
                     <!-- <span class="badge badge-pill badge-success text-uppercase" v-if="!suspended">opened</span> -->
@@ -389,25 +392,6 @@
 
 <style lang="scss" scoped>
     .modal-content{
-        overflow: hidden;
-        .modal-header{
-            // position: relative;
-            // padding-bottom: 30px;
-            // .badge{
-            //     position: absolute;
-            //     left: 10px;
-            //     bottom: 5px;
-            // }
-        }
-        .btn-group{
-            // position: relative;
-            // top: -2px;
-            // margin-top: -1px;
-            // border-radius: 0px;
-            // .btn{
-            //     border-radius: 0px!important;
-            // }
-        }
         .modal-footer{
             .disabled{
                 cursor: not-allowed;
@@ -418,29 +402,6 @@
                 min-width: 200px;
                 top: -4px!important;
             }
-            // .dropdown-menu:after, .dropdown-menu:before {
-            // 	top: 100%;
-            // 	right: 10%;
-            // 	border: solid transparent;
-            // 	content: "";
-            // 	height: 0;
-            // 	width: 0;
-            // 	position: absolute;
-            // 	pointer-events: none;
-            // }
-            // 
-            // .dropdown-menu:after {
-            // 	border-color: rgba(136, 183, 213, 0);
-            // 	border-top-color: #fff;
-            // 	border-width: 10px;
-            // 	margin-left: -10px;
-            // }
-            // .dropdown-menu:before {
-            // 	border-color: rgba(204, 204, 204, 0);
-            // 	border-top-color: #ccc;
-            // 	border-width: 11px;
-            // 	margin-left: -11px;
-            // }
         }
         .modal-body{
             .range-picker{
@@ -469,12 +430,6 @@
                 .coll{
                     .titt{
                         display: block;
-                        // text-transform: uppercase;
-                        // font-weight: bold;
-                        
-                        // display: inline-block;
-                        // width: 60px;
-                        // text-align: right;
                     }
                     .small{
                         position: absolute;
@@ -507,43 +462,5 @@
                 }
             }
         }
-        // .modal-body{
-        //     max-height: 300px;
-        //     overflow-x: auto;
-        //     .info-table{
-        //         width: 100%;
-        //         tr{
-        //             td{
-        //                 vertical-align: top;
-        //                 padding: 3px;
-        //                 padding: 6px;
-        //                 &:first-child{
-        //                     width: 120px;
-        //                     text-transform: uppercase;
-        //                 }
-        //                 // .alert{
-        //                 //     padding: 4px 10px;
-        //                 //     &.bh-alert{
-        //                 //         margin-bottom: 4px;
-        //                 //         text-align: right;
-        //                 //         .bh-weekday{
-        //                 //             display: inline-block;
-        //                 //             width: 100px;
-        //                 //             text-align: left;
-        //                 //             padding-right: 15px;
-        //                 //             text-transform: uppercase;
-        //                 //             float: left;
-        //                 //         }
-        //                 //     }
-        //                 // }
-        //             }
-        //             &:nth-of-type(odd) {
-        //                 td{
-        //                     background-color: rgba(0,0,0,.05);
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
     }
 </style>

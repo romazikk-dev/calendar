@@ -211,6 +211,7 @@
                             name: 'status',
                             className: 'coll-status',
                             width: '20px',
+                            searchable: false,
                         },
                         {
                             data: 'created_at',

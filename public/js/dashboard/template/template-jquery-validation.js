@@ -59,7 +59,6 @@ var jqueryValidationFunc = function(){
             }
             // alert(99);
         });
-         // onclick="$('form#workerForm').valid();"
     }
     
     this.handleErrorNotices = function(){
@@ -73,6 +72,32 @@ var jqueryValidationFunc = function(){
             // console.log('no mainErrorsCount');
             $('#mainErrorBadge').addClass('d-none').text('');
         }
+        
+        if(_this.mainErrorAttrs.length > 0){
+            _this.showErrorAlert();
+        }else{
+            _this.hideErrorAlert();
+        }
+    }
+    
+    this.showErrorAlert = function(){
+        if($(document).find('.alert-form-success').length > 0)
+            $(".alert-form-success").remove();
+        
+        if($(document).find('.alert-form-error').length < 1){
+            $(".page-content").prepend(`
+                <div class="alert-form-error alert alert-danger alert-dismissible fade show" role="alert">
+                    You have an errors
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            `);
+        }
+    }
+    
+    this.hideErrorAlert = function(){
+        $(document).find('.alert-form-error').remove();
     }
     
     this.handleErrorAttrs = function(type, attr){

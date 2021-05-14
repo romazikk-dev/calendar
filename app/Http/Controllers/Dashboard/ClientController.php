@@ -14,15 +14,14 @@ use App\Classes\PhonePicker\Enums\Types as PhoneTypes;
 use App\Classes\PhonePicker\Enums\IndexPrefixes;
 use Illuminate\Support\Facades\Validator;
 
-class ClientController extends Controller
-{
+class ClientController extends Controller{
+    
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        // dd(11);
         return view('dashboard.client.index');
     }
     
@@ -70,13 +69,12 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function dataList(){
-             
+    public function dataList(){ 
         $сlients = Client::select([
             DB::raw("clients.`id`"),
             DB::raw("clients.`first_name`"),
             DB::raw("clients.`last_name`"),
-            DB::raw("CONCAT(clients.`first_name`,' ',clients.`last_name`) as `full_name`"),
+            DB::raw("CONCAT(COALESCE(clients.`first_name`,''),IF(ISNULL(clients.`first_name`) || ISNULL(clients.`last_name`), '', ' '),COALESCE(clients.`last_name`,'')) as `full_name`"),
             DB::raw("clients.`email`"),
             DB::raw("clients.`created_at`"),
             DB::raw("(SELECT COUNT(*) FROM `suspensions` WHERE `suspensionable_type` = 'client' AND `suspensionable_id` = clients.`id`) as sort_status"),
@@ -101,8 +99,6 @@ class ClientController extends Controller
      */
     public function create()
     {
-        // return view('dashboard.client.create');
-        
         $phones = \PhonePicker::getAllForVue();
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
         
@@ -123,7 +119,6 @@ class ClientController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request){
-        
         $validate_rules = array_merge($this->mainValidationRules(), [
             'email' => [
                 'required', 'email', ['max', 255], Rule::unique('clients')->where(function($query) {
@@ -155,36 +150,12 @@ class ClientController extends Controller
         $validated['password'] = Hash::make($validated['password']);
         $validated['birthdate'] = $this->parseToCorrectDBDate($validated['birthdate']);
         
-        $worker = Client::create($validated);
+        $client = Client::create($validated);
         
-        \PhonePicker::saveAllPhones($request, $worker);
+        \PhonePicker::saveAllPhones($request, $client);
         
-        return redirect()->route('dashboard.worker.index');
-        // $validated = $this->validateData($request);
-        // 
-        // $validated['birthdate'] = $this->parseToCorrectDBDate($validated['birthdate']);
-        // $validated['user_id'] = auth()->user()->id;
-        // 
-        // Client::create($validated);
-        // 
-        // return redirect()->route('dashboard.client.index');
+        return redirect()->route('dashboard.client.index');
     }
-    
-    
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    // public function show($id)
-    // {
-    //     $client = Client::find($id);
-    //     return view('dashboard.client.show', [
-    //         'client' => $client
-    //     ]);
-    // }
     
     /**
      * Display the specified resource.
@@ -211,22 +182,30 @@ class ClientController extends Controller
             'client' => $client
         ]);
     }
-
+    
     /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        // dd(111);
+    public function edit($id){
         $client = Client::find($id);
+        $phones = \PhonePicker::getAllForVue($client);
+        
         return view('dashboard.client.create', [
-            'client' => $client
+            'client' => $client,
+            'suspension' => $client->suspension,
+            'old_suspension' => \Suspension::getOldForVue(),
+            'phone_types' => PhoneTypes::all(),
+            'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),
+            'phones' => !empty($phones) ? $phones : null,
+            'current_phones' => !empty($client->phones) ? $client->phones : null,
+            'tab_errors' => \Session::has('tab_errors') ? \Session::get('tab_errors') : null,
+            'validation_messages' => \Lang::get('validation'),
         ]);
     }
-
+    
     /**
      * Update the specified resource in storage.
      *
@@ -234,71 +213,86 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        $validated = $this->validateData($request, $id);
+    public function update(Request $request, $id){
+        $validate_rules = array_merge($this->mainValidationRules(), [
+            'email' => [
+                'required', 'email', ['max', 255], Rule::unique('workers')->where(function($query) use ($id) {
+                    $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
+                })
+            ],
+            'password' => 'max:255',
+            'password_confirm' => 'required_with:password|same:password',
+        ]);
+        
+        $phone_rules_and_messages = \PhonePicker::getPhonesValidetionRulesAndCustomMessages($request);
+        $messages = $phone_rules_and_messages['messages'];
+        $validate_rules = array_merge($validate_rules, $phone_rules_and_messages['rules']);
+        
+        $validator = Validator::make($request->all(), $validate_rules, $messages);
+        if ($validator->fails()){
+            $error_messages = $validator->errors()->messages();
+            $tab_errors = $this->getErrorsCountsPerTab($error_messages);
+            
+            // dd($validator->errors());
+            
+            return back()->with([
+                'tab_errors' => $tab_errors
+            ])->withInput($request->all())->withErrors($validator->errors());
+        }
+        
+        $validated = $validator->valid();
+        
+        // Set suspension variable for further applying a proper suspension
+        if(!empty($validated['status']))
+            $suspension = [
+                'status' => $validated['status'],
+                'from' => !empty($validated['suspend_from']) ? $validated['suspend_from'] : null,
+                'to' => !empty($validated['suspend_to']) ? $validated['suspend_to'] : null,
+            ];
+        
+        // Set suspension variable for further applying a proper suspension
+        foreach($validated as $k => $v){
+            if(in_array($k, ['_token', '_method', 'tab', 'password_confirm', 'status', 'suspend_from', 'suspend_to'])){
+                unset($validated[$k]);
+            }else if(str_starts_with($k, "phone")){
+                unset($validated[$k]);
+            }else if(str_starts_with($k, "custom_phone")){
+                unset($validated[$k]);
+            }
+        }
+        
+        // Apply hashing to password
+        if(!empty($validated['password'])){
+            $validated['password'] = Hash::make($validated['password']);
+        }else{
+            unset($validated['password']);
+        }
+        
+        // Fix birthdate to right format
+        if(!empty($validated['birthdate']))
+            $validated['birthdate'] = $this->parseToCorrectDBDate($validated['birthdate']);
         
         DB::table('clients')
             ->where('id', $id)
             ->update($validated);
         
-        return redirect()->back()->with('success', 'Data saccessfuly saved!');
-    }
-    
-    /**
-     * Show the form for editing the password.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function editPassword($id)
-    {
-        // dd(111);
         $client = Client::find($id);
-        return view('dashboard.client.create_password', [
-            'client' => $client
-        ]);
-    }
-    
-    /**
-     * Update the specific client password.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function updatePassword(Request $request, $id)
-    {
-        // dd('update');
-        $validated = $request->validate([
-            'password' => 'required|max:255',
-            'password_confirm' => 'required|same:password',
-        ]);
         
-        // dd($validated);
+        if(!empty($suspension) && !empty($client))
+            \Suspension::toogle(
+                $suspension['status'],
+                $client,
+                $suspension['from'] ?? null,
+                $suspension['to'] ?? null
+            );
         
-        // $worker = Worker::create($validated);
-        // if(!empty($validated['password']))
-        //     $validated['password'] = Hash::make($validated['password']);
-        // 
-        // if(empty($validated['password']))
-        //     unset($validated['password']);
+        $route_params = ['client' => $id];
+        if($request->has('tab'))
+            $route_params['tab'] = $request->tab;
         
-        $validated['password'] = Hash::make($validated['password']);
-        unset($validated['password_confirm']);
+        \PhonePicker::saveAllPhones($request, $client);
         
-        // foreach($validated as $k => $v){
-        //     if(empty($v) && in_array($v, [
-        //         ''
-        //     ]))
-        //         unset($validated[$k]);
-        // }
-        
-        DB::table('workers')
-            ->where('id', $id)
-            ->update($validated);
-        
-        return redirect()->back()->with('status', 'Success!');
+        return redirect()->route('dashboard.client.edit', $route_params)->with('success', 'Data saccessfuly saved!');
     }
     
     public function checkEmail(Request $request, $id = null){
@@ -325,9 +319,12 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        //
+    public function destroy($id){
+        Client::where('id', $id)
+            ->where('is_deleted', 0)
+            ->update(['is_deleted' => 1]);
+            
+        return redirect()->route('dashboard.client.index');
     }
     
     protected function getErrorsCountsPerTab($error_messages){
@@ -378,53 +375,4 @@ class ClientController extends Controller
         ];
     }
     
-    
-    // protected function validateData($request, $id = null){
-    //     $rules = [
-    //         // 'email' => [
-    //         //     'required', 'email', ['max', 255], Rule::unique('clients')->where(function($query) {
-    //         //         $query->where('is_deleted', '=', '0');
-    //         //     })
-    //         // ],
-    //         'first_name' => 'required|max:255',
-    //         'last_name' => 'max:255',
-    //         'gender' => 'nullable|in:male,female',
-    //         'phone' => 'nullable|regex:/^\+[0-9]{3,20}$/i',
-    //         'birthdate' => 'nullable|regex:/\d{4}-\d{2}-\d{2}/i',
-    //         'country' => 'max:255',
-    //         'town' => 'max:255',
-    //         'street' => 'max:255'
-    //     ];
-    // 
-    //     if(is_null($id)){
-    //         $rules['password'] = 'required|max:255';
-    //         $rules['password_confirm'] = 'required|same:password';
-    //         $rules['email'] = [
-    //             'required', 'email', ['max', 255], Rule::unique('clients')->where(function($query) {
-    //                 $query->where('is_deleted', '=', '0');
-    //             })
-    //         ];
-    //     }else{
-    //         $rules['email'] = [
-    //             'required', 'email', ['max', 255], Rule::unique('clients')->where(function($query) use ($id) {
-    //                 $query->where('is_deleted', '=', '0')->where('id', '!=', $id);
-    //             })
-    //         ];
-    //     }
-    // 
-    //     $validated = $request->validate($rules);
-    // 
-    //     if(is_null($id)){
-    //         $validated['password'] = Hash::make($validated['password']);
-    //         unset($validated['password_confirm']);
-    //     }
-    // 
-    //     return $validated;
-    // }
-    
-    // protected function parseToCorrectDBDate($date_string){
-    //     if(empty($date_string) || count($date_string_arr = explode('-', $date_string)))
-    //         return $date_string;
-    //     return $date_string_arr[2] . '-' . $date_string_arr[1] . '-' . $date_string_arr[0];
-    // }
 }

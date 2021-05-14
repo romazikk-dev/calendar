@@ -124,7 +124,7 @@
     </x-slot>
     
     @if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert-form-success alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -172,7 +172,7 @@
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
                 <span class="notice-badges">
-                    <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($phones)) d-none @endif"
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($phones)) d-none @endif"
                         data-toggle="tooltip"
                         data-placement="bottom"
                         title="{{!empty($phones) ? count($phones) : 0}} phones">

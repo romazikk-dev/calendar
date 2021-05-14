@@ -9,5 +9,6 @@
     "/js/dashboard/hall-assignment.js": "/js/dashboard/hall-assignment.js",
     "/js/dashboard/suspension.js": "/js/dashboard/suspension.js",
     "/js/dashboard/worker-assignment.js": "/js/dashboard/worker-assignment.js",
+    "/js/dashboard/holidays.js": "/js/dashboard/holidays.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

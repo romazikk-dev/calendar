@@ -40,6 +40,10 @@ class TemplateController extends Controller
             ->editColumn('duration', function(Template $template) {
                 return date('H:i', $template->duration);
             })
+            // ->filterColumn('duration', function($query, $keyword) {
+            //     $sql = "DATE_FORMAT(templates.`duration`, '%H:%i') like ?";
+            //     $query->whereRaw($sql, ["%{$keyword}%"]);
+            // })
             ->orderColumn('workers_count', function ($query, $order) {
                 $query->orderBy('workers_count', $order);
             })

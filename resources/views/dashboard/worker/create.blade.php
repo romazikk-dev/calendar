@@ -122,7 +122,7 @@
             form_id="workerForm"></script>
         
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/worker/jquery-validation.js') }}?{{$rand}}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/worker/worker-jquery-validation.js') }}?{{$rand}}"></script>
         
         <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
@@ -148,8 +148,17 @@
     </x-slot>
     
     @if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
+        <div class="alert-form-success alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    
+    @if($errors->any())
+    <div class="alert-form-error alert alert-danger alert-dismissible fade show" role="alert">
+        You have an errors
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -196,7 +205,7 @@
         <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
                 <span class="notice-badges">
-                    <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($phones)) d-none @endif"
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($phones)) d-none @endif"
                         data-toggle="tooltip"
                         data-placement="bottom"
                         title="{{!empty($phones) ? count($phones) : 0}} phones">
@@ -224,7 +233,7 @@
                             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </svg>
                     </span>
-                    <span class="notice-badge notice-badge-success badge badge-pill badge-success d-none"
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-info d-none"
                         data-toggle="tooltip"
                         data-placement="bottom"
                         title="{{!empty($assign_halls) ? count($assign_halls) : 0}} halls">
@@ -245,7 +254,7 @@
                             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </svg>
                     </span>
-                    <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($count_workdays)) d-none @endif"
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($count_workdays)) d-none @endif"
                         data-toggle="tooltip"
                         data-placement="bottom"
                         title="{{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>

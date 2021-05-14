@@ -4,7 +4,7 @@ var jqueryValidationFunc = function(){
     
     this.enableJsValidation = true;
     // this.enableJsValidation = false;
-    // this.validator = null;
+    this.validator = null;
     this.formId = "form#clientForm";
     
     this.attributes_per_tab = {
@@ -49,7 +49,6 @@ var jqueryValidationFunc = function(){
         
         $("#submitBtn").click(function(e){
             e.preventDefault();
-            // _this.addPhoneRules();
             if(_this.enableJsValidation){
                 _this.addPhoneRules();
                 _this.addStatusRules();
@@ -60,9 +59,7 @@ var jqueryValidationFunc = function(){
             }else{
                 $(_this.formId).submit();
             }
-            // alert(99);
         });
-         // onclick="$(_this.formId).valid();"
     }
     
     this.handleErrorNotices = function(){
@@ -109,6 +106,32 @@ var jqueryValidationFunc = function(){
         }else{
             $('#statusErrorBadge').addClass('d-none').text('');
         }
+        
+        if(_this.mainErrorAttrs.length > 0 || _this.passwordErrorAttrs.length > 0 || _this.addressErrorAttrs.length > 0 || _this.phoneErrorAttrs.length > 0 || _this.statusErrorAttrs.length > 0){
+            _this.showErrorAlert();
+        }else{
+            _this.hideErrorAlert();
+        }
+    }
+    
+    this.showErrorAlert = function(){
+        if($(document).find('.alert-form-success').length > 0)
+            $(".alert-form-success").remove();
+        
+        if($(document).find('.alert-form-error').length < 1){
+            $(".page-content").prepend(`
+                <div class="alert-form-error alert alert-danger alert-dismissible fade show" role="alert">
+                    You have an errors
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            `);
+        }
+    }
+    
+    this.hideErrorAlert = function(){
+        $(document).find('.alert-form-error').remove();
     }
     
     this.handleErrorAttrs = function(type, attr){
@@ -276,7 +299,6 @@ var jqueryValidationFunc = function(){
             gender: {
                 required: true,
                 in: ['male','female'],
-                // minlength: 5
             },
             // Address tab rules
             country: {
@@ -288,42 +310,18 @@ var jqueryValidationFunc = function(){
             street: {
                 maxlength: 255,
             },
-            // Password tab rules
-            // password: {
-            //     required: true,
-            //     // minlength: 5
-            // },
-            // password_confirm: {
-            //     required: true,
-            //     // required: function(element){
-            //     //     let passwordVal = $("#password").val();
-            //     //     return passwordVal != '';
-            //     // },
-            //     equalTo : "#password"
-            // }
         }
         
-        if(typeof worker === 'undefined' || worker === null){
+        if(typeof client === 'undefined' || client === null){
             rules.password = {
                 required: true,
             }
             rules.password_confirm = {
                 required: true,
-                // required: function(element){
-                //     let passwordVal = $("#password").val();
-                //     return passwordVal != '';
-                // },
                 equalTo : "#password"
             }
-            // rules.email.remote.data = {
-            //     current
-            // }
         }else{
-            // rules.password = {
-            //     required: true,
-            // }
             rules.password_confirm = {
-                // required: true,
                 required: function(element){
                     let passwordVal = $("#password").val();
                     return passwordVal != '';
@@ -331,8 +329,6 @@ var jqueryValidationFunc = function(){
                 equalTo : "#password"
             }
         }
-            // console.log(worker);
-        // if
         
         jQuery.validator.addMethod("in", function(value, element, params){
             return params.includes(value);
@@ -342,7 +338,7 @@ var jqueryValidationFunc = function(){
             return value == "" || value.length <= len;
         });
         
-        $(_this.formId).validate({
+        _this.validator = $(_this.formId).validate({
             // Specify validation rules
             // onkeyup: true, 
             // onfocusout: false,
@@ -405,37 +401,9 @@ var jqueryValidationFunc = function(){
             success: function(label) {
                 // console.log('success');
             },
-            // error: function(label) {
-            //     console.log('error');
-            // }
             invalidHandler: function(form, validator){
-                
                 _this.resetErrorAttrs();
-                
-                // var invalidKeys = Object.keys(validator.invalid);
-                // invalidKeys.forEach((item, i) => {
-                //     // console.log('item: ' + item);
-                //     // console.log(validator.invalid[item] == false);
-                //     if (validator.invalid[item] == false){
-                //         console.log('false');
-                //         _this.handleErrorAttrs('delete', item);
-                //         _this.handleErrorNotices();
-                //     }
-                // });
-                // 
-                // console.log(invalidKeys);
-                // Object.entries(validator.invalid).forEach(invalid => {
-                //     console.log('33333333: ' + invalid[0]);
-                //     if (typeof invalid[1] == false){
-                //         _this.handleErrorAttrs('delete', invalid[0]);
-                //         _this.handleErrorNotices();
-                //     }
-                //     // key: student[0]
-                //     // value: student[1]
-                //     // console.log(`Student: ${student[0]} is ${student[1].age} years old`);
-                // });
                 console.log('invalidHandler');
-                // console.log(validator.invalid);
             }
         });
         
@@ -445,6 +413,16 @@ var jqueryValidationFunc = function(){
                 _this.addPhoneRules();
             }
         }, 50);
+        
+        $('input#password').keyup(function(e){
+            if($(this).val() == '' && _this.passwordErrorAttrs.length > 0){
+                $('#passwordConfirm').valid();
+                // $('#passwordConfirm').reset();
+                // $('#passwordConfirm').removeAttr('aria-required').removeAttr('aria-invalid');
+                // $('#password').removeAttr('aria-required').removeAttr('aria-invalid');
+                // _this.validator.resetElements($('#passwordConfirm'));
+            }
+        });
         
     }
     

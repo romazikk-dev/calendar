@@ -2059,7 +2059,7 @@ __webpack_require__.r(__webpack_exports__);
       var noticeBadges = $("#phones-tab").find('.notice-badges');
 
       if (val > 0) {
-        noticeBadges.find('.notice-badge-success').attr('data-original-title', 'Currently has ' + val + ' phones').removeClass('d-none').text(val);
+        noticeBadges.find('.notice-badge-success').attr('data-original-title', val + ' phones').removeClass('d-none').text(val);
       } else {
         // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
         noticeBadges.find('.notice-badge').addClass('d-none');
@@ -2068,49 +2068,12 @@ __webpack_require__.r(__webpack_exports__);
   },
   components: {},
   watch: {
-    phonesPhoneCustomTypeProperty: function phonesPhoneCustomTypeProperty(val) {
-      console.log(val);
-    },
-    // phonesPhoneTypeProperty: function (val) {
-    //     if(val[0] == 'custom'){
-    //         console.log(val[0]);
-    //         for(let i = 0; i < 10; i++){
-    //             let input_value = $('input[name=phone_value_' + i + ']');
-    //             let input_type = $('input[name=phone_type_' + i + ']');
-    //             let input_custom_type = $('input[name=phone_custom_type_' + i + ']');
-    //             if(input_value.length > 0){
-    //                 // clearInterval(interval);
-    //                 console.log(input_value);
-    //                 input_value.rules("remove");
-    //                 input_value.rules("add", {
-    //                     required: true,
-    //                     maxlength: 255
-    //                 });
-    //                 if(input_type.length > 0 && input_type.val() == 'custom' && input_custom_type.length > 0){
-    //                     console.log(input_custom_type);
-    //                     input_custom_type.rules("remove");
-    //                     input_custom_type.rules("add", {
-    //                         required: true,
-    //                         maxlength: 255
-    //                     });
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     // console.log(val[0]);
+    // phonesPhoneCustomTypeProperty: function (val) {
+    //     console.log(val);
     // },
     phonesCount: function phonesCount(val) {
-      console.log(val);
-      this.setTabData(val); // let noticeBadges = $("#phones-tab").find('.notice-badges');
-      // 
-      // if(val > 0){
-      //     noticeBadges.find('.notice-badge-success')
-      //         .attr('data-original-title', 'Currently has ' + val + ' phones')
-      //         .removeClass('d-none').text(val);
-      // }else{
-      //     // noticeBadges.find('.notice-badge-warning').removeClass('d-none');
-      //     noticeBadges.find('.notice-badge').addClass('d-none');
-      // }
+      // console.log(val);
+      this.setTabData(val);
     }
   }
 });

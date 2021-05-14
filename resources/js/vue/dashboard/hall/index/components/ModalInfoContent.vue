@@ -3,6 +3,9 @@
         
         <div class="modal-content">
             <div class="modal-header">
+                <span class="badge-information badge badge-pill badge-info text-uppercase">
+                        Hall info
+                </span>
                 <h5 class="modal-title" id="modalLabel">
                     {{ title }}
                     
@@ -292,28 +295,10 @@
 
 <style lang="scss" scoped>
     .modal-content{
-        overflow: hidden;
-        .modal-header{
-            // position: relative;
-            // padding-bottom: 30px;
-            // .badge{
-            //     position: absolute;
-            //     left: 10px;
-            //     bottom: 5px;
-            // }
-        }
-        .btn-group{
-            // position: relative;
-            // top: -2px;
-            margin-top: -1px;
-            border-radius: 0px;
-            .btn{
-                border-radius: 0px!important;
-            }
-        }
         .modal-body{
             max-height: 300px;
             overflow-x: auto;
+            border-radius: 0px 0px 4px 4px;
             .info-table{
                 width: 100%;
                 tr{
@@ -325,21 +310,6 @@
                             width: 120px;
                             text-transform: uppercase;
                         }
-                        // .alert{
-                        //     padding: 4px 10px;
-                        //     &.bh-alert{
-                        //         margin-bottom: 4px;
-                        //         text-align: right;
-                        //         .bh-weekday{
-                        //             display: inline-block;
-                        //             width: 100px;
-                        //             text-align: left;
-                        //             padding-right: 15px;
-                        //             text-transform: uppercase;
-                        //             float: left;
-                        //         }
-                        //     }
-                        // }
                     }
                     &:nth-of-type(odd) {
                         td{

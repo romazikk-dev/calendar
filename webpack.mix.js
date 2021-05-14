@@ -34,6 +34,7 @@ mix.js('resources/js/vue/dashboard/suspension/app.js', 'public/js/dashboard/susp
 // mix.js('resources/js/vue/worker_assignment_2/app.js', 'public/js/worker-assignment-2.js').vue();
 
 mix.js('resources/js/vue/dashboard/worker_assignment/app.js', 'public/js/dashboard/worker-assignment.js').vue();
+mix.js('resources/js/vue/dashboard/holidays/app.js', 'public/js/dashboard/holidays.js').vue();
 
 // mix.js('resources/js/ts/calendar-helper.ts', 'public/js/calendar-helper.js').webpackConfig({
 mix.webpackConfig({

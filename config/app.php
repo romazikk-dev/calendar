@@ -183,6 +183,7 @@ return [
         App\Providers\SettingServiceProvider::class,
         App\Providers\PhonePickerServiceProvider::class,
         App\Providers\SuspensionServiceProvider::class,
+        App\Providers\HolidayServiceProvider::class,
 
     ],
 
@@ -242,6 +243,7 @@ return [
         'Setting'   =>  App\Classes\Setting\SettingFacade::class,
         'PhonePicker'   =>  App\Classes\PhonePicker\PhoneFacade::class,
         'Suspension'   =>  App\Classes\Suspension\SuspensionFacade::class,
+        'Holiday'   =>  App\Classes\Holiday\HolidayFacade::class,
 
     ],
 

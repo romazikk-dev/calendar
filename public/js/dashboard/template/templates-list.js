@@ -2034,7 +2034,8 @@ __webpack_require__.r(__webpack_exports__);
           data: 'duration',
           name: 'duration',
           className: 'coll-duration',
-          width: '20px'
+          width: '20px',
+          searchable: false
         }, {
           // data: 'workers_count',
           data: null,
@@ -2075,10 +2076,20 @@ __webpack_require__.r(__webpack_exports__);
           'createdCell': function createdCell(td, cellData, rowData, row, col) {
             $(td).attr('data-toggle', 'tooltip');
             $(td).attr('data-placement', 'auto');
-            $(td).attr('data-original-title', 'Price');
+
+            if (rowData.price != null) {
+              $(td).attr('data-original-title', 'Price');
+            } else {
+              $(td).attr('data-original-title', 'No price');
+            }
           },
           "render": function render(data, type, row, meta) {
-            return row.price != null ? row.price : '---';
+            // return row.price != null ? row.price : '---';
+            if (row.price != null) {
+              return row.price;
+            } else {
+              return "\n                                    <span class=\"notice-badge notice-badge-warning text-warning\">\n                                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-exclamation-triangle-fill\" viewBox=\"0 0 16 16\">\n                                            <path d=\"M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z\"></path>\n                                        </svg>\n                                    </span>\n                                ";
+            }
           }
         }, {
           "targets": [3],
@@ -2155,6 +2166,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
 //
 //
 //
@@ -2703,7 +2717,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-17b69bb2] {\n  overflow: hidden;\n}\n.modal-content .btn-group[data-v-17b69bb2] {\n  margin-top: -1px;\n  border-radius: 0px;\n}\n.modal-content .btn-group .btn[data-v-17b69bb2] {\n  border-radius: 0px !important;\n}\n.modal-content .modal-body[data-v-17b69bb2] {\n  max-height: 300px;\n  overflow-x: auto;\n}\n.modal-content .modal-body .info-table[data-v-17b69bb2] {\n  width: 100%;\n}\n.modal-content .modal-body .info-table tr td[data-v-17b69bb2] {\n  vertical-align: top;\n  padding: 3px;\n  padding: 6px;\n}\n.modal-content .modal-body .info-table tr td[data-v-17b69bb2]:first-child {\n  width: 120px;\n  text-transform: uppercase;\n}\n.modal-content .modal-body .info-table tr:nth-of-type(odd) td[data-v-17b69bb2] {\n  background-color: rgba(0, 0, 0, 0.05);\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-content .modal-body[data-v-17b69bb2] {\n  border-radius: 0px 0px 4px 4px;\n  max-height: 300px;\n  overflow-x: auto;\n}\n.modal-content .modal-body .info-table[data-v-17b69bb2] {\n  width: 100%;\n}\n.modal-content .modal-body .info-table tr td[data-v-17b69bb2] {\n  vertical-align: top;\n  padding: 3px;\n  padding: 6px;\n}\n.modal-content .modal-body .info-table tr td[data-v-17b69bb2]:first-child {\n  width: 120px;\n  text-transform: uppercase;\n}\n.modal-content .modal-body .info-table tr:nth-of-type(odd) td[data-v-17b69bb2] {\n  background-color: rgba(0, 0, 0, 0.05);\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -42455,6 +42469,15 @@ var render = function() {
   return _c("div", [
     _c("div", { staticClass: "modal-content" }, [
       _c("div", { staticClass: "modal-header" }, [
+        _c(
+          "span",
+          {
+            staticClass:
+              "badge-information badge badge-pill badge-info text-uppercase"
+          },
+          [_vm._v("\n                    Template info\n            ")]
+        ),
+        _vm._v(" "),
         _c("h5", { staticClass: "modal-title", attrs: { id: "modalLabel" } }, [
           _vm._v("\n                " + _vm._s(_vm.title) + "\n            ")
         ]),

@@ -256,11 +256,25 @@ input, textarea, select{
 }
 
 
+
 /* MODAL CUSTOM DARK HEADER FOOTER
 ******************************************************************/
 .modal-custom-dark-header-footer{
     .modal-header{
         padding-right: 50px;
+        position: relative;
+        .badge-information{
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            font-size: 14px!important;
+        }
+        .modal-title{
+            .badge{
+                cursor: default;
+                font-size: 14px!important;
+            }
+        }
         .close{
             font-size: 60px;
             color: #fff;
@@ -293,8 +307,17 @@ input, textarea, select{
     .modal-content{
         background-color: #6c757d;
         -webkit-box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
--moz-box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
-box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
+        -moz-box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
+        box-shadow: 0px 0px 3px 0px rgba(190,229,235, 0.7);
+        .btn-group{
+            // position: relative;
+            // top: -2px;
+            margin-top: -1px;
+            border-radius: 0px;
+            .btn{
+                border-radius: 0px!important;
+            }
+        }
     }
     .modal-body{
         background-color: white;

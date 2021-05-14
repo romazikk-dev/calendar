@@ -5,20 +5,20 @@ var jqueryValidationFunc = function(){
     this.enableJsValidation = true;
     // this.enableJsValidation = false;
     // this.validator = null;
+    this.formId = "form#hallForm";
     
     this.attributes_per_tab = {
-        main: ['email','first_name','last_name','gender','birthdate'],
+        main: ['title','description','short_description','notice'],
         address: ['country','town','street'],
-        password: ['password','password_confirm'],
     }
     
     this.mainErrorAttrs = [];
     this.addressErrorAttrs = [];
-    this.passwordErrorAttrs = [];
     this.phoneErrorAttrs = [];
     this.statusErrorAttrs = [];
     
     this.init = function(){
+        // alert(111);
         this.regSubmitBtn();
         if(this.enableJsValidation)
             this.initValidator();
@@ -31,7 +31,6 @@ var jqueryValidationFunc = function(){
     this.resetErrorAttrs = function(){
         this.mainErrorAttrs = [];
         this.addressErrorAttrs = [];
-        this.passwordErrorAttrs = [];
         this.phoneErrorAttrs = [];
         this.statusErrorAttrs = [];
     }
@@ -40,24 +39,30 @@ var jqueryValidationFunc = function(){
         this.resetErrorAttrs();
         this.addPhoneRules();
         this.addStatusRules();
-        $('form#workerForm').valid();
+        $(this.formId).valid();
     }
     
     this.regSubmitBtn = function(){
         let _this = this;
         
+        // console.log('regSubmitBtn');
+        
         $("#submitBtn").click(function(e){
             e.preventDefault();
+            // console.log('submitBtn');
             // _this.addPhoneRules();
+            // console.log('not validated');
             if(_this.enableJsValidation){
                 _this.addPhoneRules();
                 _this.addStatusRules();
-                if($('form#workerForm').valid()){
-                    // console.log('validated');
-                    $('form#workerForm').submit();
+                if($(_this.formId).valid()){
+                    console.log('validated');
+                    $(_this.formId).submit();
                 }
+                console.log('not validated');
             }else{
-                $('form#workerForm').submit();
+                // console.log('submit');
+                $(_this.formId).submit();
             }
             // alert(99);
         });
@@ -74,15 +79,6 @@ var jqueryValidationFunc = function(){
         }else{
             // console.log('no mainErrorsCount');
             $('#mainErrorBadge').addClass('d-none').text('');
-        }
-        
-        if(_this.passwordErrorAttrs.length > 0){
-            let errorsCount = _this.passwordErrorAttrs.length;
-            $('#passwordErrorBadge').removeClass('d-none')
-                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
-        }else{
-            // console.log('no mainErrorsCount');
-            $('#passwordErrorBadge').addClass('d-none').text('');
         }
         
         if(_this.addressErrorAttrs.length > 0){
@@ -108,6 +104,33 @@ var jqueryValidationFunc = function(){
         }else{
             $('#statusErrorBadge').addClass('d-none').text('');
         }
+        
+        if(_this.mainErrorAttrs.length > 0 || _this.addressErrorAttrs.length > 0 ||
+        _this.phoneErrorAttrs.length > 0 || _this.statusErrorAttrs.length > 0){
+            _this.showErrorAlert();
+        }else{
+            _this.hideErrorAlert();
+        }
+    }
+    
+    this.showErrorAlert = function(){
+        if($(document).find('.alert-form-success').length > 0)
+            $(".alert-form-success").remove();
+        
+        if($(document).find('.alert-form-error').length < 1){
+            $(".page-content").prepend(`
+                <div class="alert-form-error alert alert-danger alert-dismissible fade show" role="alert">
+                    You have an errors
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+            `);
+        }
+    }
+    
+    this.hideErrorAlert = function(){
+        $(document).find('.alert-form-error').remove();
     }
     
     this.handleErrorAttrs = function(type, attr){
@@ -147,14 +170,6 @@ var jqueryValidationFunc = function(){
             if(type == 'delete' && _this.addressErrorAttrs.includes(attr)){
                 let index = _this.addressErrorAttrs.indexOf(attr);
                 _this.addressErrorAttrs.splice(index, 1);
-            }
-        }
-        if(_this.attributes_per_tab.password.includes(attr)){
-            if(!_this.passwordErrorAttrs.includes(attr))
-                _this.passwordErrorAttrs.push(attr);
-            if(type == 'delete' && _this.passwordErrorAttrs.includes(attr)){
-                let index = _this.passwordErrorAttrs.indexOf(attr);
-                _this.passwordErrorAttrs.splice(index, 1);
             }
         }
     }
@@ -249,34 +264,26 @@ var jqueryValidationFunc = function(){
     }
     
     this.initValidator = function(){
+        // console.log('initValidator');
+        
         let _this = this;
         
         let rules = {
             // Main tab rules
-            email: {
-                required: true,
-                email: true,
-                remote: {
-                    url: checkEmailUrl,
-                    type: "post",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    dataType: 'json'
-                }
-            },
-            first_name: {
+            title: {
                 required: true,
                 maxlength: 255,
             },
-            last_name: {
+            description: {
+                maxlength: 1000,
+            },
+            short_description: {
                 maxlength: 255,
             },
-            gender: {
-                required: true,
-                in: ['male','female'],
-                // minlength: 5
+            notice: {
+                maxlength: 1000,
             },
+            
             // Address tab rules
             country: {
                 maxlength: 255,
@@ -287,96 +294,43 @@ var jqueryValidationFunc = function(){
             street: {
                 maxlength: 255,
             },
-            // Password tab rules
-            // password: {
-            //     required: true,
-            //     // minlength: 5
-            // },
-            // password_confirm: {
-            //     required: true,
-            //     // required: function(element){
-            //     //     let passwordVal = $("#password").val();
-            //     //     return passwordVal != '';
-            //     // },
-            //     equalTo : "#password"
-            // }
         }
-        
-        if(typeof worker === 'undefined' || worker === null){
-            rules.password = {
-                required: true,
-            }
-            rules.password_confirm = {
-                required: true,
-                // required: function(element){
-                //     let passwordVal = $("#password").val();
-                //     return passwordVal != '';
-                // },
-                equalTo : "#password"
-            }
-            // rules.email.remote.data = {
-            //     current
-            // }
-        }else{
-            // rules.password = {
-            //     required: true,
-            // }
-            rules.password_confirm = {
-                // required: true,
-                required: function(element){
-                    let passwordVal = $("#password").val();
-                    return passwordVal != '';
-                },
-                equalTo : "#password"
-            }
-        }
-            // console.log(worker);
-        // if
-        
-        jQuery.validator.addMethod("in", function(value, element, params){
-            return params.includes(value);
-        }, '');
         
         $.validator.addMethod("maxlength", function (value, element, len) {
             return value == "" || value.length <= len;
         });
         
-        $("form#workerForm").validate({
-            // Specify validation rules
-            // onkeyup: true, 
-            // onfocusout: false,
+        $(_this.formId).validate({
             ignore: "",
             errorPlacement: function(error, element) {
                 let attrName = element.attr("name");
                 let errorId = 'error_' + attrName;
                 let errorText = $(error).text();
-                // console.log(errorId);
-                // console.log(errorText);
+                
+                // console.log(11111111);
+                // console.log(error);
+                
                 $("#" + errorId).text(errorText);
                 
                 _this.handleErrorAttrs((errorText == '' ? 'delete' : 'add'), attrName);
                 _this.handleErrorNotices();
             },
-            // onfocusout: false,
             rules: rules,
             // Specify validation error messages
             messages: {
                 // Main tab rules messages
-                email: {
-                    required: validationMessages.required.replace(':attribute', 'email'),
-                    email: validationMessages.email.replace(':attribute', 'email'),
-                    remote: validationMessages.unique.replace(':attribute', 'email'),
+                title: {
+                    required: validationMessages.required.replace(':attribute', 'title'),
+                    maxlength: (validationMessages.max.string.replace(':attribute', 'title')).replace(':max', '255'),
                 },
-                first_name: {
-                    required: validationMessages.required.replace(':attribute', 'first name'),
-                    maxlength: (validationMessages.max.string.replace(':attribute', 'first name')).replace(':max', '255'),
+                description: {
+                    maxlength: (validationMessages.max.string.replace(':attribute', 'description')).replace(':max', '1000'),
                 },
-                last_name: {
-                    maxlength: (validationMessages.max.string.replace(':attribute', 'last name')).replace(':max', '255'),
+                short_description: {
+                    maxlength: (validationMessages.max.string.replace(':attribute', 'short description')).replace(':max', '255'),
                 },
-                gender: {
-                    required: validationMessages.required.replace(':attribute', 'gender'),
-                    in: validationMessages.in.replace(':attribute', 'gender'),
+                notice: {
+                    maxlength: (validationMessages.max.string.replace(':attribute', 'notice')).replace(':max', '1000'),
                 },
                 // Address tab rules messages
                 country: {
@@ -388,14 +342,6 @@ var jqueryValidationFunc = function(){
                 street: {
                     maxlength: (validationMessages.max.string.replace(':attribute', 'street')).replace(':max', '255'),
                 },
-                // Password tab rules messages
-                password: {
-                    required: validationMessages.required.replace(':attribute', 'password'),
-                },
-                password_confirm: {
-                    required: validationMessages.required.replace(':attribute', 'password confirm'),
-                    equalTo: (validationMessages.same.replace(':attribute', 'password confirm')).replace(':other', 'password'),
-                },
             },
             submitHandler: function(form) {
                 // console.log('submitHandler');
@@ -404,35 +350,10 @@ var jqueryValidationFunc = function(){
             success: function(label) {
                 // console.log('success');
             },
-            // error: function(label) {
-            //     console.log('error');
-            // }
             invalidHandler: function(form, validator){
                 
                 _this.resetErrorAttrs();
                 
-                // var invalidKeys = Object.keys(validator.invalid);
-                // invalidKeys.forEach((item, i) => {
-                //     // console.log('item: ' + item);
-                //     // console.log(validator.invalid[item] == false);
-                //     if (validator.invalid[item] == false){
-                //         console.log('false');
-                //         _this.handleErrorAttrs('delete', item);
-                //         _this.handleErrorNotices();
-                //     }
-                // });
-                // 
-                // console.log(invalidKeys);
-                // Object.entries(validator.invalid).forEach(invalid => {
-                //     console.log('33333333: ' + invalid[0]);
-                //     if (typeof invalid[1] == false){
-                //         _this.handleErrorAttrs('delete', invalid[0]);
-                //         _this.handleErrorNotices();
-                //     }
-                //     // key: student[0]
-                //     // value: student[1]
-                //     // console.log(`Student: ${student[0]} is ${student[1].age} years old`);
-                // });
                 console.log('invalidHandler');
                 // console.log(validator.invalid);
             }

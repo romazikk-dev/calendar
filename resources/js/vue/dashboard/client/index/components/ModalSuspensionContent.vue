@@ -3,8 +3,11 @@
         
         <div class="modal-content">
             <div class="modal-header">
+                <span class="badge-information badge badge-pill badge-info text-uppercase">
+                        Client suspension
+                </span>
                 <h5 class="modal-title" id="modalLabel">
-                    {{ data.title }}
+                    {{fullName}}
                     
                     <span class="badge badge-pill badge-danger text-uppercase"
                         v-if="suspended"
@@ -212,6 +215,15 @@
                 // console.log(this.data.id);
                 return this.data != null ? toggleSuspension.replace(':id', this.data.id) : null;
             },
+            fullName: function(){
+                let fullNameArr = [];
+                if(!helper.isPropEmpty(this.data.first_name))
+                    fullNameArr.push(helper.capitalizeFirstLetter(this.data.first_name));
+                if(!helper.isPropEmpty(this.data.last_name))
+                    fullNameArr.push(helper.capitalizeFirstLetter(this.data.last_name));
+            
+                return fullNameArr.join(' ');
+            },
         },
         methods: {
             isStatus: function(type){
@@ -340,30 +352,6 @@
 
 <style lang="scss" scoped>
     .modal-content{
-        overflow: hidden;
-        .modal-header{
-            // position: relative;
-            // padding-bottom: 30px;
-            // .badge{
-            //     position: absolute;
-            //     left: 10px;
-            //     bottom: 5px;
-            // }
-            .modal-title{
-                .badge{
-                    cursor: default;
-                }
-            }
-        }
-        .btn-group{
-            // position: relative;
-            // top: -2px;
-            // margin-top: -1px;
-            // border-radius: 0px;
-            // .btn{
-            //     border-radius: 0px!important;
-            // }
-        }
         .modal-footer{
             .disabled{
                 cursor: not-allowed;
@@ -374,29 +362,6 @@
                 min-width: 200px;
                 top: -4px!important;
             }
-            // .dropdown-menu:after, .dropdown-menu:before {
-            // 	top: 100%;
-            // 	right: 10%;
-            // 	border: solid transparent;
-            // 	content: "";
-            // 	height: 0;
-            // 	width: 0;
-            // 	position: absolute;
-            // 	pointer-events: none;
-            // }
-            // 
-            // .dropdown-menu:after {
-            // 	border-color: rgba(136, 183, 213, 0);
-            // 	border-top-color: #fff;
-            // 	border-width: 10px;
-            // 	margin-left: -10px;
-            // }
-            // .dropdown-menu:before {
-            // 	border-color: rgba(204, 204, 204, 0);
-            // 	border-top-color: #ccc;
-            // 	border-width: 11px;
-            // 	margin-left: -11px;
-            // }
         }
         .modal-body{
             .range-picker{

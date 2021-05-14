@@ -43,7 +43,7 @@
             form_id="hallForm"></script>
         
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/template/jquery-validation.js') }}?{{$rand}}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/template/template-jquery-validation.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/worker-assignment.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/time-picker.js') }}?{{$rand}}"></script>
         
@@ -58,7 +58,7 @@
     </x-slot>
     
     @if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert-form-success alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -96,7 +96,7 @@
                                 <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                             </svg>
                         </span>
-                        <span class="notice-badge notice-badge-success badge badge-pill badge-success d-none"
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info d-none"
                             data-toggle="tooltip"
                             data-placement="bottom"
                             title="This hall currently has {{!empty($assign_worker) ? count($assign_worker) : 0}} assigned employees!">{{!empty($assign_worker) ? count($assign_worker) : 0}}</span>

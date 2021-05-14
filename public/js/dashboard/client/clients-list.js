@@ -2046,7 +2046,8 @@ __webpack_require__.r(__webpack_exports__);
           data: null,
           name: 'status',
           className: 'coll-status',
-          width: '20px'
+          width: '20px',
+          searchable: false
         }, {
           data: 'created_at',
           name: 'created_at',
@@ -2153,9 +2154,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-//
-//
-//
 //
 //
 //
@@ -2529,6 +2527,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalSuspensionContent',
   mounted: function mounted() {
@@ -2581,6 +2582,12 @@ __webpack_require__.r(__webpack_exports__);
     suspendUrl: function suspendUrl() {
       // console.log(this.data.id);
       return this.data != null ? toggleSuspension.replace(':id', this.data.id) : null;
+    },
+    fullName: function fullName() {
+      var fullNameArr = [];
+      if (!helper.isPropEmpty(this.data.first_name)) fullNameArr.push(helper.capitalizeFirstLetter(this.data.first_name));
+      if (!helper.isPropEmpty(this.data.last_name)) fullNameArr.push(helper.capitalizeFirstLetter(this.data.last_name));
+      return fullNameArr.join(' ');
     }
   },
   methods: {
@@ -2784,7 +2791,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".modal-content .modal-header[data-v-16831738] {\n  position: relative;\n}\n.modal-content .modal-header .badge-information[data-v-16831738] {\n  position: absolute;\n  top: -10px;\n  left: 10px;\n}\n.modal-content .modal-header .modal-title .badge[data-v-16831738] {\n  cursor: default;\n}\n.modal-content .btn-group[data-v-16831738] {\n  margin-top: -1px;\n  border-radius: 0px;\n}\n.modal-content .btn-group .btn[data-v-16831738] {\n  border-radius: 0px !important;\n}\n.modal-content .modal-body[data-v-16831738] {\n  max-height: 300px;\n  overflow-x: auto;\n}\n.modal-content .modal-body .info-table[data-v-16831738] {\n  width: 100%;\n}\n.modal-content .modal-body .info-table tr td[data-v-16831738] {\n  vertical-align: top;\n  padding: 3px;\n  padding: 6px;\n}\n.modal-content .modal-body .info-table tr td[data-v-16831738]:first-child {\n  width: 120px;\n  text-transform: uppercase;\n}\n.modal-content .modal-body .info-table tr:nth-of-type(odd) td[data-v-16831738] {\n  background-color: rgba(0, 0, 0, 0.05);\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-content .modal-body[data-v-16831738] {\n  max-height: 300px;\n  overflow-x: auto;\n}\n.modal-content .modal-body .info-table[data-v-16831738] {\n  width: 100%;\n}\n.modal-content .modal-body .info-table tr td[data-v-16831738] {\n  vertical-align: top;\n  padding: 3px;\n  padding: 6px;\n}\n.modal-content .modal-body .info-table tr td[data-v-16831738]:first-child {\n  width: 120px;\n  text-transform: uppercase;\n}\n.modal-content .modal-body .info-table tr:nth-of-type(odd) td[data-v-16831738] {\n  background-color: rgba(0, 0, 0, 0.05);\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -2808,7 +2815,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".modal-content[data-v-b50ea62e] {\n  overflow: hidden;\n}\n.modal-content .modal-header .modal-title .badge[data-v-b50ea62e] {\n  cursor: default;\n}\n.modal-content .modal-footer .disabled[data-v-b50ea62e] {\n  cursor: not-allowed;\n}\n.modal-content .modal-footer .dropdown-menu[data-v-b50ea62e] {\n  padding: 10px;\n  text-align: center;\n  min-width: 200px;\n  top: -4px !important;\n}\n.modal-content .modal-body .range-picker[data-v-b50ea62e] {\n  padding-bottom: 20px;\n  margin-left: 0px;\n  margin-right: 0px;\n  border: 1px solid #e4e4e4;\n  border-radius: 3px;\n  position: relative;\n  margin-top: 30px;\n  background-color: #e4e4e4;\n  padding-top: 5px;\n}\n.modal-content .modal-body .range-picker .range-picker-titt[data-v-b50ea62e] {\n  padding: 0px 6px;\n  height: 24px;\n  line-height: 24px;\n  position: absolute;\n  top: -24px;\n  left: 10px;\n  z-index: 99;\n  border-radius: 3px 3px 0px 0px;\n}\n.modal-content .modal-body .range-picker .coll .titt[data-v-b50ea62e] {\n  display: block;\n}\n.modal-content .modal-body .range-picker .coll .small[data-v-b50ea62e] {\n  position: absolute;\n  margin-top: -2px;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-b50ea62e] {\n  width: 100%;\n  text-align: center;\n  font-weight: bold;\n  color: #666;\n  border-radius: 3px;\n  background-color: #f6f6f6 !important;\n  border: 2px solid #e4e4e4;\n  cursor: pointer;\n  font-size: 20px;\n  outline: none;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-b50ea62e]:focus {\n  background-color: #fff !important;\n  border: 2px solid rgba(198, 71, 70, 0.6) !important;\n  box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-content .modal-footer .disabled[data-v-b50ea62e] {\n  cursor: not-allowed;\n}\n.modal-content .modal-footer .dropdown-menu[data-v-b50ea62e] {\n  padding: 10px;\n  text-align: center;\n  min-width: 200px;\n  top: -4px !important;\n}\n.modal-content .modal-body .range-picker[data-v-b50ea62e] {\n  padding-bottom: 20px;\n  margin-left: 0px;\n  margin-right: 0px;\n  border: 1px solid #e4e4e4;\n  border-radius: 3px;\n  position: relative;\n  margin-top: 30px;\n  background-color: #e4e4e4;\n  padding-top: 5px;\n}\n.modal-content .modal-body .range-picker .range-picker-titt[data-v-b50ea62e] {\n  padding: 0px 6px;\n  height: 24px;\n  line-height: 24px;\n  position: absolute;\n  top: -24px;\n  left: 10px;\n  z-index: 99;\n  border-radius: 3px 3px 0px 0px;\n}\n.modal-content .modal-body .range-picker .coll .titt[data-v-b50ea62e] {\n  display: block;\n}\n.modal-content .modal-body .range-picker .coll .small[data-v-b50ea62e] {\n  position: absolute;\n  margin-top: -2px;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-b50ea62e] {\n  width: 100%;\n  text-align: center;\n  font-weight: bold;\n  color: #666;\n  border-radius: 3px;\n  background-color: #f6f6f6 !important;\n  border: 2px solid #e4e4e4;\n  cursor: pointer;\n  font-size: 20px;\n  outline: none;\n}\n.modal-content .modal-body .range-picker .coll input.date-chooser[data-v-b50ea62e]:focus {\n  background-color: #fff !important;\n  border: 2px solid rgba(198, 71, 70, 0.6) !important;\n  box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -42509,12 +42516,7 @@ var render = function() {
           "span",
           {
             staticClass:
-              "badge-information badge badge-pill badge-info text-uppercase",
-            attrs: {
-              "data-toggle": "modal-info-dropdown",
-              "data-placement": "auto",
-              title: "Client info"
-            }
+              "badge-information badge badge-pill badge-info text-uppercase"
           },
           [_vm._v("\n                    Client info\n            ")]
         ),
@@ -42864,10 +42866,19 @@ var render = function() {
   return _c("div", [
     _c("div", { staticClass: "modal-content" }, [
       _c("div", { staticClass: "modal-header" }, [
+        _c(
+          "span",
+          {
+            staticClass:
+              "badge-information badge badge-pill badge-info text-uppercase"
+          },
+          [_vm._v("\n                    Client suspension\n            ")]
+        ),
+        _vm._v(" "),
         _c("h5", { staticClass: "modal-title", attrs: { id: "modalLabel" } }, [
           _vm._v(
             "\n                " +
-              _vm._s(_vm.data.title) +
+              _vm._s(_vm.fullName) +
               "\n                \n                "
           ),
           _vm.suspended

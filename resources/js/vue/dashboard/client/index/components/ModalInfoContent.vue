@@ -3,10 +3,7 @@
         
         <div class="modal-content">
             <div class="modal-header">
-                <span class="badge-information badge badge-pill badge-info text-uppercase"
-                    data-toggle="modal-info-dropdown"
-                    data-placement="auto"
-                    title="Client info">
+                <span class="badge-information badge badge-pill badge-info text-uppercase">
                         Client info
                 </span>
                 <h5 class="modal-title" id="modalLabel">
@@ -217,52 +214,6 @@
 
 <style lang="scss" scoped>
     .modal-content{
-        // overflow: hidden;
-        .modal-header{
-            position: relative;
-            .badge-information{
-                position: absolute;
-                top: -10px;
-                left: 10px;
-            }
-            // padding-bottom: 30px;
-            // .badge{
-            //     position: absolute;
-            //     left: 10px;
-            //     bottom: 5px;
-            // }
-            .modal-title{
-                .badge{
-                    cursor: default;
-                    // overflow: hidden;
-                    // position: relative;
-                    // padding-left: 90px;
-                    // line-height: 18px;
-                    // .badge-type{
-                    //     background-color: white;
-                    //     color: black;
-                    //     // padding-left: 10px;
-                    //     // padding-right: 4px;
-                    //     position: absolute;
-                    //     left: 0px;
-                    //     top: 0px;
-                    //     width: 80px;
-                    //     height: 100%;
-                    //     text-align: center;
-                    //     line-height: 22px;
-                    // }
-                }
-            }
-        }
-        .btn-group{
-            // position: relative;
-            // top: -2px;
-            margin-top: -1px;
-            border-radius: 0px;
-            .btn{
-                border-radius: 0px!important;
-            }
-        }
         .modal-body{
             max-height: 300px;
             overflow-x: auto;
@@ -277,21 +228,6 @@
                             width: 120px;
                             text-transform: uppercase;
                         }
-                        // .alert{
-                        //     padding: 4px 10px;
-                        //     &.bh-alert{
-                        //         margin-bottom: 4px;
-                        //         text-align: right;
-                        //         .bh-weekday{
-                        //             display: inline-block;
-                        //             width: 100px;
-                        //             text-align: left;
-                        //             padding-right: 15px;
-                        //             text-transform: uppercase;
-                        //             float: left;
-                        //         }
-                        //     }
-                        // }
                     }
                     &:nth-of-type(odd) {
                         td{

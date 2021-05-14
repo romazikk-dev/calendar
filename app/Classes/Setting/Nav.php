@@ -28,6 +28,16 @@ class Nav{
                 'route' => route('dashboard.settings.worker.default_business_hours'),
                 'route_name' => 'dashboard.settings.worker.default_business_hours',
             ],
+            Keys::LANGUAGES => [
+                'title' => 'Languages',
+                'route' => route('dashboard.settings.hall.default_business_hours'),
+                'route_name' => 'dashboard.settings.hall.default_business_hours',
+            ],
+            Keys::CUSTOM_TITLES => [
+                'title' => 'Custom titles',
+                'route' => route('dashboard.settings.hall.default_business_hours'),
+                'route_name' => 'dashboard.settings.hall.default_business_hours',
+            ],
         ];
     }
     

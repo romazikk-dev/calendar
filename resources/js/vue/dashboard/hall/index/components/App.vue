@@ -8,9 +8,9 @@
                     <th>
                         Title
                     </th>
-                    <th data-toggle="tooltip" data-placement="auto" title="Status of hall (closed/opened)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-open-fill" viewBox="0 0 16 16">
-                            <path d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.57-.495l-7 1A.5.5 0 0 0 3 1.5V15H1.5zM11 2h.5a.5.5 0 0 1 .5.5V15h-1V2zm-2.5 8c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z"/>
+                    <th data-toggle="tooltip" data-placement="auto" title="Status of hall (suspended/active)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
                         </svg>
                     </th>
                     <th data-toggle="tooltip" data-placement="auto" title="Number of employees">
@@ -184,8 +184,8 @@
                 $('#dataTable').DataTable({
                     "processing": true,
                     "serverSide": true,
-                    // "order": [[ 1, "asc" ]],
-                    "order": [],
+                    "order": [[ 4, "desc" ]],
+                    // "order": [],
                     "createdRow": function(row, data, dataIndex){
                         $(row).attr('id', data.id);
                         // $(row).attr('is-closed', data.is_closed);
@@ -214,7 +214,9 @@
                         },
                         {
                             data: null,
+                            name: 'status',
                             className: 'coll-status',
+                            searchable: false,
                             width: '20px',
                         },
                         {
@@ -449,10 +451,36 @@
                         },
                         {
                             "targets": [3],
-                            "render": function ( data, type, row, meta ) {                                
-                                return `
-                                    <div>${data}</div>
-                                `;
+                            'createdCell':  function (td, cellData, rowData, row, col) {
+                                 // let hallsCount = rowData.halls.length;
+                                 $(td).attr('data-toggle', 'tooltip');
+                                 $(td).attr('data-placement', 'bottom');
+                                 $(td).attr('data-html', 'true');
+                                 if(cellData > 0){
+                                     $(td).attr('title', 'Number of employees');
+                                 }else{
+                                     $(td).addClass('text-center');
+                                     $(td).attr('title', 'No employees assigned to this hall');
+                                 }
+                            },
+                            "render": function ( data, type, row, meta ) {
+                                // let hallsCount = row.halls.length;
+                                if(data > 0){
+                                    return `
+                                        <div>${data}</div>
+                                    `;
+                                }else{
+                                    return `
+                                        <span class="text-warning td-warning">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+                                            </svg>
+                                        </span>
+                                    `;
+                                }
+                                // return `
+                                //     <div>${data}</div>
+                                // `;
                             }
                         }
                     ],
@@ -491,6 +519,11 @@
     }
 </script>
 
-<style scoped>
-    
+<style lang="scss">
+    #dataTable{
+        .td-warning{
+            position: relative;
+            top: -3px;
+        }
+    }
 </style>

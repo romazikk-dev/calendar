@@ -45,6 +45,11 @@
                 // console.log(suspensionDB);
             @endif
             
+            @if(!empty($holidays))
+                let holidays =  @json($holidays);
+                // console.log(holidays);
+            @endif
+            
             @if(!empty($old_suspension))
                 var oldSuspension =  @json($old_suspension);
                 // console.log('oldSuspension');
@@ -80,11 +85,12 @@
             form_id="hallForm"></script>
         
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/halls/jquery-validation.js') }}?{{$rand}}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/halls/hall-jquery-validation.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/suspension.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/worker-assignment.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
+        <script src="{{ asset('js/dashboard/holidays.js') }}?{{$rand}}"></script>
         
     </x-slot>
     
@@ -93,38 +99,17 @@
     </x-slot>
     
     <x-slot name="after_breadcrumbs">
-        <!-- <div class="container-fluid">
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="main-tab" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true">Main</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="address-tab" data-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false">Address</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="worker-tab" data-toggle="tab" href="#worker" role="tab" aria-controls="worker" aria-selected="false">Employees</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="hours-tab" data-toggle="tab" href="#hours" role="tab" aria-controls="hours" aria-selected="false">Business hours</a>
-                </li>
-            </ul>
-        </div> -->
+        
     </x-slot>
     
     @if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert-form-success alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     @endif
-    
-    @if($errors->any())
-        {{var_dump($errors->all())}}
-    @endif
-    
-    
         
         <ul class="nav nav-tabs edit-create-nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -166,7 +151,7 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'phones') active @endif" id="phones-tab" data-toggle="tab" href="#phones" role="tab" aria-controls="phones" aria-selected="false" tab-name="phones">
                     <span class="notice-badges">
-                        <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($phones)) d-none @endif"
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($phones)) d-none @endif"
                             data-toggle="tooltip"
                             data-placement="bottom"
                             title="{{!empty($phones) ? count($phones) : 0}} phones">
@@ -194,10 +179,12 @@
                                 <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                             </svg>
                         </span>
-                        <span class="notice-badge notice-badge-success badge badge-pill badge-success d-none"
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info d-none"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="This hall currently has {{!empty($assign_worker) ? count($assign_worker) : 0}} assigned employees!">{{!empty($assign_worker) ? count($assign_worker) : 0}}</span>
+                            title="{{!empty($assign_workers) ? count($assign_workers) : 0}} employees!">
+                                {{!empty($assign_workers) ? count($assign_workers) : 0}}
+                        </span>
                     </span>
                     Employees
                 </a>
@@ -213,12 +200,31 @@
                                 <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                             </svg>
                         </span>
-                        <span class="notice-badge notice-badge-success badge badge-pill badge-success @if(empty($count_workdays)) d-none @endif"
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($count_workdays)) d-none @endif"
                             data-toggle="tooltip"
                             data-placement="bottom"
                             title="{{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
                     </span>
                     Business hours
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @if(Request::get('tab') == 'holidays') active @endif" id="holidays-tab" data-toggle="tab" href="#holidays" tab-name="holidays" role="tab" aria-controls="holidays" aria-selected="false">
+                    <span class="notice-badges">
+                        <span class="notice-badge notice-badge-warning text-warning @if(!empty($count_workdays)) d-none @endif"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="All days are weekends">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                        </span>
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($count_workdays)) d-none @endif"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="{{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
+                    </span>
+                    Holidays
                 </a>
             </li>
             <li class="action-btn">
@@ -354,6 +360,17 @@
                     @endif
 
                     <div id="businessHours"></div>
+                    
+                </div>
+                <div class="tab-pane fade @if(Request::get('tab') == 'holidays') show active @endif" id="holidays" role="tabpanel" aria-labelledby="holidays-tab">
+                    
+                    @if(!empty($all_days_closed))
+                        <div class="alert alert-warning" role="alert">
+                            All days currently are weekends(<b class="text-uppercase text-danger">closed</b>)
+                        </div>
+                    @endif
+                    
+                    <div id="holidaysApp"></div>
                     
                 </div>
             </div>
