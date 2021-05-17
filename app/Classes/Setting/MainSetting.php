@@ -13,48 +13,68 @@ use Auth;
 
 class MainSetting{
     
-    protected $placeholder;
-    protected $arranger;
-    protected $parser;
+    // protected $placeholder;
+    // protected $arranger;
+    // protected $parser;
     protected $nav;
     
+    protected $settings = [];
+    
+    protected $aliases = [
+        Keys::WORKER_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Settings\BussinessHours::class,
+        Keys::HALL_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Settings\BussinessHours::class,
+        Keys::CLIENTS_BOOKING_CALENDAR_LANGUAGES => \App\Classes\Setting\Settings\LanguagePicker::class,
+        Keys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES => \App\Classes\Setting\Settings\CustomFields\CustomFields::class,
+    ];
+    
     function __construct() {
-        $this->placeholder = new Placeholder();
-        $this->parser = new Parser();
+        // $this->placeholder = new Placeholder();
+        // $this->parser = new Parser();
         $this->nav = new Nav();
-        $this->arranger = new Arranger();
+        // $this->arranger = new Arranger();
     }
     
-    protected function getSettingFromDB($key, $only_data = false){
-        $setting = Setting::byKey($key)->first();
-        if(empty($setting) || is_null($setting->data) || $setting->data == "null"){
-            if(!empty($setting))
-                Setting::where('key', $key)->delete();
-            return null;
+    public function initSettingClass($key, $params = []){
+        if(!array_key_exists($key, $this->aliases))
+            return false;
+            
+        if(!array_key_exists($key, $this->settings)){
+            $class_name = $this->aliases[$key];
+            $this->settings[$key] = new $class_name($key);
         }
-        return (is_bool($only_data) && $only_data) ? $setting['data'] : $setting;
+        return true;
     }
     
-    protected function setSettingIntoDB($key, $parsed_data){
-        // dd($key);
-        $setting = $this->getSettingFromDB($key);
-        // dd($setting_model);
-        if(empty($setting)){
-            $setting = Setting::create([
-                'user_id' => Auth::user()->id,
-                'key' => $key,
-                'data' => json_encode($parsed_data)
-            ]);
-        }else{
-            $setting->data = json_encode($parsed_data);
-            $setting->save();
-        }
-        return $setting;
-    }
+    // protected function getSettingFromDB($key, $only_data = false){
+    //     $setting = Setting::byKey($key)->first();
+    //     if(empty($setting) || is_null($setting->data) || $setting->data == "null"){
+    //         if(!empty($setting))
+    //             Setting::where('key', $key)->delete();
+    //         return null;
+    //     }
+    //     return $only_data === true ? $setting->data : $setting;
+    // }
     
-    protected function getPlaceholderPerKey($key){
-        return $this->placeholder->get($key);
-    }
+    // protected function setSettingIntoDB($key, $parsed_data){
+    //     // dd($key);
+    //     $setting = $this->getSettingFromDB($key);
+    //     // dd($setting_model);
+    //     if(empty($setting)){
+    //         $setting = Setting::create([
+    //             'user_id' => Auth::user()->id,
+    //             'key' => $key,
+    //             'data' => json_encode($parsed_data)
+    //         ]);
+    //     }else{
+    //         $setting->data = json_encode($parsed_data);
+    //         $setting->save();
+    //     }
+    //     return $setting;
+    // }
+    
+    // protected function getPlaceholderPerKey($key, $params = []){
+    //     return $this->placeholder->get($key, $params);
+    // }
     
     // protected function arrangePerKey($key, $setting){
     //     return $this->arranger->arrange($key, $setting);

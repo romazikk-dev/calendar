@@ -125,6 +125,13 @@ class Worker extends Authenticatable
     }
     
     /**
+     * Get the worker's holidays.
+     */
+    public function holidays(){
+        return $this->morphMany(Holiday::class, 'holidayable');
+    }
+    
+    /**
      * The "booted" method of the model.
      *
      * @return void

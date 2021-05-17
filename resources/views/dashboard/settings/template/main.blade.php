@@ -1,6 +1,6 @@
 <x-dashboard-layout>
     <x-slot name="breadcrumbs">
-        {{ Breadcrumbs::render('settings', 'default bussiness hours') }}
+        @yield('breadcrumbs')
     </x-slot>
     
     <x-slot name="scripts">
@@ -11,46 +11,36 @@
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></link>
     </x-slot>
     
-    <div class="setting-page">
-        <div class="sp-wrapper">
-            
-            <div class="sp-sidebar sp-itm">
+    <div class="container-fluid page-content">
+        <div class="setting-page">
+            <div class="sp-wrapper">
                 
-                <ul>
-                    @foreach(\Setting::getNav() as $nav)
-                    <li>
-                        <a class="@if(request()->route()->getName() == $nav['route_name']) active @endif" href="{{$nav['route']}}">{{$nav['title']}}</a>
-                    </li>
-                    @endforeach
-                </ul>
-                
-            </div>
-            <div class="sp-content sp-itm">
-                
-                @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                @endif
-                
-                <form action="" method="post">
-                    @csrf
-                    @if(!empty($hall))
-                        @method('PUT')
-                    @endif
+                <!-- <div class="sp-sidebar sp-itm">
                     
-                    <button type="submit" class="btn btn-sm btn-success float-right">Save</button>
+                    <ul>
+                        
+                    </ul>
+                    
+                </div> -->
+                <!-- <div class="sp-content sp-itm"> -->
+                <div class="sp-itm">
                     
                     @yield('content')
                     
-                    <!-- <button type="submit" class="btn btn-primary">Apply</button> -->
-                </form>
+                    <!-- <form action="" method="post">
+                        @csrf
+                        @if(!empty($hall))
+                            @method('PUT')
+                        @endif
+                        
+                        <button type="submit" class="btn btn-sm btn-success float-right">Save</button>
+                        
+                        @yield('content')
+                    </form> -->
+                    
+                </div>
                 
             </div>
-            
         </div>
     </div>
     

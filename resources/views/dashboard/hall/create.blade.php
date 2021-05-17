@@ -46,8 +46,8 @@
             @endif
             
             @if(!empty($holidays))
-                let holidays =  @json($holidays);
-                // console.log(holidays);
+                let holidaysData =  @json($holidays);
+                // console.log(holidaysData);
             @endif
             
             @if(!empty($old_suspension))
@@ -63,6 +63,13 @@
             var phones = @json($phones);
             
             var dataListUrl = '{{ route('dashboard.worker.data_list') }}';
+            
+            @if(!empty($hall))
+                var checkHolidaysUrl = `{{ route('dashboard.hall.check_holidays', [
+                    'id' => $hall->id
+                ]) }}`;
+                // console.log(checkHolidayPeriodUrl);
+            @endif
             
             @if(!empty($hall))
                 var deleteRoute = '{{ route("dashboard.hall.destroy", $hall->id) }}';
@@ -211,18 +218,10 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'holidays') active @endif" id="holidays-tab" data-toggle="tab" href="#holidays" tab-name="holidays" role="tab" aria-controls="holidays" aria-selected="false">
                     <span class="notice-badges">
-                        <span class="notice-badge notice-badge-warning text-warning @if(!empty($count_workdays)) d-none @endif"
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($holidays)) d-none @endif"
                             data-toggle="tooltip"
                             data-placement="bottom"
-                            title="All days are weekends">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
-                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                            </svg>
-                        </span>
-                        <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($count_workdays)) d-none @endif"
-                            data-toggle="tooltip"
-                            data-placement="bottom"
-                            title="{{$count_workdays ?? 0}} days opened">{{$count_workdays ?? 0}}</span>
+                            title="{{!empty($holidays) ? count($holidays) : 0}} holidays">{{!empty($holidays) ? count($holidays) : 0}}</span>
                     </span>
                     Holidays
                 </a>
@@ -230,7 +229,7 @@
             <li class="action-btn">
                 
                 <button id="submitBtn" class="btn btn-success btn-sm float-right">
-                    {{ !empty($hall) ? 'Update' : 'Create'}}
+                    {{ !empty($hall) ? 'Apply' : 'Create'}}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z"/>
                     </svg>

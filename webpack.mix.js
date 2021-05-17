@@ -29,12 +29,17 @@ mix.js('resources/js/vue/dashboard/business_hours/app.js', 'public/js/dashboard/
 mix.js('resources/js/vue/dashboard/hall_assignment/app.js', 'public/js/dashboard/hall-assignment.js').vue();
 mix.js('resources/js/vue/dashboard/suspension/app.js', 'public/js/dashboard/suspension.js').vue();
 
+mix.js('resources/js/vue/dashboard/template_assignment/app.js', 'public/js/dashboard/template-assignment.js').vue();
+
 // mix.js('resources/js/vue/dashboard/hall/create_edit_status/app.js', 'public/js/dashboard/halls/create-edit-status.js').vue();
 // mix.js('resources/js/vue/dashboard/hall/business_hours/app.js', 'public/js/dashboard/halls/hall-business-hours.js').vue();
 // mix.js('resources/js/vue/worker_assignment_2/app.js', 'public/js/worker-assignment-2.js').vue();
 
 mix.js('resources/js/vue/dashboard/worker_assignment/app.js', 'public/js/dashboard/worker-assignment.js').vue();
 mix.js('resources/js/vue/dashboard/holidays/app.js', 'public/js/dashboard/holidays.js').vue();
+
+//Setting
+mix.js('resources/js/vue/dashboard/setting/custom_fields/app.js', 'public/js/dashboard/setting/custom-fields.js').vue();
 
 // mix.js('resources/js/ts/calendar-helper.ts', 'public/js/calendar-helper.js').webpackConfig({
 mix.webpackConfig({

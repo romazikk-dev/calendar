@@ -38,12 +38,23 @@ Breadcrumbs::for('client', function ($trail, $inner_page = null) {
         $trail->push($inner_page);
 });
 
-Breadcrumbs::for('settings', function ($trail, $inner_page = null) {
+Breadcrumbs::for('settings', function ($trail, $inner_pages = []) {
+    // dd()
     $trail->parent('home');
     // $trail->push("settings", route('dashboard.client.index'));
-    $trail->push("settings");
-    if(!is_null($inner_page))
-        $trail->push($inner_page);
+    if(empty($inner_pages)){
+        $trail->push("settings");
+    }else{
+        $trail->push("settings", route('dashboard.settings.index'));
+    }
+    if(!empty($inner_pages))
+        foreach($inner_pages as $inner_page){
+            if(count($inner_page) == 1){
+                $trail->push($inner_page[0]);
+            }else{
+                $trail->push($inner_page[0], $inner_page[1]);
+            }
+        }
 });
 
 

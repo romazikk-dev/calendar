@@ -46,11 +46,38 @@
                     Settings
                 </a>
                 <div class="dropdown-menu" aria-labelledby="settingsNavbarDropdown">
+                    
+                    <ul class="main-navbar-settings">
                     @foreach(\Setting::getNav() as $nav)
-                    <!-- <li> -->
-                        <a href="{{$nav['route']}}" class="dropdown-item">{{$nav['title']}}</a>
-                    <!-- </li> -->
+                        <li>
+                            @if(!empty($nav['includes']))
+                                <a href="{{ $nav['route'] }}">
+                                    {{$nav['title']}}
+                                    <span class="chevr">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-chevron-double-right" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                            <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                        </svg>
+                                    </span>
+                                </a>
+                                @if(count($nav['items']) > 0)
+                                <ul>
+                                    @foreach($nav['items'] as $item)
+                                    <li>
+                                        <a href="{{$item['route']}}">{{$item['title']}}</a>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            @else
+                                <a href="{{ $nav['route'] }}">
+                                    {{ $nav['title'] }}
+                                </a>
+                            @endif
+                        </li>
                     @endforeach
+                    </ul>
+                    
                 </div>
             </li>
             

@@ -184,6 +184,7 @@ return [
         App\Providers\PhonePickerServiceProvider::class,
         App\Providers\SuspensionServiceProvider::class,
         App\Providers\HolidayServiceProvider::class,
+        App\Providers\LanguageServiceProvider::class,
 
     ],
 
@@ -244,6 +245,7 @@ return [
         'PhonePicker'   =>  App\Classes\PhonePicker\PhoneFacade::class,
         'Suspension'   =>  App\Classes\Suspension\SuspensionFacade::class,
         'Holiday'   =>  App\Classes\Holiday\HolidayFacade::class,
+        'Language'   =>  App\Classes\Language\LanguageFacade::class,
 
     ],
 

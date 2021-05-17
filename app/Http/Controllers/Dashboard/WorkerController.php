@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\PersonController as Controller;
 use Illuminate\Http\Request;
 use App\Models\Worker;
+use App\Models\Template;
 use App\Models\Phone;
 use App\Models\Hall;
 // use App\Models\WorkerSuspension;
@@ -103,6 +104,10 @@ class WorkerController extends Controller
         $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS, true);
         
         // dd(\Suspension::getOldForVue());
+        // $assign_templates = old('assign_templates');
+        
+        // if(!empty($assign_templates))
+        //     dd($assign_templates);
         
         return view('dashboard.worker.create', [
             'phone_types' => PhoneTypes::all(),
@@ -114,6 +119,8 @@ class WorkerController extends Controller
             'count_weekends' => $business_hours['count_weekends'],
             'count_workdays' => $business_hours['count_workdays'],
             'validation_messages' => \Lang::get('validation'),
+            'holidays' => \Holiday::getAllForVue(),
+            'assign_templates' => old('assign_templates') ? old('assign_templates') : [],
         ]);
     }
     
@@ -132,6 +139,12 @@ class WorkerController extends Controller
             'town' => 'max:255',
             'street' => 'max:255',
             
+            //Holiday rules
+            'holiday_title.*' => 'required|max:255',
+            'holiday_description.*' => 'max:1000',
+            'holiday_from.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
+            'holiday_to.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
+            
             //Suspension rules
             'status' => 'required|in:disable,complete,period',
             'suspend_from' => 'required_if:status,==,period|nullable|string|max:20|regex:/\d{2}-\d{2}-\d{4}/i',
@@ -139,6 +152,9 @@ class WorkerController extends Controller
             
             //Assign halls rule
             'assign_item' => 'nullable|array',
+            
+            //Assign templates rule
+            'assign_templates' => 'nullable|array',
             
             //Business hours rules
             'business_hours' => 'required|array',
@@ -229,12 +245,22 @@ class WorkerController extends Controller
         
         $validated = $validator->valid();
         
+        $holidays = \Holiday::getAllFromRequest();
+        
         if(!empty($validated['assign_item'])){
             $assign_item = array_keys($validated['assign_item']);
             unset($validated['assign_item']);
             $halls = Hall::whereIn('id', $assign_item)->get();
             if(count($halls) != count($assign_item))
                 return back()->withErrors(['assign_item_count', 'You trying assign not existing items']);
+        }
+        
+        if(!empty($validated['assign_templates'])){
+            $assign_templates = array_keys($validated['assign_templates']);
+            unset($validated['assign_templates']);
+            $templates = Template::whereIn('id', $assign_templates)->get();
+            if(count($templates) != count($assign_templates))
+                return back()->withErrors(['assign_template_count', 'You trying assign not existing templates']);
         }
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
@@ -247,11 +273,21 @@ class WorkerController extends Controller
         // dd($validated);
         
         $worker = Worker::create($validated);
-        if(!empty($assign_item)){
-            foreach($assign_item as $item_id){
+        if(empty($worker))
+            return redirect()->route('dashboard.worker.index');
+        
+        if(!empty($assign_item))
+            foreach($assign_item as $item_id)
                 $worker->halls()->attach($item_id);
-            }
-        }
+                
+        if(!empty($assign_templates))
+            foreach($assign_templates as $template_id)
+                $worker->templates()->attach($template_id);
+                
+        if(!empty($holidays))
+            foreach($holidays as $holiday)
+                $worker->holidays()->create($holiday);
+                
         \PhonePicker::saveAllPhones($request, $worker);
         
         return redirect()->route('dashboard.worker.index');
@@ -456,6 +492,10 @@ class WorkerController extends Controller
         $assign_halls = [];
         foreach($worker->halls as $itm)
             $assign_halls[$itm->id] = 'on';
+            
+        $assign_templates = [];
+        foreach($worker->templates as $itm)
+            $assign_templates[$itm->id] = 'on';
         
         $phones = \PhonePicker::getAllForVue($worker);
         
@@ -482,7 +522,9 @@ class WorkerController extends Controller
             'count_weekends' => $business_hours['count_weekends'],
             'count_workdays' => $business_hours['count_workdays'],
             'assign_halls' => $assign_halls,
+            'assign_templates' => $assign_templates,
             'validation_messages' => \Lang::get('validation'),
+            'holidays' => \Holiday::getAllForVue($worker),
         ]);
     }
     
@@ -720,6 +762,9 @@ class WorkerController extends Controller
         
         $validated = $validator->valid();
         
+        $holidays = \Holiday::getAllFromRequest();
+        unset($validated['holiday_title'], $validated['holiday_from'], $validated['holiday_to'], $validated['holiday_description']);
+        
         // Set suspension variable for further applying a proper suspension
         if(!empty($validated['status']))
             $suspension = [
@@ -759,11 +804,24 @@ class WorkerController extends Controller
                 return back()->withErrors(['assign_item_count', 'You trying assign not existing items']);
         }
         
+        if(!empty($validated['assign_templates'])){
+            $assign_templates = array_keys($validated['assign_templates']);
+            unset($validated['assign_templates']);
+            $templates = Template::whereIn('id', $assign_templates)->get();
+            if(count($templates) != count($assign_templates))
+                return back()->withErrors(['assign_template_count', 'You trying assign not existing templates']);
+        }
+        
         DB::table('workers')
             ->where('id', $id)
             ->update($validated);
         
         $worker = Worker::find($id);
+        $worker->holidays()->delete();
+        
+        if(!empty($holidays))
+            foreach($holidays as $holiday)
+                $worker->holidays()->create($holiday);
         
         if(!empty($suspension)){
             $toogle_suspension = new ToogleSuspension(
@@ -776,12 +834,17 @@ class WorkerController extends Controller
         }
         
         $worker->halls()->detach();
+        $worker->templates()->detach();
         
         if(!empty($assign_item)){
             foreach($assign_item as $item_id){
                 $worker->halls()->attach($item_id);
             }
         }
+        
+        if(!empty($assign_templates))
+            foreach($assign_templates as $template_id)
+                $worker->templates()->attach($template_id);
         
         $route_params = ['worker' => $id];
         if($request->has('tab'))

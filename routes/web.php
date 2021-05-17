@@ -7,7 +7,14 @@ use App\Http\Controllers\WorkerDashboard\DefaultController as WorkerDashboardDef
 use App\Http\Controllers\Dashboard\HallController as DashboardHallController;
 use App\Http\Controllers\Dashboard\TemplateController as DashboardTemplateController;
 use App\Http\Controllers\Dashboard\ClientController as DashboardClientController;
+
 use App\Http\Controllers\Dashboard\SettingsController as DashboardSettingsController;
+
+use App\Http\Controllers\Dashboard\Settings\SettingController as DashboardSettingController;
+use App\Http\Controllers\Dashboard\Settings\SettingHallController as DashboardSettingHallController;
+use App\Http\Controllers\Dashboard\Settings\SettingWorkerController as DashboardSettingWorkerController;
+use App\Http\Controllers\Dashboard\Settings\SettingClientsBookingCalendarController as DashboardSettingClientsBookingCalendarController;
+
 use App\Http\Controllers\Dashboard\BookingsController as DashboardBookingsController;
 
 use App\Http\Controllers\Calendar\BookingController as CalendarBookingController;
@@ -85,16 +92,16 @@ Route::group([
         'as' => 'hall.'
     ], function () {
         
-        // Route::resource('worker', DashboardWorkerController::class);
         Route::post('/data-list', [DashboardHallController::class, 'dataList'])->name('data_list');
         Route::post('{id}/toggle-suspension', [DashboardHallController::class, 'toggleSuspension'])
             ->name('toggle_suspension')->where('id', '[0-9]+');
-        // Route::get('{id}/edit-password', [DashboardWorkerController::class, 'editPassword'])
-        //     ->name('edit_password')->where('id', '[0-9]+');
-        // Route::put('{id}/update-password', [DashboardWorkerController::class, 'updatePassword'])
-        //     ->name('update_password')->where('id', '[0-9]+');
-        // Route::post('{id}/toggle-suspension', [DashboardWorkerController::class, 'toggleSuspension'])
-        //     ->name('toggle_suspension')->where('id', '[0-9]+');
+        Route::post('/check-holidays/{id}', [DashboardHallController::class, 'checkHolidays'])
+            ->name('check_holidays');
+            // ->where([
+            //     'id' => '[0-9]+',
+            //     'f' => '\d{2}-\d{2}-\d{4}',
+            //     't' => '\d{2}-\d{2}-\d{4}',
+            // ]);
     
     });
     
@@ -152,20 +159,38 @@ Route::group([
         'as' => 'settings.'
     ], function () {
         
-        // Route::get('/', [DashboardSettingsController::class, 'index'])->name('index');
+        Route::get('/', [DashboardSettingController::class, 'index'])->name('index');
         
         Route::group([
             'prefix' => '/hall',
             'as' => 'hall.'
         ], function () {
-            Route::match(['get', 'post'], '/business_hours', [DashboardSettingsController::class, 'businessHours'])->name('default_business_hours');
+            
+            Route::get('/', [DashboardSettingHallController::class, 'index'])->name('index');
+            Route::match(['get', 'post'], '/business_hours', [DashboardSettingHallController::class, 'businessHours'])->name('default_business_hours');
+            Route::match(['get', 'post'], '/holidays', [DashboardSettingHallController::class, 'holidays'])->name('holidays');
+            
         });
         
         Route::group([
             'prefix' => '/worker',
             'as' => 'worker.'
         ], function () {
-            Route::match(['get', 'post'], '/worker_business_hours', [DashboardSettingsController::class, 'workerDefaultBusinessHours'])->name('default_business_hours');
+            
+            Route::get('/', [DashboardSettingWorkerController::class, 'index'])->name('index');
+            Route::match(['get', 'post'], '/business_hours', [DashboardSettingWorkerController::class, 'businessHours'])->name('default_business_hours');
+            
+        });
+        
+        Route::group([
+            'prefix' => '/clients-booking-calendar',
+            'as' => 'clients_booking_calendar.'
+        ], function () {
+            
+            Route::get('/', [DashboardSettingClientsBookingCalendarController::class, 'index'])->name('index');
+            Route::match(['get', 'post'], '/languages', [DashboardSettingClientsBookingCalendarController::class, 'languages'])->name('languages');
+            Route::match(['get', 'post'], '/custom_titles', [DashboardSettingClientsBookingCalendarController::class, 'customTitles'])->name('custom_titles');
+            
         });
         
         // Route::match(['get', 'post'], '/business_hours', [DashboardSettingsController::class, 'businessHours'])->name('business_hours');

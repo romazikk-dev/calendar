@@ -1,5 +1,9 @@
 @extends('dashboard.settings.template.main')
 
+@section('breadcrumbs')
+    {{ Breadcrumbs::render('settings', [['hall', route('dashboard.settings.hall.index')], ['hall`s default bussiness hours']]) }}
+@endsection
+
 @section('scripts')
 
     <script type="text/javascript">
@@ -24,6 +28,19 @@
 
 @section('content')
     
-    <div id="hallBusinessHours"></div>
+    @if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
+
+    <form action="" method="post">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-success float-right">Save</button>
+        <div id="hallBusinessHours"></div>
+    </form>
     
 @endsection

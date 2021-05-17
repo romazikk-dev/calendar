@@ -172,7 +172,6 @@ class HallController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function create(Request $request)
     public function create(){
         
         if(old('business_hours')){
@@ -198,6 +197,7 @@ class HallController extends Controller
             'tab_errors' => $tab_errors,
             'assign_worker' => old('assign_worker') ? old('assign_worker') : null,
             'validation_messages' => \Lang::get('validation'),
+            'holidays' => \Holiday::getAllForVue(),
         ]);
         
     }
@@ -231,6 +231,8 @@ class HallController extends Controller
         
         $validated = $validator->valid();
         
+        $holidays = \Holiday::getAllFromRequest();
+        
         // dd($validated);
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
@@ -245,19 +247,25 @@ class HallController extends Controller
         
         $validated['user_id'] = auth()->user()->id;
         
-        if(($hall = Hall::create($validated)) && !empty($assign_workers))
+        $hall = Hall::create($validated);
+        if(empty($hall))
+            return redirect()->route('dashboard.hall.index');
+            
+        if(!empty($assign_workers))
             foreach($assign_workers as $worker_id)
                 $hall->workers()->attach($worker_id);
+                
+        if(!empty($holidays))
+            foreach($holidays as $holiday)
+                $hall->holidays()->create($holiday);
         
-        if(!empty($hall)){
-            if(!empty($validated['status'])){
-                \Suspension::toogle(
-                    $validated['status'],
-                    $hall,
-                    !empty($validated['suspend_from']) ? $validated['suspend_from'] : null,
-                    !empty($validated['suspend_to']) ? $validated['suspend_to'] : null
-                );
-            }
+        if(!empty($validated['status'])){
+            \Suspension::toogle(
+                $validated['status'],
+                $hall,
+                !empty($validated['suspend_from']) ? $validated['suspend_from'] : null,
+                !empty($validated['suspend_to']) ? $validated['suspend_to'] : null
+            );
         }
         
         \PhonePicker::saveAllPhones($request, $hall);
@@ -386,48 +394,8 @@ class HallController extends Controller
         
         $validated = $validator->valid();
         
-        // dd($validated);
-        if(!empty($validated['holiday_title'])){
-            $holidays = [];
-            foreach($validated['holiday_title'] as $k => $v){
-                $holiday = [];
-                
-                if(!empty($validated['holiday_title'][$k])){
-                    $holiday['title'] = $validated['holiday_title'][$k];
-                }else{
-                    continue;
-                }
-                
-                if(!empty($validated['holiday_from'][$k])){
-                    // $holiday['from'] = $validated['holiday_from'][$k];
-                    $holiday['from'] = \Carbon\Carbon::parse($validated['holiday_from'][$k]);
-                }else{
-                    continue;
-                }
-                
-                if(!empty($validated['holiday_to'][$k])){
-                    // $holiday['to'] = $validated['holiday_to'][$k];
-                    $holiday['to'] = \Carbon\Carbon::parse($validated['holiday_to'][$k]);
-                }else{
-                    continue;
-                }
-                
-                if(!empty($validated['holiday_description'][$k])){
-                    $holiday['description'] = $validated['holiday_description'][$k];
-                }else{
-                    $holiday['description'] = null;
-                }
-                
-                $holidays[] = $holiday;
-            }
-            
-            unset(
-                $validated['holiday_title'],
-                $validated['holiday_from'],
-                $validated['holiday_to'],
-                $validated['holiday_description']
-            );
-        }
+        $holidays = \Holiday::getAllFromRequest();
+        unset($validated['holiday_title'], $validated['holiday_from'], $validated['holiday_to'], $validated['holiday_description']);
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
         
@@ -438,8 +406,6 @@ class HallController extends Controller
             if(count($workers) != count($assign_workers))
                 return back()->withErrors(['assign_worker_count', 'You trying assign not existing workers']);
         }
-        
-        // dd($validated);
         
         // Set suspension variable for further applying a proper suspension
         if(!empty($validated['status']))
@@ -460,8 +426,6 @@ class HallController extends Controller
             }
         }
         
-        // dd($validated);
-        
         $res = DB::table('halls')
             ->where('id', $id)
             ->update($validated);
@@ -480,7 +444,6 @@ class HallController extends Controller
         if(!empty($holidays))
             foreach($holidays as $holiday)
                 $hall->holidays()->create($holiday);
-        // dd($suspension);
         
         if(!empty($suspension['status'])){
             // dd($suspension);

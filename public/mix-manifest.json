@@ -8,7 +8,9 @@
     "/js/dashboard/business-hours.js": "/js/dashboard/business-hours.js",
     "/js/dashboard/hall-assignment.js": "/js/dashboard/hall-assignment.js",
     "/js/dashboard/suspension.js": "/js/dashboard/suspension.js",
+    "/js/dashboard/template-assignment.js": "/js/dashboard/template-assignment.js",
     "/js/dashboard/worker-assignment.js": "/js/dashboard/worker-assignment.js",
     "/js/dashboard/holidays.js": "/js/dashboard/holidays.js",
+    "/js/dashboard/setting/custom-fields.js": "/js/dashboard/setting/custom-fields.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

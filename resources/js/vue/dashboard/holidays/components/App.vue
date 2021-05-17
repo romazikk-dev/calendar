@@ -13,6 +13,10 @@
                 </svg>
             </button>
             
+            <div class="empty-placeholder" v-if="isShowEmptyPlaceholder && holidays.length == 0">
+                No holidays setted.
+            </div>
+            
             <div v-for="(item,index) in holidays" class="alert-item alert alert-primary" role="alert">
                 <b>
                     {{item.title}}
@@ -159,6 +163,7 @@
 <script>
     export default {
         mounted() {
+            // console.log(this.showEmptyPlaceholder);
             // console.log(assignWorkers);
             console.log(JSON.parse(JSON.stringify(validationMessages)));
             // setTimeout(() => {
@@ -172,10 +177,14 @@
             
             // this.setAssignWorkers();
             // this.recalculateBadgeValue(true);
-            if(typeof holidays != 'undefined')
-                this.holidays = holidays;
+            // console.log(JSON.parse(JSON.stringify(holidays)));
+            if(typeof holidaysData != 'undefined'){
+                this.holidays = holidaysData;
+                console.log(JSON.parse(JSON.stringify(holidaysData)));
+            }
+            this.reCalculateTabValue(false);
         },
-        // props: ['postTitle'],
+        props: ['showEmptyPlaceholder'],
         data: function(){
             return {
                 holidays: [],
@@ -205,6 +214,9 @@
             };
         },
         computed: {
+            isShowEmptyPlaceholder: function () {
+                return typeof this.showEmptyPlaceholder != 'undefined' && this.showEmptyPlaceholder === 'true';
+            }
             // showWarningAlert: function () {
             //     // if(this.items == null || this.selectedItems.length == 0)
             //     //     return false;
@@ -218,6 +230,9 @@
             // },
         },
         methods: {
+            isJqueryValidationEnabled: function(){
+                return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            },
             initDatePicker: function(){
                 let _this = this;
                 
@@ -241,6 +256,8 @@
                             // $(_this.formId).valid();
                             // _this.from = date;
                             $(this).valid();
+                            if(_this.to != null)
+                                $("#holiday_to").valid();
                         }),
                         to = $( "#holiday_to" ).datepicker({
                             defaultDate: "+1w",
@@ -259,6 +276,8 @@
                             // $(_this.formId).valid();
                             
                             $(this).valid();
+                            if(_this.from != null)
+                                $("#holiday_from").valid();
                         });
                         
                         // console.log(_this.holidayEditIndex);
@@ -350,6 +369,64 @@
                     return value == "" || value.length <= len;
                 });
                 
+                $.validator.addMethod("available", function (value, element, len) {
+                    // let momentFrom = moment(value, 'DD-MM-YYYY');
+                    // let momentTo = moment(_this.to, 'DD-MM-YYYY');
+                    
+                    // console.log(_this.from);
+                    // console.log(_this.to);
+                    
+                    let momentValue = moment(value, 'DD-MM-YYYY').startOf('day');
+                    let momentFrom = moment(_this.from, 'DD-MM-YYYY').startOf('day');
+                    let momentTo = typeof _this.to != 'undefined' && _this.to != null ?
+                        moment(_this.to, 'DD-MM-YYYY').startOf('day') : null;
+                    
+                    // console.log(momentFrom.toDate());
+                    // console.log(momentTo.toDate());
+                        
+                    let available = true;
+                    let holidayLength = _this.holidays.length;
+                    for(let i = 0; i < holidayLength; i++){
+                        if(_this.holidayEditIndex == i)
+                            continue;
+                            
+                        let item = _this.holidays[i];
+                        
+                        if(typeof item.from == 'undefined' || item.from == null ||
+                        typeof item.to == 'undefined' || item.to == null)
+                            continue;
+                            
+                        let momentItemFrom = moment(item.from, 'DD-MM-YYYY').startOf('day');
+                        let momentItemTo = moment(item.to, 'DD-MM-YYYY').startOf('day');
+                        
+                        if(momentTo == null){
+                            if(momentFrom.diff(momentItemFrom) >= 0 && momentFrom.diff(momentItemTo) <= 0){
+                                available = false;
+                                break;
+                            }
+                        }else{
+                            // if(momentFrom.diff(momentItemFrom) >= 0 && momentTo.diff(momentItemTo) <= 0){
+                            //     available = false;
+                            //     break;
+                            // }
+                            if(momentItemFrom.diff(momentFrom) >= 0 && momentItemTo.diff(momentTo) <= 0){
+                                available = false;
+                                break;
+                            }
+                            if(momentValue.diff(momentItemFrom) >= 0 && momentValue.diff(momentItemTo) <= 0){
+                                available = false;
+                                break;
+                            }
+                            if(momentValue.diff(momentItemFrom) == 0 || momentValue.diff(momentItemTo) == 0){
+                                available = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    return available;
+                });
+                
                 _this.validator = $(_this.formId).validate({
                     ignore: "",
                     errorPlacement: function(error, element) {
@@ -379,11 +456,37 @@
                             required: true,
                             maxlength: 20,
                             holiday_date: true,
+                            available: true,
+                            // remote: {
+                            //     url: checkPeriodUrl,
+                            //     type: "post",
+                            //     headers: {
+                            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            //     },
+                            //     dataType: 'json',
+                            //     data: {
+                            //         from: _this.from,
+                            //         to: _this.to,
+                            //     }
+                            // },
                         },
                         holiday_to: {
                             required: true,
                             maxlength: 20,
                             holiday_date: true,
+                            available: true,
+                            // remote: {
+                            //     url: checkPeriodUrl,
+                            //     type: "post",
+                            //     headers: {
+                            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            //     },
+                            //     dataType: 'json',
+                            //     data: {
+                            //         from: _this.from,
+                            //         to: _this.to,
+                            //     }
+                            // },
                         },
                     },
                     // Specify validation error messages
@@ -400,11 +503,13 @@
                             required: validationMessages.required.replace(':attribute', 'holiday from'),
                             maxlength: (validationMessages.max.string.replace(':attribute', 'holiday from')).replace(':max', '20'),
                             holiday_date: validationMessages.regex.replace(':attribute', 'holiday from'),
+                            available: 'Already taken period or date in range',
                         },
                         holiday_to: {
                             required: validationMessages.required.replace(':attribute', 'holiday to'),
                             maxlength: (validationMessages.max.string.replace(':attribute', 'holiday to')).replace(':max', '20'),
                             holiday_date: validationMessages.regex.replace(':attribute', 'holiday to'),
+                            available: 'Already taken period or date in range',
                         },
                     },
                     submitHandler: function(form) {
@@ -454,6 +559,7 @@
                     return;
                     
                 this.holidays.splice(index, 1);
+                this.reCalculateTabValue();
             },
             editHoliday: function(index){
                 let _this = this;
@@ -487,6 +593,12 @@
                 let _this = this;
                 
                 if($(this.formId).valid() && this.from != null && this.to != null){
+                    // let holiday = {
+                    //     from: this.from,
+                    //     to: this.to,
+                    //     title: this.holidayTitle,
+                    //     description: this.holidayDescription,
+                    // }
                     _this.holidays.push({
                         from: this.from,
                         to: this.to,
@@ -497,6 +609,23 @@
                     $(document).find(this.modalId).modal('hide');
                 }
             },
+            reCalculateTabValue: function(checkIsJqueryValidationEnabled = true){
+                if(checkIsJqueryValidationEnabled && !this.isJqueryValidationEnabled())
+                    return;
+                
+                let holidaysCount = this.holidays.length;
+                
+                let noticeBadges = $("#holidays-tab").find('.notice-badges');
+                // console.log(noticeBadge);
+                
+                noticeBadges.find('.notice-badge').addClass('d-none');
+                if(holidaysCount > 0){
+                    noticeBadges.find('.notice-badge-success').removeClass('d-none')
+                        .attr('data-original-title', holidaysCount + ' days opened').text(holidaysCount);
+                }else{
+                    noticeBadges.find('.notice-badge-warning').removeClass('d-none');
+                }
+            },
         },
         components: {
             
@@ -505,6 +634,9 @@
 </script>
 
 <style lang="scss" scoped>
+    .empty-placeholder{
+        padding-top: 10px;
+    }
     .alert-item{
         margin-bottom: 0px!important;
         margin-top: 10px!important;

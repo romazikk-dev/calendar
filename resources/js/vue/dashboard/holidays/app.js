@@ -32,7 +32,11 @@ import App from './components/App.vue';
 window.app = new Vue({
     el: '#holidaysApp',
     render(h) {
-        return h(App) 
+        return h(App, {
+            props:{
+                showEmptyPlaceholder: document.querySelector("#holidaysApp").dataset.showEmptyPlaceholder
+            }
+        }) 
     }
 });
 

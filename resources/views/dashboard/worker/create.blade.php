@@ -34,6 +34,11 @@
                 // console.log(suspensionDB);
             @endif
             
+            @if(!empty($holidays))
+                let holidaysData =  @json($holidays);
+                // console.log(holidaysData);
+            @endif
+            
             @if(!empty($old_suspension))
                 var oldSuspension =  @json($old_suspension);
                 // console.log('oldSuspension');
@@ -49,6 +54,10 @@
                 var assignHalls = @json($assign_halls);
             @endif
             
+            var assignTemplates = @json($assign_templates);
+            // console.log(22222);
+            // console.log(assignTemplates);
+            
             // console.log(JSON.parse(JSON.stringify(assignHalls)));
             
             var dataListUrl = '{{ route('dashboard.hall.data_list') }}';
@@ -57,6 +66,8 @@
             @else
                 var checkEmailUrl = '{{ route('dashboard.worker.check_email') }}';
             @endif
+            
+            var templateDataListUrl = '{{ route('dashboard.template.data_list') }}';
             
             // console.log(checkEmailUrl);
             
@@ -127,7 +138,9 @@
         <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/business-hours.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/hall-assignment.js') }}?{{$rand}}"></script>
+        <script src="{{ asset('js/dashboard/template-assignment.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/suspension.js') }}?{{$rand}}"></script>
+        <script src="{{ asset('js/dashboard/holidays.js') }}?{{$rand}}"></script>
         
     </x-slot>
     
@@ -146,6 +159,7 @@
             }
         </style>
     </x-slot>
+    
     
     @if (session('success'))
         <div class="alert-form-success alert alert-success alert-dismissible fade show" role="alert">
@@ -244,6 +258,27 @@
             </a>
         </li>
         <li class="nav-item" role="presentation">
+            <a class="nav-link @if(Request::get('tab') == 'template') active @endif" id="template-tab" data-toggle="tab" href="#template" tab-name="template" role="tab" aria-controls="template" aria-selected="false">
+                <span class="notice-badges">
+                    <span class="notice-badge notice-badge-warning text-warning d-none"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="0 templates">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                    </span>
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-info d-none"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($assign_templates) ? count($assign_templates) : 0}} templates">
+                            {{!empty($assign_templates) ? count($assign_templates) : 0}}
+                    </span>
+                </span>
+                Templates
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::get('tab') == 'hours') active @endif" id="hours-tab" data-toggle="tab" href="#hours" tab-name="hours" role="tab" aria-controls="hours" aria-selected="false">
                 <span class="notice-badges">
                     <span class="notice-badge notice-badge-warning text-warning @if(!empty($count_workdays)) d-none @endif"
@@ -263,6 +298,17 @@
             </a>
         </li>
         <li class="nav-item" role="presentation">
+            <a class="nav-link @if(Request::get('tab') == 'holidays') active @endif" id="holidays-tab" data-toggle="tab" href="#holidays" tab-name="holidays" role="tab" aria-controls="holidays" aria-selected="false">
+                <span class="notice-badges">
+                    <span class="notice-badge notice-badge-success badge badge-pill badge-info @if(empty($holidays)) d-none @endif"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($holidays) ? count($holidays) : 0}} holidays">{{!empty($holidays) ? count($holidays) : 0}}</span>
+                </span>
+                Holidays
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
             <a class="nav-link @if(Request::has('tab') && Request::get('tab') == 'pass') active @endif" id="pass-tab" data-toggle="tab" href="#pass" role="tab" aria-controls="pass" aria-selected="false" tab-name="pass">
                 Password
                 <span id="passwordErrorBadge"
@@ -277,7 +323,7 @@
         <li class="action-btn">
             
             <button id="submitBtn" class="btn btn-success btn-sm float-right">
-                {{ !empty($worker) ? 'Update' : 'Create'}}
+                {{ !empty($worker) ? 'Apply' : 'Create'}}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z"/>
                 </svg>
@@ -428,9 +474,25 @@
                 <div id="hallAssignment"></div>
             
             </div>
+            <div class="tab-pane fade @if(Request::get('tab') == 'template') show active @endif" id="template" role="tabpanel" aria-labelledby="template-tab">
+                
+                <div id="templateAssignmentApp"></div>
+            
+            </div>
             <div class="tab-pane fade @if(Request::get('tab') == 'hours') show active @endif" id="hours" role="tabpanel" aria-labelledby="hours-tab">
 
                 <div id="businessHours"></div>
+                
+            </div>
+            <div class="tab-pane fade @if(Request::get('tab') == 'holidays') show active @endif" id="holidays" role="tabpanel" aria-labelledby="holidays-tab">
+                
+                @if(!empty($all_days_closed))
+                    <div class="alert alert-warning" role="alert">
+                        All days currently are weekends(<b class="text-uppercase text-danger">closed</b>)
+                    </div>
+                @endif
+                
+                <div id="holidaysApp"></div>
                 
             </div>
             <div class="tab-pane fade @if(Request::has('tab') && Request::get('tab') == 'pass') show active @endif" id="pass" role="tabpanel" aria-labelledby="pass-tab">

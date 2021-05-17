@@ -2003,8 +2003,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
+    // console.log(this.showEmptyPlaceholder);
     // console.log(assignWorkers);
     console.log(JSON.parse(JSON.stringify(validationMessages))); // setTimeout(() => {
     // 	this.setAssignWorkers();
@@ -2014,10 +2019,16 @@ __webpack_require__.r(__webpack_exports__);
     // this.openModal();
     // this.setAssignWorkers();
     // this.recalculateBadgeValue(true);
+    // console.log(JSON.parse(JSON.stringify(holidays)));
 
-    if (typeof holidays != 'undefined') this.holidays = holidays;
+    if (typeof holidaysData != 'undefined') {
+      this.holidays = holidaysData;
+      console.log(JSON.parse(JSON.stringify(holidaysData)));
+    }
+
+    this.reCalculateTabValue(false);
   },
-  // props: ['postTitle'],
+  props: ['showEmptyPlaceholder'],
   data: function data() {
     return {
       holidays: [],
@@ -2046,7 +2057,10 @@ __webpack_require__.r(__webpack_exports__);
       formHasErrors: false
     };
   },
-  computed: {// showWarningAlert: function () {
+  computed: {
+    isShowEmptyPlaceholder: function isShowEmptyPlaceholder() {
+      return typeof this.showEmptyPlaceholder != 'undefined' && this.showEmptyPlaceholder === 'true';
+    } // showWarningAlert: function () {
     //     // if(this.items == null || this.selectedItems.length == 0)
     //     //     return false;
     //     // console.log('showWarningAlert');
@@ -2057,8 +2071,12 @@ __webpack_require__.r(__webpack_exports__);
     //     // console.log(JSON.parse(JSON.stringify(this.assignWorkers)));
     //     return assignWorkersIds.length == 0;
     // },
+
   },
   methods: {
+    isJqueryValidationEnabled: function isJqueryValidationEnabled() {
+      return typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating();
+    },
     initDatePicker: function initDatePicker() {
       var _this = this; // console.log('initDatePicker');
 
@@ -2081,6 +2099,7 @@ __webpack_require__.r(__webpack_exports__);
           // _this.from = date;
 
           $(this).valid();
+          if (_this.to != null) $("#holiday_to").valid();
         }),
             to = $("#holiday_to").datepicker({
           defaultDate: "+1w",
@@ -2098,6 +2117,7 @@ __webpack_require__.r(__webpack_exports__);
           _this.to = helper.formatStatusDate(date); // $(_this.formId).valid();
 
           $(this).valid();
+          if (_this.from != null) $("#holiday_from").valid();
         }); // console.log(_this.holidayEditIndex);
 
         if (_this.holidayEditIndex != null) {
@@ -2189,6 +2209,55 @@ __webpack_require__.r(__webpack_exports__);
       $.validator.addMethod("maxlength", function (value, element, len) {
         return value == "" || value.length <= len;
       });
+      $.validator.addMethod("available", function (value, element, len) {
+        // let momentFrom = moment(value, 'DD-MM-YYYY');
+        // let momentTo = moment(_this.to, 'DD-MM-YYYY');
+        // console.log(_this.from);
+        // console.log(_this.to);
+        var momentValue = moment(value, 'DD-MM-YYYY').startOf('day');
+        var momentFrom = moment(_this.from, 'DD-MM-YYYY').startOf('day');
+        var momentTo = typeof _this.to != 'undefined' && _this.to != null ? moment(_this.to, 'DD-MM-YYYY').startOf('day') : null; // console.log(momentFrom.toDate());
+        // console.log(momentTo.toDate());
+
+        var available = true;
+        var holidayLength = _this.holidays.length;
+
+        for (var i = 0; i < holidayLength; i++) {
+          if (_this.holidayEditIndex == i) continue;
+          var item = _this.holidays[i];
+          if (typeof item.from == 'undefined' || item.from == null || typeof item.to == 'undefined' || item.to == null) continue;
+          var momentItemFrom = moment(item.from, 'DD-MM-YYYY').startOf('day');
+          var momentItemTo = moment(item.to, 'DD-MM-YYYY').startOf('day');
+
+          if (momentTo == null) {
+            if (momentFrom.diff(momentItemFrom) >= 0 && momentFrom.diff(momentItemTo) <= 0) {
+              available = false;
+              break;
+            }
+          } else {
+            // if(momentFrom.diff(momentItemFrom) >= 0 && momentTo.diff(momentItemTo) <= 0){
+            //     available = false;
+            //     break;
+            // }
+            if (momentItemFrom.diff(momentFrom) >= 0 && momentItemTo.diff(momentTo) <= 0) {
+              available = false;
+              break;
+            }
+
+            if (momentValue.diff(momentItemFrom) >= 0 && momentValue.diff(momentItemTo) <= 0) {
+              available = false;
+              break;
+            }
+
+            if (momentValue.diff(momentItemFrom) == 0 || momentValue.diff(momentItemTo) == 0) {
+              available = false;
+              break;
+            }
+          }
+        }
+
+        return available;
+      });
       _this.validator = $(_this.formId).validate({
         ignore: "",
         errorPlacement: function errorPlacement(error, element) {
@@ -2216,12 +2285,38 @@ __webpack_require__.r(__webpack_exports__);
           holiday_from: {
             required: true,
             maxlength: 20,
-            holiday_date: true
+            holiday_date: true,
+            available: true // remote: {
+            //     url: checkPeriodUrl,
+            //     type: "post",
+            //     headers: {
+            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            //     },
+            //     dataType: 'json',
+            //     data: {
+            //         from: _this.from,
+            //         to: _this.to,
+            //     }
+            // },
+
           },
           holiday_to: {
             required: true,
             maxlength: 20,
-            holiday_date: true
+            holiday_date: true,
+            available: true // remote: {
+            //     url: checkPeriodUrl,
+            //     type: "post",
+            //     headers: {
+            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            //     },
+            //     dataType: 'json',
+            //     data: {
+            //         from: _this.from,
+            //         to: _this.to,
+            //     }
+            // },
+
           }
         },
         // Specify validation error messages
@@ -2237,12 +2332,14 @@ __webpack_require__.r(__webpack_exports__);
           holiday_from: {
             required: validationMessages.required.replace(':attribute', 'holiday from'),
             maxlength: validationMessages.max.string.replace(':attribute', 'holiday from').replace(':max', '20'),
-            holiday_date: validationMessages.regex.replace(':attribute', 'holiday from')
+            holiday_date: validationMessages.regex.replace(':attribute', 'holiday from'),
+            available: 'Already taken period or date in range'
           },
           holiday_to: {
             required: validationMessages.required.replace(':attribute', 'holiday to'),
             maxlength: validationMessages.max.string.replace(':attribute', 'holiday to').replace(':max', '20'),
-            holiday_date: validationMessages.regex.replace(':attribute', 'holiday to')
+            holiday_date: validationMessages.regex.replace(':attribute', 'holiday to'),
+            available: 'Already taken period or date in range'
           }
         },
         submitHandler: function submitHandler(form) {// console.log('submitHandler');
@@ -2285,6 +2382,7 @@ __webpack_require__.r(__webpack_exports__);
     removeHoliday: function removeHoliday(index) {
       if (typeof this.holidays[index] == 'undefined' || this.holidays[index] == null) return;
       this.holidays.splice(index, 1);
+      this.reCalculateTabValue();
     },
     editHoliday: function editHoliday(index) {
       var _this = this;
@@ -2315,6 +2413,12 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       if ($(this.formId).valid() && this.from != null && this.to != null) {
+        // let holiday = {
+        //     from: this.from,
+        //     to: this.to,
+        //     title: this.holidayTitle,
+        //     description: this.holidayDescription,
+        // }
         _this.holidays.push({
           from: this.from,
           to: this.to,
@@ -2323,6 +2427,20 @@ __webpack_require__.r(__webpack_exports__);
         });
 
         $(document).find(this.modalId).modal('hide');
+      }
+    },
+    reCalculateTabValue: function reCalculateTabValue() {
+      var checkIsJqueryValidationEnabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      if (checkIsJqueryValidationEnabled && !this.isJqueryValidationEnabled()) return;
+      var holidaysCount = this.holidays.length;
+      var noticeBadges = $("#holidays-tab").find('.notice-badges'); // console.log(noticeBadge);
+
+      noticeBadges.find('.notice-badge').addClass('d-none');
+
+      if (holidaysCount > 0) {
+        noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', holidaysCount + ' days opened').text(holidaysCount);
+      } else {
+        noticeBadges.find('.notice-badge-warning').removeClass('d-none');
       }
     }
   },
@@ -2391,7 +2509,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".alert-item[data-v-52abfeac] {\n  margin-bottom: 0px !important;\n  margin-top: 10px !important;\n}\n.alert-item .btnns[data-v-52abfeac] {\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  padding-top: 7px;\n  padding-right: 5px;\n}\n.alert-item .btnns .btnn[data-v-52abfeac] {\n  float: right;\n  margin-left: 8px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".empty-placeholder[data-v-52abfeac] {\n  padding-top: 10px;\n}\n.alert-item[data-v-52abfeac] {\n  margin-bottom: 0px !important;\n  margin-top: 10px !important;\n}\n.alert-item .btnns[data-v-52abfeac] {\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  padding-top: 7px;\n  padding-right: 5px;\n}\n.alert-item .btnns .btnn[data-v-52abfeac] {\n  float: right;\n  margin-left: 8px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -20402,6 +20520,12 @@ var render = function() {
           ]
         ),
         _vm._v(" "),
+        _vm.isShowEmptyPlaceholder && _vm.holidays.length == 0
+          ? _c("div", { staticClass: "empty-placeholder" }, [
+              _vm._v("\n            No holidays setted.\n        ")
+            ])
+          : _vm._e(),
+        _vm._v(" "),
         _vm._l(_vm.holidays, function(item, index) {
           return _c(
             "div",
@@ -33200,7 +33324,11 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js"
 window.app = new Vue({
   el: '#holidaysApp',
   render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default);
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default, {
+      props: {
+        showEmptyPlaceholder: document.querySelector("#holidaysApp").dataset.showEmptyPlaceholder
+      }
+    });
   }
 }); // alert(11);
 })();
