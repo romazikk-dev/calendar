@@ -1,7 +1,7 @@
 @extends('dashboard.settings.template.main')
 
 @section('breadcrumbs')
-    {{ Breadcrumbs::render('settings', [['client`s booking calendar']]) }}
+    {{ Breadcrumbs::render('settings', [['template']]) }}
 @endsection
 
 @section('scripts')

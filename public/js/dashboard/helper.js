@@ -11,6 +11,13 @@ var helperFunc = function(){
         //     this.initValidator();
     }
     
+    this.createSlug = function(string){
+        return string
+            .toLowerCase()
+            .replace(/[^\w ]+/g,'')
+            .replace(/ +/g,'_');
+    }
+    
     // helper.isEmpty(prop)
     this.isPropEmpty = function(prop){
         if(typeof prop == 'undefine' || prop == null)

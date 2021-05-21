@@ -12,5 +12,6 @@
     "/js/dashboard/worker-assignment.js": "/js/dashboard/worker-assignment.js",
     "/js/dashboard/holidays.js": "/js/dashboard/holidays.js",
     "/js/dashboard/setting/custom-fields.js": "/js/dashboard/setting/custom-fields.js",
+    "/js/dashboard/specifics.js": "/js/dashboard/specifics.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

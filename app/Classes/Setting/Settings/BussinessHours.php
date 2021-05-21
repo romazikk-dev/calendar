@@ -56,7 +56,7 @@ class BussinessHours extends Setting{
         return $parsed_data;
     }
     
-    protected function arrange($data){
+    public function arrange($data){
         $count_weekends = 0;
         foreach($data as $k => $v)
             if(!empty($v['is_weekend']) && $v['is_weekend'] === "on")

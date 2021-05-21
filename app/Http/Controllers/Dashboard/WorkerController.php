@@ -101,7 +101,8 @@ class WorkerController extends Controller
         
         $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
         
-        $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS, true);
+        // $business_hours = \Setting::getOrPlaceholder(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS, true);
+        $business_hours = \Setting::of(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS)->getOrPlaceholder(['arrange' => true]);
         
         // dd(\Suspension::getOldForVue());
         // $assign_templates = old('assign_templates');
@@ -499,10 +500,12 @@ class WorkerController extends Controller
         
         $phones = \PhonePicker::getAllForVue($worker);
         
-        $business_hours = \Setting::arrangeByKey(
-            SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS,
-            json_decode($worker->business_hours, true)
-        );
+        $business_hours = \Setting::of(SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS)->arrange(json_decode($worker->business_hours, true));
+        
+        // $business_hours = \Setting::arrangeByKey(
+        //     SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS,
+        //     json_decode($worker->business_hours, true)
+        // );
         
         // dd($worker->suspension);
         // dd(ToogleSuspension::parseSuspensionDB($worker->suspension));

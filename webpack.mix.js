@@ -41,6 +41,8 @@ mix.js('resources/js/vue/dashboard/holidays/app.js', 'public/js/dashboard/holida
 //Setting
 mix.js('resources/js/vue/dashboard/setting/custom_fields/app.js', 'public/js/dashboard/setting/custom-fields.js').vue();
 
+mix.js('resources/js/vue/dashboard/specifics/app.js', 'public/js/dashboard/specifics.js').vue();
+
 // mix.js('resources/js/ts/calendar-helper.ts', 'public/js/calendar-helper.js').webpackConfig({
 mix.webpackConfig({
     module: {

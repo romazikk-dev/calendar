@@ -14,6 +14,18 @@
         let csrfInput = `@csrf`;
         console.log(`@csrf`);
         
+        let titles = @json($titles);
+        console.log(titles);
+        
+        let formUrl = `{{ route('dashboard.settings.clients_booking_calendar.custom_titles') }}`;
+        
+        let requestField = @if(request()->has('field')) "{{ request()->get('field') }}" @else null @endif;
+        let requestTab = @if(request()->has('tab')) "{{ request()->get('tab') }}" @else null @endif;
+        
+        console.log(111);
+        console.log(requestTab);
+        // console.log(tab);
+        
     </script>
     
     <script type="text/javascript" src="{{ asset('js/dashboard/setting/custom-fields.js') }}?{{$rand}}"></script>
@@ -35,6 +47,6 @@
     </div>
     @endif
     
-    <div id="customFieldsApp"></div>
+    <div id="customFieldsApp" data-picker-field-name="title"></div>
         
 @endsection

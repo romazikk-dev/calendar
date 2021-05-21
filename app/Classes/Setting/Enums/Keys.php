@@ -39,6 +39,12 @@ class Keys{
     
     /**
     *   Setting key
+    *   Specifics of template (for whom, what kind of service provides)
+    */
+    const TEMPLATE_SPECIFICS = "template_specifics";
+    
+    /**
+    *   Setting key
     *   Params of client`s booking calendar
     */
     // const CLIENTS_BOOKING_CALENDAR_PARAMS = "clients_booking_calendar_params";

@@ -98,6 +98,8 @@
 .setting-page {
   display: table;
   width: 100%;
+  /* Setting template specifics
+  ******************************************************************/
 }
 
 .setting-page .sp-wrapper {
@@ -172,6 +174,103 @@
   padding: 0px;
   margin: 0px;
   list-style: none;
+}
+
+.setting-page .template-specifics .child-specifics {
+  padding-left: 30px;
+}
+
+.setting-page .template-specifics .alert-item {
+  margin-bottom: 6px !important;
+  padding: 10px 10px;
+  padding-right: 140px;
+}
+
+.setting-page .template-specifics .alert-item .btnns {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  padding-top: 7px;
+  padding-right: 5px;
+}
+
+.setting-page .template-specifics .alert-item .btnns .btnn {
+  float: right;
+  margin-left: 8px;
+}
+
+.setting-page .template-specifics .specific-search {
+  padding-left: 20px;
+  float: left;
+}
+
+.setting-page .template-specifics .specific-search .search-field,
+.setting-page .template-specifics .specific-search .search-btn {
+  float: left;
+}
+
+.setting-page .template-specifics .specific-search .search-field {
+  padding-right: 5px;
+  position: relative;
+}
+
+.setting-page .template-specifics .specific-search .search-field input {
+  padding-right: 30px;
+}
+
+.setting-page .template-specifics .specific-search .search-field a {
+  position: absolute;
+  top: 0px;
+  right: 5px;
+  display: block;
+  width: 30px;
+  height: 100%;
+  text-align: center;
+  line-height: 1.8em;
+  color: black;
+}
+
+.setting-page .template-specifics .specifics-handles {
+  padding-bottom: 10px;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  max-width: 200px !important;
+  padding: 0px;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu ul {
+  padding: 0px;
+  margin: 0px;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu ul li {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu ul li a.itemm {
+  white-space: normal;
+  display: block;
+  color: black;
+  padding: 5px 10px;
+  text-decoration: none;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu ul li a.itemm:hover {
+  background-color: #f4f4f4;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu ul li:last-child {
+  border-bottom: none;
+}
+
+.setting-page .template-specifics .specifics-dropdown-menu ul li.main-specific {
+  border-bottom: 1px solid #e1e1e1 !important;
 }
 
 /* EDIT CREATE NAV TABS

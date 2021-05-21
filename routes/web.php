@@ -12,6 +12,7 @@ use App\Http\Controllers\Dashboard\SettingsController as DashboardSettingsContro
 
 use App\Http\Controllers\Dashboard\Settings\SettingController as DashboardSettingController;
 use App\Http\Controllers\Dashboard\Settings\SettingHallController as DashboardSettingHallController;
+use App\Http\Controllers\Dashboard\Settings\SettingTemplateController as DashboardSettingTemplateController;
 use App\Http\Controllers\Dashboard\Settings\SettingWorkerController as DashboardSettingWorkerController;
 use App\Http\Controllers\Dashboard\Settings\SettingClientsBookingCalendarController as DashboardSettingClientsBookingCalendarController;
 
@@ -169,6 +170,17 @@ Route::group([
             Route::get('/', [DashboardSettingHallController::class, 'index'])->name('index');
             Route::match(['get', 'post'], '/business_hours', [DashboardSettingHallController::class, 'businessHours'])->name('default_business_hours');
             Route::match(['get', 'post'], '/holidays', [DashboardSettingHallController::class, 'holidays'])->name('holidays');
+            
+        });
+        
+        Route::group([
+            'prefix' => '/template',
+            'as' => 'template.'
+        ], function () {
+            
+            Route::get('/', [DashboardSettingTemplateController::class, 'index'])->name('index');
+            Route::match(['get', 'post'], '/specifics', [DashboardSettingTemplateController::class, 'specifics'])->name('specifics');
+            // Route::match(['get', 'post'], '/holidays', [DashboardSettingTemplateController::class, 'holidays'])->name('holidays');
             
         });
         

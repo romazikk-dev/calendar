@@ -16,12 +16,38 @@ class SettingClientsBookingCalendarController extends Controller
     
     function customTitles(Request $request){
         $setting = \Setting::of(Keys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES);
-        $data = $setting->getOrPlaceholder();
-        dump($data);
+        // $titles = $setting->getOrPlaceholder();
+        // dump($data);
+        
+        // dd($setting->getPlaceholderKeys());
+        
+        if($request->isMethod('post')){
+            $placeholder_keys = $setting->getPlaceholderKeys();
+            if(empty($placeholder_keys))
+                return back()->with([
+                    'error' => 'You can not save data, no placeholder exist!'
+                ]);
+                
+            $validated = $request->validate([
+                "field" => "array",
+                "field.*" => "array",
+                "field.*.*" => "nullable|string",
+                "field_name" => "nullable|string|in:" . implode(',', $placeholder_keys),
+            ]);
+            
+            // dd($validated);
+            
+            $setting->parseAndSet($validated);
+            
+            // dd($validated);
+            // 
+            return back()->with([
+                'success' => 'Data successfuly saved!'
+            ]);
+        }
         
         return view('dashboard.settings.clients_booking_calendar.custom_titles', [
-            // 'languages' => \Setting::getOrPlaceholder(Keys::BOOKING_CALENDAR_LANGUAGES),
-            // 'languages' => \Setting::getOrPlaceholder(Keys::BOOKING_CALENDAR_LANGUAGES),
+            'titles' => $setting->getOrPlaceholder(),
         ]);
     }
     
