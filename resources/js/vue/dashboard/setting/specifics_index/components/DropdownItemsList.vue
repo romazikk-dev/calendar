@@ -2,12 +2,13 @@
     <div class="dropdown-items">
         <ul>
             <li v-for="(field, index) in fields">
-                <a @click.prevent="$emit('changed', {title: getTitle(field.title), field: field, index: index, relation: getRelation(field.title)})"
+                <a @click.prevent="$emit('changed', {title: getTitle(field.title), field: field, index: index, relation: getRelation(field.title), idsTrace: idsTrace})"
                     class="itemm disabled"
                     href="#">
                         {{getTitle(field.title)}}
                 </a>
                 <dropdown-list v-if="hasFields(field)"
+                    :ids-trace="getIdsTrace(field)"
                     @changed="$emit('changed', $event)"
                     :relation="getRelation(field.title)"
                     :fields="field.fields"
@@ -25,7 +26,7 @@
             // console.log(JSON.parse(JSON.stringify(222222)));
             // console.log(this.prefix);
         },
-        props: ['fields','prefix','relation'],
+        props: ['fields','prefix','relation','idsTrace'],
         data: function(){
             return {
                 // csrfInput: csrfInput,
@@ -43,6 +44,16 @@
             // }
         },
         methods: {
+            getIdsTrace: function(field){
+                if(Array.isArray(this.idsTrace)){
+                    // console.log(JSON.parse(JSON.stringify(this.idsTrace)));
+                    let idsTrace = JSON.parse(JSON.stringify(this.idsTrace));
+                    idsTrace.push(field.id);
+                    return idsTrace;
+                }else{
+                    return [field.id];
+                }
+            },
             getRelation: function(fieldTitle){
                 if(this.relation == null)
                     return fieldTitle;

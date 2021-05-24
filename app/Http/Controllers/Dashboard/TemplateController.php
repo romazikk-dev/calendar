@@ -8,6 +8,10 @@ use DB;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\Template;
 use App\Models\Worker;
+use App\Models\TemplateSpecifics;
+use App\Rules\SpecificsUniqueLevel;
+use App\Rules\SpecificsMaxDeep;
+use Illuminate\Support\Facades\Validator;
 
 class TemplateController extends Controller
 {
@@ -69,8 +73,19 @@ class TemplateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
+        $db_specifics = TemplateSpecifics::all()->toArray();
+        if(!empty($db_specifics))
+            $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics, true);
+        
+        // if(old('specifics'))
+            // dd(old('specific'));
+        // dd($parsed_specifics);
+            
         return view('dashboard.template.create', [
             'validation_messages' => \Lang::get('validation'),
+            'specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
+            'tab_errors' => \Session::has('tab_errors') ? \Session::get('tab_errors') : null,
+            // 'old_specifics_ids_chain' => old('specific') ? \Specifics::createArrayChainById(old('specific')) : null,
         ]);
     }
 
@@ -84,18 +99,35 @@ class TemplateController extends Controller
         
         // dd($request->all());
         
-        $validated = $request->validate([
-            // Main validation rules
-            'title' => 'required|max:255',
-            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
-            'short_description' => 'max:255',
-            'price' => 'nullable|regex:/^([0-9]){1,6}(\.[0-9]{2})?$/',
-            'description' => 'max:1000',
-            'notice' => 'max:1000',
+        $validate_rules = $this->mainValidationRules();
+        $validator = Validator::make($request->all(), $validate_rules);
+        
+        if($validator->fails()){
+            $error_messages = $validator->errors()->messages();
+            $tab_errors = $this->getErrorsCountsPerTab($error_messages);
             
-            // Assign worker validation rules
-            'assign_workers' => 'nullable|array',
-        ]);
+            return back()->with([
+                'tab_errors' => $tab_errors
+            ])->withInput($request->all())->withErrors($validator->errors());
+        }
+        
+        $validated = $validator->valid();
+        
+        // dd($validated);
+        // $validated = $request->validate($this->mainValidationRules());
+        
+        // $validated = $request->validate([
+        //     // Main validation rules
+        //     'title' => 'required|max:255',
+        //     'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
+        //     'short_description' => 'max:255',
+        //     'price' => 'nullable|regex:/^([0-9]){1,6}(\.[0-9]{2})?$/',
+        //     'description' => 'max:1000',
+        //     'notice' => 'max:1000',
+        // 
+        //     // Assign worker validation rules
+        //     'assign_workers' => 'nullable|array',
+        // ]);
         
         $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
         
@@ -112,7 +144,31 @@ class TemplateController extends Controller
             foreach($assign_workers as $worker_id)
                 $template->workers()->attach($worker_id);
         
+        // if(!empty($validated['specific']))
+        //     $template->specific()->associate($validated['specific']);
+        
         return redirect()->route('dashboard.template.index');
+    }
+    
+    protected function getErrorsCountsPerTab($error_messages){
+        $attributes_per_tab = [
+            "main" => ['title','duration','price','description','short_description','notice'],
+            "specific" => ['specific'],
+        ];
+        
+        $main_errors_count = 0;
+        $specific_errors_count = 0;
+        foreach($error_messages as $k => $v){
+            if(in_array($k, $attributes_per_tab['main']))
+                $main_errors_count++;
+            if(in_array($k, $attributes_per_tab['specific']))
+                $specific_errors_count++;
+        }
+        
+        return [
+            "main" => $main_errors_count,
+            "specific" => $specific_errors_count,
+        ];
     }
 
     /**
@@ -146,7 +202,13 @@ class TemplateController extends Controller
      */
     public function edit($id)
     {
+        $db_specifics = TemplateSpecifics::all()->toArray();
+        if(!empty($db_specifics))
+            $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics, true);
+            
         $template = Template::find($id);
+        
+        // dd($template->specific->toArray());
         
         $assign_workers = [];
         // dd($assign_worker);
@@ -162,6 +224,7 @@ class TemplateController extends Controller
             'template' => $template,
             'assign_workers' => $assign_workers,
             'validation_messages' => \Lang::get('validation'),
+            'specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
         ]);
     }
 
@@ -225,5 +288,29 @@ class TemplateController extends Controller
             ->update(['is_deleted' => 1]);
             
         return redirect()->route('dashboard.template.index');
+    }
+    
+    public function mainValidationRules(){
+        $rules = [
+            // Main validation rules
+            'title' => 'required|max:255',
+            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
+            'short_description' => 'max:255',
+            'price' => 'nullable|regex:/^([0-9]){1,6}(\.[0-9]{2})?$/',
+            'description' => 'max:1000',
+            'notice' => 'max:1000',
+            
+            // Assign worker validation rules
+            'assign_workers' => 'nullable|array',
+        ];
+        
+        $db_specifics = TemplateSpecifics::all()->toArray();
+        if(!empty($db_specifics))
+            $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics, true);
+        
+        if(!empty($parsed_specifics))
+            $rules['specific_id'] = 'required|integer|exists:template_specifics,id';
+        
+        return $rules;
     }
 }

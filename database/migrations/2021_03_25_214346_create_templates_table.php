@@ -16,6 +16,7 @@ class CreateTemplatesTable extends Migration
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('specific_id')->nullable();
             $table->string('title');
             $table->decimal('price', $precision = 8, $scale = 2)->nullable();
         	$table->string('description', 1000)->nullable();
@@ -26,6 +27,7 @@ class CreateTemplatesTable extends Migration
             $table->timestamps();
             
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('specific_id')->references('id')->on('template_specifics');
         });
     }
 

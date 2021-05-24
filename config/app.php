@@ -185,6 +185,7 @@ return [
         App\Providers\SuspensionServiceProvider::class,
         App\Providers\HolidayServiceProvider::class,
         App\Providers\LanguageServiceProvider::class,
+        App\Providers\SpecificsServiceProvider::class,
 
     ],
 
@@ -246,6 +247,7 @@ return [
         'Suspension'   =>  App\Classes\Suspension\SuspensionFacade::class,
         'Holiday'   =>  App\Classes\Holiday\HolidayFacade::class,
         'Language'   =>  App\Classes\Language\LanguageFacade::class,
+        'Specifics'   =>  App\Classes\Specifics\SpecificsFacade::class,
 
     ],
 

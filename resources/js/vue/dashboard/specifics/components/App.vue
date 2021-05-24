@@ -10,18 +10,22 @@
                     </svg>
                 </button>
                 
-                <search />
+                <search @search="search" />
                 
                 <button type="submit" class="btn btn-sm btn-success float-right">Save</button>
                 
                 <div class="clearfix"></div>
+                <div v-if="searchCountFoundResults !== null">Found {{searchCountFoundResults}} results</div>
             </div>
             
-            <list :fields="fields" />
+            <list @addBtnClick="listItemAddBtnClick"
+                :search="toSearch"
+                @editBtnClick="listItemEditBtnClick"
+                :fields="fields" />
         </div>
         
         <!-- Modal -->
-        <div v-if="renderModal" class="modal fade modal-custom-dark-header-footer" :id="modalId" tabindex="-1" :aria-labelledby="modalId + 'Label'" aria-hidden="true">
+        <div v-if="renderModal" class="specific-modal modal fade modal-custom-dark-header-footer" :id="modalId" tabindex="-1" :aria-labelledby="modalId + 'Label'" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -37,6 +41,7 @@
                             data-placement="top"
                             title="Tooltip on top">
                                 <dropdown :fields="fields"
+                                    :edited-field="editedField"
                                     :picked-field="pickedField"
                                     @changed="dropdownChanged"/>
                         </div>
@@ -54,7 +59,7 @@
                                 class="form-text small text-danger"></div>
                         </div>
                         
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="modalInputKey">Key (required when creating)</label>
                             <input v-model="modalKeyVal"
                                 name="modal_key_val"
@@ -65,7 +70,7 @@
                                 aria-describedby="error_modal_key_val">
                             <div id="error_modal_key_val"
                                 class="form-text small text-danger"></div>
-                        </div>
+                        </div> -->
                         
                         <div class="form-group">
                             <label for="modalTextareaDescription">Description</label>
@@ -98,11 +103,12 @@
             
             // this.setAssignHalls();
             // this.recalculateBadgeValue(true);
-            this.openModal();
+            // this.openModal();
             
             // console.log(JSON.parse(JSON.stringify(3333)));
             // console.log($(document).find('.tooltip-init').length);
             // $(document).find('.tooltip-init').tooltip();
+            // this.setFilteredFields();
         },
         props: ['formId'],
         data: function(){
@@ -116,36 +122,39 @@
                 modalKeyVal: null,
                 modalDescriptionVal: null,
                 
-                applySlug: true,
+                editedField: false,
+                
+                // applySlug: true,
                 
                 pickedField: null,
                 renderModal: false,
                 modalId: 'createSpecificModal',
                 // fields: [],
+                // filteredFields: [],
                 fields: [
                     {
                         title: 'one',
-                        key: 'one',
-                        desc: 'dasda',
+                        key: 'one1',
+                        description: 'dasda',
                         parent: null,
                         fields: [
                             {
                                 title: 'one',
-                                key: 'one',
-                                desc: 'dasda',
+                                key: 'one2',
+                                description: 'dasda',
                                 // parent: 'one',
                                 fields: [],
                             },
                             {
                                 title: 'two',
-                                key: 'two',
-                                desc: 'dasda',
+                                key: 'two2',
+                                description: 'dasda',
                                 parent: 'two',
                                 fields: [
                                     {
                                         title: 'third',
-                                        key: 'one',
-                                        desc: 'dasda',
+                                        key: 'one3',
+                                        description: 'dasda',
                                         parent: 'two',
                                         fields: [],
                                     },
@@ -155,19 +164,25 @@
                     },
                     {
                         title: 'two',
-                        key: 'two',
-                        desc: 'dasda',
+                        // key: 'two1',
+                        key: 'one1',
+                        description: 'dasda',
                         parent: null,
                         fields: [],
                     },
                     {
                         title: 'three',
-                        key: 'three',
-                        desc: 'dasda',
+                        key: 'three1',
+                        description: 'dasda',
                         parent: null,
                         fields: [],
                     },
                 ],
+                
+                dropdownRelation: null,
+                
+                toSearch: null,
+                searchCountFoundResults: null,
             };
         },
         computed: {
@@ -176,63 +191,144 @@
             // },
         },
         methods: {
+            // setFilteredFields: function(){
+            //     if(this.search === null || this.search === ''){
+            //         this.filteredFields = this.fields;
+            //     }else{
+            //         let filteredFields = [];
+            //     }
+            // },
+            search: function(event){
+                this.toSearch = event;
+                console.log(JSON.parse(JSON.stringify(event)));
+            },
+            listItemEditBtnClick: function(event){
+                // console.log(JSON.parse(JSON.stringify(event)));
+                // return;
+                if(typeof event.parentAddEventData !== 'undefined' && event.parentAddEventData !== null){
+                    this.pickedField = event.parentAddEventData;
+                }else{
+                    this.pickedField = null;
+                }
+                this.modalTitleVal = JSON.parse(JSON.stringify(event.field.title));
+                this.modalKeyVal = JSON.parse(JSON.stringify(event.field.key));
+                this.modalDescriptionVal = JSON.parse(JSON.stringify(event.field.description));
+                this.editedField = event.field;
+                this.openModal();
+                console.log(JSON.parse(JSON.stringify(event)));
+            },
+            listItemAddBtnClick: function(event){
+                // this.pickedField.field = event;
+                // if()
+                this.pickedField = event;
+                // this.pickedField = {
+                //     field: event
+                // }
+                // console.log('listItemAddBtnClick');
+                console.log(event);
+                
+                this.openModal();
+                // console.log(event);
+            },
             titleChanged: function(event){
-                if(this.applySlug === false)
+                if(this.editedField === false)
                     return;
+                // if(this.applySlug === false)
+                //     return;
                 let val = $(event.target).val();
                 let slug = helper.createSlug(val);
                 this.modalKeyVal = slug;
                 
-                this.$nextTick(() => {
-                    if(val)
-                        $("#modalInputKey").valid();
-                });
+                // this.$nextTick(() => {
+                //     if(val)
+                //         $("#modalInputKey").valid();
+                // });
                 // $("#modalInputKey").valid();
                 // console.log(slug);
             },
-            keyChanged: function(event){
-                if(this.applySlug === true)
-                    this.applySlug = false;
+            // keyChanged: function(event){
+            //     if(this.applySlug === true)
+            //         this.applySlug = false;
+            // },
+            isKeyUnique: function(keyToCheck){
+                let _this = this;
+                
+                let status = true
+                goTroughFields(_this.fields);
+                return status;
+            
+                function goTroughFields(fields){
+                    if(status === false)
+                        return;
+                    for(let i = 0; i < fields.length; i++){
+                        if(typeof fields[i].key != 'undefined' && fields[i].key === keyToCheck){
+                            status = false;
+                            return;
+                        }
+                        if(typeof fields[i].fields != 'undefined' && fields[i].fields.length > 0)
+                            goTroughFields(fields[i].fields);
+                    }
+                }
+            },
+            getUniqueKey: function(){
+                if(this.isKeyUnique(this.modalKeyVal))
+                    return this.modalKeyVal;
+                
+                for(let i = 0; i < 100; i++){
+                    let randomInt = Math.floor(Math.random() * 10001);
+                    let composedKey = this.modalKeyVal + randomInt;
+                    if(this.isKeyUnique(composedKey)){
+                        return composedKey;
+                    }
+                }
+                return null;
             },
             addSpecific: function(event){
                 let _this = this;
                 
-                // $("form#" + this.formId).valid()
-                // if($("form#" + this.formId).valid()){
-                // let titleValid = $("#modalInputTitle").valid();
-                // console.log(titleValid);
-                // let keyValid = $("#modalInputKey").valid();
-                // let descriptionValid = $("#modalTextareaDescription").valid();
-                // let descriptionValid = true;
-                // if(titleValid && keyValid && descriptionValid){
-                if($("form#" + this.formId).valid()){
-                    let field = {
-                        title: _this.modalTitleVal,
-                        key: _this.modalKeyVal,
-                        description: _this.modalDescriptionVal,
-                        fields: []
-                    }
-                    if(_this.pickedField !== null){
-                        _this.pickedField.field.fields.push(field);
-                    }else{
-                        _this.fields.push(field);
-                    }
-                    // _this.fields.push({
-                    //     title: _this.modalTitleVal,
-                    //     key: _this.modalKeyVal,
-                    //     description: _this.modalDescriptionVal,
-                    //     // slug: 
-                    // });
-                    console.log(JSON.parse(JSON.stringify(_this.fields)));
-                }
+                // console.log(6666);
+                // console.log(_this.modalKeyVal);
+                // console.log(_this.getUniqueKey());
+                // console.log(_this.editedField);
+                // return;
                 
-                // console.log(JSON.parse(JSON.stringify(valid)));
-                // console.log(JSON.parse(JSON.stringify(this.modalDescriptionVal)));
-                // console.log(event);
+                if($("form#" + this.formId).valid()){
+                    if(_this.editedField !== false){
+                        console.log('_this.editedField !== false');
+                        // console.log(_this.pickedField);
+                        // return;
+                        _this.editedField.title = _this.modalTitleVal;
+                        _this.editedField.description = _this.modalDescriptionVal;
+                        $("#" + _this.modalId).modal('hide');
+                        // _this.editedField = false
+                    }else{
+                        let key = this.getUniqueKey();
+                        if(key === null){
+                            alert('Unique key cannot generated.');
+                            return;
+                        }
+                        let field = {
+                            title: _this.modalTitleVal,
+                            key: key,
+                            description: _this.modalDescriptionVal,
+                            fields: []
+                        }
+                        if(_this.pickedField !== null){
+                            _this.pickedField.field.fields.push(field);
+                        }else{
+                            _this.fields.push(field);
+                        }
+                        
+                        $("#" + _this.modalId).modal('hide');
+                        
+                        console.log(JSON.parse(JSON.stringify(_this.fields)));
+                    }
+                }
             },
             dropdownChanged: function(event){
                 // return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
                 console.log(JSON.parse(JSON.stringify(event)));
+                this.dropdownRelation = event !== null ? event.relation : null;
                 // this.pickedField = JSON.parse(JSON.stringify(event));
                 this.pickedField = event;
                 // console.log(JSON.parse(JSON.stringify(event)));
@@ -265,6 +361,12 @@
                 // console.log($(document).find('#error_modal_title_val'));
                 $(document).find('#error_modal_title_val').text('');
                 $(document).find('#error_modal_key_val').text('');
+                // $(document).find("#" + this.modalId).trigger("reset");
+                this.modalTitleVal = null;
+                this.modalKeyVal = null;
+                this.modalDescriptionVal = null;
+                this.pickedField = null;
+                this.editedField = false;
             },
             initValidator: function(){
                 let _this = this;
@@ -275,18 +377,80 @@
                     // return false;
                 }, '');
                 
-                jQuery.validator.addMethod("unique_key", function(value, element, params){
-                    for(let i = 0; i < _this.fields.length; i++){
-                        if(typeof _this.fields[i].key != 'undefined' && _this.fields[i].key === value){
-                            console.log(22222);
-                            return false;
-                        }
-                    }
-                    return true;
-                }, '');
+                // jQuery.validator.addMethod("unique_key", function(value, element, params){
+                //     let status = true
+                //     goTroughFields(_this.fields);
+                //     return status;
+                // 
+                //     function goTroughFields(fields){
+                //         if(status === false)
+                //             return;
+                //         for(let i = 0; i < fields.length; i++){
+                //             if(typeof fields[i].key != 'undefined' && fields[i].key === value){
+                //                 status = false;
+                //                 return;
+                //             }
+                //             if(typeof fields[i].fields != 'undefined' && fields[i].fields.length > 0)
+                //                 goTroughFields(fields[i].fields);
+                //         }
+                //     }
+                // }, '');
                 
                 jQuery.validator.addMethod("maxlength", function (value, element, len) {
                     return value == "" || value.length <= len;
+                });
+                
+                jQuery.validator.addMethod("modal_title_same_level_uniqueness", function (value, element, len) {
+                    // if(_this.pickedField === null)
+                    let fields = _this.pickedField === null ? _this.fields : _this.pickedField.field.fields;
+                    
+                    // console.log(fields);
+                    // console.log(JSON.parse(JSON.sstringify(fields)));
+                    // return false;
+                    
+                    // if(_this.pickedField === null){
+                    if(fields !== null && Array.isArray(fields) && fields.length > 0){
+                        // console.log(fields);
+                        
+                        for(let i = 0; i < fields.length; i++){
+                            console.log(22222);
+                            console.log(JSON.parse(JSON.stringify(fields[i].title)));
+                            console.log(JSON.parse(JSON.stringify(value)));
+                            if(typeof fields[i].title !== 'undefined' && fields[i].title.toLowerCase() == value.toLowerCase()){
+                                if(_this.editedField !== false){
+                                    if(fields[i].key.toLowerCase() !== _this.modalKeyVal.toLowerCase()){
+                                        return false;
+                                    }
+                                }else{
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                                
+                    return true;
+                    // }
+                    
+                    // let status = true;
+                    // if(_this.pickedField === null){
+                    //     if(Array.isArray(_this.fields) && _this.fields.length > 0)
+                    //         for(let i = 1; i < _this.fields; i++)
+                    //             if(typeof _this.fields[i].title !== 'undefined' && _this.fields[i].title == value)
+                    //                 return false;
+                    //     // return true;
+                    // }
+                    // else{
+                    //     if(typeof _this.pickedField.fields !== 'undefined' &&
+                    //     Array.isArray(_this.pickedField.fields) && _this.pickedField.fields.length > 0)
+                    //         for(let i = 1; i < _this.pickedField.fields; i++)
+                    //             if(typeof _this.pickedField.fields[i].title !== 'undefined' && _this.pickedField.fields[i].title == value)
+                    //                 return false;
+                    //     // return true;
+                    // }
+                    return true;
+                    // return value == "" || value.length <= len;
+                    console.log(_this.pickedField);
+                    return false;
                 });
                 
                 _this.validator = $("form#" + _this.formId).validate({
@@ -309,13 +473,14 @@
                         modal_title_val: {
                             required: true,
                             maxlength: 255,
+                            modal_title_same_level_uniqueness: true,
                         },
-                        modal_key_val: {
-                            required: true,
-                            maxlength: 255,
-                            key: true,
-                            unique_key: true,
-                        },
+                        // modal_key_val: {
+                        //     required: true,
+                        //     maxlength: 255,
+                        //     key: true,
+                        //     unique_key: true,
+                        // },
                         modal_description_val: {
                             maxlength: 255,
                         },
@@ -325,13 +490,14 @@
                         modal_title_val: {
                             required: validationMessages.required.replace(':attribute', 'title'),
                             maxlength: (validationMessages.max.string.replace(':attribute', 'title')).replace(':max', '255'),
+                            modal_title_same_level_uniqueness: validationMessages.unique.replace(':attribute', 'title'),
                         },
-                        modal_key_val: {
-                            required: validationMessages.required.replace(':attribute', 'key'),
-                            maxlength: (validationMessages.max.string.replace(':attribute', 'key')).replace(':max', '255'),
-                            key: validationMessages.regex.replace(':attribute', 'key'),
-                            unique_key: validationMessages.unique.replace(':attribute', 'key'),
-                        },
+                        // modal_key_val: {
+                        //     required: validationMessages.required.replace(':attribute', 'key'),
+                        //     maxlength: (validationMessages.max.string.replace(':attribute', 'key')).replace(':max', '255'),
+                        //     key: validationMessages.regex.replace(':attribute', 'key'),
+                        //     unique_key: validationMessages.unique.replace(':attribute', 'key'),
+                        // },
                         modal_description_val: {
                             maxlength: (validationMessages.max.string.replace(':attribute', 'description')).replace(':max', '255'),
                         },
@@ -339,6 +505,7 @@
                     submitHandler: function(form) {
                         console.log('submitHandler');
                         // form.submit();
+                        _this.addSpecific();
                     },
                     success: function(label) {
                         // console.log('success');
@@ -359,6 +526,17 @@
             Search,
         },
         watch: {
+            toSearch: function(val){
+                if(val === null || val === ''){
+                    this.searchCountFoundResults = null;
+                }else{
+                    this.$nextTick(() => {
+                        this.searchCountFoundResults = $(document).find('.template-specifics').find('.alert-item:visible').length;
+                        // this.searchCountFoundResults
+                        console.log(this.searchCountFoundResults);
+                    });
+                }
+            }
             // modalDs
         },
     // },

@@ -5,6 +5,28 @@
   padding-top: 20px;
 }
 
+/* SPECIFIC ASSIGNMENT
+******************************************************************/
+
+.specifics-assignment .specific-dropdown {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.specifics-assignment .specific-dropdown:last-child {
+  margin-bottom: 0px;
+}
+
+.specifics-assignment .specific-dropdown .dropdown-toggle {
+  width: 100%;
+}
+
+.specifics-assignment .specific-dropdown .dropdown-menu {
+  width: 100% !important;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 /* NOTICE BADGES
 ******************************************************************/
 
@@ -177,7 +199,7 @@
 }
 
 .setting-page .template-specifics .child-specifics {
-  padding-left: 30px;
+  padding-left: 20px;
 }
 
 .setting-page .template-specifics .alert-item {
@@ -186,7 +208,7 @@
   padding-right: 140px;
 }
 
-.setting-page .template-specifics .alert-item .btnns {
+.setting-page .template-specifics .alert-item .btnnns {
   position: absolute;
   top: 0px;
   right: 0px;
@@ -194,13 +216,13 @@
   padding-right: 5px;
 }
 
-.setting-page .template-specifics .alert-item .btnns .btnn {
+.setting-page .template-specifics .alert-item .btnnns .btnnn {
   float: right;
   margin-left: 8px;
 }
 
 .setting-page .template-specifics .specific-search {
-  padding-left: 20px;
+  padding-left: 0px;
   float: left;
 }
 
@@ -234,43 +256,43 @@
   padding-bottom: 10px;
 }
 
-.setting-page .template-specifics .specifics-dropdown-menu {
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker {
+  width: 100%;
+}
+
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .dropdown-toggle {
+  width: 100%;
+}
+
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .specifics-dropdown-menu {
   max-height: 200px;
   overflow-y: auto;
-  max-width: 200px !important;
+  width: 100% !important;
   padding: 0px;
 }
 
-.setting-page .template-specifics .specifics-dropdown-menu ul {
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .specifics-dropdown-menu ul {
   padding: 0px;
   margin: 0px;
 }
 
-.setting-page .template-specifics .specifics-dropdown-menu ul li {
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .specifics-dropdown-menu ul li {
   list-style: none;
   padding: 0px;
   margin: 0px;
-  border-bottom: 1px solid #e1e1e1;
 }
 
-.setting-page .template-specifics .specifics-dropdown-menu ul li a.itemm {
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .specifics-dropdown-menu ul li a.itemm {
   white-space: normal;
   display: block;
   color: black;
   padding: 5px 10px;
   text-decoration: none;
+  border-bottom: 1px solid #e1e1e1;
 }
 
-.setting-page .template-specifics .specifics-dropdown-menu ul li a.itemm:hover {
+.setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .specifics-dropdown-menu ul li a.itemm:hover {
   background-color: #f4f4f4;
-}
-
-.setting-page .template-specifics .specifics-dropdown-menu ul li:last-child {
-  border-bottom: none;
-}
-
-.setting-page .template-specifics .specifics-dropdown-menu ul li.main-specific {
-  border-bottom: 1px solid #e1e1e1 !important;
 }
 
 /* EDIT CREATE NAV TABS

@@ -12,7 +12,7 @@
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false">
-                <span v-if="isFieldsEmpty">No specific exists yet</span>
+                <span v-if="isFieldsEmpty">Main</span>
                 <span v-else>
                     <span v-html="makeFirstLetterUppercase(pickedField.relation)" v-if="pickedField != null"></span>
                     <span v-else>Main</span>

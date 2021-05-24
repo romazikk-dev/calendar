@@ -10,6 +10,7 @@
     <x-slot name="scripts">
         
         <script type="text/javascript">
+            let specifics = @json($specifics);
         
             @if(!empty($template))
                 let template = @json($template);
@@ -45,6 +46,7 @@
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/template/template-jquery-validation.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/worker-assignment.js') }}?{{$rand}}"></script>
+        <script src="{{ asset('js/dashboard/specific-assignment.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/time-picker.js') }}?{{$rand}}"></script>
         
     </x-slot>
@@ -82,6 +84,32 @@
                         data-placement="bottom"
                         title="{{!empty($tab_errors) && !empty($tab_errors['main']) ? $tab_errors['main'] : ''}} errors">
                         {{!empty($tab_errors) && !empty($tab_errors['main']) ? $tab_errors['main'] : ''}}
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @if(Request::get('tab') == 'specifics') active @endif" id="specifics-tab" data-toggle="tab" href="#specifics" tab-name="specifics" role="tab" aria-controls="specifics" aria-selected="false">
+                    <!-- <span class="notice-badges">
+                        <span class="notice-badge notice-badge-warning text-warning d-none"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="0 specifics">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                        </span>
+                        <span class="notice-badge notice-badge-success badge badge-pill badge-info d-none"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="This hall currently has {{!empty($assign_worker) ? count($assign_worker) : 0}} assigned employees!">{{!empty($assign_worker) ? count($assign_worker) : 0}}</span>
+                    </span> -->
+                    Specifics
+                    <span id="specificsErrorBadge"
+                        class="error-badge badge badge-pill badge-danger @if(empty($tab_errors['specific'])) d-none @endif"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="{{!empty($tab_errors) && !empty($tab_errors['specific']) ? $tab_errors['specific'] : ''}} errors">
+                        {{!empty($tab_errors) && !empty($tab_errors['specific']) ? $tab_errors['specific'] : ''}}
                     </span>
                 </a>
             </li>
@@ -204,6 +232,13 @@
                         <x-error-small name="notice" />
                     </div>
                     
+                </div>
+                <div class="tab-pane fade @if(Request::get('tab') == 'specifics') show active @endif" id="specifics" role="tabpanel" aria-labelledby="specifics-tab">
+                    
+                    <div class="specifics-assignment">
+                        <div id="specificAssignmentApp"></div>
+                    </div>
+                
                 </div>
                 <div class="tab-pane fade @if(Request::get('tab') == 'worker') show active @endif" id="worker" role="tabpanel" aria-labelledby="worker-tab">
                     

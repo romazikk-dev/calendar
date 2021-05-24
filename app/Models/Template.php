@@ -12,8 +12,22 @@ class Template extends Model
     
     protected $guarded = [];
     
+    /**
+     * Reference to pivot table.
+     *
+     * @return Model
+     */
     public function workers(){
         return $this->belongsToMany('App\Models\Worker');
+    }
+    
+    /**
+     * Reference to pivot table.
+     *
+     * @return Model
+     */
+    public function specific() {
+        return $this->belongsTo('App\Models\TemplateSpecifics', 'specific_id', 'id');
     }
     
     protected $fillable = [
@@ -24,6 +38,7 @@ class Template extends Model
         'description',
         'short_description',
         'notice',
+        'specific_id',
     ];
     
     /**

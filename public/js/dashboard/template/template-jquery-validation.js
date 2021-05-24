@@ -6,18 +6,25 @@ var jqueryValidationFunc = function(){
     // this.enableJsValidation = false;
     // this.validator = null;
     this.formId = "form#templateForm";
+    this.formHasErrors = false;
     
     this.attributes_per_tab = {
         main: ['title','duration','price','description','short_description','notice'],
+        specific: ['specific_id'],
     }
     
     this.mainErrorAttrs = [];
+    this.specificErrorAttrs = [];
     
     this.init = function(){
         // alert(111);
         this.regSubmitBtn();
         if(this.enableJsValidation)
             this.initValidator();
+    }
+    
+    this.isFormHasErrors = function(){
+        return this.formHasErrors;
     }
     
     this.isValidating = function(){
@@ -30,9 +37,13 @@ var jqueryValidationFunc = function(){
     
     this.triggerFormValidation = function(){
         this.resetErrorAttrs();
-        this.addPhoneRules();
-        this.addStatusRules();
+        // this.addPhoneRules();
+        // this.addStatusRules();
         $(this.formId).valid();
+    }
+    
+    this.triggerFieldValidation = function(selector){
+        $(selector).valid();
     }
     
     this.regSubmitBtn = function(){
@@ -73,10 +84,21 @@ var jqueryValidationFunc = function(){
             $('#mainErrorBadge').addClass('d-none').text('');
         }
         
-        if(_this.mainErrorAttrs.length > 0){
+        if(_this.specificErrorAttrs.length > 0){
+            let errorsCount = _this.specificErrorAttrs.length;
+            $('#specificsErrorBadge').removeClass('d-none')
+                .attr('data-original-title', errorsCount + ' errors').text(errorsCount);
+        }else{
+            // console.log('no mainErrorsCount');
+            $('#specificsErrorBadge').addClass('d-none').text('');
+        }
+        
+        if(_this.mainErrorAttrs.length > 0 || _this.specificErrorAttrs.length > 0){
             _this.showErrorAlert();
+            _this.formHasErrors = true;
         }else{
             _this.hideErrorAlert();
+            _this.formHasErrors = false;
         }
     }
     
@@ -111,6 +133,35 @@ var jqueryValidationFunc = function(){
                 _this.mainErrorAttrs.splice(index, 1);
             }
         }
+        
+        if(_this.attributes_per_tab.specific.includes(attr)){
+            if(type == 'add' && !_this.specificErrorAttrs.includes(attr))
+                _this.specificErrorAttrs.push(attr);
+            if(type == 'delete' && _this.specificErrorAttrs.includes(attr)){
+                let index = _this.specificErrorAttrs.indexOf(attr);
+                _this.specificErrorAttrs.splice(index, 1);
+            }
+        }
+    }
+    
+    this.addSpecificRules = function(){
+        let input = $('input[name=specific_id]');
+        if(input.length == 0)
+            return;
+            
+        input.rules("remove");
+        input.rules("add", {
+            required: true,
+            messages: {
+                required: validationMessages.required.replace(':attribute', 'select'),
+                // required: (
+                //     (
+                //         validationMessages.required_if.replace(':attribute', 'from')
+                //     ).replace(':other', 'status')
+                // ).replace(':value', 'period'),
+                // maxlength: (validationMessages.max.string.replace(':attribute', 'phone')).replace(':max', '255'),
+            }
+        });
     }
     
     this.addStatusRules = function(){
@@ -306,6 +357,10 @@ var jqueryValidationFunc = function(){
                 _this.addPhoneRules();
             }
         }, 50);
+        
+        setTimeout(function(){
+            _this.addSpecificRules();
+        }, 600);
         
     }
     
