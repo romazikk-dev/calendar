@@ -2,8 +2,19 @@
     <div class="dropdown-items">
         <ul>
             <li v-for="(field, index) in fields">
-                <a @click.prevent="$emit('changed', {title: getTitle(field.title), field: field, index: index, relation: getRelation(field.title), idsTrace: idsTrace})"
-                    class="itemm disabled"
+                <a v-if="field.in_use" @click.prevent.stop
+                    class="itemm text-muted in-use"
+                    href="#">
+                        {{getTitle(field.title)}}
+                        <span class="badge badge-success list-tooltip small"
+                            data-placement="auto"
+                            title="Specific in use, one or more templates using this specific, in order to create other specifics to level deeper you need  dismiss assignment of this specific from templates"
+                            v-if="field.in_use">
+                                In use
+                        </span>
+                </a>
+                <a v-else @click.prevent="$emit('changed', {title: getTitle(field.title), field: field, index: index, relation: getRelation(field.title), idsTrace: idsTrace})"
+                    class="itemm"
                     href="#">
                         {{getTitle(field.title)}}
                 </a>
@@ -81,7 +92,13 @@
 </script>
 
 <style lang="scss" scoped>
-
+    .in-use{
+        cursor: default;
+        background-color: white!important;
+        &:hover{
+            background-color: white!important;
+        }
+    }
 </style>
 
 <style lang="scss">

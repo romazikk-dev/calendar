@@ -16,6 +16,7 @@
         
                         <div class="dropdown-menu" aria-labelledby="viewDropdownButton">
                             <a @click.prevent="change('view', itm)" v-for="itm in views" v-if="itm.toLowerCase() != choosedItmView.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
+                            <!-- <a @click.prevent="change('view', itm)" v-for="itm in views" class="dropdown-item" href="#">{{itm}}</a> -->
                         </div>
                     </div>
                 </div>
@@ -31,11 +32,22 @@
                             </a>
         
                             <div class="dropdown-menu">
-                                <a @click.prevent="change('hall', itm)"
+                                <!-- <a @click.prevent="change('hall', itm)"
                                     v-for="itm in halls"
                                     v-if="choosedItmHall == null || (choosedItmHall != null && itm.id != choosedItmHall.id)"
                                     class="dropdown-item"
-                                    href="#">{{itm.title}}</a>
+                                    href="#">{{itm.title}}</a> -->
+                                <template v-if="halls.length">
+                                    <a @click.prevent="change('hall', itm)"
+                                        v-for="itm in halls"
+                                        class="dropdown-item"
+                                        href="#">{{itm.title}}</a>
+                                </template>
+                                <template v-else>
+                                    <div class="small pl-1 pr-1">
+                                        No items to choose ...
+                                    </div>
+                                </template>
                             </div>
                         </div>
                         
@@ -144,7 +156,11 @@
             // this.showModal();
             // this.change('hall', null);
             // console.log(cookie.get('filters'));
-            // console.log(JSON.parse(JSON.stringify(this.owner)));
+            // console.log(JSON.parse(JSON.stringify(this.halls)));
+            
+            console.log(JSON.parse(JSON.stringify(4444)));
+            console.log(JSON.parse(JSON.stringify(this.halls)));
+            
             this.setFiltersFromCookie();
         },
         props: ['owner','halls','clientInfo','allBookings'],
@@ -215,6 +231,16 @@
                 // let token = cookie.get('token');
                 // if(token)
                 //     this.token = token;
+            },
+            filtersHasRightData: function(){
+                if(filters == null)
+                    return false;
+                
+                if(filters.hall == null){
+                    
+                    return false;
+                }
+                    
             },
             setFiltersFromCookie: function(){
                 // console.log(filters);

@@ -53,6 +53,7 @@ Route::group([
     
     Route::group([
         'prefix' => '/bookings/{user:id}',
+        // 'prefix' => '/bookings/{id}',
         'as' => 'bookings.',
         'where' => [
             'user' => '\d+'
@@ -62,11 +63,13 @@ Route::group([
         }
     ], function () {
         
+        // dd($id);
+        
         Route::group([
             'prefix' => '/client',
             'as' => 'client.',
             'middleware' => 'auth:sanctum',
-            // 'middleware' => 'client:sanctum',
+            // 'middleware' => 'sanctum:client',
         ], function () {
         
             Route::get('/info', [ApiClientController::class, 'info'])->name('info');

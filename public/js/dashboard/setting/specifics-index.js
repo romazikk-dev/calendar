@@ -1955,14 +1955,29 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(specifics)));
+  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(this.tempMsg)));
   },
   // props: ['formId'],
   data: function data() {
     return {
+      tempMsg: tempMsg,
       formId: 'addEditForm',
       validator: null,
       modalTitleVal: null,
@@ -2030,11 +2045,11 @@ __webpack_require__.r(__webpack_exports__);
     setFieldsIfNotEmpty: function setFieldsIfNotEmpty(fields) {
       if (Array.isArray(fields) && fields.length > 0) this.fields = JSON.parse(JSON.stringify(fields));
     },
-    setFields: function setFields(fields) {
-      console.log('setFields');
+    setFields: function setFields(data) {
+      if (typeof data.status === 'undefined' || data.status !== 'success' || typeof data.specifics === 'undefined') return; // console.log('setFields');
 
-      if (Array.isArray(fields) && fields.length > 0) {
-        this.fields = JSON.parse(JSON.stringify(fields));
+      if (Array.isArray(data.specifics) && data.specifics.length > 0) {
+        this.fields = JSON.parse(JSON.stringify(data.specifics));
       } else {
         this.fields = [];
       }
@@ -2378,6 +2393,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(validationMessages)));
     // $(document).find('.tooltip-init').tooltip();
@@ -2554,6 +2580,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   // name: 'list',
   mounted: function mounted() {
@@ -2561,7 +2606,12 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(this.idsTrace);
     // console.log(this.paddingLeft);
 
-    if (this.idsTrace != null) console.log(JSON.parse(JSON.stringify(this.idsTrace))); // console.log(this.deep);
+    if (this.idsTrace != null) console.log(JSON.parse(JSON.stringify(this.idsTrace))); // if(field.in_use)
+    //     console.log(JSON.parse(JSON.stringify(99999999999999)));
+    // console.log(this.deep);
+    // list-tooltip
+
+    this.setTooltip();
   },
   // props: ['fields', 'parentField', 'parentKey'],
   props: ['deep', 'fields', 'paddingLeft', 'parentField', 'parentTitle', 'parentAddEventData', 'search', 'idsTrace'],
@@ -2569,8 +2619,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       modalTitleVal: null,
       dropdownRemoveButtonId: 'dropdownRemoveButton',
-      maxDeep: maxDeep // maxDeep: 3,
-
+      maxDeep: maxDeep,
+      inUseFired: []
     };
   },
   computed: {
@@ -2598,6 +2648,33 @@ __webpack_require__.r(__webpack_exports__);
 
   },
   methods: {
+    putFieldInUse: function putFieldInUse(field) {
+      if (!this.inUseFired.includes(field.id)) this.inUseFired.push(field.id);
+    },
+    isInUseFiredByField: function isInUseFiredByField(field) {
+      console.log(JSON.parse(JSON.stringify(this.inUseFired)));
+      var inUseFired = JSON.parse(JSON.stringify(this.inUseFired));
+      return inUseFired.includes(field.id);
+    },
+    fireInUse: function fireInUse(field) {
+      if (field.in_use === true && !this.inUseFired.includes(field.id)) {
+        this.inUseFired.push(field.id);
+        console.log(JSON.parse(JSON.stringify(99999999999999)));
+        this.$emit('inUse');
+      } // if(field.in_use === true && this.inUseFired === false){
+      //     this.inUseFired = true;
+      //     console.log(JSON.parse(JSON.stringify(99999999999999)));
+      //     this.$emit('inUse');
+      // }
+      // console.log(JSON.parse(JSON.stringify(99999999999999)));
+
+    },
+    setTooltip: function setTooltip() {
+      $('.list-tooltip').tooltip('dispose');
+      $('.list-tooltip').tooltip({
+        html: true
+      });
+    },
     getIdsTrace: function getIdsTrace(field) {
       // return this.idsTrace.push(1);
       // console.log(JSON.parse(JSON.stringify(this.idsTrace)));
@@ -2837,6 +2914,30 @@ __webpack_require__.r(__webpack_exports__);
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
 ___CSS_LOADER_EXPORT___.push([module.id, "", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, ".in-use[data-v-2cf8b460] {\n  cursor: default;\n  background-color: white !important;\n}\n.in-use[data-v-2cf8b460]:hover {\n  background-color: white !important;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -20355,6 +20456,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsList_vue_vue_type_style_index_0_id_2cf8b460_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsList_vue_vue_type_style_index_0_id_2cf8b460_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsList_vue_vue_type_style_index_0_id_2cf8b460_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js":
 /*!****************************************************************************!*\
   !*** ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js ***!
@@ -20727,15 +20858,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _DropdownItemsList_vue_vue_type_template_id_2cf8b460_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DropdownItemsList.vue?vue&type=template&id=2cf8b460&scoped=true& */ "./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=template&id=2cf8b460&scoped=true&");
 /* harmony import */ var _DropdownItemsList_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DropdownItemsList.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=script&lang=js&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _DropdownItemsList_vue_vue_type_style_index_0_id_2cf8b460_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
+;
 
 
 /* normalize component */
-;
-var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__.default)(
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
   _DropdownItemsList_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
   _DropdownItemsList_vue_vue_type_template_id_2cf8b460_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
   _DropdownItemsList_vue_vue_type_template_id_2cf8b460_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
@@ -20924,6 +21057,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true&":
+/*!*******************************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true& ***!
+  \*******************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsList_vue_vue_type_style_index_0_id_2cf8b460_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/setting/specifics_index/components/DropdownItemsList.vue?vue&type=style&index=0&id=2cf8b460&lang=scss&scoped=true&");
+
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/setting/specifics_index/components/App.vue?vue&type=template&id=62eca9c4&scoped=true&":
 /*!**************************************************************************************************************************!*\
   !*** ./resources/js/vue/dashboard/setting/specifics_index/components/App.vue?vue&type=template&id=62eca9c4&scoped=true& ***!
@@ -21029,6 +21175,35 @@ var render = function() {
     _c(
       "div",
       [
+        _vm.tempMsg
+          ? _c(
+              "div",
+              {
+                staticClass: "alert alert-warning alert-dismissible fade show",
+                attrs: { role: "alert" }
+              },
+              [
+                _vm._v("\n            " + _vm._s(_vm.tempMsg.text)),
+                _c("br"),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-sm btn-warning disable-temp-msg",
+                    attrs: { type: "button", "data-msg-key": _vm.tempMsg.key }
+                  },
+                  [
+                    _vm._v(
+                      "\n                Do not show this message in future.\n            "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _vm._m(0)
+              ]
+            )
+          : _vm._e(),
+        _vm._v(" "),
         _c(
           "div",
           { staticClass: "specifics-handles" },
@@ -21132,7 +21307,7 @@ var render = function() {
                     [_vm._v("New specific")]
                   ),
                   _vm._v(" "),
-                  _vm._m(0)
+                  _vm._m(1)
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "modal-body" }, [
@@ -21292,6 +21467,23 @@ var staticRenderFns = [
         staticClass: "close",
         attrs: {
           type: "button",
+          "data-dismiss": "alert",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
           "data-dismiss": "modal",
           "aria-label": "Close"
         }
@@ -21431,32 +21623,72 @@ var render = function() {
         return _c(
           "li",
           [
-            _c(
-              "a",
-              {
-                staticClass: "itemm disabled",
-                attrs: { href: "#" },
-                on: {
-                  click: function($event) {
-                    $event.preventDefault()
-                    _vm.$emit("changed", {
-                      title: _vm.getTitle(field.title),
-                      field: field,
-                      index: index,
-                      relation: _vm.getRelation(field.title),
-                      idsTrace: _vm.idsTrace
-                    })
-                  }
-                }
-              },
-              [
-                _vm._v(
-                  "\n                    " +
-                    _vm._s(_vm.getTitle(field.title)) +
-                    "\n            "
+            field.in_use
+              ? _c(
+                  "a",
+                  {
+                    staticClass: "itemm text-muted in-use",
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        $event.stopPropagation()
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(_vm.getTitle(field.title)) +
+                        "\n                    "
+                    ),
+                    field.in_use
+                      ? _c(
+                          "span",
+                          {
+                            staticClass:
+                              "badge badge-success list-tooltip small",
+                            attrs: {
+                              "data-placement": "auto",
+                              title:
+                                "Specific in use, one or more templates using this specific, in order to create other specifics to level deeper you need  dismiss assignment of this specific from templates"
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                            In use\n                    "
+                            )
+                          ]
+                        )
+                      : _vm._e()
+                  ]
                 )
-              ]
-            ),
+              : _c(
+                  "a",
+                  {
+                    staticClass: "itemm",
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        _vm.$emit("changed", {
+                          title: _vm.getTitle(field.title),
+                          field: field,
+                          index: index,
+                          relation: _vm.getRelation(field.title),
+                          idsTrace: _vm.idsTrace
+                        })
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(_vm.getTitle(field.title)) +
+                        "\n            "
+                    )
+                  ]
+                ),
             _vm._v(" "),
             _vm.hasFields(field)
               ? _c("dropdown-list", {
@@ -21516,140 +21748,162 @@ var render = function() {
           }
         },
         [
-          _vm._v("\n            " + _vm._s(_vm.idsTrace) + "\n            "),
+          _vm._v(
+            "\n        " + _vm._s(_vm.fireInUse(field)) + "\n            "
+          ),
           _c(
             "div",
             {
-              staticClass: "alert-item alert alert-primary",
+              staticClass: "alert-item alert",
               class: {
-                "d-none": !_vm.showDependingOnSearch(field)
+                "d-none": !_vm.showDependingOnSearch(field),
+                "alert-success": field.in_use,
+                "alert-primary": !field.in_use
               },
               attrs: { role: "alert" }
             },
             [
               _c("div", { staticClass: "btnnns" }, [
-                _c(
-                  "div",
-                  {
-                    staticClass: "btnnn action-drop dropdown show float-right"
-                  },
-                  [
-                    _c(
-                      "a",
+                !field.in_use
+                  ? _c(
+                      "div",
                       {
-                        ref: _vm.dropdownRemoveButtonId + "_" + field.id,
-                        refInFor: true,
-                        staticClass: "btn btn-sm btn-warning",
-                        attrs: {
-                          href: "#",
-                          role: "button",
-                          id: _vm.dropdownRemoveButtonId + "_" + field.id,
-                          "data-toggle": "dropdown",
-                          "aria-haspopup": "true",
-                          "aria-expanded": "false"
-                        }
+                        staticClass:
+                          "btnnn action-drop dropdown show float-right"
                       },
                       [
                         _c(
-                          "svg",
+                          "a",
                           {
-                            staticClass: "bi bi-trash-fill",
+                            ref: _vm.dropdownRemoveButtonId + "_" + field.id,
+                            refInFor: true,
+                            staticClass: "btn btn-sm btn-warning",
                             attrs: {
-                              xmlns: "http://www.w3.org/2000/svg",
-                              width: "16",
-                              height: "16",
-                              fill: "currentColor",
-                              viewBox: "0 0 16 16"
+                              href: "#",
+                              role: "button",
+                              id: _vm.dropdownRemoveButtonId + "_" + field.id,
+                              "data-toggle": "dropdown",
+                              "aria-haspopup": "true",
+                              "aria-expanded": "false"
                             }
                           },
                           [
-                            _c("path", {
-                              attrs: {
-                                d:
-                                  "M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"
-                              }
-                            })
+                            _c(
+                              "svg",
+                              {
+                                staticClass: "bi bi-trash-fill",
+                                attrs: {
+                                  xmlns: "http://www.w3.org/2000/svg",
+                                  width: "16",
+                                  height: "16",
+                                  fill: "currentColor",
+                                  viewBox: "0 0 16 16"
+                                }
+                              },
+                              [
+                                _c("path", {
+                                  attrs: {
+                                    d:
+                                      "M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"
+                                  }
+                                })
+                              ]
+                            )
                           ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass: "dropdown-menu dropdown-menu-right",
+                            attrs: {
+                              "aria-labelledby":
+                                _vm.dropdownRemoveButtonId + "_" + field.id
+                            },
+                            on: {
+                              click: function($event) {
+                                $event.stopPropagation()
+                              }
+                            }
+                          },
+                          [
+                            _vm.isInUseFiredByField(field)
+                              ? [
+                                  _c("div", { staticClass: "small" }, [
+                                    _vm._v(
+                                      "\n                                    In order to remove this specific and therefor all inner specifics you need dismiss assignments to templates of all inner specifics.\n                                "
+                                    )
+                                  ])
+                                ]
+                              : [
+                                  _vm._v(
+                                    "\n                                Do you realy want to remove this specific and all under it?\n                                "
+                                  ),
+                                  _c("div", { staticClass: "btnns" }, [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "btnn text-primary",
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.$emit(
+                                              "removeBtnClick",
+                                              _vm.getAddEventData(field)
+                                            )
+                                            _vm.$refs[
+                                              _vm.dropdownRemoveButtonId +
+                                                "_" +
+                                                field.id
+                                            ][0].click()
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _vm._v(
+                                          "\n                                            Yes\n                                    "
+                                        )
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass: "btnn text-primary",
+                                        attrs: {
+                                          href: "#",
+                                          "data-toggle": "dropdown",
+                                          "aria-haspopup": "true",
+                                          "aria-expanded": "false"
+                                        },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.$refs[
+                                              _vm.dropdownRemoveButtonId +
+                                                "_" +
+                                                field.id
+                                            ][0].click()
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _vm._v(
+                                          "\n                                            No\n                                    "
+                                        )
+                                      ]
+                                    )
+                                  ])
+                                ]
+                          ],
+                          2
                         )
                       ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        staticClass: "dropdown-menu dropdown-menu-right",
-                        attrs: {
-                          "aria-labelledby":
-                            _vm.dropdownRemoveButtonId + "_" + field.id
-                        },
-                        on: {
-                          click: function($event) {
-                            $event.stopPropagation()
-                          }
-                        }
-                      },
-                      [
-                        _vm._v(
-                          "\n                            Do you realy want to remove this specific and all under it?\n                            "
-                        ),
-                        _c("div", { staticClass: "btnns" }, [
-                          _c(
-                            "a",
-                            {
-                              staticClass: "btnn text-primary",
-                              attrs: { href: "#" },
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  _vm.$emit(
-                                    "removeBtnClick",
-                                    _vm.getAddEventData(field)
-                                  )
-                                  _vm.$refs[
-                                    _vm.dropdownRemoveButtonId + "_" + field.id
-                                  ][0].click()
-                                }
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n                                        Yes\n                                "
-                              )
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "a",
-                            {
-                              staticClass: "btnn text-primary",
-                              attrs: {
-                                href: "#",
-                                "data-toggle": "dropdown",
-                                "aria-haspopup": "true",
-                                "aria-expanded": "false"
-                              },
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  _vm.$refs[
-                                    _vm.dropdownRemoveButtonId + "_" + field.id
-                                  ][0].click()
-                                }
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n                                        No\n                                "
-                              )
-                            ]
-                          )
-                        ])
-                      ]
                     )
-                  ]
-                ),
+                  : _vm._e(),
                 _vm._v(" "),
-                _vm.drewNextLevel
+                !field.in_use && _vm.drewNextLevel
                   ? _c(
                       "a",
                       {
@@ -21726,7 +21980,33 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _c("b", [_vm._v(_vm._s(field.id) + " " + _vm._s(field.title))]),
+              _c("b", [
+                _vm._v(
+                  "\n                    " +
+                    _vm._s(field.id) +
+                    " " +
+                    _vm._s(field.title) +
+                    "\n                    "
+                ),
+                field.in_use
+                  ? _c(
+                      "span",
+                      {
+                        staticClass: "badge badge-success list-tooltip small",
+                        attrs: {
+                          "data-placement": "auto",
+                          title:
+                            "Specific in use, one or more templates using this specific, in order to remove it or create other specifics to level deeper you need  dismiss assignment of this specific from templates"
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            In use\n                    "
+                        )
+                      ]
+                    )
+                  : _vm._e()
+              ]),
               _c("br"),
               _vm._v(" "),
               _c("b", {
@@ -21751,6 +22031,9 @@ var render = function() {
                   "parent-title": _vm.composeTitle(field.title)
                 },
                 on: {
+                  inUse: function($event) {
+                    return _vm.putFieldInUse(field)
+                  },
                   addBtnClick: function($event) {
                     return _vm.$emit("addBtnClick", $event)
                   },

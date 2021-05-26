@@ -173,14 +173,10 @@ class HallController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        
         if(old('business_hours')){
-            $business_hours = \Setting::arrangeByKey(
-                SettingKeys::WORKER_DEFAULT_BUSINESS_HOURS,
-                old('business_hours')
-            );
+            $business_hours = \Setting::of(SettingKeys::HALL_DEFAULT_BUSINESS_HOURS)->arrange(old('business_hours'));
         }else{
-            $business_hours = \Setting::getOrPlaceholder(SettingKeys::DEFAULT_BUSINESS_HOURS, true);
+            $business_hours = \Setting::of(SettingKeys::HALL_DEFAULT_BUSINESS_HOURS)->getOrPlaceholder(['arrange' => true]);
         }
         
         $phones = \PhonePicker::getAllForVue();
@@ -320,10 +316,11 @@ class HallController extends Controller
     public function edit($id){
         $hall = Hall::find($id);
         
-        $business_hours = \Setting::arrangeByKey(
-            SettingKeys::DEFAULT_BUSINESS_HOURS,
-            json_decode($hall->business_hours, true)
-        );
+        $business_hours = \Setting::of(SettingKeys::HALL_DEFAULT_BUSINESS_HOURS)->arrange(json_decode($hall->business_hours, true));
+        // $business_hours = \Setting::arrangeByKey(
+        //     SettingKeys::DEFAULT_BUSINESS_HOURS,
+        //     json_decode($hall->business_hours, true)
+        // );
         
         $assign_workers = [];
         // dd($assign_workers);

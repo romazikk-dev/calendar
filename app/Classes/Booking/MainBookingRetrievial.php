@@ -12,6 +12,9 @@ use App\Models\Worker;
 use App\Models\Client;
 use App\Classes\Range\Range;
 use App\Scopes\UserScope;
+use App\Classes\Enums\Weekdays;
+use App\Classes\Setting\Enums\Keys as SettingsKeys;
+
 // use App\Exceptions\Api\Calendar\BadRangeException;
 
 class MainBookingRetrievial{
@@ -52,14 +55,48 @@ class MainBookingRetrievial{
         if(!is_null($client))
             $this->client = $client;
         
+        // $this->setBusinessHours();
+        
+        // var_dump($this->hall_business_hours);
+        // die();
+        
         $this->hall_business_hours = json_decode($this->hall->business_hours);
+        
+        // var_dump($this->hall_business_hours);
+        // die();
+        
+        // $this->hall_business_hours = json_decode($this->hall->business_hours, true);
+        // $this->hall_business_hours = \Setting::of(SettingsKeys::HALL_DEFAULT_BUSINESS_HOURS)->arrange($this->hall->business_hours);
         
         $this->composeBookingModel();
     }
     
+    protected function parseArrayBusinessHoursToIntWeekKey($business_hours_array){
+        $hall_business_hours = $business_hours_array;
+        $parsed_hall_business_hours = [];
+        foreach(Weekdays::all() as $k => $v){
+            $parsed_hall_business_hours[] = $hall_business_hours[$v];
+        }
+        return $parsed_hall_business_hours;
+    }
+    
     protected function getHallBusinessHoursFromCarbonDate($date_carbon){
+        // Weekdays
+        // var_dump(array_values(Weekdays::all()));
+        // var_dump($this->hall_business_hours[1]);
+        // var_dump(Range::getWeekdayFromCarbonInstance($date_carbon));
+        // die();
         $business_hour_index = (Range::getWeekdayFromCarbonInstance($date_carbon)) - 1;
-        return $this->hall_business_hours[$business_hour_index];
+        $weekdays = array_values(Weekdays::all());
+        
+        // var_dump($weekdays);
+        // var_dump($business_hour_index);
+        // var_dump($this->hall_business_hours);
+        // var_dump($this->hall_business_hours->{$weekdays[$business_hour_index]});
+        // die();
+        
+        return $this->hall_business_hours->{$weekdays[$business_hour_index]};
+        // return $this->hall_business_hours[$business_hour_index];
     }
     
     protected function isByClient($client_id = null){

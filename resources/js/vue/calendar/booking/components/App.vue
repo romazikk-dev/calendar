@@ -61,8 +61,12 @@
             // this.showChildren();
             // console.log(this.$options.name);
             this.setTokenFromCookie();
+            // console.log(this.token);
             this.getClientInfo();
             this.getBookings();
+            
+            // console.log(5555555555);
+            // console.log(this.search);
         },
         props: ['userId'],
         data: function(){
@@ -301,7 +305,14 @@
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error);
+                    // console.log(error);
+                    if(error.response.status == 401){
+                        // console.log(error.response.status);
+                        cookie.remove('token');
+                        document.location.reload();
+                        // this.token == null;
+                    }
+                    // console.log(error.response.status);
                 })
                 .then(() => {
                     // always executed

@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
             'worker' => 'App\Models\Worker',
             'client' => 'App\Models\Client',
             'hall' => 'App\Models\Hall',
+            'temp_msg' => 'App\Models\TemporaryMessage',
         ]);
         
         View::share('rand', rand(100, 10000));

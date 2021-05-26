@@ -14,6 +14,23 @@ use App\Classes\Range\Range;
 
 class BookingRetrievial extends MainBookingRetrievial{
     
+    public function getBusinessHours($as_array = false, $int_week_key_if_array = false){
+        if($as_array === true){
+            // $hall_business_hours = (array)$this->hall_business_hours;
+            $hall_business_hours = json_decode(json_encode($this->hall_business_hours), true);
+        }else{
+            $hall_business_hours = $this->hall_business_hours;
+        }
+        
+        if($as_array === true && $int_week_key_if_array === true)
+            $hall_business_hours = $this->parseArrayBusinessHoursToIntWeekKey($hall_business_hours);
+        
+        return $hall_business_hours;
+        // var_dump($hall_business_hours);
+        // die();
+        // return $this->hall_business_hours;
+    }
+    
     public function getFreeSlots(){
         
         $bookings = $this->getBookingsAsDateTimeKeyArray();
@@ -56,9 +73,13 @@ class BookingRetrievial extends MainBookingRetrievial{
             
             //Set itm data related to hall
             $hall_business_hours = $this->getHallBusinessHoursFromCarbonDate($start_date_carbon);
-            $itm['start'] = $hall_business_hours->start;
-            $itm['end'] = $hall_business_hours->end;
-            if($hall_business_hours->is_weekend){
+            
+            // var_dump($hall_business_hours->start_hour);
+            // die();
+            
+            $itm['start'] = !empty($hall_business_hours->start_hour) ? $hall_business_hours->start_hour : null;
+            $itm['end'] = !empty($hall_business_hours->end_hour) ? $hall_business_hours->end_hour : null;
+            if(!empty($hall_business_hours->is_weekend)){
                 $itm['bookable'] = false;
                 $itm['is_weekend'] = true;
                 $itm['items'] = null;
@@ -69,8 +90,8 @@ class BookingRetrievial extends MainBookingRetrievial{
             // if($hall_business_hours->is_weekend)
                 
             
-            $hall_start_time = $hall_business_hours->start;
-            $hall_end_time = $hall_business_hours->end;
+            $hall_start_time = $hall_business_hours->start_hour;
+            $hall_end_time = $hall_business_hours->end_hour;
             $itm['items'] = [
                 [
                     'type' => 'free',

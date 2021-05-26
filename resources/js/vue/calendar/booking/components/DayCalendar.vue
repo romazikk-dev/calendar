@@ -113,6 +113,15 @@
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
+        updated: function () {
+            let _this = this;
+            let interval = setInterval(function(){
+                if(_this.date !== null){
+        	       _this.placeItems();
+                   clearInterval(interval);
+                }
+            }, 100);
+        },
         props: ['userId','search','views','view','startDate','dataUpdater'],
         data: function(){
             return {
@@ -555,9 +564,9 @@
                         this.bussinessHours = response.data.business_hours;
                         this.setWorkHours();
                         // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-                        setTimeout(() => {
-                            this.placeItems();
-                        }, 100);
+                        // setTimeout(() => {
+                        //     this.placeItems();
+                        // }, 100);
                     },
                     () => {},
                     () => {
@@ -574,17 +583,17 @@
                 this.bussinessHours.forEach((item, i) => {
                     if(start == null){
                         // start = item.start;
-                        start = moment('1970-01-01 ' + item.start + ':00');
+                        start = moment('1970-01-01 ' + item.start_hour + ':00');
                         let first = true;
                     }
                     if(end == null){
-                        end = moment('1970-01-01 ' + item.end + ':00');
+                        end = moment('1970-01-01 ' + item.end_hour + ':00');
                         let first = true;
                     }
                     if(typeof first != 'undefined' && first == true)
                         return;
-                    let itemStart = moment('1970-01-01 ' + item.start + ':00');
-                    let itemEnd = moment('1970-01-01 ' + item.end + ':00');
+                    let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+                    let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
                     if(itemStart.diff(start) < 0)
                         start = itemStart;
                     if(itemStart.diff(start) >= 0)

@@ -208,8 +208,6 @@ class TemplateController extends Controller
             
         $template = Template::find($id);
         
-        // dd($template->specific->toArray());
-        
         $assign_workers = [];
         // dd($assign_worker);
         if(old('assign_workers')){
@@ -220,11 +218,17 @@ class TemplateController extends Controller
             }
         }
         
+        // $picked_specific = \Specifics::getPickedSpecificFromModel($template);
+        // dd($picked_specific);
+        
         return view('dashboard.template.create', [
             'template' => $template,
             'assign_workers' => $assign_workers,
             'validation_messages' => \Lang::get('validation'),
             'specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
+            // 'picked_specific' => empty($template->specific) ? null :
+            'picked_specific' => \Specifics::getPickedSpecificFromModel($template),
+                
         ]);
     }
 
@@ -236,22 +240,24 @@ class TemplateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id){
-        $validated = $request->validate([
-            // Main validation rules
-            'title' => 'required|max:255',
-            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
-            'price' => 'nullable|regex:/^([0-9]){1,6}(\.[0-9]{2})?$/',
-            'description' => 'max:1000',
-            'short_description' => 'max:255',
-            'notice' => 'max:1000',
-            
-            // Assign worker validation rules
-            'assign_workers' => 'nullable|array',
-        ]);
+        $validate_rules = $this->mainValidationRules();
+        $validator = Validator::make($request->all(), $validate_rules);
         
-        // dd($validated['duration']);
+        if($validator->fails()){
+            $error_messages = $validator->errors()->messages();
+            $tab_errors = $this->getErrorsCountsPerTab($error_messages);
+            
+            return back()->with([
+                'tab_errors' => $tab_errors
+            ])->withInput($request->all())->withErrors($validator->errors());
+        }
+        
+        $validated = $validator->valid();
+        
+        unset($validated['_token'],$validated['_method']);
+        // dd($validated);
+        
         $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
-        // dd($validated['duration']);
         
         if(!empty($validated['assign_workers'])){
             $assign_workers = array_keys($validated['assign_workers']);

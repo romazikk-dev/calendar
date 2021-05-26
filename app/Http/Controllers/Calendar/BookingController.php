@@ -13,14 +13,28 @@ use App\Scopes\UserScope;
 class BookingController extends Controller{
     
     function index(Request $request, $owner_id){
-        
+        // dd(33);
         $filters = !empty($_COOKIE['filters']) ? json_decode($_COOKIE['filters']) : null;
+        
+        // dd($_COOKIE['filters']);
             
         if($owner = User::find($owner_id)){
             // dd(UserScope::class);
             // $halls = Hall::all();
             
             $hall_model = Hall::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
+            
+            // $hall_model = Hall::withoutGlobalScope(UserScope::class)->whereHas('workers', function($query) use ($owner){
+            //     // dd(3333);
+            //     return $query->withoutGlobalScope(UserScope::class)->whereHas('templates', function($query) use ($owner){
+            //         // return $query->where('user_id', $user->id)
+            //         //     ->where('has_paid', true);
+            //     })->byUser($owner->id);
+            // })->byUser($owner->id)->first();
+            
+            // dd($hall_model->workers[0]->templates);
+            // dd($hall_model->toArray());
+            
             $worker_model = Worker::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
             $template_model = Template::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
             
@@ -84,7 +98,22 @@ class BookingController extends Controller{
                     'template' => !empty($filtered_template) ? $filtered_template : null,
                     'view' => !empty($filtered_view) ? $filtered_view : null,
                 ];
+                if(empty($output['filters']['hall'])){
+                    $output['filters'] = null;
+                }else{
+                    if(empty($output['filters']['worker'])){
+                        $output['filters']['worker'] = null;
+                        $output['filters']['template'] = null;
+                    }else{
+                        if(empty($output['filters']['template']))
+                            $output['filters']['template'] = null;
+                    }
+                }
             }
+            
+            // $output['filters'] = null;
+            
+            // dd($output);
             return view('calendar.booking.index', $output);
         }else{
             abort(404);

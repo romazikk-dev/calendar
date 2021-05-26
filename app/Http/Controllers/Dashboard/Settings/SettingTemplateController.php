@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\TemplateSpecifics;
 use App\Rules\SpecificsUniqueLevel;
 use App\Rules\SpecificsMaxDeep;
+use App\Rules\SpecificNotInUse;
 use Illuminate\Support\Facades\Validator;
+use App\Classes\TemporaryMessages\Enums\Keys as TemporaryMessagesKeys;
 
 class SettingTemplateController extends Controller
 {
@@ -29,28 +31,29 @@ class SettingTemplateController extends Controller
      * @return \Illuminate\Http\Response
      */
     function specifics(Request $request){
+        // dd(\TempMsgs::getByKey(TemporaryMessagesKeys::PLAN_TEMPLATE_SPECIFICS_CAREFUL, true));
+        
         if($request->isMethod('post')){
-            
             // Remove action
             if($request->has('action') && $request->action == 'remove'){
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required|integer|exists:template_specifics,id',
+                    // 'id' => 'required|integer|exists:template_specifics,id',
+                    'id' => ['required', 'integer', 'exists:template_specifics,id', new SpecificNotInUse()],
                 ]);
                 
                 if($validator->fails())
-                    return response()->json(false);
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => $validator->errors()
+                    ]);
                     
                 $validated = $validator->valid();
-                
                 \Specifics::removeAllByParentId($validated['id']);
                 
-                $db_specifics = TemplateSpecifics::all()->toArray();
-                if(!empty($db_specifics))
-                    $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics);
-                    
-                return response()->json(
-                    !empty($parsed_specifics) ? $parsed_specifics : []
-                );
+                return response()->json([
+                    'status' => 'success',
+                    'specifics' => \Specifics::getAllForVueInSettings(),
+                ]);
             }
             
             // Validate title uniqueness action
@@ -70,16 +73,15 @@ class SettingTemplateController extends Controller
             $validator = Validator::make($request->all(), [
                 'title' => ['required', 'string', 'max:255', new SpecificsUniqueLevel()],
                 'description' => 'nullable|string|max:255',
-                'parent_id' => ['nullable', 'integer', 'exists:template_specifics,id', new SpecificsMaxDeep()],
+                'parent_id' => ['nullable', 'integer', 'exists:template_specifics,id', new SpecificsMaxDeep(), new SpecificNotInUse()],
                 'id' => 'nullable|integer|exists:template_specifics,id',
             ]);
             
-            if($validator->fails()){
+            if($validator->fails())
                 return response()->json([
                     'status' => 'error',
                     'errors' => $validator->errors()
                 ]);
-            }
             
             $validated = $validator->valid();
             
@@ -95,23 +97,22 @@ class SettingTemplateController extends Controller
                     ]);
             }
             
-            $db_specifics = TemplateSpecifics::all()->toArray();
-            if(!empty($db_specifics))
-                $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics);
-            
-            return response()->json(
-                !empty($parsed_specifics) ? $parsed_specifics : []
-            );
+            return response()->json([
+                'status' => 'success',
+                'specifics' => \Specifics::getAllForVueInSettings(),
+            ]);
         }
         
-        $db_specifics = TemplateSpecifics::all()->toArray();
-        if(!empty($db_specifics))
-            $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics);
+        $temp_msg = \TempMsgs::getByKey(TemporaryMessagesKeys::PLAN_TEMPLATE_SPECIFICS_CAREFUL, true);
+        
+        // dd(\Specifics::getAllForVueInSettings());
         
         return view('dashboard.settings.template.specifics.show', [
             'validation_messages' => \Lang::get('validation'),
-            'specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
+            'specifics' => \Specifics::getAllForVueInSettings(),
             'max_deep' => \Specifics::getMaxDeep(),
+            'temp_msg' => empty($temp_msg) || $temp_msg['is_disabled'] === true ? null : $temp_msg,
+            // 'temp_msg' => \TempMsgs::getByKey(TemporaryMessagesKeys::PLAN_TEMPLATE_SPECIFICS_CAREFUL, true),
         ]);
     }
     

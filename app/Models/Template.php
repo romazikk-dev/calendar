@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Scopes\UserScope;
+use App\Scopes\NotDeletedScope;
 
 class Template extends Model
 {
@@ -80,6 +81,7 @@ class Template extends Model
      */
     protected static function booted(){
         static::addGlobalScope(new UserScope);
+        static::addGlobalScope(new NotDeletedScope);
     }
     
     /**

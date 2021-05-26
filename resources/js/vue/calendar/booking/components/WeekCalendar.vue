@@ -35,7 +35,7 @@
                         <td :class="{'current-day': isCurrentDate(7)}"></td>
                     </tr> -->
                     <tr>
-                        <!-- <td></td> -->
+                        <!-- <td>dasd</td> -->
                         <td v-for="i in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(i)}">
                             <week-requested-booked-cell
                                 v-if="weekDayNotPast(i)"
@@ -111,6 +111,8 @@
     export default {
         name: 'weekCalendar',
         mounted() {
+            // console.log(JSON.parse(JSON.stringify(434343434)));
+            // console.log(JSON.parse(JSON.stringify(this.workHours)));
             // this.setDates(moment(new Date()).startOf('week').toDate());
             this.setDates(moment(this.startDate).startOf('week').toDate());
             
@@ -119,6 +121,8 @@
                     // console.log(11111);
                     clearInterval(interval);
                     this.getData();
+                    // console.log(JSON.parse(JSON.stringify(434343434)));
+                    // console.log(JSON.parse(JSON.stringify(this.workHours)));
                 }
             }, 300);
             
@@ -128,6 +132,17 @@
                 this.bookDate = null;
                 // console.log(this.bookDate);
             });
+        },
+        updated: function () {
+            let _this = this;
+            // this.$nextTick(function(){
+                let interval = setInterval(function(){
+                    if(_this.dates !== null){
+            	       _this.placeItems();
+                       clearInterval(interval);
+                    }
+                }, 100);
+            // });
         },
         props: ['userId','search','views','view','startDate','dataUpdater'],
         data: function(){
@@ -513,6 +528,9 @@
                 if(this.componentApp == null)
                     this.componentApp = this.getParentComponentByName(this, 'app');
                 
+                // console.log(JSON.parse(JSON.stringify(434343434)));
+                // console.log(JSON.parse(JSON.stringify(moment(this.firstWeekday).format('DD-MM-YYYY'))));
+                
                 this.componentApp.getData(
                     moment(this.firstWeekday).format('DD-MM-YYYY'),
                     moment(this.lastWeekday).format('DD-MM-YYYY'),
@@ -524,13 +542,23 @@
                         // console.log(response.data.business_hours);
                         this.bussinessHours = response.data.business_hours;
                         this.setWorkHours();
+                        
+                        console.log(JSON.parse(JSON.stringify(434343434)));
+                        // console.log(JSON.parse(JSON.stringify(this.workHours)));
+                        // console.log(JSON.parse(JSON.stringify(this.bussinessHours)));
+                        
                         // console.log(JSON.parse(JSON.stringify(4444444444444444)));
-                        setTimeout(() => {
-                            this.placeItems();
-                        }, 100);
+                        // setTimeout(() => {
+                            // this.placeItems();
+                        // }, 100);
+                        // this.$nextTick(() => {
+                        //     this.$nextTick(() => {
+                        //         this.placeItems();
+                        //     });
+                        // });
                         // this.placeItems();
                         // console.log(response.data[0]);
-                        console.log(JSON.parse(JSON.stringify(this.dates)));
+                        // console.log(JSON.parse(JSON.stringify(this.dates)));
                     },
                     () => {},
                     () => {
@@ -545,19 +573,20 @@
                 // return;
                 // console.log(business_hours);
                 this.bussinessHours.forEach((item, i) => {
+                    // if(typeof item.start === 'undefined' || typeof item.end === 'undefined')
                     if(start == null){
                         // start = item.start;
-                        start = moment('1970-01-01 ' + item.start + ':00');
+                        start = moment('1970-01-01 ' + item.start_hour + ':00');
                         let first = true;
                     }
                     if(end == null){
-                        end = moment('1970-01-01 ' + item.end + ':00');
+                        end = moment('1970-01-01 ' + item.end_hour + ':00');
                         let first = true;
                     }
                     if(typeof first != 'undefined' && first == true)
                         return;
-                    let itemStart = moment('1970-01-01 ' + item.start + ':00');
-                    let itemEnd = moment('1970-01-01 ' + item.end + ':00');
+                    let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+                    let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
                     if(itemStart.diff(start) < 0)
                         start = itemStart;
                     if(itemStart.diff(start) >= 0)
@@ -581,6 +610,9 @@
                     this.workHours.push(i);
                 }
                 // console.log(this.workHours);
+                
+                // console.log(JSON.parse(JSON.stringify(777777777)));
+                // console.log(JSON.parse(JSON.stringify(this.workHours)));
             },
             setDates: function(firstCalendarMonthDate){
                 let currentDateMoment = moment(this.currentDate);

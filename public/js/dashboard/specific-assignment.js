@@ -1860,10 +1860,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 // import RecursiveDropdown from "./RecursiveDropdown.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   mounted: function mounted() {
     console.log(JSON.parse(JSON.stringify(this.specifics)));
+    console.log(JSON.parse(JSON.stringify(this.pickedSpecific)));
   },
   // props: ['postTitle'],
   data: function data() {
@@ -1871,12 +1874,18 @@ __webpack_require__.r(__webpack_exports__);
       specifics: specifics,
       inputName: 'specific_id',
       pickedSpecificId: null,
-      alwaysValidateSpecificInputOnChange: false
+      alwaysValidateSpecificInputOnChange: false,
+      pickedSpecific: pickedSpecific
     };
   },
-  computed: {// showWarningAlert: function () {
-    // 
-    // },
+  computed: {
+    idsTrace: function idsTrace() {
+      if (this.pickedSpecific !== null && typeof this.pickedSpecific.ids_trace !== 'undefined' && Array.isArray(this.pickedSpecific.ids_trace) && this.pickedSpecific.ids_trace.length > 0) {
+        return JSON.parse(JSON.stringify(this.pickedSpecific.ids_trace));
+      }
+
+      return null;
+    }
   },
   methods: {
     isJqueryValidationEnabled: function isJqueryValidationEnabled() {
@@ -1958,11 +1967,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(this.specifics)));
-    // this.
+  mounted: function mounted() {
+    // console.log(JSON.parse(JSON.stringify(4444)));
+    // console.log(JSON.parse(JSON.stringify(this.idsTrace)));
+    // console.log(JSON.parse(JSON.stringify(this.fields)));
+    if (this.isIdsTrace) this.fireClickOnItem();
   },
-  props: ['fields'],
+  props: ['fields', 'idsTrace'],
   data: function data() {
     return {
       pickedItem: null,
@@ -1970,29 +1984,47 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    passNextIdsTrace: function passNextIdsTrace() {
+      if (this.isIdsTrace) {
+        var idsTrace = JSON.parse(JSON.stringify(this.idsTrace));
+        idsTrace.shift();
+        return idsTrace;
+      }
+
+      return null;
+    },
+    isIdsTrace: function isIdsTrace() {
+      return typeof this.idsTrace !== 'undefined' && Array.isArray(this.idsTrace) && this.idsTrace.length > 0;
+    },
     fieldsNotEmpty: function fieldsNotEmpty() {
       return typeof this.fields !== 'undefined' && this.fields !== null && (!Array.isArray(this.fields) || Array.isArray(this.fields) && this.fields.length > 0);
     }
   },
   methods: {
+    fireClickOnItem: function fireClickOnItem() {
+      var idsTrace = JSON.parse(JSON.stringify(this.idsTrace));
+      var idTraceFirst = idsTrace.shift(); // console.log(323232323);
+
+      this.$refs['specific_item_' + idTraceFirst][0].click(); // specific_item_
+    },
     fieldHasFields: function fieldHasFields(field) {
-      console.log(JSON.parse(JSON.stringify(333333333)));
-      console.log(JSON.parse(JSON.stringify(field)));
+      // console.log(JSON.parse(JSON.stringify(333333333)));
+      // console.log(JSON.parse(JSON.stringify(field)));
       return typeof field != 'undefined' && field != null && typeof field.fields != 'undefined' && field.fields != null && (!Array.isArray(field.fields) || Array.isArray(field.fields) && field.fields.length > 0);
     },
     itemClick: function itemClick(field, index) {
       this.pickedItem = field;
       this.fieldsToDrawInnerDropdown = this.fieldHasFields(field) ? field : null; // this.$emit('specificChange', this.fieldsToDrawInnerDropdown);
+      // console.log(JSON.parse(JSON.stringify(this.fieldsToDrawInnerDropdown)));
+      // console.log('itemClick');
 
-      console.log(JSON.parse(JSON.stringify(this.fieldsToDrawInnerDropdown)));
-      console.log('itemClick');
       this.$emit('specificChange', this.pickedItem);
     }
   },
   components: {},
   watch: {
     fields: function fields(field) {
-      console.log('watch fields');
+      // console.log('watch fields');
       this.fieldsToDrawInnerDropdown = null;
       this.pickedItem = null;
     }
@@ -19635,7 +19667,7 @@ var render = function() {
       }),
       _vm._v(" "),
       _c("dropdown", {
-        attrs: { fields: _vm.specifics },
+        attrs: { fields: _vm.specifics, "ids-trace": _vm.idsTrace },
         on: {
           specificChange: function($event) {
             return _vm.specificChange($event)
@@ -19714,6 +19746,8 @@ var render = function() {
                 return _c(
                   "a",
                   {
+                    ref: "specific_item_" + field.id,
+                    refInFor: true,
                     staticClass: "dropdown-item",
                     attrs: { href: "#" },
                     on: {
@@ -19741,7 +19775,10 @@ var render = function() {
       _vm._v(" "),
       _vm.fieldsToDrawInnerDropdown
         ? _c("dropdown", {
-            attrs: { fields: _vm.fieldsToDrawInnerDropdown.fields },
+            attrs: {
+              "ids-trace": _vm.passNextIdsTrace,
+              fields: _vm.fieldsToDrawInnerDropdown.fields
+            },
             on: {
               specificChange: function($event) {
                 return _vm.$emit("specificChange", $event)

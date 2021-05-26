@@ -15,6 +15,7 @@ use App\Http\Controllers\Dashboard\Settings\SettingHallController as DashboardSe
 use App\Http\Controllers\Dashboard\Settings\SettingTemplateController as DashboardSettingTemplateController;
 use App\Http\Controllers\Dashboard\Settings\SettingWorkerController as DashboardSettingWorkerController;
 use App\Http\Controllers\Dashboard\Settings\SettingClientsBookingCalendarController as DashboardSettingClientsBookingCalendarController;
+use App\Http\Controllers\Dashboard\Settings\SettingTemporaryMessageController as DashboardSettingTemporaryMessageController;
 
 use App\Http\Controllers\Dashboard\BookingsController as DashboardBookingsController;
 
@@ -161,6 +162,15 @@ Route::group([
     ], function () {
         
         Route::get('/', [DashboardSettingController::class, 'index'])->name('index');
+        
+        Route::group([
+            'prefix' => '/temp-msg',
+            'as' => 'temp_msg.'
+        ], function () {
+            
+            Route::post('/disable', [DashboardSettingTemporaryMessageController::class, 'disable'])->name('disable');
+            
+        });
         
         Route::group([
             'prefix' => '/hall',

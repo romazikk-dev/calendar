@@ -18,6 +18,8 @@ class UserScope implements Scope
      * @return void
      */
     public function apply(Builder $builder, Model $model){
-        $builder->where('user_id', '=', auth()->user()->id);
+        $user = auth()->user();
+        if(!empty($user))
+            $builder->where('user_id', '=', auth()->user()->id);
     }
 }

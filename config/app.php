@@ -186,6 +186,7 @@ return [
         App\Providers\HolidayServiceProvider::class,
         App\Providers\LanguageServiceProvider::class,
         App\Providers\SpecificsServiceProvider::class,
+        App\Providers\TemporaryMessagesServiceProvider::class,
 
     ],
 
@@ -248,6 +249,7 @@ return [
         'Holiday'   =>  App\Classes\Holiday\HolidayFacade::class,
         'Language'   =>  App\Classes\Language\LanguageFacade::class,
         'Specifics'   =>  App\Classes\Specifics\SpecificsFacade::class,
+        'TempMsgs'   =>  App\Classes\TemporaryMessages\TemporaryMessagesFacade::class,
 
     ],
 

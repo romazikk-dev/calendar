@@ -2,15 +2,18 @@
     <div>
         
         <div v-for="(field, index) in fields" :class="{'child-specifics': (search !== null && search !== '' ? false : paddingLeft)}">
-                {{idsTrace}}
+            {{fireInUse(field)}}
                 <div role="alert"
-                    class="alert-item alert alert-primary"
+                    class="alert-item alert"
                     :class="{
                         'd-none': !showDependingOnSearch(field),
+                        'alert-success': field.in_use,
+                        'alert-primary': !field.in_use,
                     }">
                     
                     <div class="btnnns">
-                        <div class="btnnn action-drop dropdown show float-right">
+                        <div class="btnnn action-drop dropdown show float-right"
+                            v-if="!field.in_use">
                             <a :ref="dropdownRemoveButtonId + '_' + field.id"
                                 class="btn btn-sm btn-warning"
                                 href="#"
@@ -25,25 +28,32 @@
                             </a>
 
                             <div @click.stop class="dropdown-menu dropdown-menu-right" :aria-labelledby="dropdownRemoveButtonId + '_' + field.id">
-                                Do you realy want to remove this specific and all under it?
-                                <div class="btnns">
-                                    <a href="#"
-                                        @click.prevent="
-                                            $emit('removeBtnClick', getAddEventData(field));
-                                            $refs[dropdownRemoveButtonId + '_' + field.id][0].click();
-                                        "
-                                        class="btnn text-primary">
-                                            Yes
-                                    </a>
-                                    <a href="#"
-                                        @click.prevent="$refs[dropdownRemoveButtonId + '_' + field.id][0].click()"
-                                        class="btnn text-primary"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true"
-                                        aria-expanded="false">
-                                            No
-                                    </a>
-                                </div>
+                                <template v-if="isInUseFiredByField(field)">
+                                    <div class="small">
+                                        In order to remove this specific and therefor all inner specifics you need dismiss assignments to templates of all inner specifics.
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    Do you realy want to remove this specific and all under it?
+                                    <div class="btnns">
+                                        <a href="#"
+                                            @click.prevent="
+                                                $emit('removeBtnClick', getAddEventData(field));
+                                                $refs[dropdownRemoveButtonId + '_' + field.id][0].click();
+                                            "
+                                            class="btnn text-primary">
+                                                Yes
+                                        </a>
+                                        <a href="#"
+                                            @click.prevent="$refs[dropdownRemoveButtonId + '_' + field.id][0].click()"
+                                            class="btnn text-primary"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                                No
+                                        </a>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                         
@@ -53,7 +63,7 @@
                             </svg>
                         </a> -->
                         <a @click.prevent="$emit('addBtnClick', getAddEventData(field))"
-                            v-if="drewNextLevel"
+                            v-if="!field.in_use && drewNextLevel"
                             href="#"
                             class="btnnn btn btn-sm btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
@@ -79,7 +89,15 @@
                         }">
                             {{ (hasFields(field) && drewNextLevel) ? 'Category' : 'Item' }}
                     </span><br> -->
-                    <b>{{field.id}} {{field.title}}</b><br>
+                    <b>
+                        {{field.id}} {{field.title}}
+                        <span class="badge badge-success list-tooltip small"
+                            data-placement="auto"
+                            title="Specific in use, one or more templates using this specific, in order to remove it or create other specifics to level deeper you need  dismiss assignment of this specific from templates"
+                            v-if="field.in_use">
+                                In use
+                        </span>
+                    </b><br>
                     <b class="small muted" v-html="composeTitle(field.title)"></b><br>
                     <!-- <template v-if="field.description">
                         {{field.description}}
@@ -94,6 +112,7 @@
                 <list v-if="hasFields(field) && drewNextLevel"
                     :key="field.id"
                     :deep="deep + 1"
+                    @inUse="putFieldInUse(field)"
                     @addBtnClick="$emit('addBtnClick', $event)"
                     @editBtnClick="$emit('editBtnClick', $event)"
                     @removeBtnClick="$emit('removeBtnClick', $event)"
@@ -121,7 +140,12 @@
             // console.log(this.paddingLeft);
             if(this.idsTrace != null)
                 console.log(JSON.parse(JSON.stringify(this.idsTrace)));
+                
+            // if(field.in_use)
+            //     console.log(JSON.parse(JSON.stringify(99999999999999)));
             // console.log(this.deep);
+            // list-tooltip
+            this.setTooltip();
         },
         // props: ['fields', 'parentField', 'parentKey'],
         props: ['deep', 'fields', 'paddingLeft', 'parentField', 'parentTitle', 'parentAddEventData', 'search', 'idsTrace'],
@@ -130,7 +154,7 @@
                 modalTitleVal: null,
                 dropdownRemoveButtonId: 'dropdownRemoveButton',
                 maxDeep: maxDeep,
-                // maxDeep: 3,
+                inUseFired: [],
             };
         },
         computed: {
@@ -162,6 +186,34 @@
             // },
         },
         methods: {
+            putFieldInUse: function(field){
+                if(!this.inUseFired.includes(field.id))
+                    this.inUseFired.push(field.id);
+            },
+            isInUseFiredByField: function(field){
+                console.log(JSON.parse(JSON.stringify(this.inUseFired)));
+                let inUseFired = JSON.parse(JSON.stringify(this.inUseFired));
+                return inUseFired.includes(field.id);
+            },
+            fireInUse: function(field){
+                if(field.in_use === true && !this.inUseFired.includes(field.id)){
+                    this.inUseFired.push(field.id);
+                    console.log(JSON.parse(JSON.stringify(99999999999999)));
+                    this.$emit('inUse');
+                }
+                // if(field.in_use === true && this.inUseFired === false){
+                //     this.inUseFired = true;
+                //     console.log(JSON.parse(JSON.stringify(99999999999999)));
+                //     this.$emit('inUse');
+                // }
+                    // console.log(JSON.parse(JSON.stringify(99999999999999)));
+            },
+            setTooltip: function(){
+                $('.list-tooltip').tooltip('dispose');
+                $('.list-tooltip').tooltip({
+                    html: true
+                });
+            },
             getIdsTrace: function(field){
                 // return this.idsTrace.push(1);
                 // console.log(JSON.parse(JSON.stringify(this.idsTrace)));

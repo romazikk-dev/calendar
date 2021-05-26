@@ -5,7 +5,9 @@
             type="hidden"
             v-model="pickedSpecificId" />
         
-        <dropdown @specificChange="specificChange($event)" :fields="specifics" />
+        <dropdown @specificChange="specificChange($event)"
+            :fields="specifics"
+            :ids-trace="idsTrace"/>
         
         <div class="text-danger small"
             :id="'error_' + inputName"></div>
@@ -18,6 +20,7 @@
     export default {
         mounted() {
             console.log(JSON.parse(JSON.stringify(this.specifics)));
+            console.log(JSON.parse(JSON.stringify(this.pickedSpecific)));
         },
         // props: ['postTitle'],
         data: function(){
@@ -26,12 +29,17 @@
                 inputName: 'specific_id',
                 pickedSpecificId: null,
                 alwaysValidateSpecificInputOnChange: false,
+                pickedSpecific: pickedSpecific,
             };
         },
         computed: {
-            // showWarningAlert: function () {
-            // 
-            // },
+            idsTrace: function () {
+                if(this.pickedSpecific !== null && typeof this.pickedSpecific.ids_trace !== 'undefined' &&
+                Array.isArray(this.pickedSpecific.ids_trace) && this.pickedSpecific.ids_trace.length > 0){
+                    return JSON.parse(JSON.stringify(this.pickedSpecific.ids_trace));
+                }
+                return null;
+            },
         },
         methods: {
             isJqueryValidationEnabled: function(){

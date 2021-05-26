@@ -53,7 +53,8 @@ class RangeController extends Controller{
         
         $output = [
             'data' => $free_slots,
-            'business_hours' => json_decode($hall->business_hours, true),
+            // 'business_hours' => json_decode($hall->business_hours, true),
+            'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
         ];
         
         // var_dump(json_decode($hall->business_hours, true));
@@ -106,11 +107,17 @@ class RangeController extends Controller{
         $range = new Range($start, $end, $validated['view']);
         $bookingRetrievial = new BookingRetrievial($user, $hall, $worker, $template, $range);
         
+        // var_dump(1); die();
+        
         $free_slots = $bookingRetrievial->getFreeSlots();
+        
+        // var_dump($bookingRetrievial->getBusinessHours(true, true));
+        // die();
         
         $output = [
             'data' => $free_slots,
-            'business_hours' => json_decode($hall->business_hours, true),
+            // 'business_hours' => json_decode($hall->business_hours, true),
+            'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
         ];
         
         // var_dump(json_decode($hall->business_hours, true));

@@ -1911,9 +1911,11 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(222222299999999999999);
     // this.showChildren();
     // console.log(this.$options.name);
-    this.setTokenFromCookie();
+    this.setTokenFromCookie(); // console.log(this.token);
+
     this.getClientInfo();
-    this.getBookings();
+    this.getBookings(); // console.log(5555555555);
+    // console.log(this.search);
   },
   props: ['userId'],
   data: function data() {
@@ -2127,7 +2129,13 @@ __webpack_require__.r(__webpack_exports__);
         // console.log(JSON.parse(JSON.stringify(this.dates)));
       })["catch"](function (error) {
         // handle error
-        console.log(error);
+        // console.log(error);
+        if (error.response.status == 401) {
+          // console.log(error.response.status);
+          cookie.remove('token');
+          document.location.reload(); // this.token == null;
+        } // console.log(error.response.status);
+
       }).then(function () {
         // always executed
         console.log('always'); // if(from == 'cancel_book'){
@@ -2473,6 +2481,17 @@ __webpack_require__.r(__webpack_exports__);
     }); // console.log(JSON.parse(JSON.stringify([dateItem, hourItem])));
     // console.log(this.firstMonthDate);
     // console.log(this.weekdayOfCurrentDate);
+  },
+  updated: function updated() {
+    var _this = this;
+
+    var interval = setInterval(function () {
+      if (_this.date !== null) {
+        _this.placeItems();
+
+        clearInterval(interval);
+      }
+    }, 100);
   },
   props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
   data: function data() {
@@ -2871,11 +2890,10 @@ __webpack_require__.r(__webpack_exports__);
         _this4.bussinessHours = response.data.business_hours;
 
         _this4.setWorkHours(); // console.log(JSON.parse(JSON.stringify(4444444444444444)));
+        // setTimeout(() => {
+        //     this.placeItems();
+        // }, 100);
 
-
-        setTimeout(function () {
-          _this4.placeItems();
-        }, 100);
       }, function () {}, function () {
         $('#cancelBookModal').modal('hide');
       });
@@ -2889,18 +2907,18 @@ __webpack_require__.r(__webpack_exports__);
       this.bussinessHours.forEach(function (item, i) {
         if (start == null) {
           // start = item.start;
-          start = moment('1970-01-01 ' + item.start + ':00');
+          start = moment('1970-01-01 ' + item.start_hour + ':00');
           var _first = true;
         }
 
         if (end == null) {
-          end = moment('1970-01-01 ' + item.end + ':00');
+          end = moment('1970-01-01 ' + item.end_hour + ':00');
           var _first2 = true;
         }
 
         if (typeof first != 'undefined' && first == true) return;
-        var itemStart = moment('1970-01-01 ' + item.start + ':00');
-        var itemEnd = moment('1970-01-01 ' + item.end + ':00');
+        var itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+        var itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
         if (itemStart.diff(start) < 0) start = itemStart;
         if (itemStart.diff(start) >= 0) end = itemEnd;
       }); // 
@@ -3146,6 +3164,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // require("../../../../ts/calendar_helper/enums/View").Helper;
 // import { View } from "../../../../ts/calendar_helper/enums/View";
 // console.log(View);
@@ -3161,7 +3191,9 @@ __webpack_require__.r(__webpack_exports__);
     // this.showModal();
     // this.change('hall', null);
     // console.log(cookie.get('filters'));
-    // console.log(JSON.parse(JSON.stringify(this.owner)));
+    // console.log(JSON.parse(JSON.stringify(this.halls)));
+    console.log(JSON.parse(JSON.stringify(4444)));
+    console.log(JSON.parse(JSON.stringify(this.halls)));
     this.setFiltersFromCookie();
   },
   props: ['owner', 'halls', 'clientInfo', 'allBookings'],
@@ -3230,6 +3262,13 @@ __webpack_require__.r(__webpack_exports__);
       // let token = cookie.get('token');
       // if(token)
       //     this.token = token;
+    },
+    filtersHasRightData: function filtersHasRightData() {
+      if (filters == null) return false;
+
+      if (filters.hall == null) {
+        return false;
+      }
     },
     setFiltersFromCookie: function setFiltersFromCookie() {
       // console.log(filters);
@@ -5563,6 +5602,8 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this2 = this;
 
+    // console.log(JSON.parse(JSON.stringify(434343434)));
+    // console.log(JSON.parse(JSON.stringify(this.workHours)));
     // this.setDates(moment(new Date()).startOf('week').toDate());
     this.setDates(moment(this.startDate).startOf('week').toDate());
     var interval = setInterval(function () {
@@ -5570,13 +5611,27 @@ __webpack_require__.r(__webpack_exports__);
         // console.log(11111);
         clearInterval(interval);
 
-        _this2.getData();
+        _this2.getData(); // console.log(JSON.parse(JSON.stringify(434343434)));
+        // console.log(JSON.parse(JSON.stringify(this.workHours)));
+
       }
     }, 300);
     this.regModalOpenButtons();
     $("#bookModal").on('hidden.bs.modal', function () {
       _this2.bookDate = null; // console.log(this.bookDate);
     });
+  },
+  updated: function updated() {
+    var _this = this; // this.$nextTick(function(){
+
+
+    var interval = setInterval(function () {
+      if (_this.dates !== null) {
+        _this.placeItems();
+
+        clearInterval(interval);
+      }
+    }, 100); // });
   },
   props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
   data: function data() {
@@ -5927,7 +5982,9 @@ __webpack_require__.r(__webpack_exports__);
       var _this6 = this;
 
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
+      if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app'); // console.log(JSON.parse(JSON.stringify(434343434)));
+      // console.log(JSON.parse(JSON.stringify(moment(this.firstWeekday).format('DD-MM-YYYY'))));
+
       this.componentApp.getData(moment(this.firstWeekday).format('DD-MM-YYYY'), moment(this.lastWeekday).format('DD-MM-YYYY'), function (response) {
         // handle success
         // console.log(response.data.data);
@@ -5936,15 +5993,22 @@ __webpack_require__.r(__webpack_exports__);
 
         _this6.bussinessHours = response.data.business_hours;
 
-        _this6.setWorkHours(); // console.log(JSON.parse(JSON.stringify(4444444444444444)));
+        _this6.setWorkHours();
 
-
-        setTimeout(function () {
-          _this6.placeItems();
-        }, 100); // this.placeItems();
+        console.log(JSON.parse(JSON.stringify(434343434))); // console.log(JSON.parse(JSON.stringify(this.workHours)));
+        // console.log(JSON.parse(JSON.stringify(this.bussinessHours)));
+        // console.log(JSON.parse(JSON.stringify(4444444444444444)));
+        // setTimeout(() => {
+        // this.placeItems();
+        // }, 100);
+        // this.$nextTick(() => {
+        //     this.$nextTick(() => {
+        //         this.placeItems();
+        //     });
+        // });
+        // this.placeItems();
         // console.log(response.data[0]);
-
-        console.log(JSON.parse(JSON.stringify(_this6.dates)));
+        // console.log(JSON.parse(JSON.stringify(this.dates)));
       }, function () {}, function () {
         $('#cancelBookModal').modal('hide');
       });
@@ -5956,20 +6020,21 @@ __webpack_require__.r(__webpack_exports__);
       // console.log(business_hours);
 
       this.bussinessHours.forEach(function (item, i) {
+        // if(typeof item.start === 'undefined' || typeof item.end === 'undefined')
         if (start == null) {
           // start = item.start;
-          start = moment('1970-01-01 ' + item.start + ':00');
+          start = moment('1970-01-01 ' + item.start_hour + ':00');
           var _first = true;
         }
 
         if (end == null) {
-          end = moment('1970-01-01 ' + item.end + ':00');
+          end = moment('1970-01-01 ' + item.end_hour + ':00');
           var _first2 = true;
         }
 
         if (typeof first != 'undefined' && first == true) return;
-        var itemStart = moment('1970-01-01 ' + item.start + ':00');
-        var itemEnd = moment('1970-01-01 ' + item.end + ':00');
+        var itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+        var itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
         if (itemStart.diff(start) < 0) start = itemStart;
         if (itemStart.diff(start) >= 0) end = itemEnd;
       }); // 
@@ -5991,6 +6056,8 @@ __webpack_require__.r(__webpack_exports__);
       for (var i = startHourInt; i < endHourInt; i++) {
         this.workHours.push(i);
       } // console.log(this.workHours);
+      // console.log(JSON.parse(JSON.stringify(777777777)));
+      // console.log(JSON.parse(JSON.stringify(this.workHours)));
 
     },
     setDates: function setDates(firstCalendarMonthDate) {
@@ -6234,198 +6301,6 @@ __webpack_require__.r(__webpack_exports__);
   methods: {},
   components: {}
 });
-
-/***/ }),
-
-/***/ "./resources/js/vue/calendar/booking/app.js":
-/*!**************************************************!*\
-  !*** ./resources/js/vue/calendar/booking/app.js ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/calendar/booking/components/App.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/calendar/booking/bootstrap.js");
-
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-// const Helper = require("../../../ts/calendar_helper/app").Helper;
-// const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
-
-window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js"); // window.viewEnums = new ViewEnums();
-// window.helper = new Helper();
-// console.log(helper.my());
-
-
-Vue.mixin({
-  data: function data() {
-    return {
-      hoursList: [{
-        hour: '00',
-        minute: '00'
-      }, {
-        hour: '01',
-        minute: '00'
-      }, {
-        hour: '02',
-        minute: '00'
-      }, {
-        hour: '03',
-        minute: '00'
-      }, {
-        hour: '04',
-        minute: '00'
-      }, {
-        hour: '05',
-        minute: '00'
-      }, {
-        hour: '06',
-        minute: '00'
-      }, {
-        hour: '07',
-        minute: '00'
-      }, {
-        hour: '08',
-        minute: '00'
-      }, {
-        hour: '09',
-        minute: '00'
-      }, {
-        hour: '10',
-        minute: '00'
-      }, {
-        hour: '11',
-        minute: '00'
-      }, {
-        hour: '12',
-        minute: '00'
-      }, {
-        hour: '13',
-        minute: '00'
-      }, {
-        hour: '14',
-        minute: '00'
-      }, {
-        hour: '15',
-        minute: '00'
-      }, {
-        hour: '16',
-        minute: '00'
-      }, {
-        hour: '17',
-        minute: '00'
-      }, {
-        hour: '18',
-        minute: '00'
-      }, {
-        hour: '19',
-        minute: '00'
-      }, {
-        hour: '20',
-        minute: '00'
-      }, {
-        hour: '21',
-        minute: '00'
-      }, {
-        hour: '22',
-        minute: '00'
-      }, {
-        hour: '23',
-        minute: '00'
-      }],
-      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    };
-  },
-  methods: {
-    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
-      var component = null;
-      if (_thisComponent.$options.name === componentName) return _thisComponent;
-      var parent = _thisComponent.$parent;
-
-      while (parent && !component) {
-        if (parent.$options.name === componentName) {
-          component = parent;
-        }
-
-        parent = parent.$parent;
-      }
-
-      return component;
-    },
-    isAuth: function isAuth() {
-      var componentApp = this.$root.$children[0];
-      return componentApp.clientAuthorized; // return false;
-      // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
-      // if(componentApp)
-      //     return componentApp.isAuth;
-      // return false;
-    },
-    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
-      // console.log(milliseconds);
-      var minutes = seconds / 60; // console.log('seconds:' + seconds);
-      // let minutes = seconds/60;
-      // console.log('minutes:' + minutes);
-
-      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
-      // console.log(hours + ':' + minutes);
-
-      if (hours > 0) {
-        minutes = minutes % 60;
-        hours = this.formatTimeItemToTwoDigitString(hours);
-        minutes = this.formatTimeItemToTwoDigitString(minutes);
-      } else {
-        hours = '00';
-        minutes = this.formatTimeItemToTwoDigitString(minutes);
-      } // console.log(hours + ':' + minutes);
-
-
-      return hours + ':' + minutes;
-    },
-    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
-      var timeItemInt = parseInt(timeItem);
-      if (timeItemInt < 10) return '0' + timeItemInt;
-      return '' + timeItemInt;
-    } // showChildren: function () {
-    //     // console.log(this.$root.$children[0].$options.name);
-    //     console.log(this.$root.$children[0].$options.name);
-    // }
-
-  }
-});
-window.app = new Vue({
-  // const businessHours = new Vue({
-  el: '#calendarBooking',
-  render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default, {
-      props: {
-        userId: document.querySelector("#calendarBooking").dataset.userId
-      }
-    });
-  }
-}); // alert(111);
-// console.log(document.querySelector("#calendarBooking").dataset.userId);
 
 /***/ }),
 
@@ -24437,19 +24312,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   // Check for `exports` after `define` in case a build optimizer adds it.
   else {}
 }.call(this));
-
-
-/***/ }),
-
-/***/ "./resources/sass/dashboard.scss":
-/*!***************************************!*\
-  !*** ./resources/sass/dashboard.scss ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -49225,27 +49087,33 @@ var render = function() {
                     _c(
                       "div",
                       { staticClass: "dropdown-menu" },
-                      _vm._l(_vm.halls, function(itm) {
-                        return _vm.choosedItmHall == null ||
-                          (_vm.choosedItmHall != null &&
-                            itm.id != _vm.choosedItmHall.id)
-                          ? _c(
-                              "a",
-                              {
-                                staticClass: "dropdown-item",
-                                attrs: { href: "#" },
-                                on: {
-                                  click: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.change("hall", itm)
+                      [
+                        _vm.halls.length
+                          ? _vm._l(_vm.halls, function(itm) {
+                              return _c(
+                                "a",
+                                {
+                                  staticClass: "dropdown-item",
+                                  attrs: { href: "#" },
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      return _vm.change("hall", itm)
+                                    }
                                   }
-                                }
-                              },
-                              [_vm._v(_vm._s(itm.title))]
-                            )
-                          : _vm._e()
-                      }),
-                      0
+                                },
+                                [_vm._v(_vm._s(itm.title))]
+                              )
+                            })
+                          : [
+                              _c("div", { staticClass: "small pl-1 pr-1" }, [
+                                _vm._v(
+                                  "\n                                    No items to choose ...\n                                "
+                                )
+                              ])
+                            ]
+                      ],
+                      2
                     )
                   ]
                 ),
@@ -71307,41 +71175,7 @@ module.exports = NATIVE_SYMBOL
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = __webpack_modules__;
-/******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/chunk loaded */
-/******/ 	(() => {
-/******/ 		var deferred = [];
-/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
-/******/ 			if(chunkIds) {
-/******/ 				priority = priority || 0;
-/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
-/******/ 				deferred[i] = [chunkIds, fn, priority];
-/******/ 				return;
-/******/ 			}
-/******/ 			var notFulfilled = Infinity;
-/******/ 			for (var i = 0; i < deferred.length; i++) {
-/******/ 				var [chunkIds, fn, priority] = deferred[i];
-/******/ 				var fulfilled = true;
-/******/ 				for (var j = 0; j < chunkIds.length; j++) {
-/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
-/******/ 						chunkIds.splice(j--, 1);
-/******/ 					} else {
-/******/ 						fulfilled = false;
-/******/ 						if(priority < notFulfilled) notFulfilled = priority;
-/******/ 					}
-/******/ 				}
-/******/ 				if(fulfilled) {
-/******/ 					deferred.splice(i--, 1)
-/******/ 					result = fn();
-/******/ 				}
-/******/ 			}
-/******/ 			return result;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -71403,66 +71237,197 @@ module.exports = NATIVE_SYMBOL
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/jsonp chunk loading */
-/******/ 	(() => {
-/******/ 		// no baseURI
-/******/ 		
-/******/ 		// object to store loaded and loading chunks
-/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
-/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
-/******/ 			"/js/calendar-booking": 0,
-/******/ 			"css/dashboard": 0
-/******/ 		};
-/******/ 		
-/******/ 		// no chunk on demand loading
-/******/ 		
-/******/ 		// no prefetching
-/******/ 		
-/******/ 		// no preloaded
-/******/ 		
-/******/ 		// no HMR
-/******/ 		
-/******/ 		// no HMR manifest
-/******/ 		
-/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
-/******/ 		
-/******/ 		// install a JSONP callback for chunk loading
-/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
-/******/ 			var [chunkIds, moreModules, runtime] = data;
-/******/ 			// add "moreModules" to the modules object,
-/******/ 			// then flag all "chunkIds" as loaded and fire callback
-/******/ 			var moduleId, chunkId, i = 0;
-/******/ 			for(moduleId in moreModules) {
-/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
-/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
-/******/ 				}
-/******/ 			}
-/******/ 			if(runtime) runtime(__webpack_require__);
-/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
-/******/ 			for(;i < chunkIds.length; i++) {
-/******/ 				chunkId = chunkIds[i];
-/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
-/******/ 					installedChunks[chunkId][0]();
-/******/ 				}
-/******/ 				installedChunks[chunkIds[i]] = 0;
-/******/ 			}
-/******/ 			__webpack_require__.O();
-/******/ 		}
-/******/ 		
-/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
-/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
-/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
-/******/ 	})();
-/******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/js/vue/calendar/booking/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/sass/dashboard.scss")))
-/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!**************************************************!*\
+  !*** ./resources/js/vue/calendar/booking/app.js ***!
+  \**************************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/calendar/booking/components/App.vue");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/calendar/booking/bootstrap.js");
+
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// const files = require.context('./', true, /\.vue$/i)
+// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+
+/**
+ * Next, we will create a fresh Vue application instance and attach it to
+ * the page. Then, you may begin adding components to this application
+ * or customize the JavaScript scaffolding to fit your unique needs.
+ */
+// const Helper = require("../../../ts/calendar_helper/app").Helper;
+// const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
+
+window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js"); // window.viewEnums = new ViewEnums();
+// window.helper = new Helper();
+// console.log(helper.my());
+
+
+Vue.mixin({
+  data: function data() {
+    return {
+      hoursList: [{
+        hour: '00',
+        minute: '00'
+      }, {
+        hour: '01',
+        minute: '00'
+      }, {
+        hour: '02',
+        minute: '00'
+      }, {
+        hour: '03',
+        minute: '00'
+      }, {
+        hour: '04',
+        minute: '00'
+      }, {
+        hour: '05',
+        minute: '00'
+      }, {
+        hour: '06',
+        minute: '00'
+      }, {
+        hour: '07',
+        minute: '00'
+      }, {
+        hour: '08',
+        minute: '00'
+      }, {
+        hour: '09',
+        minute: '00'
+      }, {
+        hour: '10',
+        minute: '00'
+      }, {
+        hour: '11',
+        minute: '00'
+      }, {
+        hour: '12',
+        minute: '00'
+      }, {
+        hour: '13',
+        minute: '00'
+      }, {
+        hour: '14',
+        minute: '00'
+      }, {
+        hour: '15',
+        minute: '00'
+      }, {
+        hour: '16',
+        minute: '00'
+      }, {
+        hour: '17',
+        minute: '00'
+      }, {
+        hour: '18',
+        minute: '00'
+      }, {
+        hour: '19',
+        minute: '00'
+      }, {
+        hour: '20',
+        minute: '00'
+      }, {
+        hour: '21',
+        minute: '00'
+      }, {
+        hour: '22',
+        minute: '00'
+      }, {
+        hour: '23',
+        minute: '00'
+      }],
+      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    };
+  },
+  methods: {
+    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
+      var component = null;
+      if (_thisComponent.$options.name === componentName) return _thisComponent;
+      var parent = _thisComponent.$parent;
+
+      while (parent && !component) {
+        if (parent.$options.name === componentName) {
+          component = parent;
+        }
+
+        parent = parent.$parent;
+      }
+
+      return component;
+    },
+    isAuth: function isAuth() {
+      var componentApp = this.$root.$children[0];
+      return componentApp.clientAuthorized; // return false;
+      // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
+      // if(componentApp)
+      //     return componentApp.isAuth;
+      // return false;
+    },
+    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
+      // console.log(milliseconds);
+      var minutes = seconds / 60; // console.log('seconds:' + seconds);
+      // let minutes = seconds/60;
+      // console.log('minutes:' + minutes);
+
+      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
+      // console.log(hours + ':' + minutes);
+
+      if (hours > 0) {
+        minutes = minutes % 60;
+        hours = this.formatTimeItemToTwoDigitString(hours);
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } else {
+        hours = '00';
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } // console.log(hours + ':' + minutes);
+
+
+      return hours + ':' + minutes;
+    },
+    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
+      var timeItemInt = parseInt(timeItem);
+      if (timeItemInt < 10) return '0' + timeItemInt;
+      return '' + timeItemInt;
+    } // showChildren: function () {
+    //     // console.log(this.$root.$children[0].$options.name);
+    //     console.log(this.$root.$children[0].$options.name);
+    // }
+
+  }
+});
+window.app = new Vue({
+  // const businessHours = new Vue({
+  el: '#calendarBooking',
+  render: function render(h) {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default, {
+      props: {
+        userId: document.querySelector("#calendarBooking").dataset.userId
+      }
+    });
+  }
+}); // alert(111);
+// console.log(document.querySelector("#calendarBooking").dataset.userId);
+})();
+
 /******/ })()
 ;

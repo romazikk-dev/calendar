@@ -2,6 +2,20 @@
     <div class="template-specifics">
         
         <div>
+            <div v-if="tempMsg"
+                class="alert alert-warning alert-dismissible fade show"
+                role="alert">
+                {{tempMsg.text}}<br>
+                <button type="button"
+                    class="btn btn-sm btn-warning disable-temp-msg"
+                    :data-msg-key="tempMsg.key">
+                    Do not show this message in future.
+                </button>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
             <div class="specifics-handles">
                 
                 <search v-if="!areFieldsEmpty" @search="search" />
@@ -111,11 +125,13 @@
     import Search from "./Search.vue";
     export default {
         mounted() {
-            // console.log(JSON.parse(JSON.stringify(specifics)));
+            // console.log(JSON.parse(JSON.stringify(this.tempMsg)));
         },
         // props: ['formId'],
         data: function(){
             return {
+                tempMsg: tempMsg,
+                
                 formId: 'addEditForm',
                 validator: null,
                 
@@ -192,10 +208,13 @@
                 if(Array.isArray(fields) && fields.length > 0)
                     this.fields = JSON.parse(JSON.stringify(fields));
             },
-            setFields: function(fields){
-                console.log('setFields');
-                if(Array.isArray(fields) && fields.length > 0){
-                    this.fields = JSON.parse(JSON.stringify(fields));
+            setFields: function(data){
+                if(typeof data.status === 'undefined' || data.status !== 'success' ||
+                typeof data.specifics === 'undefined')
+                    return;
+                // console.log('setFields');
+                if(Array.isArray(data.specifics) && data.specifics.length > 0){
+                    this.fields = JSON.parse(JSON.stringify(data.specifics));
                 }else{
                     this.fields = [];
                 }

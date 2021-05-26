@@ -14,6 +14,31 @@ class Specifics extends MainSpecifics{
         return $this->max_deep;
     }
     
+    public function getAllForVueInSettings(){
+        $db_specifics = TemplateSpecifics::all();
+        if($db_specifics->isEmpty())
+            return [];
+        
+        return \Specifics::parseCollectionDbReesultToTreeArray($db_specifics);
+    }
+    
+    public function getPickedSpecificFromModel($model){
+        if(!empty($model->specific)){
+            $picked_specific = $model->specific->toArray();
+            if(!empty($picked_specific['ids_trace'])){
+                $ids_trace = explode(',', $picked_specific['ids_trace']);
+                $picked_specific['ids_trace'] = array_map(function($v){
+                    return (int) $v;
+                }, $ids_trace);
+                $picked_specific['ids_trace'][] = $picked_specific['id'];
+            }else{
+                $picked_specific['ids_trace'] = [$picked_specific['id']];
+            }
+            return $picked_specific;
+        }
+        return null;
+    }
+    
     public function removeAllByParentId(int $id){
         $idsToRemove = [$id];
         $getChildsById = function($id, $getChildsById) use (&$idsToRemove){
@@ -42,6 +67,65 @@ class Specifics extends MainSpecifics{
         //         if()
         //     }
         // }
+    }
+    
+    public function parseCollectionDbReesultToTreeArray($collection, $with_id_as_key = false){
+        $i = 0;
+        $parsed_fields = [];
+        $max_deep = $this->max_deep;
+        $in_use = false;
+        
+        $createChild = function($id, $createChild, &$deep) use (&$collection, &$max_deep, &$with_id_as_key, &$in_use){
+            $deep++;
+            if($deep > $max_deep)
+                return;
+            
+            $children = [];
+            foreach($collection as $item)
+                if($item->parent_id === $id){
+                    // if($in_use === false)
+                    //     $in_use = $item->templates->isEmpty() ? false : true;
+                    $in_use = $item->templates->isEmpty() ? false : true;
+                        
+                    $itm = [
+                        'id' => $item->id,
+                        'parent_id' => $item->parent_id,
+                        'title' => $item->title,
+                        'description' => $item->description,
+                        'in_use' => $in_use,
+                        'fields' => $createChild($item->id, $createChild, $deep),
+                    ];
+                    if($with_id_as_key === true){
+                        $children[$item->id] = $itm;
+                    }else{
+                        $children[] = $itm;
+                    }
+                }
+            
+            return $children;
+        };
+        
+        foreach($collection as $item){
+            $deep = 0;
+            if(is_null($item->parent_id)){
+                $in_use = $item->templates->isEmpty() ? false : true;
+                $itm = [
+                    'id' => $item->id,
+                    'parent_id' => $item->parent_id,
+                    'title' => $item->title,
+                    'description' => $item->description,
+                    'in_use' => $in_use,
+                    'fields' => $createChild($item->id, $createChild, $deep),
+                ];
+                if($with_id_as_key === true){
+                    $parsed_fields[$item->id] = $itm;
+                }else{
+                    $parsed_fields[] = $itm;
+                }
+            }
+        }
+        
+        return $parsed_fields;
     }
     
     public function parseDbReesultToTreeArray(array $fields, $with_id_as_key = false){

@@ -11,6 +11,7 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a v-for="(field, index) in fields"
+                    :ref="'specific_item_' + field.id"
                     @click.prevent="itemClick(field, index)"
                     class="dropdown-item" href="#">
                         {{index}} {{field.title}}
@@ -22,6 +23,7 @@
         
         <dropdown @specificChange="$emit('specificChange', $event)"
             v-if="fieldsToDrawInnerDropdown"
+            :ids-trace="passNextIdsTrace"
             :fields="fieldsToDrawInnerDropdown.fields" />
         
     </div>
@@ -30,10 +32,14 @@
 <script>
     export default {
         mounted() {
-            // console.log(JSON.parse(JSON.stringify(this.specifics)));
-            // this.
+            // console.log(JSON.parse(JSON.stringify(4444)));
+            // console.log(JSON.parse(JSON.stringify(this.idsTrace)));
+            // console.log(JSON.parse(JSON.stringify(this.fields)));
+            
+            if(this.isIdsTrace)
+                this.fireClickOnItem();
         },
-        props: ['fields'],
+        props: ['fields','idsTrace'],
         data: function(){
             return {
                 pickedItem: null,
@@ -41,7 +47,18 @@
             };
         },
         computed: {
-            fieldsNotEmpty: function () {
+            passNextIdsTrace: function (){
+                if(this.isIdsTrace){
+                    let idsTrace = JSON.parse(JSON.stringify(this.idsTrace));
+                    idsTrace.shift();
+                    return idsTrace;
+                }
+                return null;
+            },
+            isIdsTrace: function (){
+                return (typeof this.idsTrace !== 'undefined' && Array.isArray(this.idsTrace) && this.idsTrace.length > 0);
+            },
+            fieldsNotEmpty: function (){
                 return typeof this.fields !== 'undefined' && this.fields !== null &&
                 (
                     !Array.isArray(this.fields) ||
@@ -50,9 +67,16 @@
             },
         },
         methods: {
+            fireClickOnItem: function (){
+                let idsTrace = JSON.parse(JSON.stringify(this.idsTrace));
+                let idTraceFirst = idsTrace.shift();
+                // console.log(323232323);
+                this.$refs['specific_item_' + idTraceFirst][0].click();
+                // specific_item_
+            },
             fieldHasFields: function (field) {
-                console.log(JSON.parse(JSON.stringify(333333333)));
-                console.log(JSON.parse(JSON.stringify(field)));
+                // console.log(JSON.parse(JSON.stringify(333333333)));
+                // console.log(JSON.parse(JSON.stringify(field)));
                 return (
                     typeof field != 'undefined' && field != null &&
                     typeof field.fields != 'undefined' && field.fields != null
@@ -67,8 +91,8 @@
                 this.pickedItem = field;
                 this.fieldsToDrawInnerDropdown = this.fieldHasFields(field) ? field : null;
                 // this.$emit('specificChange', this.fieldsToDrawInnerDropdown);
-                console.log(JSON.parse(JSON.stringify(this.fieldsToDrawInnerDropdown)));
-                console.log('itemClick');
+                // console.log(JSON.parse(JSON.stringify(this.fieldsToDrawInnerDropdown)));
+                // console.log('itemClick');
                 this.$emit('specificChange', this.pickedItem);
             },
         },
@@ -77,7 +101,7 @@
         },
         watch: {
             fields: function (field) {
-                console.log('watch fields');
+                // console.log('watch fields');
                 this.fieldsToDrawInnerDropdown = null;
                 this.pickedItem = null;
             },

@@ -15,6 +15,10 @@ class ClientController extends Controller{
         // Booking::where
         
         // echo 111;
+        // var_dump($user);
+        // die();
+        
+        // var_dump($request->user());
         // die();
         
         return response()->json($request->user()->toArray());

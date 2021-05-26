@@ -30,6 +30,10 @@ class Hall extends Model
         // return $this->belongsToMany('App\Models\Worker');
     }
     
+    // public function contacts(){
+    //     return $this->hasManyThrough('Contact', 'Account', 'owner_id');
+    // }
+    
     public function workersWithoutGlobalScope(){
         return $this->belongsToMany('App\Models\Worker')->withoutGlobalScope(UserScope::class);
     }

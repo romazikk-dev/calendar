@@ -11,6 +11,12 @@
         
         <script type="text/javascript">
             let specifics = @json($specifics);
+            
+            @if(!empty($picked_specific))
+                let pickedSpecific = @json($picked_specific);
+            @else
+                let pickedSpecific = null;
+            @endif
         
             @if(!empty($template))
                 let template = @json($template);
