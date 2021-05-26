@@ -7,8 +7,12 @@
             
             var owner = @json($owner);
             var halls = @json($halls);
-            var workers = @json($workers);
-            var templates = @json($templates);
+            var templateSpecifics = @json($template_specifics);
+            
+            // console.log(templateSpecifics);
+            
+            // var workers = @@json($workers);
+            // var templates = @@json($templates);
             var filters = @json($filters);
             
             var routes = {
@@ -41,7 +45,8 @@
             // console.log(routes.calendar.booking.register);
             
         </script>
-        <script src="{{ asset('js/calendar-booking.js') }}?{{rand(100, 1000)}}"></script>
+        <!-- <script src="{{ asset('js/calendar-booking.js') }}?{{rand(100, 1000)}}"></script> -->
+        <script src="{{ asset('js/calendar-booking-2.js') }}?{{rand(100, 1000000000)}}"></script>
     </x-slot>
     
     <x-slot name="styles">

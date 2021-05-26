@@ -18,6 +18,7 @@ mix.js('resources/js/vue/dashboard/time_picker/app.js', 'public/js/dashboard/tim
 mix.js('resources/js/vue/phone_picker/app.js', 'public/js/dashboard/phone-picker.js').vue();
 
 mix.js('resources/js/vue/calendar/booking/app.js', 'public/js/calendar-booking.js').vue();
+mix.js('resources/js/vue/calendar_2/booking/app.js', 'public/js/calendar-booking-2.js').vue();
 
 mix.js('resources/js/vue/dashboard/hall/index/app.js', 'public/js/dashboard/halls/halls-list.js').vue();
 mix.js('resources/js/vue/dashboard/template/index/app.js', 'public/js/dashboard/template/templates-list.js').vue();

@@ -14,7 +14,7 @@ class TemplateController extends Controller
 {
     public function index(Request $request, User $user){
         
-        $template_model = Template::withoutGlobalScope(UserScope::class)
+        $template_model = Template::withoutGlobalScope(UserScope::class)->with('specific')
             ->where('is_deleted', '0')->byUser($user->id);
         
         if($request->exists('hall')){

@@ -9,6 +9,7 @@ use App\Models\Hall;
 use App\Models\Worker;
 use App\Models\Template;
 use App\Scopes\UserScope;
+use App\Models\TemplateSpecifics;
 
 class BookingController extends Controller{
     
@@ -39,8 +40,8 @@ class BookingController extends Controller{
             $template_model = Template::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
             
             $halls = $hall_model->get();
-            $workers = $worker_model->get();
-            $templates = $template_model->get();
+            // $workers = $worker_model->get();
+            // $templates = $template_model->with('specific')->get();
             
             if(!empty($filters) && isset($filters->hall))
                 $filtered_hall = $hall_model->where('id', '=', (int)$filters->hall)->first();
@@ -51,43 +52,20 @@ class BookingController extends Controller{
             if(!empty($filters) && isset($filters->view))
                 $filtered_view = $filters->view;
             
-            // dd($halls, $workers, $templates);
-            // $halls = Hall::withoutGlobalScope(ucfirst(UserScope::class))->get();
-            // $halls = Hall::withoutGlobalScope('App\Scopes\UserScope')->get();
-            // $halls = Hall::withoutGlobalScopes([UserScope::class])->get();
-            // $workers = Worker::all();
-            // dd(1111);
-            // $composed_halls = [];
-            // foreach($halls as $hall){
-            //     $itm = $hall->toArray();
-            //     // $itm['workers'] = $hall->workers->toArray();
-            //     $workers = $hall->workersWithoutGlobalScope;
-            //     // dd($workers);
-            //     if(!empty($workers)){
-            //         $composed_workers = [];
-            //         foreach($workers as $worker){
-            // 
-            //         }
-            //     }
-            //     $itm['workers'] = $hall->workersWithoutGlobalScope->toArray();
-            //     $composed_halls[$hall->id] = $itm;
-            // 
-            //     // dump($hall->workers->toArray());
-            //     // $arr = [];
-            //     // foreach($hall->workers as $worker){
-            //     //     $arr[] = $worker->toArray();
-            //     // }
-            //     // 
-            //     // $workers_per_hall[$hall->id] = $arr;
-            //     // $workers_per_hall[$hall->id] = $hall->workers->toArray();
-            // }
-            // dd();
-            // dd($workers_per_hall);
+            $db_specifics = TemplateSpecifics::all()->toArray();
+            if(!empty($db_specifics))
+                $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics, true);
+                
+            // dd($templates[0]->specific);
+            // dd($templates);
+            // dd($templates->toArray());
+            
             $output = [
                 'owner' => $owner,
                 'halls' => $halls->toArray(),
-                'workers' => $workers->toArray(),
-                'templates' => $templates->toArray(),
+                'template_specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
+                // 'workers' => $workers->toArray(),
+                // 'templates' => $templates->toArray(),
                 'filters' => null,
             ];
             
