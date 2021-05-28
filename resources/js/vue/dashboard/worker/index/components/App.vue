@@ -147,7 +147,7 @@
                     
                     let id = parseInt($(e.target).closest('tr').attr('id'));
                     let url = showRoute.replace(':id', id);
-                    url += '?with_phones=1&with_halls=1&with_suspension=1';
+                    url += '?with_phones=1&with_halls=1&with_suspension=1&with_templates=1';
                     axios.get(url)
                     .then((response) => {
                         this.infoModalData = response.data;

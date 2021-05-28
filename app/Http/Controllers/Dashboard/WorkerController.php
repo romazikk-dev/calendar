@@ -308,6 +308,9 @@ class WorkerController extends Controller
             $model->with('phones');
         if($request->has('with_halls'))
             $model->with('halls');
+        if($request->has('with_templates'))
+            // $model->with('templates');
+            $model->with('templatesWithSpecific');
         if($request->has('with_suspension'))
             $model->with('suspension');
             
@@ -315,7 +318,32 @@ class WorkerController extends Controller
         
         if($request->wantsJson()){                
             $worker->makeVisible(['business_hours']);
-            return response()->json($worker);
+            $worker_arr = $worker->toArray();
+            
+            if(!empty($worker_arr['templates_with_specific'])){
+                foreach($worker_arr['templates_with_specific'] as $k => &$v){
+                    $v['specific_titled_trace'] = \Specifics::createSpecificTitledTraceFromIdsTrace(
+                        (int)$v['specific']['id'],
+                        $v['specific']['ids_trace'],
+                        $v
+                    );
+                }
+            }
+            
+            // var_dump($worker_arr);
+            // die();
+            
+            // if($request->has('with_templates')){
+            //     $templates = [];
+            //     foreach($worker_arr as $k => $v){
+            // 
+            //     }
+            //     var_dump($worker->toArray()['templates_with_specific']);
+            //     die();
+            // }
+            
+            // return response()->json($worker->toArray());
+            return response()->json($worker_arr);
         }
         return view('dashboard.worker.show', [
             'worker' => $worker

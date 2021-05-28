@@ -1990,7 +1990,7 @@ __webpack_require__.r(__webpack_exports__);
         e.preventDefault();
         var id = parseInt($(e.target).closest('tr').attr('id'));
         var url = showRoute.replace(':id', id);
-        url += '?with_phones=1&with_halls=1&with_suspension=1';
+        url += '?with_phones=1&with_halls=1&with_suspension=1&with_templates=1';
         axios.get(url).then(function (response) {
           _this6.infoModalData = response.data; // this.showContent = 'info';
 
@@ -2404,6 +2404,46 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalInfoContent',
   mounted: function mounted() {
@@ -2469,9 +2509,15 @@ __webpack_require__.r(__webpack_exports__);
       if (!helper.isPropEmpty(this.data.first_name)) fullNameArr.push(helper.capitalizeFirstLetter(this.data.first_name));
       if (!helper.isPropEmpty(this.data.last_name)) fullNameArr.push(helper.capitalizeFirstLetter(this.data.last_name));
       return fullNameArr.join(' ');
+    },
+    templateTraceDivider: function templateTraceDivider() {
+      return "\n                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-arrow-right\" viewBox=\"0 0 16 16\">\n                    <path fill-rule=\"evenodd\" d=\"M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z\"/>\n                </svg>\n            ";
     }
   },
   methods: {
+    getTitledTrace: function getTitledTrace(template) {
+      return template.specific_titled_trace.join(this.templateTraceDivider);
+    },
     isStatus: function isStatus(type) {
       return helper.isStatus(type, typeof this.data.suspension == 'undefined' ? null : this.data.suspension);
     },
@@ -42846,6 +42892,77 @@ var render = function() {
             "button",
             {
               staticClass: "btn btn-secondary",
+              class: { active: _vm.showTab == "templates" },
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  _vm.showTab = "templates"
+                }
+              }
+            },
+            [
+              _vm._v("\n                    Templates\n                    "),
+              !_vm.data.templates_with_specific.length
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "text-warning",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title: "No templates"
+                      }
+                    },
+                    [
+                      _c(
+                        "svg",
+                        {
+                          staticClass: "bi bi-exclamation-triangle-fill",
+                          attrs: {
+                            xmlns: "http://www.w3.org/2000/svg",
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 16 16"
+                          }
+                        },
+                        [
+                          _c("path", {
+                            attrs: {
+                              d:
+                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                            }
+                          })
+                        ]
+                      )
+                    ]
+                  )
+                : _c(
+                    "span",
+                    {
+                      staticClass: "badge badge-pill badge-info",
+                      attrs: {
+                        "data-toggle": "modal-info-dropdown",
+                        "data-placement": "top",
+                        title:
+                          _vm.data.templates_with_specific.length + " templates"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.data.templates_with_specific.length) +
+                          "\n                    "
+                      )
+                    ]
+                  )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-secondary",
               class: { active: _vm.showTab == "business_hours" },
               attrs: { type: "button" },
               on: {
@@ -43178,6 +43295,59 @@ var render = function() {
                   : [
                       _vm._v(
                         "\n                    No halls.\n                "
+                      )
+                    ]
+              ]
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.showTab == "templates"
+            ? [
+                _vm.data.templates_with_specific &&
+                _vm.data.templates_with_specific.length > 0
+                  ? [
+                      _c(
+                        "table",
+                        { staticClass: "info-table" },
+                        _vm._l(_vm.data.templates_with_specific, function(
+                          template
+                        ) {
+                          return _c("tr", [
+                            _c("td", { attrs: { colspan: "2" } }, [
+                              _c("b", [_vm._v(_vm._s(template.title) + ":")]),
+                              _vm._v(" "),
+                              _c("div", {
+                                staticClass: "text-lowercase",
+                                domProps: {
+                                  innerHTML: _vm._s(
+                                    _vm.getTitledTrace(template)
+                                  )
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "span",
+                                { staticClass: "text-lowercase small" },
+                                [
+                                  _vm._v(
+                                    "\n                                    " +
+                                      _vm._s(
+                                        template.description
+                                          ? template.description
+                                          : "no description"
+                                      ) +
+                                      "\n                                "
+                                  )
+                                ]
+                              )
+                            ])
+                          ])
+                        }),
+                        0
+                      )
+                    ]
+                  : [
+                      _vm._v(
+                        "\n                    No templates.\n                "
                       )
                     ]
               ]

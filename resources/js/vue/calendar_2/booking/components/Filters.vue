@@ -54,7 +54,9 @@
                         <template-picker :templates="templates"
                             :picked-hall="pickedItmHall"
                             :specifics="templateSpecifics"
-                            v-if="templateSpecifics" />
+                            :specifics-as-id-key="templateSpecificsAsIdKey"
+                            v-if="templateSpecifics"
+                            @change="change('template', $event)" />
                         <div v-else id="templateDropdown" class="dropdown">
                             <span>Template:</span>
                             <a :class="{disabled: (templates == null)}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -144,7 +146,7 @@
             // this.setFiltersFromCookie();
             // this.setFilters();
         },
-        props: ['owner','halls','clientInfo','allBookings','cookieFilters','templateSpecifics'],
+        props: ['owner','halls','clientInfo','allBookings','cookieFilters','templateSpecifics','templateSpecificsAsIdKey'],
         data: function(){
             return {
                 pickedItmHall: null,
@@ -350,6 +352,12 @@
                         break;
                     case 'template':
                         this.resetPickedItems(['template','worker']);
+                        // lo(222);
+                        // console.log('5555555');
+                        // console.log(this.pickedItmTemplate);
+                        if(itm === null)
+                            return;
+                        // alert(111);
                         axios.get(routes.calendar.booking.worker.index + '?template=' + itm.id)
                             .then((response) => {
                                 let workers = [];
@@ -396,6 +404,22 @@
         components: {
             ClientInfo,
             TemplatePicker: ExtensiveTemplateFilterPicker,
+        },
+        watch: {
+            pickedItmHall: function(val){
+                if(val === null){
+                    this.templates = null;
+                    this.workers = null;
+                }
+                // console.log(JSON.parse(JSON.stringify(9999999)));
+                // console.log(JSON.parse(JSON.stringify(val)));
+            },
+            pickedItmTemplate: function(val){
+                if(val === null)
+                    this.workers = null;
+                // console.log(JSON.parse(JSON.stringify(9999999)));
+                // console.log(JSON.parse(JSON.stringify(val)));
+            },
         },
     }
 </script>

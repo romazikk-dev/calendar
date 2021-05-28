@@ -5,6 +5,7 @@
                  :cookie-filters="cookieFilters"
                  :halls="halls"
                  :template-specifics="templateSpecifics"
+                 :template-specifics-as-id-key="templateSpecificsAsIdKey"
                  :client-info="clientInfo"
                  :all-bookings="allBookings"
                  @change="filterChange($event)"
@@ -59,6 +60,7 @@
     export default {
         name: 'app',
         mounted() {
+            console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
             // console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
             // console.log(222222299999999999999);
             // this.showChildren();
@@ -82,6 +84,9 @@
                 owner: owner,
                 halls: halls,
                 templateSpecifics: templateSpecifics,
+                
+                templateSpecificsAsIdKey: (typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null) ?
+                    templateSpecificsAsIdKey : null,
                 // workers: workers,
                 // templates: templates,
                 

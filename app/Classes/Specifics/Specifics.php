@@ -19,7 +19,30 @@ class Specifics extends MainSpecifics{
         if($db_specifics->isEmpty())
             return [];
         
+        // dd($db_specifics);
+        
         return \Specifics::parseCollectionDbReesultToTreeArray($db_specifics);
+    }
+    
+    public function createSpecificTitledTraceFromIdsTrace(int $specific_id, string $specific_ids_trace, $template, $with_template_title = false){
+        $this->setDbSpecifics();
+        
+        $specific_ids_trace_arr = explode(',', $specific_ids_trace);
+        $specific_ids_trace_arr = array_map(function($val){
+            return (int) trim($val);
+        }, $specific_ids_trace_arr);
+        
+        $specific_ids_trace_arr[] = $specific_id;
+        
+        $out = [];
+        foreach($specific_ids_trace_arr as $k => $v){
+            $out[] = $this->db_specifics_as_key_id[$v]['title'];
+        }
+        
+        if($with_template_title === true)
+            $out[] = $template['title'];
+            
+        return $out;
     }
     
     public function getPickedSpecificFromModel($model){
@@ -76,19 +99,25 @@ class Specifics extends MainSpecifics{
         $in_use = false;
         
         $createChild = function($id, $createChild, &$deep) use (&$collection, &$max_deep, &$with_id_as_key, &$in_use){
-            $deep++;
-            if($deep > $max_deep)
-                return;
+            // $deep++;
+            // if($deep > $max_deep)
+            //     return;
             
             $children = [];
             foreach($collection as $item)
                 if($item->parent_id === $id){
+                    $deep++;
+                    // dump($deep);
+                    if($deep > $max_deep)
+                        return;
+                        
                     // if($in_use === false)
                     //     $in_use = $item->templates->isEmpty() ? false : true;
                     $in_use = $item->templates->isEmpty() ? false : true;
                         
                     $itm = [
                         'id' => $item->id,
+                        // 'deep' => $deep,
                         'parent_id' => $item->parent_id,
                         'title' => $item->title,
                         'description' => $item->description,
@@ -100,6 +129,9 @@ class Specifics extends MainSpecifics{
                     }else{
                         $children[] = $itm;
                     }
+                    
+                    $deep--;
+                    // dump($deep);
                 }
             
             return $children;
@@ -111,6 +143,7 @@ class Specifics extends MainSpecifics{
                 $in_use = $item->templates->isEmpty() ? false : true;
                 $itm = [
                     'id' => $item->id,
+                    // 'deep' => $deep,
                     'parent_id' => $item->parent_id,
                     'title' => $item->title,
                     'description' => $item->description,
@@ -123,7 +156,10 @@ class Specifics extends MainSpecifics{
                     $parsed_fields[] = $itm;
                 }
             }
+            // dump($deep);
         }
+        
+        // dd($deep);
         
         return $parsed_fields;
     }

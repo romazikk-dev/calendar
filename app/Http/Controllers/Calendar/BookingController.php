@@ -55,7 +55,12 @@ class BookingController extends Controller{
             $db_specifics = TemplateSpecifics::all()->toArray();
             if(!empty($db_specifics))
                 $parsed_specifics = \Specifics::parseDbReesultToTreeArray($db_specifics, true);
+            
+            $db_specifics_arr_as_key_index = [];
+            foreach($db_specifics as $k => $v)
+                $db_specifics_arr_as_key_index[$v['id']] = $v;
                 
+            // dd($db_specifics_arr_as_key_index);
             // dd($templates[0]->specific);
             // dd($templates);
             // dd($templates->toArray());
@@ -64,6 +69,7 @@ class BookingController extends Controller{
                 'owner' => $owner,
                 'halls' => $halls->toArray(),
                 'template_specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
+                'template_specifics_as_id_key' => !empty($db_specifics_arr_as_key_index) ? $db_specifics_arr_as_key_index : [],
                 // 'workers' => $workers->toArray(),
                 // 'templates' => $templates->toArray(),
                 'filters' => null,

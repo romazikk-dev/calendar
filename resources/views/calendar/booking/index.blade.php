@@ -8,7 +8,9 @@
             var owner = @json($owner);
             var halls = @json($halls);
             var templateSpecifics = @json($template_specifics);
+            var templateSpecificsAsIdKey = @json($template_specifics_as_id_key);
             
+            // console.log(templateSpecificsAsIdKey);
             // console.log(templateSpecifics);
             
             // var workers = @@json($workers);

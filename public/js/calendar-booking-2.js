@@ -1902,6 +1902,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -1910,10 +1911,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'app',
   mounted: function mounted() {
-    // console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
+    console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey))); // console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
     // console.log(222222299999999999999);
     // this.showChildren();
     // console.log(this.$options.name);
+
     this.setTokenFromCookie();
     this.setFiltersFromCookie(); // console.log(this.token);
 
@@ -1930,6 +1932,7 @@ __webpack_require__.r(__webpack_exports__);
       owner: owner,
       halls: halls,
       templateSpecifics: templateSpecifics,
+      templateSpecificsAsIdKey: typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null ? templateSpecificsAsIdKey : null,
       // workers: workers,
       // templates: templates,
       token: null,
@@ -3179,6 +3182,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -3189,7 +3194,7 @@ __webpack_require__.r(__webpack_exports__);
     console.log(JSON.parse(JSON.stringify(this.halls))); // this.setFiltersFromCookie();
     // this.setFilters();
   },
-  props: ['owner', 'halls', 'clientInfo', 'allBookings', 'cookieFilters', 'templateSpecifics'],
+  props: ['owner', 'halls', 'clientInfo', 'allBookings', 'cookieFilters', 'templateSpecifics', 'templateSpecificsAsIdKey'],
   data: function data() {
     return {
       pickedItmHall: null,
@@ -3373,7 +3378,12 @@ __webpack_require__.r(__webpack_exports__);
           break;
 
         case 'template':
-          this.resetPickedItems(['template', 'worker']);
+          this.resetPickedItems(['template', 'worker']); // lo(222);
+          // console.log('5555555');
+          // console.log(this.pickedItmTemplate);
+
+          if (itm === null) return; // alert(111);
+
           axios.get(routes.calendar.booking.worker.index + '?template=' + itm.id).then(function (response) {
             var workers = [];
             response.data.workers.forEach(function (item, i) {
@@ -3413,6 +3423,20 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     ClientInfo: _ClientInfo_vue__WEBPACK_IMPORTED_MODULE_0__.default,
     TemplatePicker: _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_1__.default
+  },
+  watch: {
+    pickedItmHall: function pickedItmHall(val) {
+      if (val === null) {
+        this.templates = null;
+        this.workers = null;
+      } // console.log(JSON.parse(JSON.stringify(9999999)));
+      // console.log(JSON.parse(JSON.stringify(val)));
+
+    },
+    pickedItmTemplate: function pickedItmTemplate(val) {
+      if (val === null) this.workers = null; // console.log(JSON.parse(JSON.stringify(9999999)));
+      // console.log(JSON.parse(JSON.stringify(val)));
+    }
   }
 });
 
@@ -6292,53 +6316,88 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // import ClientInfo from "./ClientInfo.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'dropdown_template_specifics',
-  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(9999999)));
-    // console.log(JSON.parse(JSON.stringify(this.specificsArr)));
+  mounted: function mounted() {
+    console.log(JSON.parse(JSON.stringify(22222)));
+    console.log(JSON.parse(JSON.stringify(this.parsedTemplates))); // console.log(JSON.parse(JSON.stringify(this.specificsArr)));
     // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
     // console.log(JSON.parse(JSON.stringify(this.specifics)));
   },
   // props: ['owner','halls','clientInfo','allBookings','cookieFilters'],
-  props: ['templates', 'specifics', 'pickedHall'],
+  props: ['templates', 'parsedTemplates', 'specifics', 'specificsAsIdKey', 'resetPickedProp'],
   data: function data() {
-    return {// firstLevelIdsOfSpecifics: null,
+    return {
+      // firstLevelIdsOfSpecifics: null,
       // specificsLevelMaxDeep: 0,
+      pickedParsedTemplate: null,
+      resetPicked: 0
     };
   },
-  computed: {// specificsArr: function(){
-    //     if(this.specifics !== null)
-    //         return Object.values(this.specifics);
-    //     return null;
-    // },
+  computed: {
+    pickedParsedTemplateFields: function pickedParsedTemplateFields() {
+      // if()
+      // if(this.pickedParsedTemplate === null
+      if (this.pickedParsedTemplate === null || typeof this.pickedParsedTemplate.fields === 'undefined') return null;
+      return this.pickedParsedTemplate.fields;
+    },
+    specificsAsIdKeyArr: function specificsAsIdKeyArr() {
+      if (this.specificsAsIdKey !== null) return Object.values(this.specificsAsIdKey);
+      return null;
+    }
   },
   methods: {
-    change: function change(itm) {}
+    change: function change(itm) {
+      var _this = this;
+
+      if (this.pickedParsedTemplate !== null && itm.id == this.pickedParsedTemplate.id) return;
+      this.pickedParsedTemplate = null;
+      this.$emit('change', null);
+      this.$nextTick(function () {
+        _this.pickedParsedTemplate = itm;
+        if (itm.type == 'template') _this.$emit('change', itm.template);
+      });
+    }
   },
   components: {},
   watch: {
+    parsedTemplates: function parsedTemplates(val) {
+      if (val === null) this.pickedParsedTemplate = null; // console.log(JSON.parse(JSON.stringify(888888)));
+      // console.log(JSON.parse(JSON.stringify(val)));
+      // let parsedTemplates = Object.values(val);
+      // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
+      // console.log(JSON.parse(JSON.stringify(val)));
+      // console.log(JSON.parse(JSON.stringify(this.specificsAsIdKeyArr)));
+      // specificsAsIdKeyArr
+    },
     specifics: function specifics(val) {
-      if (val !== null) {
-        // this.setFirstLevelIdsOfSpecificsFromTemplates();
+      if (val !== null) {// this.setFirstLevelIdsOfSpecificsFromTemplates();
         // console.log(JSON.parse(JSON.stringify(9999999)));
-        console.log(JSON.parse(JSON.stringify(val))); // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
+        // console.log(JSON.parse(JSON.stringify(val)));
+        // console.log(JSON.parse(JSON.stringify(this.templates)));
+        // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+        // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
         // console.log(JSON.parse(JSON.stringify(this.specificsLevelMaxDeep)));
         // this.specificsLevelMaxDeep
       } // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
 
-    } // templates: function(val){
-    //     if(val !== null){
-    //         this.setFirstLevelIdsOfSpecificsFromTemplates();
-    //         console.log(JSON.parse(JSON.stringify(9999999)));
-    //         console.log(JSON.parse(JSON.stringify(val)));
-    //         console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
-    //         console.log(JSON.parse(JSON.stringify(this.specificsLevelMaxDeep)));
-    //         // this.specificsLevelMaxDeep
-    //     }
-    //     // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
-    // },
-
+    }
   }
 });
 
@@ -6380,94 +6439,186 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 // import ClientInfo from "./ClientInfo.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'extensive_template_filter_picker',
-  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(7777)));
-    // console.log(JSON.parse(JSON.stringify(this.templates)));
-    // console.log(JSON.parse(JSON.stringify(this.specifics)));
+  mounted: function mounted() {
+    console.log(JSON.parse(JSON.stringify(7777))); // console.log(JSON.parse(JSON.stringify(this.templates)));
+
+    console.log(JSON.parse(JSON.stringify('specifics')));
+    console.log(JSON.parse(JSON.stringify(this.specifics)));
+    console.log(JSON.parse(JSON.stringify('templates')));
+    console.log(JSON.parse(JSON.stringify(this.templates)));
   },
   // props: ['owner','halls','clientInfo','allBookings','cookieFilters'],
-  props: ['templates', 'specifics', 'pickedHall'],
+  props: ['templates', 'specifics', 'specificsAsIdKey', 'pickedHall'],
   data: function data() {
     return {
       firstLevelIdsOfSpecifics: null,
-      specificsLevelMaxDeep: 0
+      specificsLevelMaxDeep: 0,
+      parsedTemplates: null
     };
   },
-  computed: {
-    specificsArr: function specificsArr() {
-      if (this.specifics !== null) return Object.values(this.specifics);
-      return null;
-    },
-    filteredSpecificsArrIfPickedHallNotNull: function filteredSpecificsArrIfPickedHallNotNull() {
-      return this.pickedHall === null ? null : this.filteredSpecificsArr;
-    },
-    filteredSpecificsArr: function filteredSpecificsArr() {
-      var specificsArr = this.specificsArr;
-      if (this.firstLevelIdsOfSpecifics === null) return specificsArr;
-      var filteredSpecificsArr = [];
-
-      for (var i = 0; i < specificsArr.length; i++) {
-        var specific = specificsArr[i]; // console.log(JSON.parse(JSON.stringify(222222)));
-        // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
-        // console.log(JSON.parse(JSON.stringify(specific)));
-
-        if (this.firstLevelIdsOfSpecifics.includes(specific.id)) filteredSpecificsArr.push(specific);
-      } // console.log(JSON.parse(JSON.stringify(222222)));
-      // console.log(JSON.parse(JSON.stringify(filteredSpecificsArr)));
-
-
-      return filteredSpecificsArr;
-    }
+  computed: {// specificsArr: function(){
+    //     if(this.specifics !== null)
+    //         return Object.values(this.specifics);
+    //     return null;
+    // },
+    // filteredSpecificsArrIfPickedHallNotNull: function(){
+    //     return this.pickedHall === null ? null : this.filteredSpecificsArr;
+    // },
+    // filteredSpecificsArr: function(){
+    //     let specificsArr = this.specificsArr;
+    // 
+    //     if(this.firstLevelIdsOfSpecifics === null)
+    //         return specificsArr;
+    // 
+    //     let filteredSpecificsArr = [];
+    //     for(let i = 0; i < specificsArr.length; i++){
+    //         let specific = specificsArr[i];
+    // 
+    //         // console.log(JSON.parse(JSON.stringify(222222)));
+    //         // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
+    //         // console.log(JSON.parse(JSON.stringify(specific)));
+    // 
+    //         if(this.firstLevelIdsOfSpecifics.includes(specific.id))
+    //             filteredSpecificsArr.push(specific);
+    //     }
+    // 
+    //     // console.log(JSON.parse(JSON.stringify(222222)));
+    //     // console.log(JSON.parse(JSON.stringify(filteredSpecificsArr)));
+    // 
+    //     return filteredSpecificsArr;
+    // },
   },
   methods: {
-    setFirstLevelIdsOfSpecificsFromTemplates: function setFirstLevelIdsOfSpecificsFromTemplates() {
-      if (Array.isArray(this.templates) && this.templates.length > 0) {
-        var firstLevelIdsOfSpecifics = [];
+    // setFirstLevelIdsOfSpecificsFromTemplates: function(){
+    //     if(Array.isArray(this.templates) && this.templates.length > 0){
+    //         let firstLevelIdsOfSpecifics = [];
+    //         for(let i = 0; i < this.templates.length; i++){
+    //             let template = this.templates[i];
+    //             // if(typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined' &&
+    //             // template.specific.ids_trace !== null){
+    //             //     let idsTraceArr = template.specific.ids_trace.split(',');
+    //             //     if(idsTraceArr.length > this.specificsLevelMaxDeep)
+    //             //         this.specificsLevelMaxDeep = idsTraceArr.length;
+    //             //     let firstIdTrace = parseInt(idsTraceArr[0]);
+    //             //     if(!firstLevelIdsOfSpecifics.includes(firstIdTrace))
+    //             //         firstLevelIdsOfSpecifics.push(firstIdTrace);
+    //             // }
+    // 
+    //             if(typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined'){
+    //                 if(template.specific.ids_trace !== null){
+    //                     let idsTraceArr = template.specific.ids_trace.split(',');
+    //                     if(idsTraceArr.length > this.specificsLevelMaxDeep)
+    //                         this.specificsLevelMaxDeep = idsTraceArr.length;
+    //                     let firstIdTrace = parseInt(idsTraceArr[0]);
+    //                     if(!firstLevelIdsOfSpecifics.includes(firstIdTrace))
+    //                         firstLevelIdsOfSpecifics.push(firstIdTrace);
+    //                 }else{
+    //                     if(!firstLevelIdsOfSpecifics.includes(template.specific.id))
+    //                         firstLevelIdsOfSpecifics.push(template.specific.id);
+    //                 }
+    //             }
+    // 
+    //         }
+    //         this.firstLevelIdsOfSpecifics = firstLevelIdsOfSpecifics;
+    //     }else{
+    //         this.firstLevelIdsOfSpecifics = null;
+    //     }
+    //     // this.showFilters = false;
+    //     // this.$emit('showCalendar');
+    // },
+    parseTemplatesAccordingToSpecifics: function parseTemplatesAccordingToSpecifics() {
+      var _this = this;
 
-        for (var i = 0; i < this.templates.length; i++) {
-          var template = this.templates[i]; // if(typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined' &&
-          // template.specific.ids_trace !== null){
-          //     let idsTraceArr = template.specific.ids_trace.split(',');
-          //     if(idsTraceArr.length > this.specificsLevelMaxDeep)
-          //         this.specificsLevelMaxDeep = idsTraceArr.length;
-          //     let firstIdTrace = parseInt(idsTraceArr[0]);
-          //     if(!firstLevelIdsOfSpecifics.includes(firstIdTrace))
-          //         firstLevelIdsOfSpecifics.push(firstIdTrace);
-          // }
+      var specificsAsIdKey = _this.specificsAsIdKey; // console.log(JSON.parse(JSON.stringify(7777)));
+      // console.log(JSON.parse(JSON.stringify('specifics')));
+      // console.log(JSON.parse(JSON.stringify(this.specifics)));
+      // console.log(JSON.parse(JSON.stringify('templates')));
+      // console.log(JSON.parse(JSON.stringify(this.templates)));
+
+      var parsedTemplates = {};
+      getRowOfTemps();
+      this.parsedTemplates = parsedTemplates;
+      console.log(JSON.parse(JSON.stringify('parsedTemplates')));
+      console.log(JSON.parse(JSON.stringify(this.parsedTemplates))); // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
+
+      function getRowOfTemps() {
+        // let parsedTemplatesLevel = [];
+        var idsTracePath = '';
+
+        for (var i = 0; i < _this.templates.length; i++) {
+          var template = _this.templates[i];
 
           if (typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined') {
             if (template.specific.ids_trace !== null) {
               var idsTraceArr = template.specific.ids_trace.split(',');
-              if (idsTraceArr.length > this.specificsLevelMaxDeep) this.specificsLevelMaxDeep = idsTraceArr.length;
-              var firstIdTrace = parseInt(idsTraceArr[0]);
-              if (!firstLevelIdsOfSpecifics.includes(firstIdTrace)) firstLevelIdsOfSpecifics.push(firstIdTrace);
+              console.log(JSON.parse(JSON.stringify('idsTraceArr')));
+              var currentSpecificsToWorkWith = _this.specifics;
+              idsTracePath = '';
+
+              for (var k = 0; k < idsTraceArr.length; k++) {
+                var idTrace = idsTraceArr[k];
+
+                if (idsTracePath == '') {
+                  idsTracePath += '[' + idTrace + ']';
+                } else {
+                  idsTracePath += '.fields[' + idTrace + ']';
+                }
+
+                eval("\n                                    if(typeof parsedTemplates".concat(idsTracePath, " === 'undefined')\n                                        parsedTemplates").concat(idsTracePath, " = {\n                                            type: 'specific',\n                                            id: specificsAsIdKey[").concat(idTrace, "].id,\n                                            title: specificsAsIdKey[").concat(idTrace, "].title,\n                                            fields: {}\n                                        };\n                                "));
+              }
+
+              if (idsTracePath === '') {
+                idsTracePath += '[' + template.specific.id + ']';
+              } else {
+                idsTracePath += '.fields[' + template.specific.id + ']';
+              }
+
+              var idsTracePathTemp = idsTracePath + '.fields[' + template.id + ']';
+              eval("\n                                if(typeof parsedTemplates".concat(idsTracePath, " === 'undefined')\n                                    parsedTemplates").concat(idsTracePath, " = {\n                                        type: 'specific',\n                                        id: template.specific.id,\n                                        title: template.specific.title,\n                                        fields: {}\n                                    };\n                                \n                                // if(typeof parsedTemplates").concat(idsTracePathTemp, " === 'undefined')\n                                //     parsedTemplates").concat(idsTracePathTemp, " = {};\n                                \n                                parsedTemplates").concat(idsTracePathTemp, " = {\n                                    type: 'template',\n                                    template: template,\n                                    id: template.id,\n                                    title: template.title\n                                };\n                                \n                                // parsedTemplates").concat(idsTracePathTemp, "[template.id] = {\n                                //     type: 'template',\n                                //     id: template.id,\n                                //     title: template.title\n                                // };\n                            "));
             } else {
-              if (!firstLevelIdsOfSpecifics.includes(template.specific.id)) firstLevelIdsOfSpecifics.push(template.specific.id);
+              if (typeof parsedTemplates[template.specific.id] === 'undefined') parsedTemplates[template.specific.id] = {};
+              parsedTemplates[template.specific.id][template.id] = template;
             }
           }
         }
-
-        this.firstLevelIdsOfSpecifics = firstLevelIdsOfSpecifics;
-      } else {
-        this.firstLevelIdsOfSpecifics = null;
-      } // this.showFilters = false;
-      // this.$emit('showCalendar');
-
+      }
     }
   },
   components: {},
   watch: {
+    // parsedTemplates: function(val){
+    //     // console.log(JSON.parse(JSON.stringify(9999999)));
+    //     // console.log(JSON.parse(JSON.stringify(val)));
+    // },
     templates: function templates(val) {
-      if (val !== null) {
-        this.setFirstLevelIdsOfSpecificsFromTemplates();
-        console.log(JSON.parse(JSON.stringify(9999999)));
-        console.log(JSON.parse(JSON.stringify(val)));
-        console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics))); // console.log(JSON.parse(JSON.stringify(this.sortedSpecificsArr)));
-        // this.specificsLevelMaxDeep
-      } // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+      var _this2 = this;
 
+      // return;
+      this.parsedTemplates = null;
+      if (val !== null) this.$nextTick(function () {
+        _this2.parseTemplatesAccordingToSpecifics();
+      }); // this.parseTemplatesAccordingToSpecifics();
+      // this.setFirstLevelIdsOfSpecificsFromTemplates();
+      // console.log(JSON.parse(JSON.stringify(9999999)));
+      // console.log(JSON.parse(JSON.stringify(val)));
+      // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
+      // console.log(JSON.parse(JSON.stringify(this.sortedSpecificsArr)));
+      // this.specificsLevelMaxDeep
+      // console.log(JSON.parse(JSON.stringify(7777)));
+      // console.log(JSON.parse(JSON.stringify('specifics')));
+      // console.log(JSON.parse(JSON.stringify(this.specifics)));
+      // console.log(JSON.parse(JSON.stringify('templates')));
+      // console.log(JSON.parse(JSON.stringify(this.templates)));
+      // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
     }
   }
 });
@@ -6750,7 +6901,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".dropdown-toggle[data-v-40d7ff66] {\n  width: 100% !important;\n  text-align: left;\n}\n.dropdown-toggle[data-v-40d7ff66]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  margin-top: 8px;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  float: right;\n}\n.dropdown-menu[data-v-40d7ff66] {\n  width: 100% !important;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".dropdown-toggle[data-v-40d7ff66] {\n  width: 100% !important;\n  text-align: left;\n}\n.dropdown-toggle[data-v-40d7ff66]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  margin-top: 8px;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  float: right;\n}\n.dropdown-menu[data-v-40d7ff66] {\n  width: 100% !important;\n}\n.dropdown[data-v-40d7ff66] {\n  margin-bottom: 10px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -48858,6 +49009,7 @@ var render = function() {
           "cookie-filters": _vm.cookieFilters,
           halls: _vm.halls,
           "template-specifics": _vm.templateSpecifics,
+          "template-specifics-as-id-key": _vm.templateSpecificsAsIdKey,
           "client-info": _vm.clientInfo,
           "all-bookings": _vm.allBookings
         },
@@ -49519,7 +49671,13 @@ var render = function() {
                       attrs: {
                         templates: _vm.templates,
                         "picked-hall": _vm.pickedItmHall,
-                        specifics: _vm.templateSpecifics
+                        specifics: _vm.templateSpecifics,
+                        "specifics-as-id-key": _vm.templateSpecificsAsIdKey
+                      },
+                      on: {
+                        change: function($event) {
+                          return _vm.change("template", $event)
+                        }
                       }
                     })
                   : _c(
@@ -52097,17 +52255,16 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _vm.specifics
-      ? _c(
+    _c(
+      "div",
+      [
+        _c(
           "div",
           {
             staticClass: "dropdown",
             attrs: { id: "templateDropdownThroughSpecifics" }
           },
           [
-            _c("span", [_vm._v("Template:")]),
-            _c("br"),
-            _vm._v(" "),
             _c(
               "a",
               {
@@ -52120,13 +52277,23 @@ var render = function() {
                   "aria-expanded": "false"
                 }
               },
-              [_vm._v("\n            ---\n        ")]
+              [
+                _vm._v(
+                  "\n                " +
+                    _vm._s(
+                      _vm.pickedParsedTemplate
+                        ? _vm.pickedParsedTemplate.title
+                        : "---"
+                    ) +
+                    "\n            "
+                )
+              ]
             ),
             _vm._v(" "),
             _c(
               "div",
               { staticClass: "dropdown-menu" },
-              _vm._l(_vm.specifics, function(itm) {
+              _vm._l(_vm.parsedTemplates, function(item, index) {
                 return _c(
                   "a",
                   {
@@ -52135,18 +52302,37 @@ var render = function() {
                     on: {
                       click: function($event) {
                         $event.preventDefault()
-                        return _vm.change(itm)
+                        return _vm.change(item)
                       }
                     }
                   },
-                  [_vm._v(_vm._s(itm.title))]
+                  [_vm._v(_vm._s(item.title))]
                 )
               }),
               0
             )
           ]
-        )
-      : _vm._e()
+        ),
+        _vm._v(" "),
+        _vm.pickedParsedTemplateFields
+          ? _c("dropdown-template-specifics", {
+              attrs: {
+                templates: _vm.templates,
+                "reset-picked-prop": _vm.resetPicked,
+                "parsed-templates": _vm.pickedParsedTemplateFields,
+                specifics: _vm.specifics,
+                "specifics-as-id-key": _vm.specificsAsIdKey
+              },
+              on: {
+                change: function($event) {
+                  return _vm.$emit("change", $event)
+                }
+              }
+            })
+          : _vm._e()
+      ],
+      1
+    )
   ])
 }
 var staticRenderFns = []
@@ -52175,11 +52361,20 @@ var render = function() {
   return _c(
     "div",
     [
+      _c("span", [_vm._v("Template:")]),
+      _c("br"),
+      _vm._v(" "),
       _c("dropdown-template-specifics", {
         attrs: {
           templates: _vm.templates,
-          "picked-hall": _vm.pickedHall,
-          specifics: _vm.filteredSpecificsArrIfPickedHallNotNull
+          "parsed-templates": _vm.parsedTemplates,
+          specifics: _vm.specifics,
+          "specifics-as-id-key": _vm.specificsAsIdKey
+        },
+        on: {
+          change: function($event) {
+            return _vm.$emit("change", $event)
+          }
         }
       })
     ],

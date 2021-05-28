@@ -33,14 +33,15 @@ class TemplateController extends Controller
     public function dataList(){
         $templates = Template::select([
             DB::raw("templates.`id`"),
+            DB::raw("templates.`specific_id`"),
             DB::raw("templates.`title`"),
             DB::raw("templates.`price`"),
             DB::raw("templates.`duration`"),
             DB::raw("templates.`created_at`"),
             DB::raw("(SELECT COUNT(*) FROM template_worker WHERE template_worker.`template_id` = templates.`id`) as `workers_count`")
-        ])->with('workers')->where('is_deleted', 0);
+        ])->with('specific')->with('workers')->where('is_deleted', 0);
         
-        return Datatables::eloquent($templates)
+        $templates_arr = Datatables::eloquent($templates)
             ->editColumn('duration', function(Template $template) {
                 return date('H:i', $template->duration);
             })
@@ -51,7 +52,32 @@ class TemplateController extends Controller
             ->orderColumn('workers_count', function ($query, $order) {
                 $query->orderBy('workers_count', $order);
             })
-            ->toJson(true);
+            ->toArray(true);
+        
+        foreach($templates_arr['data'] as $k => &$v){
+            $v['specific_titled_trace'] = \Specifics::createSpecificTitledTraceFromIdsTrace(
+                (int)$v['specific']['id'],
+                $v['specific']['ids_trace'],
+                $v
+            );
+        }
+        
+        return response()->json($templates_arr);
+        // var_dump($arr);
+        // die();
+            
+        // return Datatables::eloquent($templates)
+        //     ->editColumn('duration', function(Template $template) {
+        //         return date('H:i', $template->duration);
+        //     })
+        //     // ->filterColumn('duration', function($query, $keyword) {
+        //     //     $sql = "DATE_FORMAT(templates.`duration`, '%H:%i') like ?";
+        //     //     $query->whereRaw($sql, ["%{$keyword}%"]);
+        //     // })
+        //     ->orderColumn('workers_count', function ($query, $order) {
+        //         $query->orderBy('workers_count', $order);
+        //     })
+        //     ->toJson(true);
             
         // return Datatables::eloquent($workers)->filterColumn('full_name', function($query, $keyword) {
         //             $sql = "CONCAT(first_name,' ',last_name)  like ?";

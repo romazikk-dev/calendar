@@ -57,6 +57,27 @@
                         </span>
                 </button>
                 <button type="button"
+                    :class="{'active': showTab == 'templates'}"
+                    @click="showTab = 'templates'"
+                    class="btn btn-secondary">
+                        Templates
+                        <span class="text-warning"
+                            v-if="!data.templates_with_specific.length"
+                            data-toggle="modal-info-dropdown"
+                            data-placement="top"
+                            title="No templates">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+                                </svg>
+                        </span>
+                        <span class="badge badge-pill badge-info" v-else
+                            data-toggle="modal-info-dropdown"
+                            data-placement="top"
+                            :title="data.templates_with_specific.length + ' templates'">
+                                {{data.templates_with_specific.length}}
+                        </span>
+                </button>
+                <button type="button"
                     :class="{'active': showTab == 'business_hours'}"
                     @click="showTab = 'business_hours'"
                     class="btn btn-secondary">
@@ -187,6 +208,25 @@
                     </template>
                 </template>
                 
+                <template v-if="showTab == 'templates'">
+                    <template v-if="data.templates_with_specific && data.templates_with_specific.length > 0">
+                        <table class="info-table">
+                            <tr v-for="template in data.templates_with_specific">
+                                <td colspan='2'>
+                                    <b>{{ template.title }}:</b>
+                                    <div class="text-lowercase" v-html="getTitledTrace(template)"></div>
+                                    <span class="text-lowercase small">
+                                        {{ template.description ? template.description : 'no description' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </template>
+                    <template v-else>
+                        No templates.
+                    </template>
+                </template>
+                
                 <template v-if="showTab == 'business_hours'">
                     <template v-if="businessHours">
                         <table class="info-table">
@@ -278,8 +318,18 @@
             
                 return fullNameArr.join(' ');
             },
+            templateTraceDivider: function(){
+                return `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                `;
+            }
         },
         methods: {
+            getTitledTrace: function(template){
+                return template.specific_titled_trace.join(this.templateTraceDivider);
+            },
             isStatus: function(type){
                 return helper.isStatus(type, (typeof this.data.suspension == 'undefined' ? null : this.data.suspension));
             },

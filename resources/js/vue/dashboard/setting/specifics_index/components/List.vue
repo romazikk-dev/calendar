@@ -109,6 +109,7 @@
                 </div>
                 
                 <!-- <list :key="appKey(field.key)" :parent-key="appKey(field.key)" v-if="hasFields(field)" :fields="field.fields" /> -->
+                    
                 <list v-if="hasFields(field) && drewNextLevel"
                     :key="field.id"
                     :deep="deep + 1"
