@@ -14,7 +14,7 @@
                     :ref="'specific_item_' + field.id"
                     @click.prevent="itemClick(field, index)"
                     class="dropdown-item" href="#">
-                        {{index}} {{field.title}}
+                        {{field.title}}
                 </a>
                 <!-- <a class="dropdown-item" href="#">Another action</a>
                 <a class="dropdown-item" href="#">Something else here</a> -->

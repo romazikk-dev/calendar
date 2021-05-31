@@ -19760,8 +19760,6 @@ var render = function() {
                   [
                     _vm._v(
                       "\n                    " +
-                        _vm._s(index) +
-                        " " +
                         _vm._s(field.title) +
                         "\n            "
                     )

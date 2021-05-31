@@ -37,9 +37,13 @@
                     </div>
                     <div class="modal-body">
                         
+                        <search @reset="searchVal = null" @search="search" />
+                        
+                        <div class="small search-found-text" v-html="searchFoundText"></div>
+                            
                         <table class="all-items-list">
                             <tbody>
-                                <tr v-for="(item,index) in items">
+                                <tr class="worker-item" v-for="(item,index) in items" v-if="checkSearch(item)">
                                     <td>
                                         <div class="custom-control custom-checkbox my-1 mr-sm-2">
                                             <input class="custom-control-input" :id="`item_` + item.id" type="checkbox" v-model="item.selected">
@@ -72,6 +76,7 @@
 </template>
 
 <script>
+    import Search from './Search.vue';
     export default {
         mounted() {
             // console.log(assignWorkers);
@@ -88,7 +93,9 @@
             return {
                 items: null,
                 selectedItems: [],
-                assignWorkers: assignWorkers
+                assignWorkers: assignWorkers,
+                searchVal: null,
+                searchFoundText: null,
             };
         },
         computed: {
@@ -107,6 +114,20 @@
         methods: {
             isJqueryValidationEnabled: function(){
                 return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            },
+            checkSearch: function(item){
+                if(typeof this.searchVal !== 'string' || this.searchVal == '')
+                    return true;
+                
+                let fullName = (item.first_name + ' ' + item.last_name).trim().toLowerCase();
+                let email = item.email.trim().toLowerCase();
+                let search = this.searchVal.toLowerCase();
+                return fullName.includes(search) || email.includes(search);
+                // return item.title.toLowerCase() == this.searchVal.toLowerCase();
+            },
+            search: function(val){
+                // console.log(JSON.parse(JSON.stringify(val)));
+                this.searchVal = val;
             },
             openModal: function(){
                 // e.preventDefault();
@@ -226,8 +247,27 @@
             },
         },
         components: {
-            
+            Search
         },
+        watch: {
+            searchVal: function(val){
+                this.$nextTick(() => {
+                    if(val == null || val == ''){
+                        this.searchFoundText = null;
+                    }else{
+                        let workerItemsLength = $(document).find('.worker-item').length;
+                        let itemsLength = this.items.length;
+                        this.searchFoundText = `
+                            Found <b>${workerItemsLength}</b> of ${itemsLength} employees
+                        `;
+                    }
+                    
+                    // searchFoundText
+                    // $('.worker-item')
+                    // console.log(val);
+                });
+            },
+        }
     }
 </script>
 
@@ -235,6 +275,10 @@
     h5{
         position: relative;
         top: 5px;
+    }
+    .search-found-text{
+        position: relative;
+        top: -8px;
     }
     #itemAssignmentModal ul{
         padding: 0px;

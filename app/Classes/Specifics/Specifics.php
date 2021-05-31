@@ -14,6 +14,15 @@ class Specifics extends MainSpecifics{
         return $this->max_deep;
     }
     
+    public function getDbSpecificsAsKeyId($as_key_id = false){
+        // $this->setDbSpecifics();
+        // dd(1111);
+        // dd($this->db_specifics);
+        if(is_null($this->db_specifics))
+            return null;
+        return $as_key_id === true ? $this->db_specifics_as_key_id : $this->db_specifics;
+    }
+    
     public function getAllForVueInSettings(){
         $db_specifics = TemplateSpecifics::all();
         if($db_specifics->isEmpty())
@@ -25,7 +34,7 @@ class Specifics extends MainSpecifics{
     }
     
     public function createSpecificTitledTraceFromIdsTrace(int $specific_id, string $specific_ids_trace, $template, $with_template_title = false){
-        $this->setDbSpecifics();
+        // $this->setDbSpecifics();
         
         $specific_ids_trace_arr = explode(',', $specific_ids_trace);
         $specific_ids_trace_arr = array_map(function($val){

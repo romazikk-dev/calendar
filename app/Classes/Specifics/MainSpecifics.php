@@ -11,6 +11,10 @@ class MainSpecifics{
     protected $db_specifics = null;
     protected $db_specifics_as_key_id = null;
     
+    function __construct() {
+        $this->setDbSpecifics();
+    }
+    
     protected function setDbSpecifics(){
         if(is_null($this->db_specifics))
             $this->db_specifics = TemplateSpecifics::all();

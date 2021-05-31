@@ -1898,11 +1898,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
 
 
 
@@ -1911,34 +1906,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'app',
   mounted: function mounted() {
-    console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey))); // console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
-    // console.log(222222299999999999999);
-    // this.showChildren();
-    // console.log(this.$options.name);
+    // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
+    // console.log(JSON.parse(JSON.stringify(this.token)));
+    console.log(JSON.parse(JSON.stringify(777777777))); // console.log(JSON.parse(JSON.stringify(this.$store.getters['updater/clientInfo'])));
 
-    this.setTokenFromCookie();
-    this.setFiltersFromCookie(); // console.log(this.token);
-
-    this.getClientInfo();
-    this.getBookings(); // console.log(this.filters);
-    // console.log(5555555555);
-    // console.log(this.search);
+    this.$store.dispatch('client/increaseUpdaterCounter');
+    this.setClient();
+    if (this.cookieFilters !== null) this.showCalendar = true;
   },
   props: ['userId'],
   data: function data() {
     return {
-      view: null,
-      search: null,
-      owner: owner,
-      halls: halls,
       templateSpecifics: templateSpecifics,
       templateSpecificsAsIdKey: typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null ? templateSpecificsAsIdKey : null,
-      // workers: workers,
-      // templates: templates,
-      token: null,
-      cookieFilters: null,
-      clientInfo: null,
-      allBookings: null,
       // showCalendar: false,
       showCalendar: true,
       views: ['month', 'week', 'day', 'list'],
@@ -1949,6 +1929,21 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    cookieFilters: function cookieFilters() {
+      return this.$store.getters['filters/all'];
+    },
+    clientInfo: function clientInfo() {
+      return this.$store.getters['client/info'];
+    },
+    token: function token() {
+      return this.$store.getters['client/token'];
+    },
+    view: function view() {
+      return this.$store.getters['filters/view'];
+    },
+    search: function search() {
+      return this.$store.getters['filters/urlSearchPath'];
+    },
     monthView: function monthView() {
       return this.view != null && this.view.toLowerCase() == 'month' ? true : false;
     },
@@ -2035,7 +2030,7 @@ __webpack_require__.r(__webpack_exports__);
         successCallback(response);
         _this.dataUpdater++;
 
-        _this.getBookings(); // this.dataUpdater++;
+        _this.setBookings(); // this.dataUpdater++;
 
       })["catch"](function (error) {
         // handle error
@@ -2068,7 +2063,7 @@ __webpack_require__.r(__webpack_exports__);
         successCallback(response);
         _this2.dataUpdater++;
 
-        _this2.getBookings(); // console.log('success');
+        _this2.setBookings(); // console.log('success');
         // this.onCancel(response.data);
         // console.log(JSON.parse(JSON.stringify(response)));
 
@@ -2089,17 +2084,22 @@ __webpack_require__.r(__webpack_exports__);
       // this.token = null;
       // this.clientInfo = null;
       this.setToken(token);
-      this.getClientInfo();
-      this.getBookings();
+      this.setClientInfo();
+      this.setBookings();
       this.dataUpdater++;
     },
     logout: function logout() {
-      cookie.remove('token');
-      this.token = null;
-      this.clientInfo = null;
+      // cookie.remove('token');
+      // this.token = null;
+      // this.clientInfo = null;
+      this.$store.commit('client/logout');
       this.dataUpdater++;
     },
-    getBookings: function getBookings() {
+    setClient: function setClient() {
+      this.setClientInfo();
+      this.setBookings();
+    },
+    setBookings: function setBookings() {
       var _this3 = this;
 
       if (this.token == null) return null;
@@ -2112,21 +2112,15 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         // handle success
-        _this3.allBookings = response.data; // console.log(this.clientInfo);
+        // this.allBookings = response.data;
+        _this3.$store.commit('client/setBookings', response.data); // console.log(this.clientInfo);
+        // console.log(JSON.parse(JSON.stringify(this.allBookings)));
 
-        console.log(JSON.parse(JSON.stringify(_this3.allBookings)));
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
-      }).then(function () {
-        // always executed
-        console.log('always'); // if(from == 'cancel_book'){
-        //     console.log('from: cancel_book');
-        //     $('#cancelBookModal').modal('hide');
-        // }
+      })["catch"](function (error) {// handle error
+      }).then(function () {// always executed
       });
     },
-    getClientInfo: function getClientInfo() {
+    setClientInfo: function setClientInfo() {
       var _this4 = this;
 
       if (this.token == null) return;
@@ -2136,23 +2130,17 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         // handle success
-        _this4.clientInfo = response.data; // console.log(this.clientInfo);
-        // console.log(JSON.parse(JSON.stringify(this.dates)));
+        // this.clientInfo = response.data;
+        _this4.$store.commit('client/setInfo', response.data);
       })["catch"](function (error) {
         // handle error
-        // console.log(error);
         if (error.response.status == 401) {
           // console.log(error.response.status);
-          cookie.remove('token');
-          document.location.reload(); // this.token == null;
-        } // console.log(error.response.status);
+          this.$store.commit('client/setToken'); // cookie.remove('token');
 
-      }).then(function () {
-        // always executed
-        console.log('always'); // if(from == 'cancel_book'){
-        //     console.log('from: cancel_book');
-        //     $('#cancelBookModal').modal('hide');
-        // }
+          document.location.reload(); // this.token == null;
+        }
+      }).then(function () {// always executed
       });
     },
     setStartDate: function setStartDate(fromView, date) {
@@ -2220,9 +2208,8 @@ __webpack_require__.r(__webpack_exports__);
         day: moment(this.currentDateObj).format('DD')
       };
     },
-    filterChange: function filterChange(e) {
-      this.view = e.searchObj.view;
-      this.search = e.searchString;
+    filterChange: function filterChange(e) {// this.view = e.searchObj.view;
+      // this.search = e.searchString;
     },
     // isAuth: function(){
     //     return this.token != null;
@@ -2231,13 +2218,20 @@ __webpack_require__.r(__webpack_exports__);
       cookie.set('token', token);
       this.token = token;
     },
-    setTokenFromCookie: function setTokenFromCookie() {
-      var token = cookie.get('token'); // console.log(token);
-
-      if (token) this.token = token;
-    },
-    setFiltersFromCookie: function setFiltersFromCookie() {
-      if (typeof filters !== 'undefined' && filters != null) this.cookieFilters = filters;
+    // setTokenFromCookie: function(){
+    //     let token = cookie.get('token');
+    //     // console.log(token);
+    //     if(token)
+    //         this.token = token;
+    // },
+    setFiltersFromCookie: function setFiltersFromCookie() {// if(typeof filters !== 'undefined' && filters != null)
+      // this.cookieFilters = cookie.get('filters');
+      // cookie.set('filters', {
+      //     hall: this.pickedItmHall.id,
+      //     worker: this.pickedItmWorker.id,
+      //     template: this.pickedItmTemplate.id,
+      //     view: this.pickedItmView,
+      // });
     }
   },
   components: {
@@ -2247,9 +2241,13 @@ __webpack_require__.r(__webpack_exports__);
     ListCalendar: _ListCalendar_vue__WEBPACK_IMPORTED_MODULE_3__.default,
     Filters: _Filters_vue__WEBPACK_IMPORTED_MODULE_4__.default
   },
-  watch: {// view: function () {
-    //     console.log(this.view + ': ' + this.monthView);
-    // }
+  watch: {
+    showCalendar: function showCalendar(val) {// if(val === true){
+      //     // this.setFiltersFromCookie();
+      //     console.log(cookie.get('filters'));
+      // }
+      // console.log(this.view + ': ' + this.monthView);
+    }
   }
 });
 
@@ -2304,7 +2302,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2319,7 +2316,7 @@ __webpack_require__.r(__webpack_exports__);
       _this.show = true;
     }, 100);
   },
-  props: ['clientInfo', 'userId', 'allBookings'],
+  // props: ['allBookings'],
   data: function data() {
     return {
       show: false // dates: null,
@@ -2340,6 +2337,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    clientInfo: function clientInfo() {
+      return this.$store.getters['client/info'];
+    },
     fullName: function fullName() {
       if (this.clientInfo == null) return 'guest';
       return this.clientInfo.first_name + ' ' + this.clientInfo.last_name;
@@ -3048,7 +3048,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _ClientInfo_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ClientInfo.vue */ "./resources/js/vue/calendar_2/booking/components/ClientInfo.vue");
-/* harmony import */ var _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./template/ExtensiveTemplateFilterPicker.vue */ "./resources/js/vue/calendar_2/booking/components/template/ExtensiveTemplateFilterPicker.vue");
+/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Loader.vue */ "./resources/js/vue/calendar_2/booking/components/Loader.vue");
+/* harmony import */ var _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./template/ExtensiveTemplateFilterPicker.vue */ "./resources/js/vue/calendar_2/booking/components/template/ExtensiveTemplateFilterPicker.vue");
 //
 //
 //
@@ -3184,53 +3185,115 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'filters',
   mounted: function mounted() {
-    console.log(JSON.parse(JSON.stringify(4444)));
-    console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
-    console.log(JSON.parse(JSON.stringify(this.halls))); // this.setFiltersFromCookie();
-    // this.setFilters();
+    // console.log(JSON.parse(JSON.stringify('this.$store.state.count')));
+    // console.log(JSON.parse(JSON.stringify(44444)));
+    // console.log(JSON.parse(JSON.stringify(this.halls)));
+    if (!this.isCookieItmsEmpty) this.emitChange();
   },
-  props: ['owner', 'halls', 'clientInfo', 'allBookings', 'cookieFilters', 'templateSpecifics', 'templateSpecificsAsIdKey'],
+  props: ['templateSpecifics', 'templateSpecificsAsIdKey'],
   data: function data() {
     return {
+      //Using to indicate current picked items
       pickedItmHall: null,
       pickedItmWorker: null,
       pickedItmTemplate: null,
       pickedItmView: 'month',
-      // cookieItmHall: null,
-      // cookieItmWorker: null,
-      // cookieItmTemplate: null,
-      // cookieItmView: null,
-      views: ['month', 'week', 'day', 'list'],
-      search: null,
+      //Currently picked template`s ids trace
+      pickedTemplateIdsTrace: null,
+      //Count how much were picked template when picked form is shown
+      // pickTemplateTimesCount: 0,
+      // views: ['month','week','day','list'],
+      // search: null,
+      //Workers fills for dropdown
       workers: null,
+      //Workers fills for dropdown
       templates: null,
+      //Switch between filters picker and top info bar which filters are applied
       showFilters: true
     };
   },
   computed: {
-    // isTemplateSpecifics: function(){
-    //     return this.templateSpecifics !== null;
+    halls: function halls() {
+      return this.$store.getters['halls/all'];
+    },
+    views: function views() {
+      return this.$store.getters['filters/views'];
+    },
+    cookieItmHall: function cookieItmHall() {
+      return this.$store.getters['filters/hall'];
+    },
+    cookieItmTemplate: function cookieItmTemplate() {
+      return this.$store.getters['filters/template'];
+    },
+    cookieItmWorker: function cookieItmWorker() {
+      return this.$store.getters['filters/worker'];
+    },
+    cookieItmView: function cookieItmView() {
+      return this.$store.getters['filters/view'];
+    },
+    isPickedItmsFilled: function isPickedItmsFilled() {
+      // console.log(this.pickedItmHall);
+      return this.pickedItmHall != null && this.pickedItmWorker != null && this.pickedItmTemplate != null;
+    },
+    // isCookieViewEmpty: function(){
+    //     if(typeof this.cookieFilters === 'undefined' || this.cookieFilters === null || 
+    //     typeof this.cookieFilters.view === 'undefined' || typeof this.cookieFilters.view === null)
+    //         return true;
+    //     return false;
     // },
-    isCookieFiltersEmpty: function isCookieFiltersEmpty() {
-      if (typeof this.cookieFilters === 'undefined' || this.cookieFilters === null || this.cookieFilters.hall === null || this.cookieFilters.template === null || this.cookieFilters.worker === null) return true;
-      return false;
+    isCookieItmsEmpty: function isCookieItmsEmpty() {
+      return this.$store.getters['filters/isEmpty'];
     },
-    cookieItmHallTitle: function cookieItmHallTitle() {
-      return !this.isCookieFiltersEmpty ? this.cookieFilters.hall.title : '';
+    itmHallTitle: function itmHallTitle() {
+      return this.cookieItmHall !== null ? this.cookieItmHall.title : null;
     },
-    cookieItmTemplateTitle: function cookieItmTemplateTitle() {
-      return !this.isCookieFiltersEmpty ? this.cookieFilters.template.title : '';
+    itmTemplateTitle: function itmTemplateTitle() {
+      return this.cookieItmTemplate !== null ? this.cookieItmTemplate.title : null;
     },
-    cookieItmWorkerName: function cookieItmWorkerName() {
-      return !this.isCookieFiltersEmpty ? this.cookieFilters.worker.first_name + this.cookieFilters.worker.last_name : '';
+    itmWorkerName: function itmWorkerName() {
+      if (this.cookieItmWorker === null) return '';
+      var fullName = toCapitalCase(this.cookieItmWorker.first_name.toLowerCase().trim());
+      if (typeof this.cookieItmWorker.last_name !== 'undefined' && this.cookieItmWorker.last_name !== null && typeof this.cookieItmWorker.last_name === 'string') fullName += toCapitalCase(this.cookieItmWorker.last_name.toLowerCase().trim());
+      return fullName;
+
+      function toCapitalCase(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      ;
     }
   },
   methods: {
+    changeView: function changeView(view) {
+      // console.log(view);
+      // alert(1111);
+      // this.choosedItmView = view;
+      this.cookieItmView = view;
+      this.putFiltersInCookie(); // this.composeSearch();
+
+      this.emitChange();
+    },
+    setPickedTemplateIdsTrace: function setPickedTemplateIdsTrace() {
+      var itmTemplate = this.cookieItmTemplate;
+      if (itmTemplate === null || typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null) return null;
+      if (typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null) return [itmTemplate.specific.id];
+      var idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+      var idsTrace = idsTraceString.split(',').map(function (val) {
+        return parseInt(val);
+      });
+      idsTrace.push(itmTemplate.specific.id);
+      idsTrace.push(itmTemplate.id); // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+
+      this.pickedTemplateIdsTrace = idsTrace;
+    },
     backToCalendar: function backToCalendar() {
       this.showFilters = false;
       this.$emit('showCalendar');
@@ -3241,109 +3304,46 @@ __webpack_require__.r(__webpack_exports__);
     showFiltersPicker: function showFiltersPicker() {
       this.showFilters = true;
 
-      if (this.cookieFilters !== null && this.cookieFilters.hall !== null) {
-        this.change('hall', this.cookieFilters.hall);
+      if (this.cookieItmHall !== null) {
+        this.change('hall', this.cookieItmHall);
 
-        if (this.cookieFilters.template !== null) {
-          this.change('template', this.cookieFilters.template);
+        if (this.cookieItmTemplate !== null) {
+          this.change('template', this.cookieItmTemplate);
+          this.setPickedTemplateIdsTrace();
 
-          if (this.cookieFilters.worker !== null) {
-            this.change('worker', this.cookieFilters.worker);
+          if (this.cookieItmWorker !== null) {
+            this.change('worker', this.cookieItmWorker);
           }
         }
-      } // this.change('hall', (this.cookieItmHall == null ? filters.hall : this.cookieItmHall));
-      // this.change('hall', (this.cookieItmHall == null ? filters.hall : this.cookieItmHall));
-      // this.change('template', (this.cookieItmTemplate == null ? filters.template : this.cookieItmTemplate));
-      // this.change('worker', (this.cookieItmWorker == null ? filters.worker : this.cookieItmWorker));
-
+      }
 
       this.$emit('hideCalendar');
     },
     putFiltersInCookie: function putFiltersInCookie() {
-      this.cookieItmHall = this.pickedItmHall;
-      this.cookieItmWorker = this.pickedItmWorker;
-      this.cookieItmTemplate = this.pickedItmTemplate;
-      this.cookieItmView = this.pickedItmView;
       cookie.set('filters', {
-        hall: this.pickedItmHall.id,
-        worker: this.pickedItmWorker.id,
-        template: this.pickedItmTemplate.id,
-        view: this.pickedItmView
+        hall: this.cookieItmHall.id,
+        worker: this.cookieItmWorker.id,
+        template: this.cookieItmTemplate.id,
+        view: this.cookieItmView
       });
     },
-    // filtersHasRightData: function(){
-    //     if(filters == null)
-    //         return false;
-    // 
-    //     if(filters.hall == null)
-    //         return false;
-    // },
-    setFilters: function setFilters() {
-      // console.log(filters);
-      if (this.filters === null) return;
-      this.cookieItmHall = this.filters.hall;
-      this.cookieItmWorker = this.filters.worker;
-      this.cookieItmTemplate = this.filters.template;
-      this.cookieItmView = this.filters.view;
-      this.pickedItmHall = this.filters.hall;
-      this.pickedItmWorker = this.filters.worker;
-      this.pickedItmTemplate = this.filters.template;
-      this.pickedItmView = this.filters.view;
-      this.showFilters = false;
-      this.composeLink();
-      this.emitChange();
-    },
-    // setFiltersFromCookie: function(){
-    //     // console.log(filters);
-    //     if(filters != null){
-    //         this.cookieItmHall = filters.hall;
-    //         this.cookieItmWorker = filters.worker;
-    //         this.cookieItmTemplate = filters.template;
-    //         this.cookieItmView = filters.view;
-    // 
-    //         this.pickedItmHall = filters.hall;
-    //         this.pickedItmWorker = filters.worker;
-    //         this.pickedItmTemplate = filters.template;
-    //         this.pickedItmView = filters.view;
-    // 
-    //         this.showFilters = false;
-    // 
-    //         this.composeLink();
-    //         this.emitChange();
-    //     }
-    // },
-    filtersFilled: function filtersFilled() {
-      // console.log(this.pickedItmHall);
-      return this.pickedItmHall != null && this.pickedItmWorker != null && this.pickedItmTemplate != null;
-    },
     apply: function apply() {
-      // return;
-      console.log(JSON.parse(JSON.stringify(this.search)));
-
-      if (!this.filtersFilled()) {
+      if (!this.isPickedItmsFilled) {
         alert('Please fill all fields');
       } else {
-        this.putFiltersInCookie(); // console.log(this.search);
-
-        this.composeLink();
-        console.log(this.search);
-        this.emitChange(); // setTimeout(() => {
-
-        this.$emit('showCalendar'); // }, 2000);
+        this.$store.commit('filters/changeFilters', {
+          hall: this.pickedItmHall,
+          template: this.pickedItmTemplate,
+          worker: this.pickedItmWorker,
+          view: this.pickedItmView
+        });
+        this.emitChange();
       }
     },
     emitChange: function emitChange() {
-      this.showFilters = false; // console.log('emitChange');
-
-      this.$emit('change', {
-        searchString: this.search,
-        searchObj: {
-          hall: this.pickedItmHall,
-          worker: this.pickedItmWorker,
-          template: this.pickedItmTemplate,
-          view: this.pickedItmView
-        }
-      });
+      this.showFilters = false;
+      this.$emit('change');
+      this.$emit('showCalendar');
     },
     resetPickedItems: function resetPickedItems() {
       var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -3406,25 +3406,20 @@ __webpack_require__.r(__webpack_exports__);
           this.pickedItmView = (_itm2 = itm) !== null && _itm2 !== void 0 ? _itm2 : null;
           break;
 
-        default: // code block
-
-      } // this.composeLink();
-
-    },
-    composeLink: function composeLink() {
-      var search = '';
-      if (this.pickedItmHall != null) search += (search == '' ? '' : '&') + 'hall=' + this.pickedItmHall.id;
-      if (this.pickedItmWorker != null) search += (search == '' ? '' : '&') + 'worker=' + this.pickedItmWorker.id;
-      if (this.pickedItmTemplate != null) search += (search == '' ? '' : '&') + 'template=' + this.pickedItmTemplate.id;
-      if (this.pickedItmView != null) search += (search == '' ? '' : '&') + 'view=' + this.pickedItmView.toLowerCase();
-      this.search = search; // console.log(search);
+        default:
+      }
     }
   },
   components: {
     ClientInfo: _ClientInfo_vue__WEBPACK_IMPORTED_MODULE_0__.default,
-    TemplatePicker: _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_1__.default
+    TemplatePicker: _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_2__.default,
+    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_1__.default
   },
   watch: {
+    // cookieFilters: function(val){
+    //     // console.log(JSON.parse(JSON.stringify(7272727272)));
+    //     // console.log(JSON.parse(JSON.stringify(val)));
+    // },
     pickedItmHall: function pickedItmHall(val) {
       if (val === null) {
         this.templates = null;
@@ -3432,11 +3427,44 @@ __webpack_require__.r(__webpack_exports__);
       } // console.log(JSON.parse(JSON.stringify(9999999)));
       // console.log(JSON.parse(JSON.stringify(val)));
 
-    },
-    pickedItmTemplate: function pickedItmTemplate(val) {
-      if (val === null) this.workers = null; // console.log(JSON.parse(JSON.stringify(9999999)));
-      // console.log(JSON.parse(JSON.stringify(val)));
-    }
+    } // cookieItmTemplate: function(val){
+    //     // console.log(JSON.parse(JSON.stringify(8181818181818)));
+    // 
+    //     if(val === null){
+    //         this.workers = null;
+    //     }else{
+    //         // this.setPickedTemplateIdsTrace();
+    //     }
+    // 
+    //     // return;
+    // 
+    //     if(val !== null && this.pickTemplateTimesCount == 0 && !this.isCookieFiltersEmpty){
+    //         this.setPickedTemplateIdsTrace();
+    //         console.log(JSON.parse(JSON.stringify(7373737373737)));
+    //     }else{
+    //         this.pickedTemplateIdsTrace = null;
+    //     }
+    // 
+    //     console.log(JSON.parse(JSON.stringify(8181818181818)));
+    //     console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+    //     console.log(JSON.parse(JSON.stringify(val)));
+    // 
+    //     if(val !== null && this.showFilters === true)
+    //         this.pickTemplateTimesCount++;
+    //     // console.log(JSON.parse(JSON.stringify(9999999)));
+    //     // console.log(JSON.parse(JSON.stringify(val)));
+    // },
+    // showFilters: function(val){
+    //     if(val === false){
+    //         this.pickTemplateTimesCount = 0;
+    //     }else{
+    //         // let loader = this.$refs['loader'];
+    //         // console.log(JSON.parse(JSON.stringify(loader)));
+    //         console.log(JSON.parse(JSON.stringify('loader')));
+    //         console.log(JSON.parse(JSON.stringify(this.$refs)));
+    //     }
+    // },
+
   }
 });
 
@@ -3906,7 +3934,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalAuthContent',
-  mounted: function mounted() {// let component = this.getComponentByName('modalAuthContent');
+  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify('modalAuthContent')));
+    // console.log(owner);
+    // console.log(this.$store.getters['owner/owner']);
+    // console.log(this.userId);
+    // console.log(JSON.parse(JSON.stringify(this.userId)));
+    // let component = this.getComponentByName('modalAuthContent');
     // console.log(component);
     // this.globalHelper();
     // console.log(this.currentDate);
@@ -3918,7 +3951,7 @@ __webpack_require__.r(__webpack_exports__);
     // });
   },
   // props: ['range','view','curreny_view_idx','currentDate'],
-  props: ['userId'],
+  // props: ['userId'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -3926,6 +3959,11 @@ __webpack_require__.r(__webpack_exports__);
       signupErrors: null,
       signinErrors: null
     };
+  },
+  computed: {
+    userId: function userId() {
+      return this.$store.getters['owner/ownerId'];
+    }
   },
   methods: {
     send: function send() {
@@ -4736,7 +4774,7 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   // props: ['range','view','curreny_view_idx','currentDate'],
-  props: ['clientInfo', 'allBookings'],
+  props: ['clientInfo'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -4748,6 +4786,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    allBookings: function allBookings() {
+      return this.$store.getters['client/bookings'];
+    },
     fullName: function fullName() {
       if (this.clientInfo == null) return 'guest';
       return this.clientInfo.first_name + ' ' + this.clientInfo.last_name;
@@ -6331,26 +6372,67 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // import ClientInfo from "./ClientInfo.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'dropdown_template_specifics',
   mounted: function mounted() {
-    console.log(JSON.parse(JSON.stringify(22222)));
-    console.log(JSON.parse(JSON.stringify(this.parsedTemplates))); // console.log(JSON.parse(JSON.stringify(this.specificsArr)));
+    console.log(JSON.parse(JSON.stringify(999999996666666)));
+    console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace))); // console.log(JSON.parse(JSON.stringify(this.specificsArr)));
     // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
     // console.log(JSON.parse(JSON.stringify(this.specifics)));
+
+    this.pickItemIfAlreadyPicked();
   },
   // props: ['owner','halls','clientInfo','allBookings','cookieFilters'],
-  props: ['templates', 'parsedTemplates', 'specifics', 'specificsAsIdKey', 'resetPickedProp'],
+  props: ['templates', 'parsedTemplates', 'specifics', 'specificsAsIdKey', 'resetPickedProp', 'pickedTemplateIdsTrace', 'isChangedOnClick'],
   data: function data() {
     return {
       // firstLevelIdsOfSpecifics: null,
       // specificsLevelMaxDeep: 0,
       pickedParsedTemplate: null,
-      resetPicked: 0
+      resetPicked: 0,
+      pickedTemplateIdsTraceWithoutFirstElement: null,
+      // rendered: false,
+      changedOnClick: false
     };
   },
   computed: {
+    IdTrace: function IdTrace() {},
+    pickedTemplateIdsTraceFirstElement: function pickedTemplateIdsTraceFirstElement() {
+      if (Array.isArray(this.pickedTemplateIdsTrace) && this.pickedTemplateIdsTrace.length > 0) {
+        var pickedTemplateIdsTrace = JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace));
+        return pickedTemplateIdsTrace.shift();
+      }
+
+      return null;
+    },
+    // pickedTemplateIdsTraceWithoutFirstElement: function(){
+    //     if(this.pickedTemplateIdsTrace === null)
+    //         return null;
+    // 
+    //     let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace));
+    //     pickedTemplateIdsTrace.shift();
+    // 
+    //     return pickedTemplateIdsTrace;
+    // 
+    //     // _this.$nextTick(function(){
+    //     //     console.log(JSON.parse(JSON.stringify(22222222222)));
+    //     //     console.log(JSON.parse(JSON.stringify(pickedTemplateIdsTrace)));
+    //     //     // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+    //     //     pickedTemplateIdsTrace.shift();
+    //     //     _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+    //     // });
+    // },
     pickedParsedTemplateFields: function pickedParsedTemplateFields() {
       // if()
       // if(this.pickedParsedTemplate === null
@@ -6364,19 +6446,100 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     change: function change(itm) {
-      var _this = this;
+      var _this2 = this;
 
       if (this.pickedParsedTemplate !== null && itm.id == this.pickedParsedTemplate.id) return;
+      this.changedOnClick = true;
       this.pickedParsedTemplate = null;
       this.$emit('change', null);
       this.$nextTick(function () {
-        _this.pickedParsedTemplate = itm;
-        if (itm.type == 'template') _this.$emit('change', itm.template);
+        _this2.pickedParsedTemplate = itm;
+        if (itm.type == 'template') _this2.$emit('change', itm.template);
       });
+    },
+    pickItemIfAlreadyPicked: function pickItemIfAlreadyPicked() {
+      if (this.isChangedOnClick === true) return;
+
+      var _this = this;
+
+      if (this.pickedTemplateIdsTraceFirstElement !== null) {
+        var i = 0;
+        var interval = setInterval(function () {
+          if (i > 10) clearInterval(interval);
+          i++;
+
+          if (typeof _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement] !== 'undefined') {
+            _this.pickedParsedTemplate = _this.parsedTemplates[_this.pickedTemplateIdsTraceFirstElement]; // _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement][0].click();
+
+            var pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace)); // if(pickedTemplateIdsTrace.length > 1){
+
+            pickedTemplateIdsTrace.shift(); // _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+            // }
+            // if(pickedTemplateIdsTrace.length > 1){
+
+            _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace; // _this.pickedTemplateIdsTraceWithoutFirstElement = null;
+            // }else{
+            //     _this.pickedTemplateIdsTraceWithoutFirstElement = null;
+            // }
+            // _this.rendered = true;
+
+            clearInterval(interval);
+          }
+        }, 100);
+      }
     }
   },
   components: {},
   watch: {
+    pickedTemplateIdsTrace: function pickedTemplateIdsTrace(val) {
+      // return;
+      // console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace')));
+      // console.log(JSON.parse(JSON.stringify(val)));
+      // if(this.rendered === false)
+      this.pickItemIfAlreadyPicked();
+      return;
+
+      var _this = this;
+
+      if (this.pickedTemplateIdsTraceFirstElement !== null) {
+        var i = 0;
+        var interval = setInterval(function () {
+          if (i > 10) clearInterval(interval);
+          i++;
+
+          if (typeof _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement] !== 'undefined') {
+            // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+            // pickedTemplateIdsTrace.shift();
+            // console.log(JSON.parse(JSON.stringify(22222222222)));
+            // console.log(JSON.parse(JSON.stringify(pickedTemplateIdsTrace)));
+            // _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+            _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement][0].click();
+
+            var pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+            setTimeout(function () {
+              pickedTemplateIdsTrace.shift();
+              _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+            }, 1000); // _this.$nextTick(function(){
+            //     console.log(JSON.parse(JSON.stringify(22222222222)));
+            //     pickedTemplateIdsTrace.shift();
+            //     console.log(JSON.parse(JSON.stringify(pickedTemplateIdsTrace)));
+            //     // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+            //     // pickedTemplateIdsTrace.shift();
+            //     // _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+            // });
+            // if(this.pickedTemplateIdsTrace === null)
+            //     return null;
+            // 
+            // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace));
+            // pickedTemplateIdsTrace.shift();
+            // 
+            // return pickedTemplateIdsTrace;
+
+            clearInterval(interval);
+          }
+        }, 100);
+      }
+    },
     parsedTemplates: function parsedTemplates(val) {
       if (val === null) this.pickedParsedTemplate = null; // console.log(JSON.parse(JSON.stringify(888888)));
       // console.log(JSON.parse(JSON.stringify(val)));
@@ -6428,113 +6591,27 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 // import ClientInfo from "./ClientInfo.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'extensive_template_filter_picker',
-  mounted: function mounted() {
-    console.log(JSON.parse(JSON.stringify(7777))); // console.log(JSON.parse(JSON.stringify(this.templates)));
-
-    console.log(JSON.parse(JSON.stringify('specifics')));
-    console.log(JSON.parse(JSON.stringify(this.specifics)));
-    console.log(JSON.parse(JSON.stringify('templates')));
-    console.log(JSON.parse(JSON.stringify(this.templates)));
+  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(7777)));
+    // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+    // console.log(JSON.parse(JSON.stringify(this.pickedTemplate)));
   },
   // props: ['owner','halls','clientInfo','allBookings','cookieFilters'],
-  props: ['templates', 'specifics', 'specificsAsIdKey', 'pickedHall'],
+  props: ['templates', 'specifics', 'specificsAsIdKey', 'pickedHall', 'pickedTemplate', 'pickedTemplateIdsTrace'],
   data: function data() {
     return {
       firstLevelIdsOfSpecifics: null,
       specificsLevelMaxDeep: 0,
-      parsedTemplates: null
+      parsedTemplates: null,
+      rendered: false // renderedDropdown: false,
+      // pickedTemplateIdsTrace: null,
+
     };
   },
-  computed: {// specificsArr: function(){
-    //     if(this.specifics !== null)
-    //         return Object.values(this.specifics);
-    //     return null;
-    // },
-    // filteredSpecificsArrIfPickedHallNotNull: function(){
-    //     return this.pickedHall === null ? null : this.filteredSpecificsArr;
-    // },
-    // filteredSpecificsArr: function(){
-    //     let specificsArr = this.specificsArr;
-    // 
-    //     if(this.firstLevelIdsOfSpecifics === null)
-    //         return specificsArr;
-    // 
-    //     let filteredSpecificsArr = [];
-    //     for(let i = 0; i < specificsArr.length; i++){
-    //         let specific = specificsArr[i];
-    // 
-    //         // console.log(JSON.parse(JSON.stringify(222222)));
-    //         // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
-    //         // console.log(JSON.parse(JSON.stringify(specific)));
-    // 
-    //         if(this.firstLevelIdsOfSpecifics.includes(specific.id))
-    //             filteredSpecificsArr.push(specific);
-    //     }
-    // 
-    //     // console.log(JSON.parse(JSON.stringify(222222)));
-    //     // console.log(JSON.parse(JSON.stringify(filteredSpecificsArr)));
-    // 
-    //     return filteredSpecificsArr;
-    // },
-  },
+  computed: {},
   methods: {
-    // setFirstLevelIdsOfSpecificsFromTemplates: function(){
-    //     if(Array.isArray(this.templates) && this.templates.length > 0){
-    //         let firstLevelIdsOfSpecifics = [];
-    //         for(let i = 0; i < this.templates.length; i++){
-    //             let template = this.templates[i];
-    //             // if(typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined' &&
-    //             // template.specific.ids_trace !== null){
-    //             //     let idsTraceArr = template.specific.ids_trace.split(',');
-    //             //     if(idsTraceArr.length > this.specificsLevelMaxDeep)
-    //             //         this.specificsLevelMaxDeep = idsTraceArr.length;
-    //             //     let firstIdTrace = parseInt(idsTraceArr[0]);
-    //             //     if(!firstLevelIdsOfSpecifics.includes(firstIdTrace))
-    //             //         firstLevelIdsOfSpecifics.push(firstIdTrace);
-    //             // }
-    // 
-    //             if(typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined'){
-    //                 if(template.specific.ids_trace !== null){
-    //                     let idsTraceArr = template.specific.ids_trace.split(',');
-    //                     if(idsTraceArr.length > this.specificsLevelMaxDeep)
-    //                         this.specificsLevelMaxDeep = idsTraceArr.length;
-    //                     let firstIdTrace = parseInt(idsTraceArr[0]);
-    //                     if(!firstLevelIdsOfSpecifics.includes(firstIdTrace))
-    //                         firstLevelIdsOfSpecifics.push(firstIdTrace);
-    //                 }else{
-    //                     if(!firstLevelIdsOfSpecifics.includes(template.specific.id))
-    //                         firstLevelIdsOfSpecifics.push(template.specific.id);
-    //                 }
-    //             }
-    // 
-    //         }
-    //         this.firstLevelIdsOfSpecifics = firstLevelIdsOfSpecifics;
-    //     }else{
-    //         this.firstLevelIdsOfSpecifics = null;
-    //     }
-    //     // this.showFilters = false;
-    //     // this.$emit('showCalendar');
-    // },
     parseTemplatesAccordingToSpecifics: function parseTemplatesAccordingToSpecifics() {
       var _this = this;
 
@@ -6583,7 +6660,7 @@ __webpack_require__.r(__webpack_exports__);
               }
 
               var idsTracePathTemp = idsTracePath + '.fields[' + template.id + ']';
-              eval("\n                                if(typeof parsedTemplates".concat(idsTracePath, " === 'undefined')\n                                    parsedTemplates").concat(idsTracePath, " = {\n                                        type: 'specific',\n                                        id: template.specific.id,\n                                        title: template.specific.title,\n                                        fields: {}\n                                    };\n                                \n                                // if(typeof parsedTemplates").concat(idsTracePathTemp, " === 'undefined')\n                                //     parsedTemplates").concat(idsTracePathTemp, " = {};\n                                \n                                parsedTemplates").concat(idsTracePathTemp, " = {\n                                    type: 'template',\n                                    template: template,\n                                    id: template.id,\n                                    title: template.title\n                                };\n                                \n                                // parsedTemplates").concat(idsTracePathTemp, "[template.id] = {\n                                //     type: 'template',\n                                //     id: template.id,\n                                //     title: template.title\n                                // };\n                            "));
+              eval("\n                                if(typeof parsedTemplates".concat(idsTracePath, " === 'undefined')\n                                    parsedTemplates").concat(idsTracePath, " = {\n                                        type: 'specific',\n                                        id: template.specific.id,\n                                        title: template.specific.title,\n                                        fields: {}\n                                    };\n                                \n                                parsedTemplates").concat(idsTracePathTemp, " = {\n                                    type: 'template',\n                                    template: template,\n                                    id: template.id,\n                                    title: template.title\n                                };\n                            "));
             } else {
               if (typeof parsedTemplates[template.specific.id] === 'undefined') parsedTemplates[template.specific.id] = {};
               parsedTemplates[template.specific.id][template.id] = template;
@@ -6595,10 +6672,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   components: {},
   watch: {
-    // parsedTemplates: function(val){
-    //     // console.log(JSON.parse(JSON.stringify(9999999)));
-    //     // console.log(JSON.parse(JSON.stringify(val)));
-    // },
+    pickedTemplate: function pickedTemplate(val) {// console.log(JSON.parse(JSON.stringify(9999999)));
+    },
     templates: function templates(val) {
       var _this2 = this;
 
@@ -6606,19 +6681,7 @@ __webpack_require__.r(__webpack_exports__);
       this.parsedTemplates = null;
       if (val !== null) this.$nextTick(function () {
         _this2.parseTemplatesAccordingToSpecifics();
-      }); // this.parseTemplatesAccordingToSpecifics();
-      // this.setFirstLevelIdsOfSpecificsFromTemplates();
-      // console.log(JSON.parse(JSON.stringify(9999999)));
-      // console.log(JSON.parse(JSON.stringify(val)));
-      // console.log(JSON.parse(JSON.stringify(this.firstLevelIdsOfSpecifics)));
-      // console.log(JSON.parse(JSON.stringify(this.sortedSpecificsArr)));
-      // this.specificsLevelMaxDeep
-      // console.log(JSON.parse(JSON.stringify(7777)));
-      // console.log(JSON.parse(JSON.stringify('specifics')));
-      // console.log(JSON.parse(JSON.stringify(this.specifics)));
-      // console.log(JSON.parse(JSON.stringify('templates')));
-      // console.log(JSON.parse(JSON.stringify(this.templates)));
-      // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+      });
     }
   }
 });
@@ -6665,6 +6728,432 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/index.js":
+/*!************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/index.js ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/calendar_2/booking/store/modules/filters.js");
+/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/calendar_2/booking/store/modules/owner.js");
+/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/calendar_2/booking/store/modules/client.js");
+/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/calendar_2/booking/store/modules/halls.js");
+/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/calendar_2/booking/store/modules/updater.js");
+
+
+
+
+
+
+
+vue__WEBPACK_IMPORTED_MODULE_5__.default.use(vuex__WEBPACK_IMPORTED_MODULE_6__.default); // const debug = process.env.NODE_ENV !== 'production'
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_6__.default.Store({
+  modules: {
+    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_0__.default,
+    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_1__.default,
+    client: _modules_client__WEBPACK_IMPORTED_MODULE_2__.default,
+    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_3__.default,
+    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default
+  } // strict: debug,
+  // plugins: debug ? [createLogger()] : []
+
+}));
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/client.js":
+/*!*********************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/client.js ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    info: null,
+    bookings: null,
+    token: typeof token === 'undefined' || token === null ? null : token
+  };
+}; // getters
+
+
+var getters = {
+  info: function info(state) {
+    return state.info;
+  },
+  bookings: function bookings(state) {
+    return state.bookings;
+  },
+  token: function token(state) {
+    return state.token;
+  }
+}; //actions
+
+var actions = {
+  increaseUpdaterCounter: function increaseUpdaterCounter(context) {
+    context.rootState.updater.counter++;
+    console.log(JSON.parse(JSON.stringify(context)));
+  } // logout: (context) => {
+  //     state.info = null;
+  //     state.bookings = null;
+  //     state.token = null;
+  //     cookie.remove('token');
+  // },
+
+}; // mutations
+
+var mutations = {
+  setInfo: function setInfo(state, info) {
+    // alert(newFilters);
+    // console.log(newFilters);
+    if (typeof info !== 'undefined' && typeof info !== null) {
+      state.info = info;
+    } else {
+      state.info = null;
+    }
+  },
+  setToken: function setToken(state, token) {
+    if (typeof token !== 'undefined' && typeof token !== null) {
+      state.token = token;
+    } else {
+      state.token = null;
+      cookie.remove('token');
+    }
+  },
+  setBookings: function setBookings(state, bookings) {
+    if (typeof bookings !== 'undefined' && typeof bookings !== null) {
+      state.bookings = bookings;
+    } else {
+      state.bookings = null;
+    }
+  },
+  logout: function logout(state) {
+    state.info = null;
+    state.bookings = null;
+    state.token = null;
+    cookie.remove('token');
+  }
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters,
+  actions: actions,
+  mutations: mutations
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/filters.js":
+/*!**********************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/filters.js ***!
+  \**********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    items: {
+      hall: calendarBookingHelper.getFilter('hall'),
+      template: calendarBookingHelper.getFilter('template'),
+      worker: calendarBookingHelper.getFilter('worker'),
+      view: 'month'
+    } // urlSearchPath: null,
+
+  };
+}; // getters
+
+
+var getters = {
+  views: function views() {
+    return ['month', 'week', 'day', 'list'];
+  },
+  all: function all(state) {
+    return {
+      hall: state.items.hall,
+      template: state.items.template,
+      worker: state.items.worker,
+      view: state.items.view
+    };
+  },
+  hall: function hall(state) {
+    return state.items.hall;
+  },
+  template: function template(state) {
+    return state.items.template;
+  },
+  worker: function worker(state) {
+    return state.items.worker;
+  },
+  view: function view(state) {
+    return state.items.view;
+  },
+  isEmpty: function isEmpty(state) {
+    return state.items.hall === null || state.items.template === null || state.items.worker === null;
+  },
+  urlSearchPath: function urlSearchPath(state) {
+    var search = '';
+    if (state.items.hall != null && typeof state.items.hall.id !== 'undefined') search += (search == '' ? '' : '&') + 'hall=' + state.items.hall.id;
+    if (state.items.worker != null && typeof state.items.worker.id !== 'undefined') search += (search == '' ? '' : '&') + 'worker=' + state.items.worker.id;
+    if (state.items.template != null && typeof state.items.template.id !== 'undefined') search += (search == '' ? '' : '&') + 'template=' + state.items.template.id;
+    if (state.items.view != null) search += (search == '' ? '' : '&') + 'view=' + state.items.view.toLowerCase().trim();
+    if (search == '') return null;
+    return search;
+  }
+}; // mutations
+
+var mutations = {
+  changeFilters: function changeFilters(state, newFilters) {
+    // alert(newFilters);
+    // console.log(newFilters);
+    if (typeof newFilters !== 'undefined' && typeof newFilters.hall !== 'undefined' && typeof newFilters.hall !== null && typeof newFilters.template !== 'undefined' && typeof newFilters.template !== null && typeof newFilters.worker !== 'undefined' && typeof newFilters.worker !== null && typeof newFilters.view !== 'undefined') {
+      state.items.hall = newFilters.hall;
+      state.items.template = newFilters.template;
+      state.items.worker = newFilters.worker;
+      state.items.view = newFilters.view;
+      cookie.set('filters', {
+        hall: state.items.hall.id,
+        worker: state.items.worker.id,
+        template: state.items.template.id,
+        view: state.items.view
+      });
+    }
+  } // composeUrlSearchPath: (state) => {
+  //     let search = '';
+  //     if(state.items.hall != null && typeof state.items.hall.id !== 'undefined')
+  //         search += (search == '' ? '' : '&') + 'hall=' + state.items.hall.id;
+  //     if(state.items.worker != null && typeof state.items.worker.id !== 'undefined)
+  //         search += (search == '' ? '' : '&') + 'worker=' + state.items.worker.id;
+  //     if(state.items.template != null && typeof state.items.template.id !== 'undefined)
+  //         search += (search == '' ? '' : '&') + 'template=' + state.items.template.id;
+  //     if(state.items.view != null)
+  //         search += (search == '' ? '' : '&') + 'view=' + state.items.view.toLowerCase().trim();
+  // 
+  //     if(search == '')
+  //         state.urlSearchPath = null;
+  //     this.urlSearchPath = search;
+  // },
+
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters,
+  // actions,
+  mutations: mutations
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/halls.js":
+/*!********************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/halls.js ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    all: halls
+  };
+}; // getters
+
+
+var getters = {
+  all: function all(state) {
+    return state.all;
+  }
+}; // mutations
+
+var mutations = {// changeFilters: (state, newFilters) => {
+  //     // alert(newFilters);
+  //     // console.log(newFilters);
+  //     if(typeof newFilters !== 'undefined' &&
+  //     typeof newFilters.hall !== 'undefined' && typeof newFilters.hall !== null &&
+  //     typeof newFilters.template !== 'undefined' && typeof newFilters.template !== null &&
+  //     typeof newFilters.worker !== 'undefined' && typeof newFilters.worker !== null &&
+  //     typeof newFilters.view !== 'undefined'){
+  //         state.items.hall = newFilters.hall;
+  //         state.items.template = newFilters.template;
+  //         state.items.worker = newFilters.worker;
+  //         state.items.view = newFilters.view;
+  // 
+  //         cookie.set('filters', {
+  //             hall: state.items.hall.id,
+  //             worker: state.items.worker.id,
+  //             template: state.items.template.id,
+  //             view: state.items.view,
+  //         });
+  //     }
+  // },
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters // actions,
+  // mutations
+
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/owner.js":
+/*!********************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/owner.js ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    owner: owner
+  };
+}; // getters
+
+
+var getters = {
+  owner: function owner(state) {
+    return state.owner;
+  },
+  ownerId: function ownerId(state) {
+    return state.owner.id;
+  } // my: () => {
+  //     state.owner.id;
+  // },
+
+}; // mutations
+
+var mutations = {// changeFilters: (state, newFilters) => {
+  //     // alert(newFilters);
+  //     // console.log(newFilters);
+  //     if(typeof newFilters !== 'undefined' &&
+  //     typeof newFilters.hall !== 'undefined' && typeof newFilters.hall !== null &&
+  //     typeof newFilters.template !== 'undefined' && typeof newFilters.template !== null &&
+  //     typeof newFilters.worker !== 'undefined' && typeof newFilters.worker !== null &&
+  //     typeof newFilters.view !== 'undefined'){
+  //         state.items.hall = newFilters.hall;
+  //         state.items.template = newFilters.template;
+  //         state.items.worker = newFilters.worker;
+  //         state.items.view = newFilters.view;
+  // 
+  //         cookie.set('filters', {
+  //             hall: state.items.hall.id,
+  //             worker: state.items.worker.id,
+  //             template: state.items.template.id,
+  //             view: state.items.view,
+  //         });
+  //     }
+  // },
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters // actions,
+  // mutations
+
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/updater.js":
+/*!**********************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/updater.js ***!
+  \**********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    counter: 0
+  };
+}; // getters
+
+
+var getters = {
+  counter: function counter(state) {
+    return state.counter;
+  } // clientInfo: (state) => {
+  //     return this.context.getters['client/info'];
+  // },
+
+}; // mutations
+
+var mutations = {
+  increaseCounter: function increaseCounter(state) {
+    state.counter++;
+  }
+};
+var actions = {
+  clientInfo: function clientInfo(context) {
+    console.log(JSON.parse(JSON.stringify(context.rootState.client))); // context.rootState;
+    // const savedCartItems = [...state.items]
+    // commit('setCheckoutStatus', null)
+    // // empty cart
+    // commit('setCartItems', { items: [] })
+    // shop.buyProducts(
+    //   products,
+    //   () => commit('setCheckoutStatus', 'successful'),
+    //   () => {
+    //     commit('setCheckoutStatus', 'failed')
+    //     // rollback to the cart saved before sending the request
+    //     commit('setCartItems', { items: savedCartItems })
+    //   }
+    // )
+  }
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters,
+  actions: actions,
+  mutations: mutations
+});
 
 /***/ }),
 
@@ -49005,13 +49494,8 @@ var render = function() {
       _c("filters", {
         ref: "filters",
         attrs: {
-          owner: _vm.owner,
-          "cookie-filters": _vm.cookieFilters,
-          halls: _vm.halls,
           "template-specifics": _vm.templateSpecifics,
-          "template-specifics-as-id-key": _vm.templateSpecificsAsIdKey,
-          "client-info": _vm.clientInfo,
-          "all-bookings": _vm.allBookings
+          "template-specifics-as-id-key": _vm.templateSpecificsAsIdKey
         },
         on: {
           change: function($event) {
@@ -49187,12 +49671,9 @@ var render = function() {
             [
               _vm.clientInfo
                 ? _c("modal-client-info-content", {
-                    attrs: {
-                      "client-info": _vm.clientInfo,
-                      "all-bookings": _vm.allBookings
-                    }
+                    attrs: { "client-info": _vm.clientInfo }
                   })
-                : _c("modal-auth-content", { attrs: { "user-id": _vm.userId } })
+                : _c("modal-auth-content")
             ],
             1
           )
@@ -49529,115 +50010,188 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c(
-      "div",
-      {
-        directives: [
-          {
-            name: "show",
-            rawName: "v-show",
-            value: _vm.showFilters,
-            expression: "showFilters"
-          }
-        ],
-        staticClass: "filters-select"
-      },
-      [
-        _vm._m(0),
-        _vm._v(" "),
-        _c("div", { staticClass: "filter-select-item" }, [
-          _c("div", [
-            _c(
-              "div",
-              { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
-              [
-                _c("span", [_vm._v("View: ")]),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "btn btn-sm btn-info dropdown-toggle",
-                    attrs: {
-                      href: "#",
-                      "data-toggle": "dropdown",
-                      "aria-haspopup": "true",
-                      "aria-expanded": "false"
-                    }
-                  },
-                  [
-                    _vm._v(
-                      "\n                        " +
-                        _vm._s(_vm.pickedItmView) +
-                        "\n                    "
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "dropdown-menu" },
-                  _vm._l(_vm.views, function(itm) {
-                    return itm.toLowerCase() != _vm.pickedItmView.toLowerCase()
-                      ? _c(
-                          "a",
-                          {
-                            staticClass: "dropdown-item",
-                            attrs: { href: "#" },
-                            on: {
-                              click: function($event) {
-                                $event.preventDefault()
-                                return _vm.change("view", itm)
-                              }
-                            }
-                          },
-                          [_vm._v(_vm._s(itm))]
-                        )
-                      : _vm._e()
-                  }),
-                  0
-                )
-              ]
-            )
-          ]),
+    _vm.showFilters
+      ? _c("div", { staticClass: "filters-select" }, [
+          _vm._m(0),
           _vm._v(" "),
-          _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
-            _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
+          _c("div", { staticClass: "filter-select-item" }, [
+            _c("div", [
+              _c(
+                "div",
+                { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
+                [
+                  _c("span", [_vm._v("View: ")]),
+                  _vm._v(" "),
+                  _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-sm btn-info dropdown-toggle",
+                      attrs: {
+                        href: "#",
+                        "data-toggle": "dropdown",
+                        "aria-haspopup": "true",
+                        "aria-expanded": "false"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(_vm.pickedItmView) +
+                          "\n                    "
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "dropdown-menu" },
+                    _vm._l(_vm.views, function(itm) {
+                      return itm.toLowerCase() !=
+                        _vm.pickedItmView.toLowerCase()
+                        ? _c(
+                            "a",
+                            {
+                              staticClass: "dropdown-item",
+                              attrs: { href: "#" },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  return _vm.change("view", itm)
+                                }
+                              }
+                            },
+                            [_vm._v(_vm._s(itm))]
+                          )
+                        : _vm._e()
+                    }),
+                    0
+                  )
+                ]
+              )
+            ]),
             _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "card-body" },
-              [
-                _c(
-                  "div",
-                  { staticClass: "dropdown", attrs: { id: "hallDropdown" } },
-                  [
-                    _c("span", [_vm._v("Hall: ")]),
-                    _vm._v(" "),
-                    _c(
-                      "a",
-                      {
-                        staticClass: "btn btn-sm btn-info dropdown-toggle",
-                        attrs: { href: "#", "data-toggle": "dropdown" }
-                      },
-                      [
-                        _vm._v(
-                          "\n                            " +
-                            _vm._s(
-                              _vm.pickedItmHall == null
-                                ? "---"
-                                : _vm.pickedItmHall.title
-                            ) +
-                            "\n                        "
-                        )
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      { staticClass: "dropdown-menu" },
-                      [
-                        _vm.halls.length
-                          ? _vm._l(_vm.halls, function(itm) {
+            _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
+              _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "card-body" },
+                [
+                  _c(
+                    "div",
+                    { staticClass: "dropdown", attrs: { id: "hallDropdown" } },
+                    [
+                      _c("span", [_vm._v("Hall: ")]),
+                      _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          staticClass: "btn btn-sm btn-info dropdown-toggle",
+                          attrs: { href: "#", "data-toggle": "dropdown" }
+                        },
+                        [
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(
+                                _vm.pickedItmHall == null
+                                  ? "---"
+                                  : _vm.pickedItmHall.title
+                              ) +
+                              "\n                        "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "dropdown-menu" },
+                        [
+                          _vm.halls.length
+                            ? _vm._l(_vm.halls, function(itm) {
+                                return _c(
+                                  "a",
+                                  {
+                                    staticClass: "dropdown-item",
+                                    attrs: { href: "#" },
+                                    on: {
+                                      click: function($event) {
+                                        $event.preventDefault()
+                                        return _vm.change("hall", itm)
+                                      }
+                                    }
+                                  },
+                                  [_vm._v(_vm._s(itm.title))]
+                                )
+                              })
+                            : [
+                                _c("div", { staticClass: "small pl-1 pr-1" }, [
+                                  _vm._v(
+                                    "\n                                    No items to choose ...\n                                "
+                                  )
+                                ])
+                              ]
+                        ],
+                        2
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm.templateSpecifics
+                    ? _c("template-picker", {
+                        attrs: {
+                          templates: _vm.templates,
+                          "picked-hall": _vm.pickedItmHall,
+                          "picked-template": _vm.pickedItmTemplate,
+                          specifics: _vm.templateSpecifics,
+                          "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
+                          "picked-template-ids-trace":
+                            _vm.pickedTemplateIdsTrace
+                        },
+                        on: {
+                          change: function($event) {
+                            return _vm.change("template", $event)
+                          }
+                        }
+                      })
+                    : _c(
+                        "div",
+                        {
+                          staticClass: "dropdown",
+                          attrs: { id: "templateDropdown" }
+                        },
+                        [
+                          _c("span", [_vm._v("Template:")]),
+                          _vm._v(" "),
+                          _c(
+                            "a",
+                            {
+                              staticClass:
+                                "btn btn-sm btn-info dropdown-toggle",
+                              class: { disabled: _vm.templates == null },
+                              attrs: {
+                                href: "#",
+                                "data-toggle": "dropdown",
+                                "aria-haspopup": "true",
+                                "aria-expanded": "false"
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                            " +
+                                  _vm._s(
+                                    _vm.pickedItmTemplate == null
+                                      ? "---"
+                                      : _vm.pickedItmTemplate.title
+                                  ) +
+                                  "\n                        "
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "dropdown-menu" },
+                            _vm._l(_vm.templates, function(itm) {
                               return _c(
                                 "a",
                                 {
@@ -49646,327 +50200,217 @@ var render = function() {
                                   on: {
                                     click: function($event) {
                                       $event.preventDefault()
-                                      return _vm.change("hall", itm)
+                                      return _vm.change("template", itm)
                                     }
                                   }
                                 },
                                 [_vm._v(_vm._s(itm.title))]
                               )
-                            })
-                          : [
-                              _c("div", { staticClass: "small pl-1 pr-1" }, [
-                                _vm._v(
-                                  "\n                                    No items to choose ...\n                                "
-                                )
-                              ])
-                            ]
-                      ],
-                      2
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _vm.templateSpecifics
-                  ? _c("template-picker", {
-                      attrs: {
-                        templates: _vm.templates,
-                        "picked-hall": _vm.pickedItmHall,
-                        specifics: _vm.templateSpecifics,
-                        "specifics-as-id-key": _vm.templateSpecificsAsIdKey
-                      },
-                      on: {
-                        change: function($event) {
-                          return _vm.change("template", $event)
-                        }
-                      }
-                    })
-                  : _c(
-                      "div",
-                      {
-                        staticClass: "dropdown",
-                        attrs: { id: "templateDropdown" }
-                      },
-                      [
-                        _c("span", [_vm._v("Template:")]),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "btn btn-sm btn-info dropdown-toggle",
-                            class: { disabled: _vm.templates == null },
-                            attrs: {
-                              href: "#",
-                              "data-toggle": "dropdown",
-                              "aria-haspopup": "true",
-                              "aria-expanded": "false"
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                            " +
-                                _vm._s(
-                                  _vm.pickedItmTemplate == null
-                                    ? "---"
-                                    : _vm.pickedItmTemplate.title
-                                ) +
-                                "\n                        "
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          { staticClass: "dropdown-menu" },
-                          _vm._l(_vm.templates, function(itm) {
-                            return _c(
-                              "a",
-                              {
-                                staticClass: "dropdown-item",
-                                attrs: { href: "#" },
-                                on: {
-                                  click: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.change("template", itm)
-                                  }
+                            }),
+                            0
+                          )
+                        ]
+                      ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass: "dropdown",
+                      attrs: { id: "workerDropdown" }
+                    },
+                    [
+                      _c("span", [_vm._v("Worker:")]),
+                      _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          staticClass: "btn btn-sm btn-info dropdown-toggle",
+                          class: { disabled: _vm.workers == null },
+                          attrs: {
+                            href: "#",
+                            "data-toggle": "dropdown",
+                            "aria-haspopup": "true",
+                            "aria-expanded": "false"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(
+                                _vm.pickedItmWorker == null
+                                  ? "---"
+                                  : _vm.fullName(_vm.pickedItmWorker)
+                              ) +
+                              "\n                        "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "dropdown-menu" },
+                        _vm._l(_vm.workers, function(itm) {
+                          return _c(
+                            "a",
+                            {
+                              staticClass: "dropdown-item",
+                              attrs: { href: "#" },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  return _vm.change("worker", itm)
                                 }
-                              },
-                              [_vm._v(_vm._s(itm.title))]
-                            )
-                          }),
-                          0
-                        )
-                      ]
-                    ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "dropdown", attrs: { id: "workerDropdown" } },
-                  [
-                    _c("span", [_vm._v("Worker:")]),
-                    _vm._v(" "),
-                    _c(
-                      "a",
-                      {
-                        staticClass: "btn btn-sm btn-info dropdown-toggle",
-                        class: { disabled: _vm.workers == null },
-                        attrs: {
-                          href: "#",
-                          "data-toggle": "dropdown",
-                          "aria-haspopup": "true",
-                          "aria-expanded": "false"
-                        }
-                      },
-                      [
-                        _vm._v(
-                          "\n                            " +
-                            _vm._s(
-                              _vm.pickedItmWorker == null
-                                ? "---"
-                                : _vm.fullName(_vm.pickedItmWorker)
-                            ) +
-                            "\n                        "
-                        )
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      { staticClass: "dropdown-menu" },
-                      _vm._l(_vm.workers, function(itm) {
-                        return _c(
-                          "a",
-                          {
-                            staticClass: "dropdown-item",
-                            attrs: { href: "#" },
-                            on: {
-                              click: function($event) {
-                                $event.preventDefault()
-                                return _vm.change("worker", itm)
                               }
-                            }
-                          },
-                          [_vm._v(_vm._s(_vm.fullName(itm)))]
-                        )
-                      }),
-                      0
-                    )
-                  ]
-                )
-              ],
-              1
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "apply pt-2" }, [
-            _c(
-              "a",
-              {
-                staticClass: "btn btn-sm btn-primary w-100",
-                attrs: { href: "#" },
-                on: {
-                  click: function($event) {
-                    $event.preventDefault()
-                    return _vm.apply($event)
+                            },
+                            [_vm._v(_vm._s(_vm.fullName(itm)))]
+                          )
+                        }),
+                        0
+                      )
+                    ]
+                  )
+                ],
+                1
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "apply pt-2" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "btn btn-sm btn-primary w-100",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.apply($event)
+                    }
                   }
-                }
-              },
-              [_vm._v("\n                    Apply\n                ")]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "back pt-2" }, [
-            _c(
-              "a",
-              {
-                staticClass: "btn btn-sm btn-link w-100",
-                attrs: { href: "#" },
-                on: {
-                  click: function($event) {
-                    $event.preventDefault()
-                    return _vm.backToCalendar($event)
+                },
+                [_vm._v("\n                    Apply\n                ")]
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "back pt-2" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "btn btn-sm btn-link w-100",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.backToCalendar($event)
+                    }
                   }
-                }
-              },
-              [_vm._v("\n                    Back\n                ")]
-            )
+                },
+                [_vm._v("\n                    Back\n                ")]
+              )
+            ])
           ])
         ])
-      ]
-    ),
-    _vm._v(" "),
-    _c(
-      "div",
-      {
-        directives: [
-          {
-            name: "show",
-            rawName: "v-show",
-            value: !_vm.showFilters,
-            expression: "!showFilters"
-          }
-        ],
-        staticClass: "filters"
-      },
-      [
-        _c("div", { staticClass: "container-fluid" }, [
-          _c("div", { staticClass: "filter" }, [
-            _c(
-              "a",
-              {
-                staticClass: "btn btn-sm btn-secondary",
-                attrs: { href: "#", role: "button" },
-                on: {
-                  click: function($event) {
-                    $event.preventDefault()
-                    return _vm.showFiltersPicker()
-                  }
-                }
-              },
-              [
-                _c(
-                  "svg",
-                  {
-                    staticClass: "bi bi-funnel-fill",
-                    attrs: {
-                      xmlns: "http://www.w3.org/2000/svg",
-                      width: "16",
-                      height: "16",
-                      fill: "currentColor",
-                      viewBox: "0 0 16 16"
+      : _c("div", { staticClass: "filters" }, [
+          _c("div", { staticClass: "container-fluid" }, [
+            _c("div", { staticClass: "filter" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "btn btn-sm btn-secondary",
+                  attrs: { href: "#", role: "button" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showFiltersPicker()
                     }
-                  },
-                  [
-                    _c("path", {
+                  }
+                },
+                [
+                  _c(
+                    "svg",
+                    {
+                      staticClass: "bi bi-funnel-fill",
                       attrs: {
-                        d:
-                          "M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "16",
+                        height: "16",
+                        fill: "currentColor",
+                        viewBox: "0 0 16 16"
                       }
-                    })
-                  ]
-                )
-              ]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "filter" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn-filter btn btn-sm btn-info",
-                attrs: { type: "button" }
-              },
-              [
-                _vm._v(
-                  "\n                    " +
-                    _vm._s(_vm.cookieItmHallTitle) +
-                    " "
-                ),
-                _c("span", { staticClass: "badge badge-light" }, [
-                  _vm._v("Hall")
-                ])
-              ]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "filter" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn-filter btn btn-sm btn-info",
-                attrs: { type: "button" }
-              },
-              [
-                _vm._v(
-                  "\n                    " +
-                    _vm._s(_vm.cookieItmTemplateTitle) +
-                    " "
-                ),
-                _c("span", { staticClass: "badge badge-light" }, [
-                  _vm._v("Template")
-                ])
-              ]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "filter" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn-filter btn btn-sm btn-info",
-                attrs: { type: "button" }
-              },
-              [
-                _vm._v(
-                  "\n                    " +
-                    _vm._s(_vm.cookieItmWorkerName) +
-                    " "
-                ),
-                _c("span", { staticClass: "badge badge-light" }, [
-                  _vm._v("Worker")
-                ])
-              ]
-            )
-          ]),
-          _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: "float-right" },
-            [
-              _c("client-info", {
-                attrs: {
-                  "client-info": _vm.clientInfo,
-                  "all-bookings": _vm.allBookings,
-                  "user-id": _vm.owner.id
-                }
-              })
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("div", { staticClass: "clearfix" })
+                    },
+                    [
+                      _c("path", {
+                        attrs: {
+                          d:
+                            "M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"
+                        }
+                      })
+                    ]
+                  )
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "filter" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn-filter btn btn-sm btn-info",
+                  attrs: { type: "button" }
+                },
+                [
+                  _vm._v(
+                    "\n                    " + _vm._s(_vm.itmHallTitle) + " "
+                  ),
+                  _c("span", { staticClass: "badge badge-light" }, [
+                    _vm._v("Hall")
+                  ])
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "filter" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn-filter btn btn-sm btn-info",
+                  attrs: { type: "button" }
+                },
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(_vm.itmTemplateTitle) +
+                      " "
+                  ),
+                  _c("span", { staticClass: "badge badge-light" }, [
+                    _vm._v("Template")
+                  ])
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "filter" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn-filter btn btn-sm btn-info",
+                  attrs: { type: "button" }
+                },
+                [
+                  _vm._v(
+                    "\n                    " + _vm._s(_vm.itmWorkerName) + " "
+                  ),
+                  _c("span", { staticClass: "badge badge-light" }, [
+                    _vm._v("Worker")
+                  ])
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "float-right" }, [_c("client-info")], 1),
+            _vm._v(" "),
+            _c("div", { staticClass: "clearfix" })
+          ])
         ])
-      ]
-    )
   ])
 }
 var staticRenderFns = [
@@ -50541,10 +50985,7 @@ var render = function() {
         ? _c("div", [
             _c(
               "form",
-              {
-                ref: "signinForm",
-                attrs: { action: "", method: "post", id: "signinForm" }
-              },
+              { ref: "signinForm", attrs: { action: "", method: "post" } },
               [_vm._m(1), _vm._v(" "), _vm._m(2)]
             )
           ])
@@ -50603,12 +51044,7 @@ var staticRenderFns = [
     return _c("div", { staticClass: "form-group" }, [
       _c("input", {
         staticClass: "form-control",
-        attrs: {
-          name: "email",
-          type: "email",
-          id: "signinEmail",
-          placeholder: "Email"
-        }
+        attrs: { name: "email", type: "email", placeholder: "Email" }
       })
     ])
   },
@@ -50619,12 +51055,7 @@ var staticRenderFns = [
     return _c("div", { staticClass: "form-group" }, [
       _c("input", {
         staticClass: "form-control",
-        attrs: {
-          name: "password",
-          type: "password",
-          id: "signinPassword",
-          placeholder: "Password"
-        }
+        attrs: { name: "password", type: "password", placeholder: "Password" }
       })
     ])
   }
@@ -52297,8 +52728,10 @@ var render = function() {
                 return _c(
                   "a",
                   {
+                    ref: "itm_specific_" + item.id,
+                    refInFor: true,
                     staticClass: "dropdown-item",
-                    attrs: { href: "#" },
+                    attrs: { id: "itm_specific_" + item.id, href: "#" },
                     on: {
                       click: function($event) {
                         $event.preventDefault()
@@ -52306,7 +52739,13 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v(_vm._s(item.title))]
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(item.title) +
+                        "\n                "
+                    )
+                  ]
                 )
               }),
               0
@@ -52316,8 +52755,14 @@ var render = function() {
         _vm._v(" "),
         _vm.pickedParsedTemplateFields
           ? _c("dropdown-template-specifics", {
+              key:
+                "dropdown_template_specifics_" +
+                Math.floor(Math.random() * 10000),
               attrs: {
+                "is-changed-on-click": _vm.changedOnClick,
                 templates: _vm.templates,
+                "picked-template-ids-trace":
+                  _vm.pickedTemplateIdsTraceWithoutFirstElement,
                 "reset-picked-prop": _vm.resetPicked,
                 "parsed-templates": _vm.pickedParsedTemplateFields,
                 specifics: _vm.specifics,
@@ -52367,6 +52812,7 @@ var render = function() {
       _c("dropdown-template-specifics", {
         attrs: {
           templates: _vm.templates,
+          "picked-template-ids-trace": _vm.pickedTemplateIdsTrace,
           "parsed-templates": _vm.parsedTemplates,
           specifics: _vm.specifics,
           "specifics-as-id-key": _vm.specificsAsIdKey
@@ -71860,6 +72306,1272 @@ module.exports = NATIVE_SYMBOL
 /******/ });
 //# sourceMappingURL=VueTimepicker.common.js.map
 
+/***/ }),
+
+/***/ "./node_modules/vuex/dist/vuex.esm.js":
+/*!********************************************!*\
+  !*** ./node_modules/vuex/dist/vuex.esm.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   "Store": () => (/* binding */ Store),
+/* harmony export */   "createLogger": () => (/* binding */ createLogger),
+/* harmony export */   "createNamespacedHelpers": () => (/* binding */ createNamespacedHelpers),
+/* harmony export */   "install": () => (/* binding */ install),
+/* harmony export */   "mapActions": () => (/* binding */ mapActions),
+/* harmony export */   "mapGetters": () => (/* binding */ mapGetters),
+/* harmony export */   "mapMutations": () => (/* binding */ mapMutations),
+/* harmony export */   "mapState": () => (/* binding */ mapState)
+/* harmony export */ });
+/*!
+ * vuex v3.6.2
+ * (c) 2021 Evan You
+ * @license MIT
+ */
+function applyMixin (Vue) {
+  var version = Number(Vue.version.split('.')[0]);
+
+  if (version >= 2) {
+    Vue.mixin({ beforeCreate: vuexInit });
+  } else {
+    // override init and inject vuex init procedure
+    // for 1.x backwards compatibility.
+    var _init = Vue.prototype._init;
+    Vue.prototype._init = function (options) {
+      if ( options === void 0 ) options = {};
+
+      options.init = options.init
+        ? [vuexInit].concat(options.init)
+        : vuexInit;
+      _init.call(this, options);
+    };
+  }
+
+  /**
+   * Vuex init hook, injected into each instances init hooks list.
+   */
+
+  function vuexInit () {
+    var options = this.$options;
+    // store injection
+    if (options.store) {
+      this.$store = typeof options.store === 'function'
+        ? options.store()
+        : options.store;
+    } else if (options.parent && options.parent.$store) {
+      this.$store = options.parent.$store;
+    }
+  }
+}
+
+var target = typeof window !== 'undefined'
+  ? window
+  : typeof __webpack_require__.g !== 'undefined'
+    ? __webpack_require__.g
+    : {};
+var devtoolHook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+
+function devtoolPlugin (store) {
+  if (!devtoolHook) { return }
+
+  store._devtoolHook = devtoolHook;
+
+  devtoolHook.emit('vuex:init', store);
+
+  devtoolHook.on('vuex:travel-to-state', function (targetState) {
+    store.replaceState(targetState);
+  });
+
+  store.subscribe(function (mutation, state) {
+    devtoolHook.emit('vuex:mutation', mutation, state);
+  }, { prepend: true });
+
+  store.subscribeAction(function (action, state) {
+    devtoolHook.emit('vuex:action', action, state);
+  }, { prepend: true });
+}
+
+/**
+ * Get the first item that pass the test
+ * by second argument function
+ *
+ * @param {Array} list
+ * @param {Function} f
+ * @return {*}
+ */
+function find (list, f) {
+  return list.filter(f)[0]
+}
+
+/**
+ * Deep copy the given object considering circular structure.
+ * This function caches all nested objects and its copies.
+ * If it detects circular structure, use cached copy to avoid infinite loop.
+ *
+ * @param {*} obj
+ * @param {Array<Object>} cache
+ * @return {*}
+ */
+function deepCopy (obj, cache) {
+  if ( cache === void 0 ) cache = [];
+
+  // just return if obj is immutable value
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  // if obj is hit, it is in circular structure
+  var hit = find(cache, function (c) { return c.original === obj; });
+  if (hit) {
+    return hit.copy
+  }
+
+  var copy = Array.isArray(obj) ? [] : {};
+  // put the copy into cache at first
+  // because we want to refer it in recursive deepCopy
+  cache.push({
+    original: obj,
+    copy: copy
+  });
+
+  Object.keys(obj).forEach(function (key) {
+    copy[key] = deepCopy(obj[key], cache);
+  });
+
+  return copy
+}
+
+/**
+ * forEach for object
+ */
+function forEachValue (obj, fn) {
+  Object.keys(obj).forEach(function (key) { return fn(obj[key], key); });
+}
+
+function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+
+function isPromise (val) {
+  return val && typeof val.then === 'function'
+}
+
+function assert (condition, msg) {
+  if (!condition) { throw new Error(("[vuex] " + msg)) }
+}
+
+function partial (fn, arg) {
+  return function () {
+    return fn(arg)
+  }
+}
+
+// Base data struct for store's module, package with some attribute and method
+var Module = function Module (rawModule, runtime) {
+  this.runtime = runtime;
+  // Store some children item
+  this._children = Object.create(null);
+  // Store the origin module object which passed by programmer
+  this._rawModule = rawModule;
+  var rawState = rawModule.state;
+
+  // Store the origin module's state
+  this.state = (typeof rawState === 'function' ? rawState() : rawState) || {};
+};
+
+var prototypeAccessors = { namespaced: { configurable: true } };
+
+prototypeAccessors.namespaced.get = function () {
+  return !!this._rawModule.namespaced
+};
+
+Module.prototype.addChild = function addChild (key, module) {
+  this._children[key] = module;
+};
+
+Module.prototype.removeChild = function removeChild (key) {
+  delete this._children[key];
+};
+
+Module.prototype.getChild = function getChild (key) {
+  return this._children[key]
+};
+
+Module.prototype.hasChild = function hasChild (key) {
+  return key in this._children
+};
+
+Module.prototype.update = function update (rawModule) {
+  this._rawModule.namespaced = rawModule.namespaced;
+  if (rawModule.actions) {
+    this._rawModule.actions = rawModule.actions;
+  }
+  if (rawModule.mutations) {
+    this._rawModule.mutations = rawModule.mutations;
+  }
+  if (rawModule.getters) {
+    this._rawModule.getters = rawModule.getters;
+  }
+};
+
+Module.prototype.forEachChild = function forEachChild (fn) {
+  forEachValue(this._children, fn);
+};
+
+Module.prototype.forEachGetter = function forEachGetter (fn) {
+  if (this._rawModule.getters) {
+    forEachValue(this._rawModule.getters, fn);
+  }
+};
+
+Module.prototype.forEachAction = function forEachAction (fn) {
+  if (this._rawModule.actions) {
+    forEachValue(this._rawModule.actions, fn);
+  }
+};
+
+Module.prototype.forEachMutation = function forEachMutation (fn) {
+  if (this._rawModule.mutations) {
+    forEachValue(this._rawModule.mutations, fn);
+  }
+};
+
+Object.defineProperties( Module.prototype, prototypeAccessors );
+
+var ModuleCollection = function ModuleCollection (rawRootModule) {
+  // register root module (Vuex.Store options)
+  this.register([], rawRootModule, false);
+};
+
+ModuleCollection.prototype.get = function get (path) {
+  return path.reduce(function (module, key) {
+    return module.getChild(key)
+  }, this.root)
+};
+
+ModuleCollection.prototype.getNamespace = function getNamespace (path) {
+  var module = this.root;
+  return path.reduce(function (namespace, key) {
+    module = module.getChild(key);
+    return namespace + (module.namespaced ? key + '/' : '')
+  }, '')
+};
+
+ModuleCollection.prototype.update = function update$1 (rawRootModule) {
+  update([], this.root, rawRootModule);
+};
+
+ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
+    var this$1 = this;
+    if ( runtime === void 0 ) runtime = true;
+
+  if ((true)) {
+    assertRawModule(path, rawModule);
+  }
+
+  var newModule = new Module(rawModule, runtime);
+  if (path.length === 0) {
+    this.root = newModule;
+  } else {
+    var parent = this.get(path.slice(0, -1));
+    parent.addChild(path[path.length - 1], newModule);
+  }
+
+  // register nested modules
+  if (rawModule.modules) {
+    forEachValue(rawModule.modules, function (rawChildModule, key) {
+      this$1.register(path.concat(key), rawChildModule, runtime);
+    });
+  }
+};
+
+ModuleCollection.prototype.unregister = function unregister (path) {
+  var parent = this.get(path.slice(0, -1));
+  var key = path[path.length - 1];
+  var child = parent.getChild(key);
+
+  if (!child) {
+    if ((true)) {
+      console.warn(
+        "[vuex] trying to unregister module '" + key + "', which is " +
+        "not registered"
+      );
+    }
+    return
+  }
+
+  if (!child.runtime) {
+    return
+  }
+
+  parent.removeChild(key);
+};
+
+ModuleCollection.prototype.isRegistered = function isRegistered (path) {
+  var parent = this.get(path.slice(0, -1));
+  var key = path[path.length - 1];
+
+  if (parent) {
+    return parent.hasChild(key)
+  }
+
+  return false
+};
+
+function update (path, targetModule, newModule) {
+  if ((true)) {
+    assertRawModule(path, newModule);
+  }
+
+  // update target module
+  targetModule.update(newModule);
+
+  // update nested modules
+  if (newModule.modules) {
+    for (var key in newModule.modules) {
+      if (!targetModule.getChild(key)) {
+        if ((true)) {
+          console.warn(
+            "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
+            'manual reload is needed'
+          );
+        }
+        return
+      }
+      update(
+        path.concat(key),
+        targetModule.getChild(key),
+        newModule.modules[key]
+      );
+    }
+  }
+}
+
+var functionAssert = {
+  assert: function (value) { return typeof value === 'function'; },
+  expected: 'function'
+};
+
+var objectAssert = {
+  assert: function (value) { return typeof value === 'function' ||
+    (typeof value === 'object' && typeof value.handler === 'function'); },
+  expected: 'function or object with "handler" function'
+};
+
+var assertTypes = {
+  getters: functionAssert,
+  mutations: functionAssert,
+  actions: objectAssert
+};
+
+function assertRawModule (path, rawModule) {
+  Object.keys(assertTypes).forEach(function (key) {
+    if (!rawModule[key]) { return }
+
+    var assertOptions = assertTypes[key];
+
+    forEachValue(rawModule[key], function (value, type) {
+      assert(
+        assertOptions.assert(value),
+        makeAssertionMessage(path, key, type, value, assertOptions.expected)
+      );
+    });
+  });
+}
+
+function makeAssertionMessage (path, key, type, value, expected) {
+  var buf = key + " should be " + expected + " but \"" + key + "." + type + "\"";
+  if (path.length > 0) {
+    buf += " in module \"" + (path.join('.')) + "\"";
+  }
+  buf += " is " + (JSON.stringify(value)) + ".";
+  return buf
+}
+
+var Vue; // bind on install
+
+var Store = function Store (options) {
+  var this$1 = this;
+  if ( options === void 0 ) options = {};
+
+  // Auto install if it is not done yet and `window` has `Vue`.
+  // To allow users to avoid auto-installation in some cases,
+  // this code should be placed here. See #731
+  if (!Vue && typeof window !== 'undefined' && window.Vue) {
+    install(window.Vue);
+  }
+
+  if ((true)) {
+    assert(Vue, "must call Vue.use(Vuex) before creating a store instance.");
+    assert(typeof Promise !== 'undefined', "vuex requires a Promise polyfill in this browser.");
+    assert(this instanceof Store, "store must be called with the new operator.");
+  }
+
+  var plugins = options.plugins; if ( plugins === void 0 ) plugins = [];
+  var strict = options.strict; if ( strict === void 0 ) strict = false;
+
+  // store internal state
+  this._committing = false;
+  this._actions = Object.create(null);
+  this._actionSubscribers = [];
+  this._mutations = Object.create(null);
+  this._wrappedGetters = Object.create(null);
+  this._modules = new ModuleCollection(options);
+  this._modulesNamespaceMap = Object.create(null);
+  this._subscribers = [];
+  this._watcherVM = new Vue();
+  this._makeLocalGettersCache = Object.create(null);
+
+  // bind commit and dispatch to self
+  var store = this;
+  var ref = this;
+  var dispatch = ref.dispatch;
+  var commit = ref.commit;
+  this.dispatch = function boundDispatch (type, payload) {
+    return dispatch.call(store, type, payload)
+  };
+  this.commit = function boundCommit (type, payload, options) {
+    return commit.call(store, type, payload, options)
+  };
+
+  // strict mode
+  this.strict = strict;
+
+  var state = this._modules.root.state;
+
+  // init root module.
+  // this also recursively registers all sub-modules
+  // and collects all module getters inside this._wrappedGetters
+  installModule(this, state, [], this._modules.root);
+
+  // initialize the store vm, which is responsible for the reactivity
+  // (also registers _wrappedGetters as computed properties)
+  resetStoreVM(this, state);
+
+  // apply plugins
+  plugins.forEach(function (plugin) { return plugin(this$1); });
+
+  var useDevtools = options.devtools !== undefined ? options.devtools : Vue.config.devtools;
+  if (useDevtools) {
+    devtoolPlugin(this);
+  }
+};
+
+var prototypeAccessors$1 = { state: { configurable: true } };
+
+prototypeAccessors$1.state.get = function () {
+  return this._vm._data.$$state
+};
+
+prototypeAccessors$1.state.set = function (v) {
+  if ((true)) {
+    assert(false, "use store.replaceState() to explicit replace store state.");
+  }
+};
+
+Store.prototype.commit = function commit (_type, _payload, _options) {
+    var this$1 = this;
+
+  // check object-style commit
+  var ref = unifyObjectStyle(_type, _payload, _options);
+    var type = ref.type;
+    var payload = ref.payload;
+    var options = ref.options;
+
+  var mutation = { type: type, payload: payload };
+  var entry = this._mutations[type];
+  if (!entry) {
+    if ((true)) {
+      console.error(("[vuex] unknown mutation type: " + type));
+    }
+    return
+  }
+  this._withCommit(function () {
+    entry.forEach(function commitIterator (handler) {
+      handler(payload);
+    });
+  });
+
+  this._subscribers
+    .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
+    .forEach(function (sub) { return sub(mutation, this$1.state); });
+
+  if (
+    ( true) &&
+    options && options.silent
+  ) {
+    console.warn(
+      "[vuex] mutation type: " + type + ". Silent option has been removed. " +
+      'Use the filter functionality in the vue-devtools'
+    );
+  }
+};
+
+Store.prototype.dispatch = function dispatch (_type, _payload) {
+    var this$1 = this;
+
+  // check object-style dispatch
+  var ref = unifyObjectStyle(_type, _payload);
+    var type = ref.type;
+    var payload = ref.payload;
+
+  var action = { type: type, payload: payload };
+  var entry = this._actions[type];
+  if (!entry) {
+    if ((true)) {
+      console.error(("[vuex] unknown action type: " + type));
+    }
+    return
+  }
+
+  try {
+    this._actionSubscribers
+      .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
+      .filter(function (sub) { return sub.before; })
+      .forEach(function (sub) { return sub.before(action, this$1.state); });
+  } catch (e) {
+    if ((true)) {
+      console.warn("[vuex] error in before action subscribers: ");
+      console.error(e);
+    }
+  }
+
+  var result = entry.length > 1
+    ? Promise.all(entry.map(function (handler) { return handler(payload); }))
+    : entry[0](payload);
+
+  return new Promise(function (resolve, reject) {
+    result.then(function (res) {
+      try {
+        this$1._actionSubscribers
+          .filter(function (sub) { return sub.after; })
+          .forEach(function (sub) { return sub.after(action, this$1.state); });
+      } catch (e) {
+        if ((true)) {
+          console.warn("[vuex] error in after action subscribers: ");
+          console.error(e);
+        }
+      }
+      resolve(res);
+    }, function (error) {
+      try {
+        this$1._actionSubscribers
+          .filter(function (sub) { return sub.error; })
+          .forEach(function (sub) { return sub.error(action, this$1.state, error); });
+      } catch (e) {
+        if ((true)) {
+          console.warn("[vuex] error in error action subscribers: ");
+          console.error(e);
+        }
+      }
+      reject(error);
+    });
+  })
+};
+
+Store.prototype.subscribe = function subscribe (fn, options) {
+  return genericSubscribe(fn, this._subscribers, options)
+};
+
+Store.prototype.subscribeAction = function subscribeAction (fn, options) {
+  var subs = typeof fn === 'function' ? { before: fn } : fn;
+  return genericSubscribe(subs, this._actionSubscribers, options)
+};
+
+Store.prototype.watch = function watch (getter, cb, options) {
+    var this$1 = this;
+
+  if ((true)) {
+    assert(typeof getter === 'function', "store.watch only accepts a function.");
+  }
+  return this._watcherVM.$watch(function () { return getter(this$1.state, this$1.getters); }, cb, options)
+};
+
+Store.prototype.replaceState = function replaceState (state) {
+    var this$1 = this;
+
+  this._withCommit(function () {
+    this$1._vm._data.$$state = state;
+  });
+};
+
+Store.prototype.registerModule = function registerModule (path, rawModule, options) {
+    if ( options === void 0 ) options = {};
+
+  if (typeof path === 'string') { path = [path]; }
+
+  if ((true)) {
+    assert(Array.isArray(path), "module path must be a string or an Array.");
+    assert(path.length > 0, 'cannot register the root module by using registerModule.');
+  }
+
+  this._modules.register(path, rawModule);
+  installModule(this, this.state, path, this._modules.get(path), options.preserveState);
+  // reset store to update getters...
+  resetStoreVM(this, this.state);
+};
+
+Store.prototype.unregisterModule = function unregisterModule (path) {
+    var this$1 = this;
+
+  if (typeof path === 'string') { path = [path]; }
+
+  if ((true)) {
+    assert(Array.isArray(path), "module path must be a string or an Array.");
+  }
+
+  this._modules.unregister(path);
+  this._withCommit(function () {
+    var parentState = getNestedState(this$1.state, path.slice(0, -1));
+    Vue.delete(parentState, path[path.length - 1]);
+  });
+  resetStore(this);
+};
+
+Store.prototype.hasModule = function hasModule (path) {
+  if (typeof path === 'string') { path = [path]; }
+
+  if ((true)) {
+    assert(Array.isArray(path), "module path must be a string or an Array.");
+  }
+
+  return this._modules.isRegistered(path)
+};
+
+Store.prototype.hotUpdate = function hotUpdate (newOptions) {
+  this._modules.update(newOptions);
+  resetStore(this, true);
+};
+
+Store.prototype._withCommit = function _withCommit (fn) {
+  var committing = this._committing;
+  this._committing = true;
+  fn();
+  this._committing = committing;
+};
+
+Object.defineProperties( Store.prototype, prototypeAccessors$1 );
+
+function genericSubscribe (fn, subs, options) {
+  if (subs.indexOf(fn) < 0) {
+    options && options.prepend
+      ? subs.unshift(fn)
+      : subs.push(fn);
+  }
+  return function () {
+    var i = subs.indexOf(fn);
+    if (i > -1) {
+      subs.splice(i, 1);
+    }
+  }
+}
+
+function resetStore (store, hot) {
+  store._actions = Object.create(null);
+  store._mutations = Object.create(null);
+  store._wrappedGetters = Object.create(null);
+  store._modulesNamespaceMap = Object.create(null);
+  var state = store.state;
+  // init all modules
+  installModule(store, state, [], store._modules.root, true);
+  // reset vm
+  resetStoreVM(store, state, hot);
+}
+
+function resetStoreVM (store, state, hot) {
+  var oldVm = store._vm;
+
+  // bind store public getters
+  store.getters = {};
+  // reset local getters cache
+  store._makeLocalGettersCache = Object.create(null);
+  var wrappedGetters = store._wrappedGetters;
+  var computed = {};
+  forEachValue(wrappedGetters, function (fn, key) {
+    // use computed to leverage its lazy-caching mechanism
+    // direct inline function use will lead to closure preserving oldVm.
+    // using partial to return function with only arguments preserved in closure environment.
+    computed[key] = partial(fn, store);
+    Object.defineProperty(store.getters, key, {
+      get: function () { return store._vm[key]; },
+      enumerable: true // for local getters
+    });
+  });
+
+  // use a Vue instance to store the state tree
+  // suppress warnings just in case the user has added
+  // some funky global mixins
+  var silent = Vue.config.silent;
+  Vue.config.silent = true;
+  store._vm = new Vue({
+    data: {
+      $$state: state
+    },
+    computed: computed
+  });
+  Vue.config.silent = silent;
+
+  // enable strict mode for new vm
+  if (store.strict) {
+    enableStrictMode(store);
+  }
+
+  if (oldVm) {
+    if (hot) {
+      // dispatch changes in all subscribed watchers
+      // to force getter re-evaluation for hot reloading.
+      store._withCommit(function () {
+        oldVm._data.$$state = null;
+      });
+    }
+    Vue.nextTick(function () { return oldVm.$destroy(); });
+  }
+}
+
+function installModule (store, rootState, path, module, hot) {
+  var isRoot = !path.length;
+  var namespace = store._modules.getNamespace(path);
+
+  // register in namespace map
+  if (module.namespaced) {
+    if (store._modulesNamespaceMap[namespace] && ("development" !== 'production')) {
+      console.error(("[vuex] duplicate namespace " + namespace + " for the namespaced module " + (path.join('/'))));
+    }
+    store._modulesNamespaceMap[namespace] = module;
+  }
+
+  // set state
+  if (!isRoot && !hot) {
+    var parentState = getNestedState(rootState, path.slice(0, -1));
+    var moduleName = path[path.length - 1];
+    store._withCommit(function () {
+      if ((true)) {
+        if (moduleName in parentState) {
+          console.warn(
+            ("[vuex] state field \"" + moduleName + "\" was overridden by a module with the same name at \"" + (path.join('.')) + "\"")
+          );
+        }
+      }
+      Vue.set(parentState, moduleName, module.state);
+    });
+  }
+
+  var local = module.context = makeLocalContext(store, namespace, path);
+
+  module.forEachMutation(function (mutation, key) {
+    var namespacedType = namespace + key;
+    registerMutation(store, namespacedType, mutation, local);
+  });
+
+  module.forEachAction(function (action, key) {
+    var type = action.root ? key : namespace + key;
+    var handler = action.handler || action;
+    registerAction(store, type, handler, local);
+  });
+
+  module.forEachGetter(function (getter, key) {
+    var namespacedType = namespace + key;
+    registerGetter(store, namespacedType, getter, local);
+  });
+
+  module.forEachChild(function (child, key) {
+    installModule(store, rootState, path.concat(key), child, hot);
+  });
+}
+
+/**
+ * make localized dispatch, commit, getters and state
+ * if there is no namespace, just use root ones
+ */
+function makeLocalContext (store, namespace, path) {
+  var noNamespace = namespace === '';
+
+  var local = {
+    dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options);
+      var payload = args.payload;
+      var options = args.options;
+      var type = args.type;
+
+      if (!options || !options.root) {
+        type = namespace + type;
+        if (( true) && !store._actions[type]) {
+          console.error(("[vuex] unknown local action type: " + (args.type) + ", global type: " + type));
+          return
+        }
+      }
+
+      return store.dispatch(type, payload)
+    },
+
+    commit: noNamespace ? store.commit : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options);
+      var payload = args.payload;
+      var options = args.options;
+      var type = args.type;
+
+      if (!options || !options.root) {
+        type = namespace + type;
+        if (( true) && !store._mutations[type]) {
+          console.error(("[vuex] unknown local mutation type: " + (args.type) + ", global type: " + type));
+          return
+        }
+      }
+
+      store.commit(type, payload, options);
+    }
+  };
+
+  // getters and state object must be gotten lazily
+  // because they will be changed by vm update
+  Object.defineProperties(local, {
+    getters: {
+      get: noNamespace
+        ? function () { return store.getters; }
+        : function () { return makeLocalGetters(store, namespace); }
+    },
+    state: {
+      get: function () { return getNestedState(store.state, path); }
+    }
+  });
+
+  return local
+}
+
+function makeLocalGetters (store, namespace) {
+  if (!store._makeLocalGettersCache[namespace]) {
+    var gettersProxy = {};
+    var splitPos = namespace.length;
+    Object.keys(store.getters).forEach(function (type) {
+      // skip if the target getter is not match this namespace
+      if (type.slice(0, splitPos) !== namespace) { return }
+
+      // extract local getter type
+      var localType = type.slice(splitPos);
+
+      // Add a port to the getters proxy.
+      // Define as getter property because
+      // we do not want to evaluate the getters in this time.
+      Object.defineProperty(gettersProxy, localType, {
+        get: function () { return store.getters[type]; },
+        enumerable: true
+      });
+    });
+    store._makeLocalGettersCache[namespace] = gettersProxy;
+  }
+
+  return store._makeLocalGettersCache[namespace]
+}
+
+function registerMutation (store, type, handler, local) {
+  var entry = store._mutations[type] || (store._mutations[type] = []);
+  entry.push(function wrappedMutationHandler (payload) {
+    handler.call(store, local.state, payload);
+  });
+}
+
+function registerAction (store, type, handler, local) {
+  var entry = store._actions[type] || (store._actions[type] = []);
+  entry.push(function wrappedActionHandler (payload) {
+    var res = handler.call(store, {
+      dispatch: local.dispatch,
+      commit: local.commit,
+      getters: local.getters,
+      state: local.state,
+      rootGetters: store.getters,
+      rootState: store.state
+    }, payload);
+    if (!isPromise(res)) {
+      res = Promise.resolve(res);
+    }
+    if (store._devtoolHook) {
+      return res.catch(function (err) {
+        store._devtoolHook.emit('vuex:error', err);
+        throw err
+      })
+    } else {
+      return res
+    }
+  });
+}
+
+function registerGetter (store, type, rawGetter, local) {
+  if (store._wrappedGetters[type]) {
+    if ((true)) {
+      console.error(("[vuex] duplicate getter key: " + type));
+    }
+    return
+  }
+  store._wrappedGetters[type] = function wrappedGetter (store) {
+    return rawGetter(
+      local.state, // local state
+      local.getters, // local getters
+      store.state, // root state
+      store.getters // root getters
+    )
+  };
+}
+
+function enableStrictMode (store) {
+  store._vm.$watch(function () { return this._data.$$state }, function () {
+    if ((true)) {
+      assert(store._committing, "do not mutate vuex store state outside mutation handlers.");
+    }
+  }, { deep: true, sync: true });
+}
+
+function getNestedState (state, path) {
+  return path.reduce(function (state, key) { return state[key]; }, state)
+}
+
+function unifyObjectStyle (type, payload, options) {
+  if (isObject(type) && type.type) {
+    options = payload;
+    payload = type;
+    type = type.type;
+  }
+
+  if ((true)) {
+    assert(typeof type === 'string', ("expects string as the type, but found " + (typeof type) + "."));
+  }
+
+  return { type: type, payload: payload, options: options }
+}
+
+function install (_Vue) {
+  if (Vue && _Vue === Vue) {
+    if ((true)) {
+      console.error(
+        '[vuex] already installed. Vue.use(Vuex) should be called only once.'
+      );
+    }
+    return
+  }
+  Vue = _Vue;
+  applyMixin(Vue);
+}
+
+/**
+ * Reduce the code which written in Vue.js for getting the state.
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} states # Object's item can be a function which accept state and getters for param, you can do something for state and getters in it.
+ * @param {Object}
+ */
+var mapState = normalizeNamespace(function (namespace, states) {
+  var res = {};
+  if (( true) && !isValidMap(states)) {
+    console.error('[vuex] mapState: mapper parameter must be either an Array or an Object');
+  }
+  normalizeMap(states).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedState () {
+      var state = this.$store.state;
+      var getters = this.$store.getters;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapState', namespace);
+        if (!module) {
+          return
+        }
+        state = module.context.state;
+        getters = module.context.getters;
+      }
+      return typeof val === 'function'
+        ? val.call(this, state, getters)
+        : state[val]
+    };
+    // mark vuex getter for devtools
+    res[key].vuex = true;
+  });
+  return res
+});
+
+/**
+ * Reduce the code which written in Vue.js for committing the mutation
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} mutations # Object's item can be a function which accept `commit` function as the first param, it can accept another params. You can commit mutation and do any other things in this function. specially, You need to pass anthor params from the mapped function.
+ * @return {Object}
+ */
+var mapMutations = normalizeNamespace(function (namespace, mutations) {
+  var res = {};
+  if (( true) && !isValidMap(mutations)) {
+    console.error('[vuex] mapMutations: mapper parameter must be either an Array or an Object');
+  }
+  normalizeMap(mutations).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedMutation () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      // Get the commit method from store
+      var commit = this.$store.commit;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapMutations', namespace);
+        if (!module) {
+          return
+        }
+        commit = module.context.commit;
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [commit].concat(args))
+        : commit.apply(this.$store, [val].concat(args))
+    };
+  });
+  return res
+});
+
+/**
+ * Reduce the code which written in Vue.js for getting the getters
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} getters
+ * @return {Object}
+ */
+var mapGetters = normalizeNamespace(function (namespace, getters) {
+  var res = {};
+  if (( true) && !isValidMap(getters)) {
+    console.error('[vuex] mapGetters: mapper parameter must be either an Array or an Object');
+  }
+  normalizeMap(getters).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    // The namespace has been mutated by normalizeNamespace
+    val = namespace + val;
+    res[key] = function mappedGetter () {
+      if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
+        return
+      }
+      if (( true) && !(val in this.$store.getters)) {
+        console.error(("[vuex] unknown getter: " + val));
+        return
+      }
+      return this.$store.getters[val]
+    };
+    // mark vuex getter for devtools
+    res[key].vuex = true;
+  });
+  return res
+});
+
+/**
+ * Reduce the code which written in Vue.js for dispatch the action
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} actions # Object's item can be a function which accept `dispatch` function as the first param, it can accept anthor params. You can dispatch action and do any other things in this function. specially, You need to pass anthor params from the mapped function.
+ * @return {Object}
+ */
+var mapActions = normalizeNamespace(function (namespace, actions) {
+  var res = {};
+  if (( true) && !isValidMap(actions)) {
+    console.error('[vuex] mapActions: mapper parameter must be either an Array or an Object');
+  }
+  normalizeMap(actions).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedAction () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      // get dispatch function from store
+      var dispatch = this.$store.dispatch;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapActions', namespace);
+        if (!module) {
+          return
+        }
+        dispatch = module.context.dispatch;
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [dispatch].concat(args))
+        : dispatch.apply(this.$store, [val].concat(args))
+    };
+  });
+  return res
+});
+
+/**
+ * Rebinding namespace param for mapXXX function in special scoped, and return them by simple object
+ * @param {String} namespace
+ * @return {Object}
+ */
+var createNamespacedHelpers = function (namespace) { return ({
+  mapState: mapState.bind(null, namespace),
+  mapGetters: mapGetters.bind(null, namespace),
+  mapMutations: mapMutations.bind(null, namespace),
+  mapActions: mapActions.bind(null, namespace)
+}); };
+
+/**
+ * Normalize the map
+ * normalizeMap([1, 2, 3]) => [ { key: 1, val: 1 }, { key: 2, val: 2 }, { key: 3, val: 3 } ]
+ * normalizeMap({a: 1, b: 2, c: 3}) => [ { key: 'a', val: 1 }, { key: 'b', val: 2 }, { key: 'c', val: 3 } ]
+ * @param {Array|Object} map
+ * @return {Object}
+ */
+function normalizeMap (map) {
+  if (!isValidMap(map)) {
+    return []
+  }
+  return Array.isArray(map)
+    ? map.map(function (key) { return ({ key: key, val: key }); })
+    : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }); })
+}
+
+/**
+ * Validate whether given map is valid or not
+ * @param {*} map
+ * @return {Boolean}
+ */
+function isValidMap (map) {
+  return Array.isArray(map) || isObject(map)
+}
+
+/**
+ * Return a function expect two param contains namespace and map. it will normalize the namespace and then the param's function will handle the new namespace and the map.
+ * @param {Function} fn
+ * @return {Function}
+ */
+function normalizeNamespace (fn) {
+  return function (namespace, map) {
+    if (typeof namespace !== 'string') {
+      map = namespace;
+      namespace = '';
+    } else if (namespace.charAt(namespace.length - 1) !== '/') {
+      namespace += '/';
+    }
+    return fn(namespace, map)
+  }
+}
+
+/**
+ * Search a special module from store by namespace. if module not exist, print error message.
+ * @param {Object} store
+ * @param {String} helper
+ * @param {String} namespace
+ * @return {Object}
+ */
+function getModuleByNamespace (store, helper, namespace) {
+  var module = store._modulesNamespaceMap[namespace];
+  if (( true) && !module) {
+    console.error(("[vuex] module namespace not found in " + helper + "(): " + namespace));
+  }
+  return module
+}
+
+// Credits: borrowed code from fcomb/redux-logger
+
+function createLogger (ref) {
+  if ( ref === void 0 ) ref = {};
+  var collapsed = ref.collapsed; if ( collapsed === void 0 ) collapsed = true;
+  var filter = ref.filter; if ( filter === void 0 ) filter = function (mutation, stateBefore, stateAfter) { return true; };
+  var transformer = ref.transformer; if ( transformer === void 0 ) transformer = function (state) { return state; };
+  var mutationTransformer = ref.mutationTransformer; if ( mutationTransformer === void 0 ) mutationTransformer = function (mut) { return mut; };
+  var actionFilter = ref.actionFilter; if ( actionFilter === void 0 ) actionFilter = function (action, state) { return true; };
+  var actionTransformer = ref.actionTransformer; if ( actionTransformer === void 0 ) actionTransformer = function (act) { return act; };
+  var logMutations = ref.logMutations; if ( logMutations === void 0 ) logMutations = true;
+  var logActions = ref.logActions; if ( logActions === void 0 ) logActions = true;
+  var logger = ref.logger; if ( logger === void 0 ) logger = console;
+
+  return function (store) {
+    var prevState = deepCopy(store.state);
+
+    if (typeof logger === 'undefined') {
+      return
+    }
+
+    if (logMutations) {
+      store.subscribe(function (mutation, state) {
+        var nextState = deepCopy(state);
+
+        if (filter(mutation, prevState, nextState)) {
+          var formattedTime = getFormattedTime();
+          var formattedMutation = mutationTransformer(mutation);
+          var message = "mutation " + (mutation.type) + formattedTime;
+
+          startMessage(logger, message, collapsed);
+          logger.log('%c prev state', 'color: #9E9E9E; font-weight: bold', transformer(prevState));
+          logger.log('%c mutation', 'color: #03A9F4; font-weight: bold', formattedMutation);
+          logger.log('%c next state', 'color: #4CAF50; font-weight: bold', transformer(nextState));
+          endMessage(logger);
+        }
+
+        prevState = nextState;
+      });
+    }
+
+    if (logActions) {
+      store.subscribeAction(function (action, state) {
+        if (actionFilter(action, state)) {
+          var formattedTime = getFormattedTime();
+          var formattedAction = actionTransformer(action);
+          var message = "action " + (action.type) + formattedTime;
+
+          startMessage(logger, message, collapsed);
+          logger.log('%c action', 'color: #03A9F4; font-weight: bold', formattedAction);
+          endMessage(logger);
+        }
+      });
+    }
+  }
+}
+
+function startMessage (logger, message, collapsed) {
+  var startMessage = collapsed
+    ? logger.groupCollapsed
+    : logger.group;
+
+  // render
+  try {
+    startMessage.call(logger, message);
+  } catch (e) {
+    logger.log(message);
+  }
+}
+
+function endMessage (logger) {
+  try {
+    logger.groupEnd();
+  } catch (e) {
+    logger.log('—— log end ——');
+  }
+}
+
+function getFormattedTime () {
+  var time = new Date();
+  return (" @ " + (pad(time.getHours(), 2)) + ":" + (pad(time.getMinutes(), 2)) + ":" + (pad(time.getSeconds(), 2)) + "." + (pad(time.getMilliseconds(), 3)))
+}
+
+function repeat (str, times) {
+  return (new Array(times + 1)).join(str)
+}
+
+function pad (num, maxLength) {
+  return repeat('0', maxLength - num.toString().length) + num
+}
+
+var index = {
+  Store: Store,
+  install: install,
+  version: '3.6.2',
+  mapState: mapState,
+  mapMutations: mapMutations,
+  mapGetters: mapGetters,
+  mapActions: mapActions,
+  createNamespacedHelpers: createNamespacedHelpers,
+  createLogger: createLogger
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (index);
+
+
+
 /***/ })
 
 /******/ 	});
@@ -71962,7 +73674,8 @@ var __webpack_exports__ = {};
   !*** ./resources/js/vue/calendar_2/booking/app.js ***!
   \****************************************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/calendar_2/booking/components/App.vue");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store */ "./resources/js/vue/calendar_2/booking/store/index.js");
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/calendar_2/booking/components/App.vue");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -71971,6 +73684,25 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__(/*! ./bootstrap */ "./resources/js/vue/calendar_2/booking/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+ // import Vuex from 'vuex';
+// 
+// Vue.use(Vuex);
+// 
+// 
+// const store = new Vuex.Store({
+//   state: {
+//     count: 0
+//   },
+//   mutations: {
+//     increment (state) {
+//       state.count++
+//     }
+//   }
+// });
+// 
+// 
+// console.log(store.state.count)
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -72134,8 +73866,9 @@ Vue.mixin({
 window.app = new Vue({
   // const businessHours = new Vue({
   el: '#calendarBooking',
+  store: _store__WEBPACK_IMPORTED_MODULE_0__.default,
   render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default, {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_1__.default, {
       props: {
         userId: document.querySelector("#calendarBooking").dataset.userId
       }

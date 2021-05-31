@@ -40,12 +40,12 @@
                 </form>
             </div>
             <div v-if="show == 'signin'">
-                <form ref="signinForm" action="" method="post" id="signinForm">
+                <form ref="signinForm" action="" method="post">
                     <div class="form-group">
-                        <input name="email" type="email" class="form-control" id="signinEmail" placeholder="Email">
+                        <input name="email" type="email" class="form-control" placeholder="Email">
                     </div>
                     <div class="form-group">
-                        <input name="password" type="password" class="form-control" id="signinPassword" placeholder="Password">
+                        <input name="password" type="password" class="form-control" placeholder="Password">
                     </div>
                 </form>
             </div>
@@ -63,6 +63,14 @@
         name: 'modalAuthContent',
         mounted() {
             
+            
+            // console.log(JSON.parse(JSON.stringify('modalAuthContent')));
+            // console.log(owner);
+            // console.log(this.$store.getters['owner/owner']);
+            
+            // console.log(this.userId);
+            // console.log(JSON.parse(JSON.stringify(this.userId)));
+            
             // let component = this.getComponentByName('modalAuthContent');
             // console.log(component);
             // this.globalHelper();
@@ -75,7 +83,7 @@
             // });
         },
         // props: ['range','view','curreny_view_idx','currentDate'],
-        props: ['userId'],
+        // props: ['userId'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -83,6 +91,11 @@
                 signupErrors: null,
                 signinErrors: null,
             };
+        },
+        computed: {
+            userId: function(){
+                return this.$store.getters['owner/ownerId'];
+            },
         },
         methods: {
             send: function(){

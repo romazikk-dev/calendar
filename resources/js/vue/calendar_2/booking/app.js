@@ -8,6 +8,26 @@ require('./bootstrap');
 
 window.Vue = require('vue').default;
 
+import store from './store'
+// import Vuex from 'vuex';
+// 
+// Vue.use(Vuex);
+// 
+// 
+// const store = new Vuex.Store({
+//   state: {
+//     count: 0
+//   },
+//   mutations: {
+//     increment (state) {
+//       state.count++
+//     }
+//   }
+// });
+// 
+// 
+// console.log(store.state.count)
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -202,6 +222,7 @@ Vue.mixin({
 window.app = new Vue({
 // const businessHours = new Vue({
     el: '#calendarBooking',
+    store,
     render(h) {
         return h(App, {
             props:{

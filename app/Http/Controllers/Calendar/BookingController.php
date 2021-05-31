@@ -16,6 +16,9 @@ class BookingController extends Controller{
     function index(Request $request, $owner_id){
         // dd(33);
         $filters = !empty($_COOKIE['filters']) ? json_decode($_COOKIE['filters']) : null;
+        $token = !empty($_COOKIE['token']) ? $_COOKIE['token'] : null;
+        
+        // dd($token);
         
         // dd($_COOKIE['filters']);
             
@@ -37,7 +40,7 @@ class BookingController extends Controller{
             // dd($hall_model->toArray());
             
             $worker_model = Worker::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
-            $template_model = Template::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
+            $template_model = Template::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id)->with('specific');
             
             $halls = $hall_model->get();
             // $workers = $worker_model->get();
@@ -66,6 +69,7 @@ class BookingController extends Controller{
             // dd($templates->toArray());
             
             $output = [
+                'token' => $token,
                 'owner' => $owner,
                 'halls' => $halls->toArray(),
                 'template_specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],

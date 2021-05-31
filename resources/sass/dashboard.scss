@@ -5,10 +5,23 @@
 }
 
 
+/* TEMPLATE ASSIGNMENT
+******************************************************************/
+// .template-assignment{
+//     .dropdown-item{
+//         &:nth-child(even){
+//             background-color: red;
+//         }
+//     }
+// }
+
+
 /* SPECIFIC ASSIGNMENT
 ******************************************************************/
 .specifics-assignment{
     // background-color: red;
+    padding-top: 10px;
+    padding-bottom: 20px;
     .specific-dropdown{
         width: 100%;
         // background-color: blue;

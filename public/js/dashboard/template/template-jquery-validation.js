@@ -9,8 +9,8 @@ var jqueryValidationFunc = function(){
     this.formHasErrors = false;
     
     this.attributes_per_tab = {
-        main: ['title','duration','price','description','short_description','notice'],
-        specific: ['specific_id'],
+        main: ['title','duration','price','description','short_description','notice','specific_id'],
+        // specific: ['specific_id'],
     }
     
     this.mainErrorAttrs = [];
@@ -134,14 +134,14 @@ var jqueryValidationFunc = function(){
             }
         }
         
-        if(_this.attributes_per_tab.specific.includes(attr)){
-            if(type == 'add' && !_this.specificErrorAttrs.includes(attr))
-                _this.specificErrorAttrs.push(attr);
-            if(type == 'delete' && _this.specificErrorAttrs.includes(attr)){
-                let index = _this.specificErrorAttrs.indexOf(attr);
-                _this.specificErrorAttrs.splice(index, 1);
-            }
-        }
+        // if(_this.attributes_per_tab.specific.includes(attr)){
+        //     if(type == 'add' && !_this.specificErrorAttrs.includes(attr))
+        //         _this.specificErrorAttrs.push(attr);
+        //     if(type == 'delete' && _this.specificErrorAttrs.includes(attr)){
+        //         let index = _this.specificErrorAttrs.indexOf(attr);
+        //         _this.specificErrorAttrs.splice(index, 1);
+        //     }
+        // }
     }
     
     this.addSpecificRules = function(){

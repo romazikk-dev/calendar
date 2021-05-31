@@ -5,17 +5,25 @@
             
             // alert(111);
             
+            var token = @if(!empty($token)) '{{$token}}' @else null @endif;
+            
+            // console.log(73737373);
+            // console.log(token);
+            
             var owner = @json($owner);
             var halls = @json($halls);
             var templateSpecifics = @json($template_specifics);
             var templateSpecificsAsIdKey = @json($template_specifics_as_id_key);
             
             // console.log(templateSpecificsAsIdKey);
-            // console.log(templateSpecifics);
+            // console.log(33333333);
+            // console.log(halls);
             
             // var workers = @@json($workers);
             // var templates = @@json($templates);
             var filters = @json($filters);
+            // console.log(333333333);
+            // console.log(filters);
             
             var routes = {
                 calendar: {
@@ -48,6 +56,7 @@
             
         </script>
         <!-- <script src="{{ asset('js/calendar-booking.js') }}?{{rand(100, 1000)}}"></script> -->
+        <script src="{{ asset('js/calendar-booking-helper-2.js') }}?{{rand(100, 1000000000)}}"></script>
         <script src="{{ asset('js/calendar-booking-2.js') }}?{{rand(100, 1000000000)}}"></script>
     </x-slot>
     

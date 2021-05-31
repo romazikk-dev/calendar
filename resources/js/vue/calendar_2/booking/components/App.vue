@@ -1,13 +1,8 @@
 <template>
     <div>
         <filters ref="filters"
-                 :owner="owner"
-                 :cookie-filters="cookieFilters"
-                 :halls="halls"
                  :template-specifics="templateSpecifics"
                  :template-specifics-as-id-key="templateSpecificsAsIdKey"
-                 :client-info="clientInfo"
-                 :all-bookings="allBookings"
                  @change="filterChange($event)"
                  @hideCalendar="showCalendar = false"
                  @showCalendar="showCalendar = true"></filters>
@@ -60,40 +55,25 @@
     export default {
         name: 'app',
         mounted() {
-            console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
-            // console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
-            // console.log(222222299999999999999);
-            // this.showChildren();
-            // console.log(this.$options.name);
-            this.setTokenFromCookie();
-            this.setFiltersFromCookie();
-            // console.log(this.token);
-            this.getClientInfo();
-            this.getBookings();
+            // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
+            // console.log(JSON.parse(JSON.stringify(this.token)));
             
-            // console.log(this.filters);
+            console.log(JSON.parse(JSON.stringify(777777777)));
+            // console.log(JSON.parse(JSON.stringify(this.$store.getters['updater/clientInfo'])));
+            this.$store.dispatch('client/increaseUpdaterCounter')
             
-            // console.log(5555555555);
-            // console.log(this.search);
+            this.setClient();
+            
+            if(this.cookieFilters !== null)
+                this.showCalendar = true;
         },
         props: ['userId'],
         data: function(){
             return {
-                view: null,
-                search: null,
-                owner: owner,
-                halls: halls,
                 templateSpecifics: templateSpecifics,
                 
                 templateSpecificsAsIdKey: (typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null) ?
                     templateSpecificsAsIdKey : null,
-                // workers: workers,
-                // templates: templates,
-                
-                token: null,
-                cookieFilters: null,
-                clientInfo: null,
-                allBookings: null,
                 
                 // showCalendar: false,
                 showCalendar: true,
@@ -107,6 +87,21 @@
             };
         },
         computed: {
+            cookieFilters: function () {
+                return this.$store.getters['filters/all'];
+            },
+            clientInfo: function () {
+                return this.$store.getters['client/info'];
+            },
+            token: function () {
+                return this.$store.getters['client/token'];
+            },
+            view: function () {
+                return this.$store.getters['filters/view'];
+            },
+            search: function () {
+                return this.$store.getters['filters/urlSearchPath'];
+            },
             monthView: function () {
                 return (this.view != null && this.view.toLowerCase() == 'month') ? true : false;
             },
@@ -198,7 +193,7 @@
                 .then((response) => {
                     successCallback(response);
                     this.dataUpdater++;
-                    this.getBookings();
+                    this.setBookings();
                     // this.dataUpdater++;
                 })
                 .catch(function (error) {
@@ -235,7 +230,7 @@
                     // this.dates = response.data.data;
                     successCallback(response);
                     this.dataUpdater++;
-                    this.getBookings();
+                    this.setBookings();
                     // console.log('success');
                     // this.onCancel(response.data);
                     // console.log(JSON.parse(JSON.stringify(response)));
@@ -260,17 +255,22 @@
                 // this.token = null;
                 // this.clientInfo = null;
                 this.setToken(token);
-                this.getClientInfo();
-                this.getBookings();
+                this.setClientInfo();
+                this.setBookings();
                 this.dataUpdater++;
             },
             logout: function(){
-                cookie.remove('token');
-                this.token = null;
-                this.clientInfo = null;
+                // cookie.remove('token');
+                // this.token = null;
+                // this.clientInfo = null;
+                this.$store.commit('client/logout');
                 this.dataUpdater++;
             },
-            getBookings: function(){
+            setClient: function(){
+                this.setClientInfo();
+                this.setBookings();
+            },
+            setBookings: function(){
                 if(this.token == null)
                     return null;
                     
@@ -285,24 +285,19 @@
                 })
                 .then((response) => {
                     // handle success
-                    this.allBookings = response.data;
+                    // this.allBookings = response.data;
+                    this.$store.commit('client/setBookings', response.data);
                     // console.log(this.clientInfo);
-                    console.log(JSON.parse(JSON.stringify(this.allBookings)));
+                    // console.log(JSON.parse(JSON.stringify(this.allBookings)));
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error);
                 })
                 .then(() => {
                     // always executed
-                    console.log('always');
-                    // if(from == 'cancel_book'){
-                    //     console.log('from: cancel_book');
-                    //     $('#cancelBookModal').modal('hide');
-                    // }
                 });
             },
-            getClientInfo: function(){
+            setClientInfo: function(){
                 if(this.token == null)
                     return;
                 
@@ -313,28 +308,21 @@
                 })
                 .then((response) => {
                     // handle success
-                    this.clientInfo = response.data;
-                    // console.log(this.clientInfo);
-                    // console.log(JSON.parse(JSON.stringify(this.dates)));
+                    // this.clientInfo = response.data;
+                    this.$store.commit('client/setInfo', response.data);
                 })
                 .catch(function (error) {
                     // handle error
-                    // console.log(error);
                     if(error.response.status == 401){
                         // console.log(error.response.status);
-                        cookie.remove('token');
+                        this.$store.commit('client/setToken');
+                        // cookie.remove('token');
                         document.location.reload();
                         // this.token == null;
                     }
-                    // console.log(error.response.status);
                 })
                 .then(() => {
                     // always executed
-                    console.log('always');
-                    // if(from == 'cancel_book'){
-                    //     console.log('from: cancel_book');
-                    //     $('#cancelBookModal').modal('hide');
-                    // }
                 });
             },
             setStartDate: function(fromView, date){
@@ -398,8 +386,8 @@
                 }
             },
             filterChange: function(e){
-                this.view = e.searchObj.view;
-                this.search = e.searchString;
+                // this.view = e.searchObj.view;
+                // this.search = e.searchString;
             },
             // isAuth: function(){
             //     return this.token != null;
@@ -408,15 +396,21 @@
                 cookie.set('token', token);
                 this.token = token;
             },
-            setTokenFromCookie: function(){
-                let token = cookie.get('token');
-                // console.log(token);
-                if(token)
-                    this.token = token;
-            },
+            // setTokenFromCookie: function(){
+            //     let token = cookie.get('token');
+            //     // console.log(token);
+            //     if(token)
+            //         this.token = token;
+            // },
             setFiltersFromCookie: function(){
-                if(typeof filters !== 'undefined' && filters != null)
-                    this.cookieFilters = filters;
+                // if(typeof filters !== 'undefined' && filters != null)
+                    // this.cookieFilters = cookie.get('filters');
+                    // cookie.set('filters', {
+                    //     hall: this.pickedItmHall.id,
+                    //     worker: this.pickedItmWorker.id,
+                    //     template: this.pickedItmTemplate.id,
+                    //     view: this.pickedItmView,
+                    // });
             },
         },
         components: {
@@ -427,9 +421,13 @@
             Filters
         },
         watch: {
-            // view: function () {
-            //     console.log(this.view + ': ' + this.monthView);
-            // }
+            showCalendar: function (val) {
+                // if(val === true){
+                //     // this.setFiltersFromCookie();
+                //     console.log(cookie.get('filters'));
+                // }
+                // console.log(this.view + ': ' + this.monthView);
+            }
         }
     }
 </script>

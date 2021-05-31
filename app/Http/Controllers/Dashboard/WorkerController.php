@@ -21,6 +21,7 @@ use Illuminate\Support\ViewErrorBag;
 use App\Classes\Suspension\ToogleSuspension;
 use App\Classes\Setting\Enums\Keys as SettingKeys;
 use App\Classes\Enums\Weekdays;
+use App\Models\TemplateSpecifics;
 
 class WorkerController extends Controller
 {
@@ -538,8 +539,11 @@ class WorkerController extends Controller
         // dd($worker->suspension);
         // dd(ToogleSuspension::parseSuspensionDB($worker->suspension));
         
+        // dd(\Specifics::getDbSpecificsAsKeyId(true));
+        
         return view('dashboard.worker.create', [
             'worker' => $worker,
+            'specifics_as_key_id' => \Specifics::getDbSpecificsAsKeyId(true),
             // 'suspension' => ToogleSuspension::parseSuspensionDB($worker->suspension),
             'suspension' => $worker->suspension,
             'old_suspension' => \Suspension::getOldForVue(),

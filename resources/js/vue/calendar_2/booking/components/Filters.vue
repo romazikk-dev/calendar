@@ -1,6 +1,8 @@
 <template>
     <div>
-        <div v-show="showFilters" class="filters-select">
+        
+        <div v-if="showFilters" class="filters-select">
+            <!-- <loader ref="loader" /> -->
             <!-- <h4>Select place, worker, service</h4> -->
             <div class="show-filters-title">
                 <h4>Please select all filters:</h4>
@@ -53,8 +55,10 @@
                         
                         <template-picker :templates="templates"
                             :picked-hall="pickedItmHall"
+                            :picked-template="pickedItmTemplate"
                             :specifics="templateSpecifics"
                             :specifics-as-id-key="templateSpecificsAsIdKey"
+                            :picked-template-ids-trace="pickedTemplateIdsTrace"
                             v-if="templateSpecifics"
                             @change="change('template', $event)" />
                         <div v-else id="templateDropdown" class="dropdown">
@@ -96,7 +100,7 @@
             </div>
             
         </div>
-        <div  v-show="!showFilters" class="filters">
+        <div  v-else class="filters">
             <div class="container-fluid">
                 <div class="filter">
                     <a @click.prevent="showFiltersPicker()" href="#" role="button" class="btn btn-sm btn-secondary">
@@ -107,24 +111,22 @@
                 </div>
                 <div class="filter">
                     <button type="button" class="btn-filter btn btn-sm btn-info">
-                        {{cookieItmHallTitle}} <span class="badge badge-light">Hall</span>
+                        {{itmHallTitle}} <span class="badge badge-light">Hall</span>
                     </button>
                 </div>
                 <div class="filter">
                     <button type="button" class="btn-filter btn btn-sm btn-info">
-                        {{cookieItmTemplateTitle}} <span class="badge badge-light">Template</span>
+                        {{itmTemplateTitle}} <span class="badge badge-light">Template</span>
                     </button>
                 </div>
                 <div class="filter">
                     <button type="button" class="btn-filter btn btn-sm btn-info">
-                        {{cookieItmWorkerName}} <span class="badge badge-light">Worker</span>
+                        {{itmWorkerName}} <span class="badge badge-light">Worker</span>
                     </button>
                 </div>
                 
                 <div class="float-right">
-                    <client-info :client-info="clientInfo"
-                        :all-bookings="allBookings"
-                        :user-id="owner.id"></client-info>
+                    <client-info></client-info>
                 </div>
                     
                 <div class="clearfix"></div>
@@ -135,62 +137,125 @@
 
 <script>
     import ClientInfo from "./ClientInfo.vue";
+    import Loader from "./Loader.vue";
     import ExtensiveTemplateFilterPicker from "./template/ExtensiveTemplateFilterPicker.vue";
     export default {
         name: 'filters',
         mounted() {
-            console.log(JSON.parse(JSON.stringify(4444)));
-            console.log(JSON.parse(JSON.stringify(this.templateSpecifics)));
-            console.log(JSON.parse(JSON.stringify(this.halls)));
+            // console.log(JSON.parse(JSON.stringify('this.$store.state.count')));
+            // console.log(JSON.parse(JSON.stringify(44444)));
+            // console.log(JSON.parse(JSON.stringify(this.halls)));
             
-            // this.setFiltersFromCookie();
-            // this.setFilters();
+            if(!this.isCookieItmsEmpty)
+                this.emitChange();
         },
-        props: ['owner','halls','clientInfo','allBookings','cookieFilters','templateSpecifics','templateSpecificsAsIdKey'],
+        props: ['templateSpecifics','templateSpecificsAsIdKey'],
         data: function(){
             return {
+                //Using to indicate current picked items
                 pickedItmHall: null,
                 pickedItmWorker: null,
                 pickedItmTemplate: null,
                 pickedItmView: 'month',
                 
-                // cookieItmHall: null,
-                // cookieItmWorker: null,
-                // cookieItmTemplate: null,
-                // cookieItmView: null,
+                //Currently picked template`s ids trace
+                pickedTemplateIdsTrace: null,
+                //Count how much were picked template when picked form is shown
+                // pickTemplateTimesCount: 0,
                 
-                views: ['month','week','day','list'],
-                search: null,
+                // views: ['month','week','day','list'],
+                // search: null,
                 
+                //Workers fills for dropdown
                 workers: null,
+                //Workers fills for dropdown
                 templates: null,
                 
+                //Switch between filters picker and top info bar which filters are applied
                 showFilters: true,
             };
         },
         computed: {
-            // isTemplateSpecifics: function(){
-            //     return this.templateSpecifics !== null;
+            halls: function(){
+                return this.$store.getters['halls/all'];
+            },
+            views: function(){
+                return this.$store.getters['filters/views'];
+            },
+            cookieItmHall: function(){
+                return this.$store.getters['filters/hall'];
+            },
+            cookieItmTemplate: function(){
+                return this.$store.getters['filters/template'];
+            },
+            cookieItmWorker: function(){
+                return this.$store.getters['filters/worker'];
+            },
+            cookieItmView: function(){
+                return this.$store.getters['filters/view'];
+            },
+            isPickedItmsFilled: function(){
+                // console.log(this.pickedItmHall);
+                return (this.pickedItmHall != null && this.pickedItmWorker != null && this.pickedItmTemplate != null);
+            },
+            // isCookieViewEmpty: function(){
+            //     if(typeof this.cookieFilters === 'undefined' || this.cookieFilters === null || 
+            //     typeof this.cookieFilters.view === 'undefined' || typeof this.cookieFilters.view === null)
+            //         return true;
+            //     return false;
             // },
-            isCookieFiltersEmpty: function(){
-                if(typeof this.cookieFilters === 'undefined' || this.cookieFilters === null || 
-                this.cookieFilters.hall === null || this.cookieFilters.template === null ||
-                this.cookieFilters.worker === null)
-                    return true;
-                return false;
+            isCookieItmsEmpty: function(){
+                return this.$store.getters['filters/isEmpty'];
             },
-            cookieItmHallTitle: function(){
-                return !this.isCookieFiltersEmpty ? this.cookieFilters.hall.title : '';
+            itmHallTitle: function(){
+                return this.cookieItmHall !== null ? this.cookieItmHall.title : null;
             },
-            cookieItmTemplateTitle: function(){
-                return !this.isCookieFiltersEmpty ? this.cookieFilters.template.title : '';
+            itmTemplateTitle: function(){
+                return this.cookieItmTemplate !== null ? this.cookieItmTemplate.title : null;
             },
-            cookieItmWorkerName: function(){
-                return !this.isCookieFiltersEmpty ?
-                    this.cookieFilters.worker.first_name + this.cookieFilters.worker.last_name : '';
+            itmWorkerName: function(){
+                if(this.cookieItmWorker === null)
+                    return '';
+                
+                let fullName = toCapitalCase(this.cookieItmWorker.first_name.toLowerCase().trim());
+                if(typeof this.cookieItmWorker.last_name !== 'undefined' && this.cookieItmWorker.last_name !== null &&
+                typeof this.cookieItmWorker.last_name === 'string')
+                    fullName += toCapitalCase(this.cookieItmWorker.last_name.toLowerCase().trim());
+                    
+                return fullName;
+                    
+                function toCapitalCase(string){
+                    return string.charAt(0).toUpperCase() + string.slice(1);
+                };
             },
         },
         methods: {
+            changeView: function(view){
+                // console.log(view);
+                // alert(1111);
+                // this.choosedItmView = view;
+                this.cookieItmView = view;
+                this.putFiltersInCookie();
+                // this.composeSearch();
+                this.emitChange();
+            },
+            setPickedTemplateIdsTrace: function(){
+                let itmTemplate = this.cookieItmTemplate;
+                if(itmTemplate === null ||
+                typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+                    return null;
+                
+                if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
+                    return [itmTemplate.specific.id];
+                
+                let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+                let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+                idsTrace.push(itmTemplate.specific.id);
+                idsTrace.push(itmTemplate.id);
+                
+                // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+                this.pickedTemplateIdsTrace = idsTrace;
+            },
             backToCalendar: function(){
                 this.showFilters = false;
                 this.$emit('showCalendar');
@@ -201,115 +266,45 @@
             showFiltersPicker: function(){
                 this.showFilters = true;
                 
-                if(this.cookieFilters !== null && this.cookieFilters.hall !== null){
-                    this.change('hall', this.cookieFilters.hall);
-                    if(this.cookieFilters.template !== null){
-                        this.change('template', this.cookieFilters.template);
-                        if(this.cookieFilters.worker !== null){
-                            this.change('worker', this.cookieFilters.worker);
+                if(this.cookieItmHall !== null){
+                    this.change('hall', this.cookieItmHall);
+                    if(this.cookieItmTemplate !== null){
+                        this.change('template', this.cookieItmTemplate);
+                        this.setPickedTemplateIdsTrace();
+                        if(this.cookieItmWorker !== null){
+                            this.change('worker', this.cookieItmWorker);
                         }
                     }
                 }
                 
-                // this.change('hall', (this.cookieItmHall == null ? filters.hall : this.cookieItmHall));
-                // this.change('hall', (this.cookieItmHall == null ? filters.hall : this.cookieItmHall));
-                // this.change('template', (this.cookieItmTemplate == null ? filters.template : this.cookieItmTemplate));
-                // this.change('worker', (this.cookieItmWorker == null ? filters.worker : this.cookieItmWorker));
-                
                 this.$emit('hideCalendar');
             },
             putFiltersInCookie: function(){
-                this.cookieItmHall = this.pickedItmHall;
-                this.cookieItmWorker = this.pickedItmWorker;
-                this.cookieItmTemplate = this.pickedItmTemplate;
-                this.cookieItmView = this.pickedItmView;
-                
                 cookie.set('filters', {
-                    hall: this.pickedItmHall.id,
-                    worker: this.pickedItmWorker.id,
-                    template: this.pickedItmTemplate.id,
-                    view: this.pickedItmView,
+                    hall: this.cookieItmHall.id,
+                    worker: this.cookieItmWorker.id,
+                    template: this.cookieItmTemplate.id,
+                    view: this.cookieItmView,
                 });
             },
-            // filtersHasRightData: function(){
-            //     if(filters == null)
-            //         return false;
-            // 
-            //     if(filters.hall == null)
-            //         return false;
-            // },
-            setFilters: function(){
-                // console.log(filters);
-                if(this.filters === null)
-                    return;
-                    
-                this.cookieItmHall = this.filters.hall;
-                this.cookieItmWorker = this.filters.worker;
-                this.cookieItmTemplate = this.filters.template;
-                this.cookieItmView = this.filters.view;
-                
-                this.pickedItmHall = this.filters.hall;
-                this.pickedItmWorker = this.filters.worker;
-                this.pickedItmTemplate = this.filters.template;
-                this.pickedItmView = this.filters.view;
-                
-                this.showFilters = false;
-                
-                this.composeLink();
-                this.emitChange();
-            },
-            // setFiltersFromCookie: function(){
-            //     // console.log(filters);
-            //     if(filters != null){
-            //         this.cookieItmHall = filters.hall;
-            //         this.cookieItmWorker = filters.worker;
-            //         this.cookieItmTemplate = filters.template;
-            //         this.cookieItmView = filters.view;
-            // 
-            //         this.pickedItmHall = filters.hall;
-            //         this.pickedItmWorker = filters.worker;
-            //         this.pickedItmTemplate = filters.template;
-            //         this.pickedItmView = filters.view;
-            // 
-            //         this.showFilters = false;
-            // 
-            //         this.composeLink();
-            //         this.emitChange();
-            //     }
-            // },
-            filtersFilled: function(){
-                // console.log(this.pickedItmHall);
-                return (this.pickedItmHall != null && this.pickedItmWorker != null && this.pickedItmTemplate != null);
-            },
             apply: function(){
-                // return;
-                console.log(JSON.parse(JSON.stringify(this.search)));
-                
-                if(!this.filtersFilled()){
+                if(!this.isPickedItmsFilled){
                     alert('Please fill all fields');
                 }else{
-                    this.putFiltersInCookie();
-                    // console.log(this.search);
-                    this.composeLink();
-                    console.log(this.search);
+                    this.$store.commit('filters/changeFilters', {
+                        hall: this.pickedItmHall,
+                        template: this.pickedItmTemplate,
+                        worker: this.pickedItmWorker,
+                        view: this.pickedItmView,
+                    });
+                    
                     this.emitChange();
-                    // setTimeout(() => {
-                     	this.$emit('showCalendar');
-                    // }, 2000);
                 }
             },
             emitChange: function(){
                 this.showFilters = false;
-                // console.log('emitChange');
-                this.$emit('change', {
-                    searchString: this.search,
-                    searchObj: {
-                        hall: this.pickedItmHall,
-                        worker: this.pickedItmWorker,
-                        template: this.pickedItmTemplate,
-                        view: this.pickedItmView,
-                    }
-                });
+                this.$emit('change');
+                this.$emit('showCalendar');
             },
             resetPickedItems: function(items = null){
                 if(items !== null && !Array.isArray(items))
@@ -331,6 +326,7 @@
                 // console.log(itm);
                 switch(type) {
                     case 'hall':
+                    
                         this.resetPickedItems();
                         axios.get(routes.calendar.booking.template.index + '?hall=' + itm.id)
                             .then((response) => {
@@ -349,8 +345,10 @@
                             .then(function () {
                                 // always executed
                             });
+                            
                         break;
                     case 'template':
+                    
                         this.resetPickedItems(['template','worker']);
                         // lo(222);
                         // console.log('5555555');
@@ -375,37 +373,32 @@
                             .then(function () {
                                 // always executed
                             });
+                            
                         break;
                     case 'worker':
+                    
                         this.pickedItmWorker = (itm ?? null);
+                        
                         break;
                     case 'view':
+                    
                         this.pickedItmView = (itm ?? null);
+                        
                         break;
                     default:
-                    // code block
                 }
-                // this.composeLink();
             },
-            composeLink: function(){
-                let search = '';
-                if(this.pickedItmHall != null)
-                    search += (search == '' ? '' : '&') + 'hall=' + this.pickedItmHall.id;
-                if(this.pickedItmWorker != null)
-                    search += (search == '' ? '' : '&') + 'worker=' + this.pickedItmWorker.id;
-                if(this.pickedItmTemplate != null)
-                    search += (search == '' ? '' : '&') + 'template=' + this.pickedItmTemplate.id;
-                if(this.pickedItmView != null)
-                    search += (search == '' ? '' : '&') + 'view=' + this.pickedItmView.toLowerCase();
-                this.search = search;
-                // console.log(search);
-            }
         },
         components: {
             ClientInfo,
             TemplatePicker: ExtensiveTemplateFilterPicker,
+            Loader,
         },
         watch: {
+            // cookieFilters: function(val){
+            //     // console.log(JSON.parse(JSON.stringify(7272727272)));
+            //     // console.log(JSON.parse(JSON.stringify(val)));
+            // },
             pickedItmHall: function(val){
                 if(val === null){
                     this.templates = null;
@@ -414,12 +407,43 @@
                 // console.log(JSON.parse(JSON.stringify(9999999)));
                 // console.log(JSON.parse(JSON.stringify(val)));
             },
-            pickedItmTemplate: function(val){
-                if(val === null)
-                    this.workers = null;
-                // console.log(JSON.parse(JSON.stringify(9999999)));
-                // console.log(JSON.parse(JSON.stringify(val)));
-            },
+            // cookieItmTemplate: function(val){
+            //     // console.log(JSON.parse(JSON.stringify(8181818181818)));
+            // 
+            //     if(val === null){
+            //         this.workers = null;
+            //     }else{
+            //         // this.setPickedTemplateIdsTrace();
+            //     }
+            // 
+            //     // return;
+            // 
+            //     if(val !== null && this.pickTemplateTimesCount == 0 && !this.isCookieFiltersEmpty){
+            //         this.setPickedTemplateIdsTrace();
+            //         console.log(JSON.parse(JSON.stringify(7373737373737)));
+            //     }else{
+            //         this.pickedTemplateIdsTrace = null;
+            //     }
+            // 
+            //     console.log(JSON.parse(JSON.stringify(8181818181818)));
+            //     console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+            //     console.log(JSON.parse(JSON.stringify(val)));
+            // 
+            //     if(val !== null && this.showFilters === true)
+            //         this.pickTemplateTimesCount++;
+            //     // console.log(JSON.parse(JSON.stringify(9999999)));
+            //     // console.log(JSON.parse(JSON.stringify(val)));
+            // },
+            // showFilters: function(val){
+            //     if(val === false){
+            //         this.pickTemplateTimesCount = 0;
+            //     }else{
+            //         // let loader = this.$refs['loader'];
+            //         // console.log(JSON.parse(JSON.stringify(loader)));
+            //         console.log(JSON.parse(JSON.stringify('loader')));
+            //         console.log(JSON.parse(JSON.stringify(this.$refs)));
+            //     }
+            // },
         },
     }
 </script>

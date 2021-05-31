@@ -5,8 +5,16 @@
   padding-top: 20px;
 }
 
+/* TEMPLATE ASSIGNMENT
+******************************************************************/
+
 /* SPECIFIC ASSIGNMENT
 ******************************************************************/
+
+.specifics-assignment {
+  padding-top: 10px;
+  padding-bottom: 20px;
+}
 
 .specifics-assignment .specific-dropdown {
   width: 100%;

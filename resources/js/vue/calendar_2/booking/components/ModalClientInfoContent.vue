@@ -145,7 +145,7 @@
             })
         },
         // props: ['range','view','curreny_view_idx','currentDate'],
-        props: ['clientInfo','allBookings'],
+        props: ['clientInfo'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -157,6 +157,9 @@
             };
         },
         computed: {
+            allBookings: function () {
+                return this.$store.getters['client/bookings'];
+            },
             fullName: function () {
                 if(this.clientInfo == null)
                     return 'guest';

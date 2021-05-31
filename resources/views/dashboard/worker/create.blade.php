@@ -23,6 +23,10 @@
             @if(!empty($worker))
                 let worker = @json($worker);
             @endif
+            
+            @if(!empty($specifics_as_key_id))
+                let specificsAsKeyId = @json($specifics_as_key_id);
+            @endif
         
             @if(!empty($validation_messages))
                 let validationMessages =  @json($validation_messages);

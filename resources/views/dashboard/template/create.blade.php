@@ -93,7 +93,7 @@
                     </span>
                 </a>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item d-none" role="presentation">
                 <a class="nav-link @if(Request::get('tab') == 'specifics') active @endif" id="specifics-tab" data-toggle="tab" href="#specifics" tab-name="specifics" role="tab" aria-controls="specifics" aria-selected="false">
                     <!-- <span class="notice-badges">
                         <span class="notice-badge notice-badge-warning text-warning d-none"
@@ -196,6 +196,10 @@
             <div class="edit-create-tab-content tab-content" id="myTabContent">
                 <div class="tab-pane fade @if(!Request::has('tab') || Request::get('tab') == 'main') show active @endif" id="main" role="tabpanel" aria-labelledby="main-tab">
                     
+                    <div class="specifics-assignment">
+                        <div id="specificAssignmentApp"></div>
+                    </div>
+                    
                     <div class="form-group">
                         <x-label for="title" value="Title*" />
                         <x-input type="text" name="title" id="title" :value="
@@ -239,13 +243,13 @@
                     </div>
                     
                 </div>
-                <div class="tab-pane fade @if(Request::get('tab') == 'specifics') show active @endif" id="specifics" role="tabpanel" aria-labelledby="specifics-tab">
+                <!-- <div class="tab-pane fade @if(Request::get('tab') == 'specifics') show active @endif" id="specifics" role="tabpanel" aria-labelledby="specifics-tab">
                     
                     <div class="specifics-assignment">
                         <div id="specificAssignmentApp"></div>
                     </div>
                 
-                </div>
+                </div> -->
                 <div class="tab-pane fade @if(Request::get('tab') == 'worker') show active @endif" id="worker" role="tabpanel" aria-labelledby="worker-tab">
                     
                     <div id="workerAssignment2"></div>

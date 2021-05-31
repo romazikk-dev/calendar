@@ -8,13 +8,23 @@
                 </a>
 
                 <div class="dropdown-menu">
-                    <a @click.prevent="change(item)" v-for="(item, index) in parsedTemplates" class="dropdown-item" href="#">{{item.title}}</a>
+                    <a :ref="'itm_specific_' + item.id"
+                        :id="'itm_specific_' + item.id"
+                        @click.prevent="change(item)"
+                        v-for="(item, index) in parsedTemplates"
+                        class="dropdown-item"
+                        href="#">
+                            {{item.title}}
+                    </a>
                 </div>
             </div>
             
             <dropdown-template-specifics v-if="pickedParsedTemplateFields"
+                :key="'dropdown_template_specifics_' + Math.floor(Math.random() * 10000)"
                 @change="$emit('change', $event)"
+                :is-changed-on-click="changedOnClick"
                 :templates="templates"
+                :picked-template-ids-trace="pickedTemplateIdsTraceWithoutFirstElement"
                 :reset-picked-prop="resetPicked"
                 :parsed-templates="pickedParsedTemplateFields"
                 :specifics="specifics"
@@ -39,23 +49,55 @@
     export default {
         name: 'dropdown_template_specifics',
         mounted() {
-            console.log(JSON.parse(JSON.stringify(22222)));
-            console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
+            console.log(JSON.parse(JSON.stringify(999999996666666)));
+            console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
             // console.log(JSON.parse(JSON.stringify(this.specificsArr)));
             // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
             // console.log(JSON.parse(JSON.stringify(this.specifics)));
+            
+            this.pickItemIfAlreadyPicked();
         },
         // props: ['owner','halls','clientInfo','allBookings','cookieFilters'],
-        props: ['templates','parsedTemplates','specifics','specificsAsIdKey','resetPickedProp'],
+        props: ['templates','parsedTemplates','specifics','specificsAsIdKey','resetPickedProp','pickedTemplateIdsTrace','isChangedOnClick'],
         data: function(){
             return {
                 // firstLevelIdsOfSpecifics: null,
                 // specificsLevelMaxDeep: 0,
                 pickedParsedTemplate: null,
                 resetPicked: 0,
+                pickedTemplateIdsTraceWithoutFirstElement: null,
+                // rendered: false,
+                changedOnClick: false,
             };
         },
         computed: {
+            IdTrace: function(){
+                
+            },
+            pickedTemplateIdsTraceFirstElement: function(){
+                if(Array.isArray(this.pickedTemplateIdsTrace) && this.pickedTemplateIdsTrace.length > 0){
+                    let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace));
+                    return pickedTemplateIdsTrace.shift();
+                }
+                return null;
+            },
+            // pickedTemplateIdsTraceWithoutFirstElement: function(){
+            //     if(this.pickedTemplateIdsTrace === null)
+            //         return null;
+            // 
+            //     let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace));
+            //     pickedTemplateIdsTrace.shift();
+            // 
+            //     return pickedTemplateIdsTrace;
+            // 
+            //     // _this.$nextTick(function(){
+            //     //     console.log(JSON.parse(JSON.stringify(22222222222)));
+            //     //     console.log(JSON.parse(JSON.stringify(pickedTemplateIdsTrace)));
+            //     //     // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+            //     //     pickedTemplateIdsTrace.shift();
+            //     //     _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+            //     // });
+            // },
             pickedParsedTemplateFields: function(){
                 // if()
                 // if(this.pickedParsedTemplate === null
@@ -73,7 +115,8 @@
             change: function(itm){
                 if(this.pickedParsedTemplate !== null && itm.id == this.pickedParsedTemplate.id)
                     return;
-                    
+                
+                this.changedOnClick = true;
                 this.pickedParsedTemplate = null;
                 this.$emit('change', null);
                 this.$nextTick(() => {
@@ -82,11 +125,105 @@
                         this.$emit('change', itm.template);
                 });
             },
+            pickItemIfAlreadyPicked: function(){
+                if(this.isChangedOnClick === true)
+                    return;
+                    
+                let _this = this;
+                if(this.pickedTemplateIdsTraceFirstElement !== null){
+                    let i = 0;
+                    let interval = setInterval(function () {
+                        if(i > 10)
+                            clearInterval(interval);
+                            
+                        i++;
+                        if(typeof _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement] !== 'undefined'){
+                            
+                            _this.pickedParsedTemplate = _this.parsedTemplates[_this.pickedTemplateIdsTraceFirstElement];
+                            
+                            // _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement][0].click();
+                            
+                            let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+                            // if(pickedTemplateIdsTrace.length > 1){
+                            pickedTemplateIdsTrace.shift();
+                                // _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+                            // }
+                            
+                            // if(pickedTemplateIdsTrace.length > 1){
+                            _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+                                // _this.pickedTemplateIdsTraceWithoutFirstElement = null;
+                            // }else{
+                            //     _this.pickedTemplateIdsTraceWithoutFirstElement = null;
+                            // }
+                            // _this.rendered = true;
+                            
+                            clearInterval(interval);
+                        }
+                    }, 100);
+                }
+            },
         },
         components: {
             
         },
         watch: {
+            pickedTemplateIdsTrace: function(val){
+                // return;
+                // console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace')));
+                // console.log(JSON.parse(JSON.stringify(val)));
+                
+                // if(this.rendered === false)
+                    this.pickItemIfAlreadyPicked();
+                
+                return;
+                
+                let _this = this;
+                if(this.pickedTemplateIdsTraceFirstElement !== null){
+                    let i = 0;
+                    let interval = setInterval(function () {
+                        if(i > 10)
+                            clearInterval(interval);
+                            
+                        i++;
+                        if(typeof _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement] !== 'undefined'){
+                            
+                            // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+                            // pickedTemplateIdsTrace.shift();
+                            
+                            // console.log(JSON.parse(JSON.stringify(22222222222)));
+                            // console.log(JSON.parse(JSON.stringify(pickedTemplateIdsTrace)));
+                            
+                            // _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+                            
+                            _this.$refs['itm_specific_' + _this.pickedTemplateIdsTraceFirstElement][0].click();
+                            let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+                            
+                            setTimeout(function(){
+                                pickedTemplateIdsTrace.shift();
+                                _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+                            }, 1000);
+                            // _this.$nextTick(function(){
+                            //     console.log(JSON.parse(JSON.stringify(22222222222)));
+                            //     pickedTemplateIdsTrace.shift();
+                            //     console.log(JSON.parse(JSON.stringify(pickedTemplateIdsTrace)));
+                            //     // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(_this.pickedTemplateIdsTrace));
+                            //     // pickedTemplateIdsTrace.shift();
+                            //     // _this.pickedTemplateIdsTraceWithoutFirstElement = pickedTemplateIdsTrace;
+                            // });
+                            
+                            // if(this.pickedTemplateIdsTrace === null)
+                            //     return null;
+                            // 
+                            // let pickedTemplateIdsTrace = JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace));
+                            // pickedTemplateIdsTrace.shift();
+                            // 
+                            // return pickedTemplateIdsTrace;
+                            
+                            clearInterval(interval);
+                        }
+                    }, 100);
+                }
+            },
             parsedTemplates: function(val){
                 if(val === null)
                     this.pickedParsedTemplate = null;
