@@ -15,6 +15,8 @@
             var templateSpecifics = @json($template_specifics);
             var templateSpecificsAsIdKey = @json($template_specifics_as_id_key);
             
+            var customTitles = @json($custom_titles);
+            
             // console.log(templateSpecificsAsIdKey);
             // console.log(33333333);
             // console.log(halls);

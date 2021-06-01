@@ -9,6 +9,9 @@
     
     <x-slot name="styles">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></link>
+        
+        @yield('css')
+        
     </x-slot>
     
     <div class="container-fluid page-content">

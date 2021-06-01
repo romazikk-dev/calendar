@@ -10,6 +10,7 @@ use App\Models\Worker;
 use App\Models\Template;
 use App\Scopes\UserScope;
 use App\Models\TemplateSpecifics;
+use App\Classes\Setting\Enums\Keys as SettingKeys;
 
 class BookingController extends Controller{
     
@@ -25,6 +26,9 @@ class BookingController extends Controller{
         if($owner = User::find($owner_id)){
             // dd(UserScope::class);
             // $halls = Hall::all();
+            
+            // $custom_titles = \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder();
+            // dd($custom_titles);
             
             $hall_model = Hall::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
             
@@ -77,6 +81,7 @@ class BookingController extends Controller{
                 // 'workers' => $workers->toArray(),
                 // 'templates' => $templates->toArray(),
                 'filters' => null,
+                'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
             ];
             
             if(!empty($filtered_hall) || !empty($filtered_worker) || !empty($filtered_template)){

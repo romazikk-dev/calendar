@@ -1,13 +1,10 @@
 <template>
     <div>
-        <navigation :view="view"
-            :views="views"
-            :can-go-to-previous="canGoToPrevious"
+        <navigation :can-go-to-previous="canGoToPrevious"
             :calendar-title="calendarTitle"
             @previous="previous"
             @next="next"
-            @today="today"
-            @change_view="changeView($event)"></navigation>
+            @today="today"></navigation>
         
         <div class="for-table">
             <table>
@@ -44,11 +41,10 @@
             <div class="modal-dialog">
                 <!-- ModalAuthContent -->
                 <modal-book-content v-show="isAuth()"
-                    :user-id="userId"
                     :book-date="bookDate"
                     :book-time-period="bookTimePeriod"></modal-book-content>
                 <!-- ModalAuthContent -->
-                <modal-auth-content v-show="!isAuth()" :user-id="userId"></modal-auth-content>
+                <modal-auth-content v-show="!isAuth()"></modal-auth-content>
             </div>
         </div>
         
@@ -71,40 +67,18 @@
     export default {
         name: 'monthCalendar',
         mounted() {
-            // if(!this.isAuth())
-                
-                
             // this.setDates(moment(new Date()).startOf('month').toDate());
             this.setDates(moment(this.startDate).startOf('month').toDate());
             
-            // console.log(this.startDate);
-            // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-            // console.log(this.currenyViewIdx);
-            
-            // console.log(this.currentDate);
-            // console.log(this.firstMonthDate);
-            // console.log(this.lastMonthDate);
-            // console.log(this.firstCalendarDate);
-            // console.log(this.lastCalendarDate);
-            
-            let interval = setInterval(() => {
-                if(this.search != null){
-                    // console.log(11111);
-                    clearInterval(interval);
-                    this.getData();
-                }
-            }, 300);
+            this.getData();
             
             // this.getData();
             $("#bookModal").on('hidden.bs.modal', () => {
                 this.bookDate = null;
                 // console.log(this.bookDate);
             });
-            
-            // console.log(this.firstMonthDate);
-            // console.log(this.currentDateObj);
         },
-        props: ['userId','search','views','view','startDate','dataUpdater'],
+        props: ['startDate'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -127,11 +101,9 @@
             };
         },
         computed: {
-            // views: function () {
-            //     // console.log(this.$parent.views);
-            //     // return null;
-            //     return this.$parent.views;
-            // },
+            dataUpdater: function () {
+                return this.$store.getters['updater/counter'];
+            },
             calendarTitle: function () {
                 return moment(this.firstMonthDate).format('MMMM YYYY');
             },
@@ -140,6 +112,9 @@
                 let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
                 return firstMonthDay.isAfter(currentDateFirstMonthDay);
             },
+            search: function () {
+                return this.$store.getters['filters/urlSearchPath'];
+            },
             // hasCurrentDate: function () {
             //     let firstMonthDay = moment(this.firstMonthDate).startOf('month');
             //     let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
@@ -147,9 +122,6 @@
             // }
         },
         methods: {
-            changeView: function(view){
-                this.$emit('view_changed', view);
-            },
             cancelBook: function(event){
                 this.cancelBookData = event;
                 $('#cancelBookModal').modal('show');

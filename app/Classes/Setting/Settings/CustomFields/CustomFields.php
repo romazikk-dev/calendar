@@ -25,6 +25,9 @@ class CustomFields extends MainCustomFields{
         
         // dd($setting);
         
+        $placeholder = $this->getPlaceholder();
+        $setting = array_merge($placeholder, $setting);
+        
         // return 222;
         return $setting;
     }
@@ -86,6 +89,10 @@ class CustomFields extends MainCustomFields{
             $db_setting = json_decode($db_setting, true);
             $settings_data = $db_setting;
         }
+        
+        $placeholder = $this->getPlaceholder();
+        $settings_data = array_merge($placeholder, $settings_data);
+        // dd($settings_data);
         
         if(!empty($settings_data[$data['field_name']]['values'])){
             foreach($settings_data[$data['field_name']]['values'] as $k => &$v){

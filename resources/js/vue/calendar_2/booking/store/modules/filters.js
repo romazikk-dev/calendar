@@ -7,15 +7,16 @@ const state = () => ({
       hall: calendarBookingHelper.getFilter('hall'),
       template: calendarBookingHelper.getFilter('template'),
       worker: calendarBookingHelper.getFilter('worker'),
-      view: 'month',
+      view: calendarBookingHelper.getFilter('view'),
   },
+  views: ['month','week','day','list'],
   // urlSearchPath: null,
 });
 
 // getters
 const getters = {
-    views: () => {
-        return ['month','week','day','list'];
+    views: (state) => {
+        return state.views;
     },
     all: (state) => {
         return {
@@ -80,21 +81,19 @@ const mutations = {
             });
         }
     },
-    // composeUrlSearchPath: (state) => {
-    //     let search = '';
-    //     if(state.items.hall != null && typeof state.items.hall.id !== 'undefined')
-    //         search += (search == '' ? '' : '&') + 'hall=' + state.items.hall.id;
-    //     if(state.items.worker != null && typeof state.items.worker.id !== 'undefined)
-    //         search += (search == '' ? '' : '&') + 'worker=' + state.items.worker.id;
-    //     if(state.items.template != null && typeof state.items.template.id !== 'undefined)
-    //         search += (search == '' ? '' : '&') + 'template=' + state.items.template.id;
-    //     if(state.items.view != null)
-    //         search += (search == '' ? '' : '&') + 'view=' + state.items.view.toLowerCase().trim();
-    // 
-    //     if(search == '')
-    //         state.urlSearchPath = null;
-    //     this.urlSearchPath = search;
-    // },
+    changeView: (state, view) => {
+        if(typeof view !== 'undefined' && view !== null &&
+        state.views.includes(view.toLowerCase().trim())){
+            state.items.view = view;
+            // cookie.set('filters.view', view);
+            cookie.set('filters', {
+                hall: state.items.hall.id,
+                worker: state.items.worker.id,
+                template: state.items.template.id,
+                view: state.items.view,
+            });
+        }
+    },
 }
 
 export default {

@@ -8,5 +8,9 @@ return [
     'template' => [
         'key' => 'template',
         'title' => 'Template',
+    ],
+    'worker' => [
+        'key' => 'worker',
+        'title' => 'Worker',
     ]
 ];

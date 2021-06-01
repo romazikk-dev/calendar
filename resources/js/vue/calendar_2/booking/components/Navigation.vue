@@ -26,21 +26,10 @@
                             disabled: item.toLowerCase() == view.toLowerCase()
                         }"
                         :disabled="item.toLowerCase() == view.toLowerCase()"
-                        @click.prevent="$emit('change_view', item)"
+                        @click.prevent="changeView(item)"
                         type="button"
                         class="btn btn-sm btn-secondary">{{item}}</button>
                 </div>
-                <!-- <div class="filter float-right mr-0">
-                    <div id="viewDropdown" class="dropdown">
-                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="viewDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{view}}
-                        </a>
-
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="viewDropdownButton">
-                            <a v-for="item in views" @click.prevent="$emit('change_view', item)" v-if="item.toLowerCase() != view.toLowerCase()" class="dropdown-item" href="#">{{item}}</a>
-                        </div>
-                    </div>
-                </div> -->
             </div>
             
             <div class="calendar-title">
@@ -63,7 +52,7 @@
             console.log(this.view);
             console.log(this.views);
         },
-        props: ['views','view','canGoToPrevious','calendarTitle'],
+        props: ['canGoToPrevious','calendarTitle'],
         // props: ['userId','search', 'views','view','startDate','canGoToPrevious'],
         data: function(){
             return {
@@ -74,12 +63,17 @@
             // currentDay: function () {
             // 
             // },
+            view: function () {
+                return this.$store.getters['filters/view'];
+            },
+            views: function () {
+                return this.$store.getters['filters/views'];
+            },
         },
         methods: {
-            // changeView: function(view){
-            //     // console.log(view);
-            //     this.$emit('view_changed', view);
-            // },
+            changeView: function(view){
+                this.$store.commit('filters/changeView', view);
+            },
         },
         components: {
             // ModalAuthContent,

@@ -154,7 +154,7 @@
             
             
         },
-        props: ['userId','bookDate','bookTimePeriod'],
+        props: ['bookDate','bookTimePeriod'],
         data: function(){
             return {
                 // modalOpened: false,
@@ -178,6 +178,9 @@
             };
         },
         computed: {
+            // userId: function(){
+            //     return this.$store.getters['owner/ownerId'];
+            // },
             auth: function () {
                 return this.isAuth();
             },

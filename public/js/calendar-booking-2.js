@@ -1850,6 +1850,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DayCalendar_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DayCalendar.vue */ "./resources/js/vue/calendar_2/booking/components/DayCalendar.vue");
 /* harmony import */ var _ListCalendar_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ListCalendar.vue */ "./resources/js/vue/calendar_2/booking/components/ListCalendar.vue");
 /* harmony import */ var _Filters_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Filters.vue */ "./resources/js/vue/calendar_2/booking/components/Filters.vue");
+/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Loader.vue */ "./resources/js/vue/calendar_2/booking/components/Loader.vue");
 //
 //
 //
@@ -1872,32 +1873,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 
 
@@ -1917,18 +1893,23 @@ __webpack_require__.r(__webpack_exports__);
   props: ['userId'],
   data: function data() {
     return {
-      templateSpecifics: templateSpecifics,
-      templateSpecificsAsIdKey: typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null ? templateSpecificsAsIdKey : null,
+      // templateSpecifics: templateSpecifics,
+      // 
+      // templateSpecificsAsIdKey: (typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null) ?
+      //     templateSpecificsAsIdKey : null,
       // showCalendar: false,
       showCalendar: true,
       views: ['month', 'week', 'day', 'list'],
       startDateMonth: new Date(),
       startDateWeek: new Date(),
-      startDateDay: new Date(),
-      dataUpdater: 0
+      startDateDay: new Date() // dataUpdater: 0,
+
     };
   },
   computed: {
+    dataUpdater: function dataUpdater() {
+      return this.$store.getters['updater/counter'];
+    },
     cookieFilters: function cookieFilters() {
       return this.$store.getters['filters/all'];
     },
@@ -2028,7 +2009,9 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         successCallback(response);
-        _this.dataUpdater++;
+
+        _this.$store.commit('updater/increaseCounter'); // this.dataUpdater++;
+
 
         _this.setBookings(); // this.dataUpdater++;
 
@@ -2061,7 +2044,9 @@ __webpack_require__.r(__webpack_exports__);
         // handle success
         // this.dates = response.data.data;
         successCallback(response);
-        _this2.dataUpdater++;
+
+        _this2.$store.commit('updater/increaseCounter'); // this.dataUpdater++;
+
 
         _this2.setBookings(); // console.log('success');
         // this.onCancel(response.data);
@@ -2086,14 +2071,14 @@ __webpack_require__.r(__webpack_exports__);
       this.setToken(token);
       this.setClientInfo();
       this.setBookings();
-      this.dataUpdater++;
+      this.$store.commit('updater/increaseCounter'); // this.dataUpdater++;
     },
     logout: function logout() {
       // cookie.remove('token');
       // this.token = null;
       // this.clientInfo = null;
       this.$store.commit('client/logout');
-      this.dataUpdater++;
+      this.$store.commit('updater/increaseCounter'); // this.dataUpdater++;
     },
     setClient: function setClient() {
       this.setClientInfo();
@@ -2194,10 +2179,13 @@ __webpack_require__.r(__webpack_exports__);
       } // console.log(this.startDate);
 
     },
-    onViewChange: function onViewChange(event) {
-      console.log(event);
-      this.$refs['filters'].changeView(event); // this.view = null;
-    },
+    // onViewChange: function(event){
+    //     // console.log(event);
+    //     // this.$refs['filters'].changeView(event);
+    // 
+    //     this.$store.commit('filters/changeView', event);
+    //     // this.view = null;
+    // },
     // reset: function(){
     //     this.view = null;
     // },
@@ -2239,7 +2227,8 @@ __webpack_require__.r(__webpack_exports__);
     WeekCalendar: _WeekCalendar_vue__WEBPACK_IMPORTED_MODULE_1__.default,
     DayCalendar: _DayCalendar_vue__WEBPACK_IMPORTED_MODULE_2__.default,
     ListCalendar: _ListCalendar_vue__WEBPACK_IMPORTED_MODULE_3__.default,
-    Filters: _Filters_vue__WEBPACK_IMPORTED_MODULE_4__.default
+    Filters: _Filters_vue__WEBPACK_IMPORTED_MODULE_4__.default,
+    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_5__.default
   },
   watch: {
     showCalendar: function showCalendar(val) {// if(val === true){
@@ -2464,10 +2453,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -2479,15 +2464,15 @@ __webpack_require__.r(__webpack_exports__);
     var _this2 = this;
 
     if (this.startDate != null) this.currentChoosenDateMoment = moment(this.startDate); // this.setDates();
+    // let interval = setInterval(() => {
+    //     if(this.search != null){
+    //         // console.log(11111);
+    //         clearInterval(interval);
+    //         this.getData();
+    //     }
+    // }, 300);
 
-    var interval = setInterval(function () {
-      if (_this2.search != null) {
-        // console.log(11111);
-        clearInterval(interval);
-
-        _this2.getData();
-      }
-    }, 300);
+    this.getData();
     this.regModalOpenButtons(); // this.getData();
 
     $("#bookModal").on('hidden.bs.modal', function () {
@@ -2507,7 +2492,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     }, 100);
   },
-  props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
+  props: ['startDate'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -2525,6 +2510,12 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    dataUpdater: function dataUpdater() {
+      return this.$store.getters['updater/counter'];
+    },
+    search: function search() {
+      return this.$store.getters['filters/urlSearchPath'];
+    },
     currentDay: function currentDay() {
       // if(this.currentDate == null)
       //     return true;
@@ -2556,10 +2547,6 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    changeView: function changeView(view) {
-      // console.log(view);
-      this.$emit('view_changed', view);
-    },
     setDates: function setDates() {
       this.currentDate = new Date();
       this.currentDateMoment = moment(this.currentDate);
@@ -3186,7 +3173,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 
@@ -3196,9 +3182,12 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(JSON.parse(JSON.stringify('this.$store.state.count')));
     // console.log(JSON.parse(JSON.stringify(44444)));
     // console.log(JSON.parse(JSON.stringify(this.halls)));
-    if (!this.isCookieItmsEmpty) this.emitChange();
+    if (!this.isCookieItmsEmpty) {
+      this.fillFilters();
+      this.emitChange();
+    }
   },
-  props: ['templateSpecifics', 'templateSpecificsAsIdKey'],
+  // props: ['templateSpecifics','templateSpecificsAsIdKey'],
   data: function data() {
     return {
       //Using to indicate current picked items
@@ -3221,6 +3210,19 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    customTitle: function customTitle() {
+      var _this = this;
+
+      return function (name) {
+        return _this.$store.getters['custom_titles/title'](name);
+      };
+    },
+    templateSpecifics: function templateSpecifics() {
+      return this.$store.getters['specifics/templateSpecifics'];
+    },
+    templateSpecificsAsIdKey: function templateSpecificsAsIdKey() {
+      return this.$store.getters['specifics/templateSpecificsAsIdKey'];
+    },
     halls: function halls() {
       return this.$store.getters['halls/all'];
     },
@@ -3301,9 +3303,7 @@ __webpack_require__.r(__webpack_exports__);
     fullName: function fullName(obj) {
       return obj.first_name + ' ' + obj.last_name;
     },
-    showFiltersPicker: function showFiltersPicker() {
-      this.showFilters = true;
-
+    fillFilters: function fillFilters() {
       if (this.cookieItmHall !== null) {
         this.change('hall', this.cookieItmHall);
 
@@ -3316,6 +3316,20 @@ __webpack_require__.r(__webpack_exports__);
           }
         }
       }
+    },
+    showFiltersPicker: function showFiltersPicker() {
+      this.showFilters = true; // if(this.cookieItmHall !== null && this.pickedItmHall === null){
+      //     this.change('hall', this.cookieItmHall);
+      //     if(this.cookieItmTemplate !== null && this.pickedItmTemplate === null){
+      //         this.change('template', this.cookieItmTemplate);
+      //         this.setPickedTemplateIdsTrace();
+      //         if(this.cookieItmWorker !== null && this.pickedItmWorker === null){
+      //             this.change('worker', this.cookieItmWorker);
+      //         }
+      //     }
+      // }
+
+      if (this.cookieItmView !== null) this.pickedItmView = this.cookieItmView; // this.$refs.loader.fadeOut();
 
       this.$emit('hideCalendar');
     },
@@ -3354,7 +3368,7 @@ __webpack_require__.r(__webpack_exports__);
       if (items === null || items.includes("worker")) this.pickedItmWorker = null;
     },
     change: function change(type, itm) {
-      var _this = this,
+      var _this2 = this,
           _itm,
           _itm2;
 
@@ -3368,8 +3382,8 @@ __webpack_require__.r(__webpack_exports__);
             response.data.templates.forEach(function (item, i) {
               templates.push(item);
             });
-            _this.templates = templates;
-            _this.pickedItmHall = itm; // console.log(JSON.parse(JSON.stringify(this.workers)));
+            _this2.templates = templates;
+            _this2.pickedItmHall = itm; // console.log(JSON.parse(JSON.stringify(this.workers)));
           })["catch"](function (error) {
             // handle error
             console.log(error);
@@ -3389,8 +3403,8 @@ __webpack_require__.r(__webpack_exports__);
             response.data.workers.forEach(function (item, i) {
               workers.push(item);
             });
-            _this.workers = workers;
-            _this.pickedItmTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
+            _this2.workers = workers;
+            _this2.pickedItmTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
           })["catch"](function (error) {
             // handle error
             console.log(error);
@@ -3416,6 +3430,14 @@ __webpack_require__.r(__webpack_exports__);
     Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_1__.default
   },
   watch: {
+    showFilters: function showFilters(val) {
+      if (val === false) {
+        // alert(this.isCookieItmsEmpty);
+        if (!this.isCookieItmsEmpty && !this.isPickedItmsFilled) {
+          this.fillFilters();
+        }
+      }
+    },
     // cookieFilters: function(val){
     //     // console.log(JSON.parse(JSON.stringify(7272727272)));
     //     // console.log(JSON.parse(JSON.stringify(val)));
@@ -3572,10 +3594,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -3605,15 +3623,15 @@ __webpack_require__.r(__webpack_exports__);
     //     console.log(moment(this.currentDate).format('YYYY MM DD'));
     //     console.log(this.currentDateMoment.format('YYYY-MM-DD HH:mm:ss'));
     // }, 10);
+    // let interval = setInterval(() => {
+    //     if(this.search != null){
+    //         // console.log(11111);
+    //         clearInterval(interval);
+    //         this.getData();
+    //     }
+    // }, 300);
 
-    var interval = setInterval(function () {
-      if (_this.search != null) {
-        // console.log(11111);
-        clearInterval(interval);
-
-        _this.getData();
-      }
-    }, 300); // let intervalDates = setInterval(() => {
+    this.getData(); // let intervalDates = setInterval(() => {
     //     if(this.dates != null){
     //         clearInterval(intervalDates);
     //         this.placeItems();
@@ -3629,7 +3647,7 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(this.firstMonthDate);
     // console.log(this.weekdayOfCurrentDate);
   },
-  props: ['userId', 'search', 'view', 'views', 'startDate', 'dataUpdater'],
+  props: ['startDate'],
   data: function data() {
     return {
       empty: true,
@@ -3652,6 +3670,12 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    dataUpdater: function dataUpdater() {
+      return this.$store.getters['updater/counter'];
+    },
+    search: function search() {
+      return this.$store.getters['filters/urlSearchPath'];
+    },
     calendarTitle: function calendarTitle() {
       if (this.firstWeekday == null) return '';
       var firstWeekdayMoment = moment(this.firstWeekday);
@@ -3678,10 +3702,6 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    changeView: function changeView(view) {
-      // console.log('changeView: ' + view);
-      this.$emit('view_changed', view);
-    },
     notPast: function notPast(date) {
       var dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + date.start + ':00');
       var currentDateMoment = moment(this.currentDate);
@@ -4203,7 +4223,7 @@ __webpack_require__.r(__webpack_exports__);
       _this.setStyleForArrow();
     });
   },
-  props: ['userId', 'bookDate', 'bookTimePeriod'],
+  props: ['bookDate', 'bookTimePeriod'],
   data: function data() {
     return {
       // modalOpened: false,
@@ -4227,6 +4247,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    // userId: function(){
+    //     return this.$store.getters['owner/ownerId'];
+    // },
     auth: function auth() {
       return this.isAuth();
     },
@@ -4786,6 +4809,13 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    customTitle: function customTitle() {
+      var _this2 = this;
+
+      return function (name) {
+        return _this2.$store.getters['custom_titles/title'](name);
+      };
+    },
     allBookings: function allBookings() {
       return this.$store.getters['client/bookings'];
     },
@@ -4889,10 +4919,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -4903,32 +4929,15 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
-    // if(!this.isAuth())
     // this.setDates(moment(new Date()).startOf('month').toDate());
-    this.setDates(moment(this.startDate).startOf('month').toDate()); // console.log(this.startDate);
-    // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-    // console.log(this.currenyViewIdx);
-    // console.log(this.currentDate);
-    // console.log(this.firstMonthDate);
-    // console.log(this.lastMonthDate);
-    // console.log(this.firstCalendarDate);
-    // console.log(this.lastCalendarDate);
-
-    var interval = setInterval(function () {
-      if (_this.search != null) {
-        // console.log(11111);
-        clearInterval(interval);
-
-        _this.getData();
-      }
-    }, 300); // this.getData();
+    this.setDates(moment(this.startDate).startOf('month').toDate());
+    this.getData(); // this.getData();
 
     $("#bookModal").on('hidden.bs.modal', function () {
       _this.bookDate = null; // console.log(this.bookDate);
-    }); // console.log(this.firstMonthDate);
-    // console.log(this.currentDateObj);
+    });
   },
-  props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
+  props: ['startDate'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -4950,11 +4959,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
-    // views: function () {
-    //     // console.log(this.$parent.views);
-    //     // return null;
-    //     return this.$parent.views;
-    // },
+    dataUpdater: function dataUpdater() {
+      return this.$store.getters['updater/counter'];
+    },
     calendarTitle: function calendarTitle() {
       return moment(this.firstMonthDate).format('MMMM YYYY');
     },
@@ -4962,6 +4969,9 @@ __webpack_require__.r(__webpack_exports__);
       var firstMonthDay = moment(this.firstMonthDate).startOf('month');
       var currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
       return firstMonthDay.isAfter(currentDateFirstMonthDay);
+    },
+    search: function search() {
+      return this.$store.getters['filters/urlSearchPath'];
     } // hasCurrentDate: function () {
     //     let firstMonthDay = moment(this.firstMonthDate).startOf('month');
     //     let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
@@ -4970,9 +4980,6 @@ __webpack_require__.r(__webpack_exports__);
 
   },
   methods: {
-    changeView: function changeView(view) {
-      this.$emit('view_changed', view);
-    },
     cancelBook: function cancelBook(event) {
       this.cancelBookData = event;
       $('#cancelBookModal').modal('show'); // console.log(event);
@@ -5274,17 +5281,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 // import ModalAuthContent from "./ModalAuthContent.vue";
 // import ModalBookContent from "./ModalBookContent.vue";
 // import ModalCancelBookContent from "./ModalCancelBookContent.vue";
@@ -5295,20 +5291,27 @@ __webpack_require__.r(__webpack_exports__);
     console.log(this.view);
     console.log(this.views);
   },
-  props: ['views', 'view', 'canGoToPrevious', 'calendarTitle'],
+  props: ['canGoToPrevious', 'calendarTitle'],
   // props: ['userId','search', 'views','view','startDate','canGoToPrevious'],
   data: function data() {
     return {// dateRange: helper.range.range,
     };
   },
-  computed: {// currentDay: function () {
+  computed: {
+    // currentDay: function () {
     // 
     // },
+    view: function view() {
+      return this.$store.getters['filters/view'];
+    },
+    views: function views() {
+      return this.$store.getters['filters/views'];
+    }
   },
-  methods: {// changeView: function(view){
-    //     // console.log(view);
-    //     this.$emit('view_changed', view);
-    // },
+  methods: {
+    changeView: function changeView(view) {
+      this.$store.commit('filters/changeView', view);
+    }
   },
   components: {// ModalAuthContent,
     // ModalBookContent,
@@ -5606,10 +5609,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -5626,17 +5625,17 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(JSON.parse(JSON.stringify(434343434)));
     // console.log(JSON.parse(JSON.stringify(this.workHours)));
     // this.setDates(moment(new Date()).startOf('week').toDate());
-    this.setDates(moment(this.startDate).startOf('week').toDate());
-    var interval = setInterval(function () {
-      if (_this2.search != null) {
-        // console.log(11111);
-        clearInterval(interval);
+    this.setDates(moment(this.startDate).startOf('week').toDate()); // let interval = setInterval(() => {
+    //     if(this.search != null){
+    //         // console.log(11111);
+    //         clearInterval(interval);
+    //         this.getData();
+    //         // console.log(JSON.parse(JSON.stringify(434343434)));
+    //         // console.log(JSON.parse(JSON.stringify(this.workHours)));
+    //     }
+    // }, 300);
 
-        _this2.getData(); // console.log(JSON.parse(JSON.stringify(434343434)));
-        // console.log(JSON.parse(JSON.stringify(this.workHours)));
-
-      }
-    }, 300);
+    this.getData();
     this.regModalOpenButtons();
     $("#bookModal").on('hidden.bs.modal', function () {
       _this2.bookDate = null; // console.log(this.bookDate);
@@ -5654,7 +5653,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     }, 100); // });
   },
-  props: ['userId', 'search', 'views', 'view', 'startDate', 'dataUpdater'],
+  props: ['startDate'],
   data: function data() {
     return {
       // dateRange: helper.range.range,
@@ -5684,6 +5683,12 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    dataUpdater: function dataUpdater() {
+      return this.$store.getters['updater/counter'];
+    },
+    search: function search() {
+      return this.$store.getters['filters/urlSearchPath'];
+    },
     weekDayNotPast: function weekDayNotPast() {
       var _this3 = this;
 
@@ -5723,9 +5728,6 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    changeView: function changeView(view) {
-      this.$emit('view_changed', view);
-    },
     getBussinessHourPerWeekday: function getBussinessHourPerWeekday(i) {
       var bussinessHours = this.bussinessHours[i];
       return bussinessHours.start + ' - ' + bussinessHours.end;
@@ -6610,7 +6612,12 @@ __webpack_require__.r(__webpack_exports__);
 
     };
   },
-  computed: {},
+  computed: {
+    templateCustomTitle: function templateCustomTitle() {
+      // return this.$store.getters['custom_titles/template'];
+      return this.$store.getters['custom_titles/title']('template');
+    }
+  },
   methods: {
     parseTemplatesAccordingToSpecifics: function parseTemplatesAccordingToSpecifics() {
       var _this = this;
@@ -6742,13 +6749,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/calendar_2/booking/store/modules/filters.js");
 /* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/calendar_2/booking/store/modules/owner.js");
 /* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/calendar_2/booking/store/modules/client.js");
 /* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/calendar_2/booking/store/modules/halls.js");
 /* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/calendar_2/booking/store/modules/updater.js");
+/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/calendar_2/booking/store/modules/specifics.js");
+/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/calendar_2/booking/store/modules/custom_titles.js");
 
 
 
@@ -6756,15 +6765,19 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_5__.default.use(vuex__WEBPACK_IMPORTED_MODULE_6__.default); // const debug = process.env.NODE_ENV !== 'production'
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_6__.default.Store({
+
+vue__WEBPACK_IMPORTED_MODULE_7__.default.use(vuex__WEBPACK_IMPORTED_MODULE_8__.default); // const debug = process.env.NODE_ENV !== 'production'
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_8__.default.Store({
   modules: {
     filters: _modules_filters__WEBPACK_IMPORTED_MODULE_0__.default,
     owner: _modules_owner__WEBPACK_IMPORTED_MODULE_1__.default,
     client: _modules_client__WEBPACK_IMPORTED_MODULE_2__.default,
     halls: _modules_halls__WEBPACK_IMPORTED_MODULE_3__.default,
-    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default
+    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default,
+    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_5__.default,
+    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__.default
   } // strict: debug,
   // plugins: debug ? [createLogger()] : []
 
@@ -6862,6 +6875,48 @@ var mutations = {
 
 /***/ }),
 
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/custom_titles.js":
+/*!****************************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/custom_titles.js ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// initial state
+var state = function state() {
+  return {
+    titles: typeof customTitles !== 'undefined' ? customTitles : null
+  };
+}; // getters
+
+
+var getters = {
+  // title: (state, name) => {
+  //     if(state.titles === null || typeof state.titles[name] === 'undefined')
+  //         return null;
+  //     return state.titles[name].values.en.title;
+  // },
+  title: function title(state) {
+    return function (name) {
+      if (state.titles === null || typeof state.titles[name] === 'undefined') return null;
+      if (state.titles[name].values.en.value !== null) return state.titles[name].values.en.value;
+      if (state.titles[name].title !== null) return state.titles[name].title;
+      return null;
+    };
+  }
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters
+});
+
+/***/ }),
+
 /***/ "./resources/js/vue/calendar_2/booking/store/modules/filters.js":
 /*!**********************************************************************!*\
   !*** ./resources/js/vue/calendar_2/booking/store/modules/filters.js ***!
@@ -6882,16 +6937,17 @@ var state = function state() {
       hall: calendarBookingHelper.getFilter('hall'),
       template: calendarBookingHelper.getFilter('template'),
       worker: calendarBookingHelper.getFilter('worker'),
-      view: 'month'
-    } // urlSearchPath: null,
+      view: calendarBookingHelper.getFilter('view')
+    },
+    views: ['month', 'week', 'day', 'list'] // urlSearchPath: null,
 
   };
 }; // getters
 
 
 var getters = {
-  views: function views() {
-    return ['month', 'week', 'day', 'list'];
+  views: function views(state) {
+    return state.views;
   },
   all: function all(state) {
     return {
@@ -6943,22 +6999,19 @@ var mutations = {
         view: state.items.view
       });
     }
-  } // composeUrlSearchPath: (state) => {
-  //     let search = '';
-  //     if(state.items.hall != null && typeof state.items.hall.id !== 'undefined')
-  //         search += (search == '' ? '' : '&') + 'hall=' + state.items.hall.id;
-  //     if(state.items.worker != null && typeof state.items.worker.id !== 'undefined)
-  //         search += (search == '' ? '' : '&') + 'worker=' + state.items.worker.id;
-  //     if(state.items.template != null && typeof state.items.template.id !== 'undefined)
-  //         search += (search == '' ? '' : '&') + 'template=' + state.items.template.id;
-  //     if(state.items.view != null)
-  //         search += (search == '' ? '' : '&') + 'view=' + state.items.view.toLowerCase().trim();
-  // 
-  //     if(search == '')
-  //         state.urlSearchPath = null;
-  //     this.urlSearchPath = search;
-  // },
+  },
+  changeView: function changeView(state, view) {
+    if (typeof view !== 'undefined' && view !== null && state.views.includes(view.toLowerCase().trim())) {
+      state.items.view = view; // cookie.set('filters.view', view);
 
+      cookie.set('filters', {
+        hall: state.items.hall.id,
+        worker: state.items.worker.id,
+        template: state.items.template.id,
+        view: state.items.view
+      });
+    }
+  }
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   namespaced: true,
@@ -7081,6 +7134,61 @@ var mutations = {// changeFilters: (state, newFilters) => {
   //             template: state.items.template.id,
   //             view: state.items.view,
   //         });
+  //     }
+  // },
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters // actions,
+  // mutations
+
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/specifics.js":
+/*!************************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/specifics.js ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// initial state
+var state = function state() {
+  return {
+    templateSpecifics: templateSpecifics,
+    templateSpecificsAsIdKey: typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null ? templateSpecificsAsIdKey : null
+  };
+}; // getters
+
+
+var getters = {
+  templateSpecifics: function templateSpecifics(state) {
+    return state.templateSpecifics;
+  },
+  templateSpecificsAsIdKey: function templateSpecificsAsIdKey(state) {
+    return state.templateSpecificsAsIdKey;
+  }
+}; //actions
+
+var actions = {// increaseUpdaterCounter (context) {
+  //     context.rootState.updater.counter++;
+  //     console.log(JSON.parse(JSON.stringify(context)));
+  // },
+}; // mutations
+
+var mutations = {// setInfo: (state, info) => {
+  //     // alert(newFilters);
+  //     // console.log(newFilters);
+  //     if(typeof info !== 'undefined' && typeof info !== null){
+  //         state.info = info;
+  //     }else{
+  //         state.info = null;
   //     }
   // },
 };
@@ -49493,10 +49601,6 @@ var render = function() {
     [
       _c("filters", {
         ref: "filters",
-        attrs: {
-          "template-specifics": _vm.templateSpecifics,
-          "template-specifics-as-id-key": _vm.templateSpecificsAsIdKey
-        },
         on: {
           change: function($event) {
             return _vm.filterChange($event)
@@ -49530,73 +49634,23 @@ var render = function() {
         [
           _vm.monthView
             ? _c("month-calendar", {
-                attrs: {
-                  "start-date": _vm.startDateMonth,
-                  view: _vm.view,
-                  views: _vm.views,
-                  "user-id": _vm.userId,
-                  search: _vm.search,
-                  "data-updater": _vm.dataUpdater
-                },
-                on: {
-                  view_changed: function($event) {
-                    return _vm.onViewChange($event)
-                  }
-                }
+                attrs: { "start-date": _vm.startDateMonth }
               })
             : _vm._e(),
           _vm._v(" "),
           _vm.weekView
             ? _c("week-calendar", {
-                attrs: {
-                  "start-date": _vm.startDateWeek,
-                  view: _vm.view,
-                  views: _vm.views,
-                  "user-id": _vm.userId,
-                  search: _vm.search,
-                  "data-updater": _vm.dataUpdater
-                },
-                on: {
-                  view_changed: function($event) {
-                    return _vm.onViewChange($event)
-                  }
-                }
+                attrs: { "start-date": _vm.startDateWeek }
               })
             : _vm._e(),
           _vm._v(" "),
           _vm.dayView
-            ? _c("day-calendar", {
-                attrs: {
-                  "start-date": _vm.startDateDay,
-                  view: _vm.view,
-                  views: _vm.views,
-                  "user-id": _vm.userId,
-                  search: _vm.search,
-                  "data-updater": _vm.dataUpdater
-                },
-                on: {
-                  view_changed: function($event) {
-                    return _vm.onViewChange($event)
-                  }
-                }
-              })
+            ? _c("day-calendar", { attrs: { "start-date": _vm.startDateDay } })
             : _vm._e(),
           _vm._v(" "),
           _vm.listView
             ? _c("list-calendar", {
-                attrs: {
-                  "start-date": _vm.startDateWeek,
-                  view: _vm.view,
-                  views: _vm.views,
-                  "user-id": _vm.userId,
-                  search: _vm.search,
-                  "data-updater": _vm.dataUpdater
-                },
-                on: {
-                  view_changed: function($event) {
-                    return _vm.onViewChange($event)
-                  }
-                }
+                attrs: { "start-date": _vm.startDateWeek }
               })
             : _vm._e()
         ],
@@ -49709,19 +49763,10 @@ var render = function() {
     [
       _c("navigation", {
         attrs: {
-          view: _vm.view,
-          views: _vm.views,
           "can-go-to-previous": _vm.canGoToPrevious,
           "calendar-title": _vm.calendarTitle
         },
-        on: {
-          previous: _vm.previous,
-          next: _vm.next,
-          today: _vm.today,
-          change_view: function($event) {
-            return _vm.changeView($event)
-          }
-        }
+        on: { previous: _vm.previous, next: _vm.next, today: _vm.today }
       }),
       _vm._v(" "),
       _c("div", { staticClass: "for-table" }, [
@@ -49822,7 +49867,6 @@ var render = function() {
             _vm.$parent.isAuth()
               ? _c("modal-book-content", {
                   attrs: {
-                    "user-id": _vm.userId,
                     "book-date": _vm.date,
                     "book-time-period": _vm.bookTimePeriod
                   },
@@ -49832,7 +49876,7 @@ var render = function() {
                     }
                   }
                 })
-              : _c("modal-auth-content", { attrs: { "user-id": _vm.userId } })
+              : _c("modal-auth-content")
           ],
           1
         )
@@ -50010,188 +50054,117 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _vm.showFilters
-      ? _c("div", { staticClass: "filters-select" }, [
-          _vm._m(0),
+    _c(
+      "div",
+      {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.showFilters,
+            expression: "showFilters"
+          }
+        ],
+        staticClass: "filters-select"
+      },
+      [
+        _vm._m(0),
+        _vm._v(" "),
+        _c("div", { staticClass: "filter-select-item" }, [
+          _c("div", [
+            _c(
+              "div",
+              { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
+              [
+                _c("span", [_vm._v("View: ")]),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-sm btn-info dropdown-toggle",
+                    attrs: {
+                      href: "#",
+                      "data-toggle": "dropdown",
+                      "aria-haspopup": "true",
+                      "aria-expanded": "false"
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(_vm.pickedItmView) +
+                        "\n                    "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "dropdown-menu" },
+                  _vm._l(_vm.views, function(itm) {
+                    return itm.toLowerCase() != _vm.pickedItmView.toLowerCase()
+                      ? _c(
+                          "a",
+                          {
+                            staticClass: "dropdown-item",
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.change("view", itm)
+                              }
+                            }
+                          },
+                          [_vm._v(_vm._s(itm))]
+                        )
+                      : _vm._e()
+                  }),
+                  0
+                )
+              ]
+            )
+          ]),
           _vm._v(" "),
-          _c("div", { staticClass: "filter-select-item" }, [
-            _c("div", [
-              _c(
-                "div",
-                { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
-                [
-                  _c("span", [_vm._v("View: ")]),
-                  _vm._v(" "),
-                  _c(
-                    "a",
-                    {
-                      staticClass: "btn btn-sm btn-info dropdown-toggle",
-                      attrs: {
-                        href: "#",
-                        "data-toggle": "dropdown",
-                        "aria-haspopup": "true",
-                        "aria-expanded": "false"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n                        " +
-                          _vm._s(_vm.pickedItmView) +
-                          "\n                    "
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "dropdown-menu" },
-                    _vm._l(_vm.views, function(itm) {
-                      return itm.toLowerCase() !=
-                        _vm.pickedItmView.toLowerCase()
-                        ? _c(
-                            "a",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { href: "#" },
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  return _vm.change("view", itm)
-                                }
-                              }
-                            },
-                            [_vm._v(_vm._s(itm))]
-                          )
-                        : _vm._e()
-                    }),
-                    0
-                  )
-                ]
-              )
-            ]),
+          _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
+            _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
             _vm._v(" "),
-            _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
-              _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "card-body" },
-                [
-                  _c(
-                    "div",
-                    { staticClass: "dropdown", attrs: { id: "hallDropdown" } },
-                    [
-                      _c("span", [_vm._v("Hall: ")]),
-                      _vm._v(" "),
-                      _c(
-                        "a",
-                        {
-                          staticClass: "btn btn-sm btn-info dropdown-toggle",
-                          attrs: { href: "#", "data-toggle": "dropdown" }
-                        },
-                        [
-                          _vm._v(
-                            "\n                            " +
-                              _vm._s(
-                                _vm.pickedItmHall == null
-                                  ? "---"
-                                  : _vm.pickedItmHall.title
-                              ) +
-                              "\n                        "
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "dropdown-menu" },
-                        [
-                          _vm.halls.length
-                            ? _vm._l(_vm.halls, function(itm) {
-                                return _c(
-                                  "a",
-                                  {
-                                    staticClass: "dropdown-item",
-                                    attrs: { href: "#" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.change("hall", itm)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v(_vm._s(itm.title))]
-                                )
-                              })
-                            : [
-                                _c("div", { staticClass: "small pl-1 pr-1" }, [
-                                  _vm._v(
-                                    "\n                                    No items to choose ...\n                                "
-                                  )
-                                ])
-                              ]
-                        ],
-                        2
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _vm.templateSpecifics
-                    ? _c("template-picker", {
-                        attrs: {
-                          templates: _vm.templates,
-                          "picked-hall": _vm.pickedItmHall,
-                          "picked-template": _vm.pickedItmTemplate,
-                          specifics: _vm.templateSpecifics,
-                          "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
-                          "picked-template-ids-trace":
-                            _vm.pickedTemplateIdsTrace
-                        },
-                        on: {
-                          change: function($event) {
-                            return _vm.change("template", $event)
-                          }
-                        }
-                      })
-                    : _c(
-                        "div",
-                        {
-                          staticClass: "dropdown",
-                          attrs: { id: "templateDropdown" }
-                        },
-                        [
-                          _c("span", [_vm._v("Template:")]),
-                          _vm._v(" "),
-                          _c(
-                            "a",
-                            {
-                              staticClass:
-                                "btn btn-sm btn-info dropdown-toggle",
-                              class: { disabled: _vm.templates == null },
-                              attrs: {
-                                href: "#",
-                                "data-toggle": "dropdown",
-                                "aria-haspopup": "true",
-                                "aria-expanded": "false"
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n                            " +
-                                  _vm._s(
-                                    _vm.pickedItmTemplate == null
-                                      ? "---"
-                                      : _vm.pickedItmTemplate.title
-                                  ) +
-                                  "\n                        "
-                              )
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "div",
-                            { staticClass: "dropdown-menu" },
-                            _vm._l(_vm.templates, function(itm) {
+            _c(
+              "div",
+              { staticClass: "card-body" },
+              [
+                _c(
+                  "div",
+                  { staticClass: "dropdown", attrs: { id: "hallDropdown" } },
+                  [
+                    _c("span", [
+                      _vm._v(_vm._s(_vm.customTitle("hall")) + ": ")
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-sm btn-info dropdown-toggle",
+                        attrs: { href: "#", "data-toggle": "dropdown" }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            " +
+                            _vm._s(
+                              _vm.pickedItmHall == null
+                                ? "---"
+                                : _vm.pickedItmHall.title
+                            ) +
+                            "\n                        "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "dropdown-menu" },
+                      [
+                        _vm.halls.length
+                          ? _vm._l(_vm.halls, function(itm) {
                               return _c(
                                 "a",
                                 {
@@ -50200,217 +50173,314 @@ var render = function() {
                                   on: {
                                     click: function($event) {
                                       $event.preventDefault()
-                                      return _vm.change("template", itm)
+                                      return _vm.change("hall", itm)
                                     }
                                   }
                                 },
                                 [_vm._v(_vm._s(itm.title))]
                               )
-                            }),
-                            0
-                          )
-                        ]
-                      ),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    {
-                      staticClass: "dropdown",
-                      attrs: { id: "workerDropdown" }
-                    },
-                    [
-                      _c("span", [_vm._v("Worker:")]),
-                      _vm._v(" "),
-                      _c(
-                        "a",
-                        {
-                          staticClass: "btn btn-sm btn-info dropdown-toggle",
-                          class: { disabled: _vm.workers == null },
-                          attrs: {
-                            href: "#",
-                            "data-toggle": "dropdown",
-                            "aria-haspopup": "true",
-                            "aria-expanded": "false"
-                          }
-                        },
-                        [
-                          _vm._v(
-                            "\n                            " +
-                              _vm._s(
-                                _vm.pickedItmWorker == null
-                                  ? "---"
-                                  : _vm.fullName(_vm.pickedItmWorker)
-                              ) +
-                              "\n                        "
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "dropdown-menu" },
-                        _vm._l(_vm.workers, function(itm) {
-                          return _c(
-                            "a",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { href: "#" },
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  return _vm.change("worker", itm)
-                                }
-                              }
-                            },
-                            [_vm._v(_vm._s(_vm.fullName(itm)))]
-                          )
-                        }),
-                        0
-                      )
-                    ]
-                  )
-                ],
-                1
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "apply pt-2" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "btn btn-sm btn-primary w-100",
-                  attrs: { href: "#" },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      return _vm.apply($event)
-                    }
-                  }
-                },
-                [_vm._v("\n                    Apply\n                ")]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "back pt-2" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "btn btn-sm btn-link w-100",
-                  attrs: { href: "#" },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      return _vm.backToCalendar($event)
-                    }
-                  }
-                },
-                [_vm._v("\n                    Back\n                ")]
-              )
-            ])
-          ])
-        ])
-      : _c("div", { staticClass: "filters" }, [
-          _c("div", { staticClass: "container-fluid" }, [
-            _c("div", { staticClass: "filter" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "btn btn-sm btn-secondary",
-                  attrs: { href: "#", role: "button" },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      return _vm.showFiltersPicker()
-                    }
-                  }
-                },
-                [
-                  _c(
-                    "svg",
-                    {
-                      staticClass: "bi bi-funnel-fill",
+                            })
+                          : [
+                              _c("div", { staticClass: "small pl-1 pr-1" }, [
+                                _vm._v(
+                                  "\n                                    No items to choose ...\n                                "
+                                )
+                              ])
+                            ]
+                      ],
+                      2
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _vm.templateSpecifics
+                  ? _c("template-picker", {
                       attrs: {
-                        xmlns: "http://www.w3.org/2000/svg",
-                        width: "16",
-                        height: "16",
-                        fill: "currentColor",
-                        viewBox: "0 0 16 16"
-                      }
-                    },
-                    [
-                      _c("path", {
-                        attrs: {
-                          d:
-                            "M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"
+                        templates: _vm.templates,
+                        "picked-hall": _vm.pickedItmHall,
+                        "picked-template": _vm.pickedItmTemplate,
+                        specifics: _vm.templateSpecifics,
+                        "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
+                        "picked-template-ids-trace": _vm.pickedTemplateIdsTrace
+                      },
+                      on: {
+                        change: function($event) {
+                          return _vm.change("template", $event)
                         }
-                      })
-                    ]
-                  )
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "filter" }, [
-              _c(
-                "button",
-                {
-                  staticClass: "btn-filter btn btn-sm btn-info",
-                  attrs: { type: "button" }
-                },
-                [
-                  _vm._v(
-                    "\n                    " + _vm._s(_vm.itmHallTitle) + " "
-                  ),
-                  _c("span", { staticClass: "badge badge-light" }, [
-                    _vm._v("Hall")
-                  ])
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "filter" }, [
-              _c(
-                "button",
-                {
-                  staticClass: "btn-filter btn btn-sm btn-info",
-                  attrs: { type: "button" }
-                },
-                [
-                  _vm._v(
-                    "\n                    " +
-                      _vm._s(_vm.itmTemplateTitle) +
-                      " "
-                  ),
-                  _c("span", { staticClass: "badge badge-light" }, [
-                    _vm._v("Template")
-                  ])
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "filter" }, [
-              _c(
-                "button",
-                {
-                  staticClass: "btn-filter btn btn-sm btn-info",
-                  attrs: { type: "button" }
-                },
-                [
-                  _vm._v(
-                    "\n                    " + _vm._s(_vm.itmWorkerName) + " "
-                  ),
-                  _c("span", { staticClass: "badge badge-light" }, [
-                    _vm._v("Worker")
-                  ])
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "float-right" }, [_c("client-info")], 1),
-            _vm._v(" "),
-            _c("div", { staticClass: "clearfix" })
+                      }
+                    })
+                  : _c(
+                      "div",
+                      {
+                        staticClass: "dropdown",
+                        attrs: { id: "templateDropdown" }
+                      },
+                      [
+                        _c("span", [
+                          _vm._v(_vm._s(_vm.customTitle("template")) + ":")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-sm btn-info dropdown-toggle",
+                            class: { disabled: _vm.templates == null },
+                            attrs: {
+                              href: "#",
+                              "data-toggle": "dropdown",
+                              "aria-haspopup": "true",
+                              "aria-expanded": "false"
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(
+                                  _vm.pickedItmTemplate == null
+                                    ? "---"
+                                    : _vm.pickedItmTemplate.title
+                                ) +
+                                "\n                        "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "dropdown-menu" },
+                          _vm._l(_vm.templates, function(itm) {
+                            return _c(
+                              "a",
+                              {
+                                staticClass: "dropdown-item",
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.change("template", itm)
+                                  }
+                                }
+                              },
+                              [_vm._v(_vm._s(itm.title))]
+                            )
+                          }),
+                          0
+                        )
+                      ]
+                    ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "dropdown", attrs: { id: "workerDropdown" } },
+                  [
+                    _c("span", [
+                      _vm._v(_vm._s(_vm.customTitle("worker")) + ":")
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-sm btn-info dropdown-toggle",
+                        class: { disabled: _vm.workers == null },
+                        attrs: {
+                          href: "#",
+                          "data-toggle": "dropdown",
+                          "aria-haspopup": "true",
+                          "aria-expanded": "false"
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            " +
+                            _vm._s(
+                              _vm.pickedItmWorker == null
+                                ? "---"
+                                : _vm.fullName(_vm.pickedItmWorker)
+                            ) +
+                            "\n                        "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "dropdown-menu" },
+                      _vm._l(_vm.workers, function(itm) {
+                        return _c(
+                          "a",
+                          {
+                            staticClass: "dropdown-item",
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.change("worker", itm)
+                              }
+                            }
+                          },
+                          [_vm._v(_vm._s(_vm.fullName(itm)))]
+                        )
+                      }),
+                      0
+                    )
+                  ]
+                )
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "apply pt-2" }, [
+            _c(
+              "a",
+              {
+                staticClass: "btn btn-sm btn-primary w-100",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.apply($event)
+                  }
+                }
+              },
+              [_vm._v("\n                    Apply\n                ")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "back pt-2" }, [
+            _c(
+              "a",
+              {
+                staticClass: "btn btn-sm btn-link w-100",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.backToCalendar($event)
+                  }
+                }
+              },
+              [_vm._v("\n                    Back\n                ")]
+            )
           ])
         ])
+      ]
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: !_vm.showFilters,
+            expression: "!showFilters"
+          }
+        ],
+        staticClass: "filters"
+      },
+      [
+        _c("div", { staticClass: "container-fluid" }, [
+          _c("div", { staticClass: "filter" }, [
+            _c(
+              "a",
+              {
+                staticClass: "btn btn-sm btn-secondary",
+                attrs: { href: "#", role: "button" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.showFiltersPicker()
+                  }
+                }
+              },
+              [
+                _c(
+                  "svg",
+                  {
+                    staticClass: "bi bi-funnel-fill",
+                    attrs: {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "16",
+                      height: "16",
+                      fill: "currentColor",
+                      viewBox: "0 0 16 16"
+                    }
+                  },
+                  [
+                    _c("path", {
+                      attrs: {
+                        d:
+                          "M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"
+                      }
+                    })
+                  ]
+                )
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "filter" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn-filter btn btn-sm btn-info",
+                attrs: { type: "button" }
+              },
+              [
+                _vm._v(
+                  "\n                    " + _vm._s(_vm.itmHallTitle) + " "
+                ),
+                _c("span", { staticClass: "badge badge-light" }, [
+                  _vm._v(_vm._s(_vm.customTitle("hall")))
+                ])
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "filter" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn-filter btn btn-sm btn-info",
+                attrs: { type: "button" }
+              },
+              [
+                _vm._v(
+                  "\n                    " + _vm._s(_vm.itmTemplateTitle) + " "
+                ),
+                _c("span", { staticClass: "badge badge-light" }, [
+                  _vm._v(_vm._s(_vm.customTitle("template")))
+                ])
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "filter" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn-filter btn btn-sm btn-info",
+                attrs: { type: "button" }
+              },
+              [
+                _vm._v(
+                  "\n                    " + _vm._s(_vm.itmWorkerName) + " "
+                ),
+                _c("span", { staticClass: "badge badge-light" }, [
+                  _vm._v(_vm._s(_vm.customTitle("worker")))
+                ])
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "float-right" }, [_c("client-info")], 1),
+          _vm._v(" "),
+          _c("div", { staticClass: "clearfix" })
+        ])
+      ]
+    )
   ])
 }
 var staticRenderFns = [
@@ -50450,19 +50520,10 @@ var render = function() {
     [
       _c("navigation", {
         attrs: {
-          view: _vm.view,
-          views: _vm.views,
           "can-go-to-previous": _vm.canGoToPrevious,
           "calendar-title": _vm.calendarTitle
         },
-        on: {
-          previous: _vm.previous,
-          next: _vm.next,
-          today: _vm.today,
-          change_view: function($event) {
-            return _vm.changeView($event)
-          }
-        }
+        on: { previous: _vm.previous, next: _vm.next, today: _vm.today }
       }),
       _vm._v(" "),
       _c("div", { staticClass: "for-table" }, [
@@ -50667,7 +50728,6 @@ var render = function() {
             _vm.$parent.isAuth()
               ? _c("modal-book-content", {
                   attrs: {
-                    "user-id": _vm.userId,
                     "book-date": _vm.bookDate,
                     "book-time-period": _vm.bookTimePeriod
                   },
@@ -50677,7 +50737,7 @@ var render = function() {
                     }
                   }
                 })
-              : _c("modal-auth-content", { attrs: { "user-id": _vm.userId } })
+              : _c("modal-auth-content")
           ],
           1
         )
@@ -51594,7 +51654,13 @@ var render = function() {
                                       )
                                     ]),
                                     _vm._v(" "),
-                                    _c("span", [_vm._v("(Template)")])
+                                    _c("span", [
+                                      _vm._v(
+                                        "(" +
+                                          _vm._s(_vm.customTitle("template")) +
+                                          ")"
+                                      )
+                                    ])
                                   ]
                                 ),
                                 _vm._v(" "),
@@ -51613,7 +51679,13 @@ var render = function() {
                                         ) +
                                         "\n                                            "
                                     ),
-                                    _c("span", [_vm._v("(Worker)")])
+                                    _c("span", [
+                                      _vm._v(
+                                        "(" +
+                                          _vm._s(_vm.customTitle("worker")) +
+                                          ")"
+                                      )
+                                    ])
                                   ]
                                 ),
                                 _vm._v(" "),
@@ -51628,7 +51700,13 @@ var render = function() {
                                         ) +
                                         "\n                                            "
                                     ),
-                                    _c("span", [_vm._v("(Hall)")])
+                                    _c("span", [
+                                      _vm._v(
+                                        "(" +
+                                          _vm._s(_vm.customTitle("hall")) +
+                                          ")"
+                                      )
+                                    ])
                                   ]
                                 ),
                                 _vm._v(" "),
@@ -51769,19 +51847,10 @@ var render = function() {
     [
       _c("navigation", {
         attrs: {
-          view: _vm.view,
-          views: _vm.views,
           "can-go-to-previous": _vm.canGoToPrevious,
           "calendar-title": _vm.calendarTitle
         },
-        on: {
-          previous: _vm.previous,
-          next: _vm.next,
-          today: _vm.today,
-          change_view: function($event) {
-            return _vm.changeView($event)
-          }
-        }
+        on: { previous: _vm.previous, next: _vm.next, today: _vm.today }
       }),
       _vm._v(" "),
       _c("div", { staticClass: "for-table" }, [
@@ -51886,7 +51955,6 @@ var render = function() {
                 }
               ],
               attrs: {
-                "user-id": _vm.userId,
                 "book-date": _vm.bookDate,
                 "book-time-period": _vm.bookTimePeriod
               }
@@ -51900,8 +51968,7 @@ var render = function() {
                   value: !_vm.isAuth(),
                   expression: "!isAuth()"
                 }
-              ],
-              attrs: { "user-id": _vm.userId }
+              ]
             })
           ],
           1
@@ -52208,7 +52275,7 @@ var render = function() {
                 on: {
                   click: function($event) {
                     $event.preventDefault()
-                    return _vm.$emit("change_view", item)
+                    return _vm.changeView(item)
                   }
                 }
               },
@@ -52319,19 +52386,10 @@ var render = function() {
     [
       _c("navigation", {
         attrs: {
-          view: _vm.view,
-          views: _vm.views,
           "can-go-to-previous": _vm.canGoToPrevious,
           "calendar-title": _vm.calendarTitle
         },
-        on: {
-          previous: _vm.previous,
-          next: _vm.next,
-          today: _vm.today,
-          change_view: function($event) {
-            return _vm.changeView($event)
-          }
-        }
+        on: { previous: _vm.previous, next: _vm.next, today: _vm.today }
       }),
       _vm._v(" "),
       _c("div", { staticClass: "for-table" }, [
@@ -52472,7 +52530,6 @@ var render = function() {
             _vm.$parent.isAuth()
               ? _c("modal-book-content", {
                   attrs: {
-                    "user-id": _vm.userId,
                     "book-date": _vm.bookDate,
                     "book-time-period": _vm.bookTimePeriod
                   },
@@ -52482,7 +52539,7 @@ var render = function() {
                     }
                   }
                 })
-              : _c("modal-auth-content", { attrs: { "user-id": _vm.userId } })
+              : _c("modal-auth-content")
           ],
           1
         )
@@ -52806,7 +52863,7 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("span", [_vm._v("Template:")]),
+      _c("span", [_vm._v(_vm._s(_vm.templateCustomTitle) + ":")]),
       _c("br"),
       _vm._v(" "),
       _c("dropdown-template-specifics", {

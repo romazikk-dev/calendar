@@ -1,8 +1,7 @@
 <template>
     <div>
-        
-        <div v-if="showFilters" class="filters-select">
-            <!-- <loader ref="loader" /> -->
+        <!-- <loader v-show="showFilters" ref="loader" /> -->
+        <div v-show="showFilters" class="filters-select">
             <!-- <h4>Select place, worker, service</h4> -->
             <div class="show-filters-title">
                 <h4>Please select all filters:</h4>
@@ -28,7 +27,7 @@
                     <div class="card-body">
                         
                         <div id="hallDropdown" class="dropdown">
-                            <span>Hall: </span>
+                            <span>{{customTitle('hall')}}: </span>
                             <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
                                 {{pickedItmHall == null ? '---' : pickedItmHall.title}}
                             </a>
@@ -62,7 +61,7 @@
                             v-if="templateSpecifics"
                             @change="change('template', $event)" />
                         <div v-else id="templateDropdown" class="dropdown">
-                            <span>Template:</span>
+                            <span>{{customTitle('template')}}:</span>
                             <a :class="{disabled: (templates == null)}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{pickedItmTemplate == null ? '---' : (pickedItmTemplate.title)}}
                             </a>
@@ -73,7 +72,7 @@
                         </div>
                         
                         <div id="workerDropdown" class="dropdown">
-                            <span>Worker:</span>
+                            <span>{{customTitle('worker')}}:</span>
                             <a :class="{disabled: (workers == null)}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{pickedItmWorker == null ? '---' : fullName(pickedItmWorker)}}
                             </a>
@@ -100,7 +99,7 @@
             </div>
             
         </div>
-        <div  v-else class="filters">
+        <div v-show="!showFilters" class="filters">
             <div class="container-fluid">
                 <div class="filter">
                     <a @click.prevent="showFiltersPicker()" href="#" role="button" class="btn btn-sm btn-secondary">
@@ -111,17 +110,17 @@
                 </div>
                 <div class="filter">
                     <button type="button" class="btn-filter btn btn-sm btn-info">
-                        {{itmHallTitle}} <span class="badge badge-light">Hall</span>
+                        {{itmHallTitle}} <span class="badge badge-light">{{customTitle('hall')}}</span>
                     </button>
                 </div>
                 <div class="filter">
                     <button type="button" class="btn-filter btn btn-sm btn-info">
-                        {{itmTemplateTitle}} <span class="badge badge-light">Template</span>
+                        {{itmTemplateTitle}} <span class="badge badge-light">{{customTitle('template')}}</span>
                     </button>
                 </div>
                 <div class="filter">
                     <button type="button" class="btn-filter btn btn-sm btn-info">
-                        {{itmWorkerName}} <span class="badge badge-light">Worker</span>
+                        {{itmWorkerName}} <span class="badge badge-light">{{customTitle('worker')}}</span>
                     </button>
                 </div>
                 
@@ -146,10 +145,12 @@
             // console.log(JSON.parse(JSON.stringify(44444)));
             // console.log(JSON.parse(JSON.stringify(this.halls)));
             
-            if(!this.isCookieItmsEmpty)
+            if(!this.isCookieItmsEmpty){
+                this.fillFilters();
                 this.emitChange();
+            }
         },
-        props: ['templateSpecifics','templateSpecificsAsIdKey'],
+        // props: ['templateSpecifics','templateSpecificsAsIdKey'],
         data: function(){
             return {
                 //Using to indicate current picked items
@@ -176,6 +177,17 @@
             };
         },
         computed: {
+            customTitle: function(){
+                return (name) => {
+                    return this.$store.getters['custom_titles/title'](name);
+                }
+            },
+            templateSpecifics: function(){
+                return this.$store.getters['specifics/templateSpecifics'];
+            },
+            templateSpecificsAsIdKey: function(){
+                return this.$store.getters['specifics/templateSpecificsAsIdKey'];
+            },
             halls: function(){
                 return this.$store.getters['halls/all'];
             },
@@ -263,9 +275,7 @@
             fullName: function(obj){
                 return obj.first_name + ' ' + obj.last_name;
             },
-            showFiltersPicker: function(){
-                this.showFilters = true;
-                
+            fillFilters: function(){
                 if(this.cookieItmHall !== null){
                     this.change('hall', this.cookieItmHall);
                     if(this.cookieItmTemplate !== null){
@@ -276,6 +286,25 @@
                         }
                     }
                 }
+            },
+            showFiltersPicker: function(){
+                this.showFilters = true;
+                
+                // if(this.cookieItmHall !== null && this.pickedItmHall === null){
+                //     this.change('hall', this.cookieItmHall);
+                //     if(this.cookieItmTemplate !== null && this.pickedItmTemplate === null){
+                //         this.change('template', this.cookieItmTemplate);
+                //         this.setPickedTemplateIdsTrace();
+                //         if(this.cookieItmWorker !== null && this.pickedItmWorker === null){
+                //             this.change('worker', this.cookieItmWorker);
+                //         }
+                //     }
+                // }
+                
+                if(this.cookieItmView !== null)
+                    this.pickedItmView = this.cookieItmView;
+                
+                // this.$refs.loader.fadeOut();
                 
                 this.$emit('hideCalendar');
             },
@@ -395,6 +424,14 @@
             Loader,
         },
         watch: {
+            showFilters: function(val){
+                if(val === false){
+                    // alert(this.isCookieItmsEmpty);
+                    if(!this.isCookieItmsEmpty && !this.isPickedItmsFilled){
+                        this.fillFilters();
+                    }
+                }
+            },
             // cookieFilters: function(val){
             //     // console.log(JSON.parse(JSON.stringify(7272727272)));
             //     // console.log(JSON.parse(JSON.stringify(val)));

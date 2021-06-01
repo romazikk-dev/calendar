@@ -6,6 +6,8 @@ import owner from './modules/owner';
 import client from './modules/client';
 import halls from './modules/halls';
 import updater from './modules/updater';
+import specifics from './modules/specifics';
+import custom_titles from './modules/custom_titles';
 
 
 Vue.use(Vuex);
@@ -19,8 +21,10 @@ export default new Vuex.Store({
         owner,
         client,
         halls,
-        updater
+        updater,
+        specifics,
+        custom_titles,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []
-})
+});

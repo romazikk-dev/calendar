@@ -9,30 +9,27 @@ class MainLanguage{
     
     protected $validation_rules = [
         'lang' => 'array',
-        'lang.*' => 'in:on'
+        'lang.*' => 'in:on',
+        'position' => 'nullable|array',
+        'position.*' => 'nullable|integer',
     ];
     
     protected $booking_calendar_available_languages = [
         [
             'abr' => Abriviations::EN,
-            'title' => 'english'
+            'title' => 'english',
+            'position' => 1,
         ],
         [
             'abr' => Abriviations::DE,
-            'title' => 'german'
+            'title' => 'german',
+            'position' => 2,
         ],
         [
             'abr' => Abriviations::FR,
-            'title' => 'french'
+            'title' => 'french',
+            'position' => 3,
         ],
-        // [
-        //     'abr' => Abriviations::RU,
-        //     'title' => 'russian'
-        // ],
-        // [
-        //     'abr' => Abriviations::UA,
-        //     'title' => 'ukrainian'
-        // ],
     ];
     
 }

@@ -1,13 +1,10 @@
 <template>
     <div>
-        <navigation :view="view"
-            :views="views"
-            :can-go-to-previous="canGoToPrevious"
+        <navigation :can-go-to-previous="canGoToPrevious"
             :calendar-title="calendarTitle"
             @previous="previous"
             @next="next"
-            @today="today"
-            @change_view="changeView($event)"></navigation>
+            @today="today"></navigation>
             
         <div class="for-table">
             
@@ -61,11 +58,10 @@
                 <!-- ModalAuthContent -->
                 <modal-book-content v-if="$parent.isAuth()"
                     @booked="onBooked($event)"
-                    :user-id="userId"
                     :book-date="date"
                     :book-time-period="bookTimePeriod"></modal-book-content>
                 <!-- ModalAuthContent -->
-                <modal-auth-content v-else :user-id="userId"></modal-auth-content>
+                <modal-auth-content v-else></modal-auth-content>
             </div>
         </div>
         
@@ -93,13 +89,15 @@
             
             // this.setDates();
             
-            let interval = setInterval(() => {
-                if(this.search != null){
-                    // console.log(11111);
-                    clearInterval(interval);
-                    this.getData();
-                }
-            }, 300);
+            // let interval = setInterval(() => {
+            //     if(this.search != null){
+            //         // console.log(11111);
+            //         clearInterval(interval);
+            //         this.getData();
+            //     }
+            // }, 300);
+            
+            this.getData();
             
             this.regModalOpenButtons();
             
@@ -122,7 +120,7 @@
                 }
             }, 100);
         },
-        props: ['userId','search','views','view','startDate','dataUpdater'],
+        props: ['startDate'],
         data: function(){
             return {
                 // dateRange: helper.range.range,
@@ -143,6 +141,12 @@
             };
         },
         computed: {
+            dataUpdater: function () {
+                return this.$store.getters['updater/counter'];
+            },
+            search: function () {
+                return this.$store.getters['filters/urlSearchPath'];
+            },
             currentDay: function () {
                 // if(this.currentDate == null)
                 //     return true;
@@ -180,10 +184,6 @@
             }
         },
         methods: {
-            changeView: function(view){
-                // console.log(view);
-                this.$emit('view_changed', view);
-            },
             setDates: function(){
                 this.currentDate = new Date();
                 this.currentDateMoment = moment(this.currentDate);

@@ -1,6 +1,6 @@
 var calendarBookingHelperFunc = function(){
     
-    this.filtersList = ['hall','template','worker']
+    this.filtersList = ['hall','template','worker','view']
     
     this.isFiltersEmpty = function(){
         if(typeof filters === 'undefined')

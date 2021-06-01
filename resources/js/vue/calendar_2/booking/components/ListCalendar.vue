@@ -1,13 +1,10 @@
 <template>
     <div>
-        <navigation :view="view"
-            :views="views"
-            :can-go-to-previous="canGoToPrevious"
+        <navigation :can-go-to-previous="canGoToPrevious"
             :calendar-title="calendarTitle"
             @previous="previous"
             @next="next"
-            @today="today"
-            @change_view="changeView($event)"></navigation>
+            @today="today"></navigation>
         
         <div class="for-table">
             <table>
@@ -68,11 +65,10 @@
                 <!-- ModalAuthContent -->
                 <modal-book-content v-if="$parent.isAuth()"
                     @booked="onBooked($event)"
-                    :user-id="userId"
                     :book-date="bookDate"
                     :book-time-period="bookTimePeriod"></modal-book-content>
                 <!-- ModalAuthContent -->
-                <modal-auth-content v-else :user-id="userId"></modal-auth-content>
+                <modal-auth-content v-else></modal-auth-content>
             </div>
         </div>
         
@@ -119,13 +115,15 @@
             //     console.log(this.currentDateMoment.format('YYYY-MM-DD HH:mm:ss'));
             // }, 10);
             
-            let interval = setInterval(() => {
-                if(this.search != null){
-                    // console.log(11111);
-                    clearInterval(interval);
-                    this.getData();
-                }
-            }, 300);
+            // let interval = setInterval(() => {
+            //     if(this.search != null){
+            //         // console.log(11111);
+            //         clearInterval(interval);
+            //         this.getData();
+            //     }
+            // }, 300);
+            
+            this.getData();
             
             // let intervalDates = setInterval(() => {
             //     if(this.dates != null){
@@ -147,7 +145,7 @@
             // console.log(this.firstMonthDate);
             // console.log(this.weekdayOfCurrentDate);
         },
-        props: ['userId','search','view','views','startDate','dataUpdater'],
+        props: ['startDate'],
         data: function(){
             return {
                 empty: true,
@@ -174,6 +172,12 @@
             };
         },
         computed: {
+            dataUpdater: function () {
+                return this.$store.getters['updater/counter'];
+            },
+            search: function () {
+                return this.$store.getters['filters/urlSearchPath'];
+            },
             calendarTitle: function () {
                 if(this.firstWeekday == null)
                     return '';
@@ -205,11 +209,6 @@
             }
         },
         methods: {
-            
-            changeView: function (view) {
-                // console.log('changeView: ' + view);
-                this.$emit('view_changed', view);
-            },
             notPast: function(date){
                 let dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + date.start + ':00');
                 let currentDateMoment = moment(this.currentDate);

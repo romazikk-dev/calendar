@@ -1,6 +1,6 @@
 <template>
     <div>
-            <span>Template:</span><br>
+            <span>{{templateCustomTitle}}:</span><br>
             <dropdown-template-specifics
                 @change="$emit('change', $event)"
                 :templates="templates"
@@ -34,7 +34,10 @@
             };
         },
         computed: {
-            
+            templateCustomTitle: function(){
+                // return this.$store.getters['custom_titles/template'];
+                return this.$store.getters['custom_titles/title']('template');
+            },
         },
         methods: {
             parseTemplatesAccordingToSpecifics: function(){

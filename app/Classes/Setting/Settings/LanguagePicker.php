@@ -23,6 +23,9 @@ class LanguagePicker extends Setting{
     
     // public function parseAndSet($data, $return_as_json = false){
     public function parseAndSet($data, $params = []){
+        
+        // dd($data);
+        
         if(!empty($data)){
             $parsed_data = $this->parse($data);
         }else{
@@ -34,24 +37,63 @@ class LanguagePicker extends Setting{
     }
     
     protected function parse($data){
-        $params = [];
-        if(!empty($data))
-            foreach($data as $k => $v)
-                $params['status_' . $k] = true;
+        $setting = $this->getSettingFromDB(true);
+        if(is_string($setting))
+            $setting = json_decode($setting, true);
+        
+        // foreach($data["lang"] as $k => $v){
+        //     foreach($setting as $kk => &$vv){
+        //         if($k == $vv["abr"]){
+        //             $vv["on"] = 1;
+        //             if(!empty($data["position"]) && array_key_exists($vv["abr"], $data["position"])){
+        //                 $vv["position"] = (int) $data["position"][$vv["abr"]];
+        //             }
+        //         }
+        //         // $data
+        //     }
+        // }
+        
+        foreach($setting as $k => &$v){
+            $on_found = false;
+            foreach($data["lang"] as $kk => $vv){
+                if(!empty($data["position"]) && array_key_exists($v["abr"], $data["position"])){
+                    $v["position"] = (int) $data["position"][$v["abr"]];
+                }
+                if($kk == $v["abr"]){
+                    $v["on"] = 1;
+                    $on_found = true;
+                }
+            }
+            if(!$on_found)
+                $v["on"] = 0;
+        }
+        
+        // dump($setting);
+        // dd($data);
+        
+        return $setting;
+        
+        // dump($setting);
+        // dd($data);
+        // 
+        // $params = [];
+        // if(!empty($data))
+        //     foreach($data as $k => $v)
+        //         $params['status_' . $k] = true;
         
         // dump($params);
         
-        $parsed_data = $this->getPlaceholder($params);
+        // $parsed_data = $this->getPlaceholder($params);
         
         // dd($parsed_data);
         
-        return $parsed_data;
+        // return $parsed_data;
     }
     
     public function getPlaceholder($params = [], $for_set = false){
         $available_languages = \Language::getBookingCalendarAvailableLanguages();
         
-        // dd($params);
+        // dd($available_languages);
         
         foreach($available_languages as &$lang){
             if(!empty($params)){

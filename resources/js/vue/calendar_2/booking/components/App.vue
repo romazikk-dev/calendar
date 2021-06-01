@@ -1,8 +1,6 @@
 <template>
     <div>
         <filters ref="filters"
-                 :template-specifics="templateSpecifics"
-                 :template-specifics-as-id-key="templateSpecificsAsIdKey"
                  @change="filterChange($event)"
                  @hideCalendar="showCalendar = false"
                  @showCalendar="showCalendar = true"></filters>
@@ -11,37 +9,13 @@
         
         <div v-show="showCalendar" class="container-fluid">
             <month-calendar v-if="monthView"
-                @view_changed="onViewChange($event)"
-                :start-date="startDateMonth"
-                :view="view"
-                :views="views"
-                :user-id="userId"
-                :search="search"
-                :data-updater="dataUpdater"></month-calendar>
+                :start-date="startDateMonth"></month-calendar>
             <week-calendar v-if="weekView"
-                @view_changed="onViewChange($event)"
-                :start-date="startDateWeek"
-                :view="view"
-                :views="views"
-                :user-id="userId"
-                :search="search"
-                :data-updater="dataUpdater"></week-calendar>
+                :start-date="startDateWeek"></week-calendar>
             <day-calendar v-if="dayView"
-                @view_changed="onViewChange($event)"
-                :start-date="startDateDay"
-                :view="view"
-                :views="views"
-                :user-id="userId"
-                :search="search"
-                :data-updater="dataUpdater"></day-calendar>
+                :start-date="startDateDay"></day-calendar>
             <list-calendar v-if="listView"
-                @view_changed="onViewChange($event)"
-                :start-date="startDateWeek"
-                :view="view"
-                :views="views"
-                :user-id="userId"
-                :search="search"
-                :data-updater="dataUpdater"></list-calendar>
+                :start-date="startDateWeek"></list-calendar>
         </div>
     </div>
 </template>
@@ -52,6 +26,7 @@
     import DayCalendar from "./DayCalendar.vue";
     import ListCalendar from "./ListCalendar.vue";
     import Filters from "./Filters.vue";
+    import Loader from "./Loader.vue";
     export default {
         name: 'app',
         mounted() {
@@ -60,7 +35,7 @@
             
             console.log(JSON.parse(JSON.stringify(777777777)));
             // console.log(JSON.parse(JSON.stringify(this.$store.getters['updater/clientInfo'])));
-            this.$store.dispatch('client/increaseUpdaterCounter')
+            this.$store.dispatch('client/increaseUpdaterCounter');
             
             this.setClient();
             
@@ -70,10 +45,10 @@
         props: ['userId'],
         data: function(){
             return {
-                templateSpecifics: templateSpecifics,
-                
-                templateSpecificsAsIdKey: (typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null) ?
-                    templateSpecificsAsIdKey : null,
+                // templateSpecifics: templateSpecifics,
+                // 
+                // templateSpecificsAsIdKey: (typeof templateSpecificsAsIdKey !== 'undefined' && templateSpecificsAsIdKey !== null) ?
+                //     templateSpecificsAsIdKey : null,
                 
                 // showCalendar: false,
                 showCalendar: true,
@@ -83,10 +58,13 @@
                 startDateWeek: new Date(),
                 startDateDay: new Date(),
                 
-                dataUpdater: 0,
+                // dataUpdater: 0,
             };
         },
         computed: {
+            dataUpdater: function () {
+                return this.$store.getters['updater/counter'];
+            },
             cookieFilters: function () {
                 return this.$store.getters['filters/all'];
             },
@@ -192,7 +170,9 @@
                 })
                 .then((response) => {
                     successCallback(response);
-                    this.dataUpdater++;
+                    
+                    this.$store.commit('updater/increaseCounter');
+                    // this.dataUpdater++;
                     this.setBookings();
                     // this.dataUpdater++;
                 })
@@ -229,7 +209,8 @@
                     // handle success
                     // this.dates = response.data.data;
                     successCallback(response);
-                    this.dataUpdater++;
+                    this.$store.commit('updater/increaseCounter');
+                    // this.dataUpdater++;
                     this.setBookings();
                     // console.log('success');
                     // this.onCancel(response.data);
@@ -257,14 +238,16 @@
                 this.setToken(token);
                 this.setClientInfo();
                 this.setBookings();
-                this.dataUpdater++;
+                this.$store.commit('updater/increaseCounter');
+                // this.dataUpdater++;
             },
             logout: function(){
                 // cookie.remove('token');
                 // this.token = null;
                 // this.clientInfo = null;
                 this.$store.commit('client/logout');
-                this.dataUpdater++;
+                this.$store.commit('updater/increaseCounter');
+                // this.dataUpdater++;
             },
             setClient: function(){
                 this.setClientInfo();
@@ -370,11 +353,13 @@
                 }
                 // console.log(this.startDate);
             },
-            onViewChange: function(event){
-                console.log(event);
-                this.$refs['filters'].changeView(event);
-                // this.view = null;
-            },
+            // onViewChange: function(event){
+            //     // console.log(event);
+            //     // this.$refs['filters'].changeView(event);
+            // 
+            //     this.$store.commit('filters/changeView', event);
+            //     // this.view = null;
+            // },
             // reset: function(){
             //     this.view = null;
             // },
@@ -418,7 +403,8 @@
             WeekCalendar,
             DayCalendar,
             ListCalendar,
-            Filters
+            Filters,
+            Loader
         },
         watch: {
             showCalendar: function (val) {

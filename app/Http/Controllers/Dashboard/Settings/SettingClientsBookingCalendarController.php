@@ -23,6 +23,7 @@ class SettingClientsBookingCalendarController extends Controller
         
         if($request->isMethod('post')){
             $placeholder_keys = $setting->getPlaceholderKeys();
+            // dd($placeholder_keys);
             if(empty($placeholder_keys))
                 return back()->with([
                     'error' => 'You can not save data, no placeholder exist!'
@@ -46,6 +47,9 @@ class SettingClientsBookingCalendarController extends Controller
             ]);
         }
         
+        // dump($setting->getPlaceholder());
+        // dd($setting->getOrPlaceholder());
+        
         return view('dashboard.settings.clients_booking_calendar.custom_titles', [
             'titles' => $setting->getOrPlaceholder(),
         ]);
@@ -57,12 +61,16 @@ class SettingClientsBookingCalendarController extends Controller
         if($request->isMethod('post')){
             $validated = $request->validate(\Language::getValidationRules());
             
-            $setting->parseAndSet($request->lang);
+            // $setting->parseAndSet($request->lang);
+            $setting->parseAndSet($validated);
             
             return back()->with([
                 'success' => 'Data successfuly saved!'
             ]);
         }
+        
+        // dump($setting->getOrPlaceholder());
+        // dd($setting->getPlaceholder());
         
         return view('dashboard.settings.clients_booking_calendar.languages', [
             'languages' => $setting->getOrPlaceholder(),

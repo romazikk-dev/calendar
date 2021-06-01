@@ -91,15 +91,15 @@
                                         <td>
                                             <div class="book-item-property">
                                                 <b>{{itm.template_without_user_scope.title}}</b>
-                                                <span>(Template)</span>
+                                                <span>({{customTitle('template')}})</span>
                                             </div>
                                             <div class="book-item-property">
                                                 {{itm.worker_without_user_scope.first_name + ' ' + itm.worker_without_user_scope.last_name}}
-                                                <span>(Worker)</span>
+                                                <span>({{customTitle('worker')}})</span>
                                             </div>
                                             <div class="book-item-property">
                                                 {{itm.hall_without_user_scope.title}}
-                                                <span>(Hall)</span>
+                                                <span>({{customTitle('hall')}})</span>
                                             </div>
                                             <div class="book-item-property">
                                                 {{parseSecondsToHourMinuteString(itm.template_without_user_scope.duration)}}
@@ -157,6 +157,11 @@
             };
         },
         computed: {
+            customTitle: function(){
+                return (name) => {
+                    return this.$store.getters['custom_titles/title'](name);
+                }
+            },
             allBookings: function () {
                 return this.$store.getters['client/bookings'];
             },
