@@ -9,6 +9,7 @@ use App\Classes\Setting\Enums\Keys;
 // use App\Models\Booking;
 // use App\Models\User;
 use App\Models\Setting as SettingModel;
+use App\Scopes\UserScope;
 // use App\Models\Template;
 // use App\Models\Suspension;
 // use App\Exceptions\Api\Calendar\BadRangeException;
@@ -27,11 +28,26 @@ class Setting{
         return SettingModel::byKey($this->setting_key)->exists();
     }
     
-    protected function getSettingFromDB($only_data = false){
-        $setting = SettingModel::byKey($this->setting_key)->first();
+    protected function getSettingFromDB($only_data = false, $user_id = null){
+        if(is_numeric($user_id)){
+            $setting = SettingModel::withoutGlobalScope(UserScope::class)
+                ->byUser($user_id)
+                ->byKey($this->setting_key)
+                ->first();
+        }else{
+            $setting = SettingModel::byKey($this->setting_key)->first();
+        }
+        // $setting = SettingModel::byKey($this->setting_key)->first();
         if(empty($setting) || is_null($setting->data) || $setting->data == "null"){
-            if(!empty($setting))
-                SettingModel::where('key', $this->setting_key)->delete();
+            if(!empty($setting)){
+                if(is_numeric($user_id)){
+                    SettingModel::withoutGlobalScope(UserScope::class)->where([
+                            'user_id' => $user_id, 'key', $this->setting_key
+                        ])->delete();
+                }else{
+                    SettingModel::where('key', $this->setting_key)->delete();
+                }
+            }
             return null;
         }
         return $only_data === true ? $setting->data : $setting;

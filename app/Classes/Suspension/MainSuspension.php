@@ -15,6 +15,10 @@ use App\Classes\Suspension\Enums\Types;
 
 class MainSuspension{
     
+    // protected function getStatus($model){
+    //     // var_dump();
+    // }
+    
     protected function periodSuspend($model, $start_date, $end_date){
         if(!empty($model->suspension)){
             $model->suspension->update([

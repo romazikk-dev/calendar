@@ -14,6 +14,30 @@ class SettingClientsBookingCalendarController extends Controller
         ]);
     }
     
+    function main(Request $request){
+        $setting = \Setting::of(Keys::CLIENTS_BOOKING_CALENDAR_MAIN);
+        // dd($setting->getOrPlaceholder());
+        // dd('main');
+        
+        if($request->isMethod('post')){
+            $validated = $request->validate([
+                "max_future_booking_offset" => "required|integer|max:1000",
+            ]);
+            
+            // dd($validated);
+            
+            $setting->parseAndSet($validated);
+            
+            return back()->with([
+                'success' => 'Data successfuly saved!'
+            ]);
+        }
+        
+        return view('dashboard.settings.clients_booking_calendar.main', [
+            'setting' => $setting->getOrPlaceholder(),
+        ]);
+    }
+    
     function customTitles(Request $request){
         $setting = \Setting::of(Keys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES);
         // $titles = $setting->getOrPlaceholder();

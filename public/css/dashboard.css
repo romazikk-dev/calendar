@@ -8,6 +8,9 @@
 /* TEMPLATE ASSIGNMENT
 ******************************************************************/
 
+/* TEMPLATE ASSIGNMENT
+******************************************************************/
+
 /* SPECIFIC ASSIGNMENT
 ******************************************************************/
 
@@ -129,6 +132,8 @@
   display: table;
   width: 100%;
   /* Setting template specifics
+  ******************************************************************/
+  /* Client`s booking calendar main setting
   ******************************************************************/
 }
 
@@ -301,6 +306,13 @@
 
 .setting-page .template-specifics .specific-modal .specific-parent-dropdown-picker .specifics-dropdown-menu ul li a.itemm:hover {
   background-color: #f4f4f4;
+}
+
+.setting-page .clients-booking-calendar-main-setting {
+  background-color: #f8f9fa !important;
+  border-radius: 6px;
+  margin-top: 10px;
+  padding: 10px;
 }
 
 /* EDIT CREATE NAV TABS

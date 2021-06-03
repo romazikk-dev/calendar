@@ -192,13 +192,10 @@
                 
                 let url = routes.calendar.booking.book.cancel;
                 
-                url = url.replace(':hall_id', this.cookieFilters.hall.id);
-                url = url.replace(':template_id', this.cookieFilters.template.id);
-                url = url.replace(':worker_id', this.cookieFilters.worker.id);
+                // url = url.replace(':hall_id', this.cookieFilters.hall.id);
+                // url = url.replace(':template_id', this.cookieFilters.template.id);
+                // url = url.replace(':worker_id', this.cookieFilters.worker.id);
                 url = url.replace(':booking_id', booking.id);
-                
-                // console.log(url);
-                // return;
                 
                 axios.delete(url, {
                     headers: {
@@ -206,15 +203,9 @@
                     }
                 })
                 .then((response) => {
-                    // handle success
-                    // this.dates = response.data.data;
                     successCallback(response);
                     this.$store.commit('updater/increaseCounter');
-                    // this.dataUpdater++;
                     this.setBookings();
-                    // console.log('success');
-                    // this.onCancel(response.data);
-                    // console.log(JSON.parse(JSON.stringify(response)));
                 })
                 .catch(function (error) {
                     // handle error
@@ -222,32 +213,16 @@
                 })
                 .then(() => {
                     // always executed
-                    console.log('always');
-                    // this.$refs['loader'].fadeOut(300);
-                    // setTimeout(() => {
-                    //     this.successfullyBooked = true;
-                    //     this.bookButtonDisabled = false;
-                    // }, 300);
-                
                 });
             },
             login: function(token){
-                // cookie.remove('token');
-                // this.token = null;
-                // this.clientInfo = null;
-                this.setToken(token);
-                this.setClientInfo();
-                this.setBookings();
+                this.$store.commit('client/setToken', token);
+                this.setClient();
                 this.$store.commit('updater/increaseCounter');
-                // this.dataUpdater++;
             },
             logout: function(){
-                // cookie.remove('token');
-                // this.token = null;
-                // this.clientInfo = null;
                 this.$store.commit('client/logout');
                 this.$store.commit('updater/increaseCounter');
-                // this.dataUpdater++;
             },
             setClient: function(){
                 this.setClientInfo();
@@ -260,6 +235,8 @@
                 let url = routes.calendar.booking.book.all;
                 let currentDate = moment(new Date()).format('YYYY-MM-DD_HH:mm:ss');
                 url = url.replace(':from_date', currentDate);
+                
+                // console.log(url);
             
                 axios.get(url, {
                     headers: {
@@ -271,7 +248,8 @@
                     // this.allBookings = response.data;
                     this.$store.commit('client/setBookings', response.data);
                     // console.log(this.clientInfo);
-                    // console.log(JSON.parse(JSON.stringify(this.allBookings)));
+                    console.log(JSON.parse(JSON.stringify('setBookings 4444')));
+                    console.log(JSON.parse(JSON.stringify(response.data)));
                 })
                 .catch(function (error) {
                     // handle error
@@ -284,6 +262,8 @@
                 if(this.token == null)
                     return;
                 
+                // console.log(this.token);
+                
                 axios.get(routes.calendar.booking.client.info, {
                     headers: {
                         Authorization: this.tokenHeader,
@@ -291,17 +271,17 @@
                 })
                 .then((response) => {
                     // handle success
-                    // this.clientInfo = response.data;
                     this.$store.commit('client/setInfo', response.data);
                 })
-                .catch(function (error) {
+                .catch((error) => {
                     // handle error
                     if(error.response.status == 401){
-                        // console.log(error.response.status);
+                        // alert(111);
+                        // console.log(this.token);
                         this.$store.commit('client/setToken');
-                        // cookie.remove('token');
                         document.location.reload();
-                        // this.token == null;
+                        
+                        // console.log(this.token);
                     }
                 })
                 .then(() => {
@@ -378,8 +358,9 @@
             //     return this.token != null;
             // },
             setToken: function(token){
-                cookie.set('token', token);
-                this.token = token;
+                // cookie.set('token', token);
+                this.$store.commit('client/setToken', token);
+                // this.token = token;
             },
             // setTokenFromCookie: function(){
             //     let token = cookie.get('token');

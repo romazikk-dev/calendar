@@ -477,7 +477,7 @@
                 currentChoosenDateMoment.add(1, 'days');
                 this.currentChoosenDateMoment = currentChoosenDateMoment;
                 this.$parent.setStartDate('day', new Date(this.currentChoosenDateMoment.toDate()));
-                // console.log(this.currentChoosenDateMoment.format('YYYY MM DD'));
+                console.log(this.currentChoosenDateMoment.format('YYYY MM DD'));
                 // this.currentChoosenDateMoment.format();
                 this.getData();
             },
@@ -556,9 +556,15 @@
                 if(this.componentApp == null)
                     this.componentApp = this.getParentComponentByName(this, 'app');
                 
+                // console.log(moment(this.firstWeekday).format('DD-MM-YYYY'));
+                // console.log(moment(this.lastWeekday).format('DD-MM-YYYY'));
+                
+                // moment(this.firstWeekday).format('DD-MM-YYYY'),
+                // moment(this.lastWeekday).format('DD-MM-YYYY'),
+                let date = this.currentChoosenDateMoment.format('DD-MM-YYYY');
                 this.componentApp.getData(
-                    moment(this.firstWeekday).format('DD-MM-YYYY'),
-                    moment(this.lastWeekday).format('DD-MM-YYYY'),
+                    date,
+                    date,
                     (response) => {
                         this.date = response.data.data[0];
                         this.bussinessHours = response.data.business_hours;

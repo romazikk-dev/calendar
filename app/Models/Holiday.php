@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// use App\Models\Holiday;
+
 class Holiday extends Model
 {
     use HasFactory;
@@ -17,4 +19,14 @@ class Holiday extends Model
     public function holidayable(){
         return $this->morphTo();
     }
+    
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($query) {
+            $query->user_id = auth()->user()->id;
+        });
+    }
+
 }

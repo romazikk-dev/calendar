@@ -136,7 +136,8 @@ class BookController extends Controller{
         // }
     }
     
-    public function cancel(Request $request, User $user, $hall_id, $template_id, $worker_id, $booking_id){
+    // public function cancel(Request $request, User $user, $hall_id, $template_id, $worker_id, $booking_id){
+    public function cancel(Request $request, User $user, $booking_id){
         
         $client = $request->user();
         
@@ -148,9 +149,9 @@ class BookController extends Controller{
         $booking = Booking::withoutGlobalScope(UserScope::class)->byUser($user->id)->where([
             'id' => $booking_id,
             // 'user_id' => $user->id,
-            'hall_id' => $hall_id,
-            'template_id' => $template_id,
-            'worker_id' => $worker_id,
+            // 'hall_id' => $hall_id,
+            // 'template_id' => $template_id,
+            // 'worker_id' => $worker_id,
             'client_id' => $client->id,
         ])->first();
         

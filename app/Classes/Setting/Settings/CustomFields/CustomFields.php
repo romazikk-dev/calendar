@@ -28,8 +28,48 @@ class CustomFields extends MainCustomFields{
         $placeholder = $this->getPlaceholder();
         $setting = array_merge($placeholder, $setting);
         
+        $setting = $this->sortByLanguagePosition($setting);
+        
         // return 222;
         return $setting;
+    }
+    
+    public function sortByLanguagePosition($setting){
+        $lang_setting = \Setting::of(Keys::CLIENTS_BOOKING_CALENDAR_LANGUAGES)->getOrPlaceholder();
+        if(empty($lang_setting))
+            return $setting;
+            
+        $lang_positions = [];
+        foreach($lang_setting as $k => $v){
+            // $lang_positions[$v["abr"]] = $v["position"];
+            $lang_positions[] = $v["abr"];
+        }
+        
+        // dd($lang_positions);
+        
+        foreach($setting as $k => &$v){
+            if(empty($v["values"]))
+                continue;
+            
+            $sorted_values = [];
+            foreach($lang_positions as $kk => $vv){
+                if(!empty($v["values"][$vv])){
+                    // dd($v["values"][$kk]);
+                    $sorted_values[$vv] = $v["values"][$vv];
+                }
+            }
+            
+            // $v["values"] = $sorted_values;
+            
+            $v["values"] = array_merge($sorted_values, $v["values"]);
+
+            // $lang_positions[$v["abr"]] = $v["position"];
+        }
+        
+        return $setting;
+        
+        // dump($setting);
+        // dd($lang_setting);
     }
     
     // public function parseAndSet($data, $return_as_json = false){

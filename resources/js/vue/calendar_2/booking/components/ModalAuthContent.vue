@@ -43,9 +43,11 @@
                 <form ref="signinForm" action="" method="post">
                     <div class="form-group">
                         <input name="email" type="email" class="form-control" placeholder="Email">
+                        <small class="text-danger error" v-if="signinErrors && signinErrors.email">{{signinErrors.email[0]}}</small>
                     </div>
                     <div class="form-group">
                         <input name="password" type="password" class="form-control" placeholder="Password">
+                        <small class="text-danger error" v-if="signinErrors && signinErrors.password">{{signinErrors.password[0]}}</small>
                     </div>
                 </form>
             </div>
@@ -62,31 +64,11 @@
     export default {
         name: 'modalAuthContent',
         mounted() {
-            
-            
             // console.log(JSON.parse(JSON.stringify('modalAuthContent')));
-            // console.log(owner);
-            // console.log(this.$store.getters['owner/owner']);
-            
-            // console.log(this.userId);
-            // console.log(JSON.parse(JSON.stringify(this.userId)));
-            
-            // let component = this.getComponentByName('modalAuthContent');
-            // console.log(component);
-            // this.globalHelper();
-            // console.log(this.currentDate);
-            // console.log(this.curreny_view_idx);
-            // this.getDataForCalendar();
-            // $("#bookModal").on('hidden.bs.modal', () => {
-            //     this.bookDate = null;
-            //     // console.log(this.bookDate);
-            // });
         },
-        // props: ['range','view','curreny_view_idx','currentDate'],
         // props: ['userId'],
         data: function(){
             return {
-                // dateRange: helper.range.range,
                 show: 'signin',
                 signupErrors: null,
                 signinErrors: null,
@@ -99,30 +81,13 @@
         },
         methods: {
             send: function(){
-                
                 if(this.show == 'signin'){
                     var formData = new FormData(this.$refs['signinForm']);
                     var url = routes.calendar.booking.login;
-                    // console.log(this.show);
-                    // console.log(url);
-                    // console.log(formData);
-                    // console.log(formData.get('signin_email'));
-                    // console.log(document.getElementById("signupEmail"));
-                    // console.log(this.$refs['signinForm']);
-                    // let data = {
-                    // 
-                    // }
                 }else{
                     var formData = new FormData(this.$refs['signupForm']);
                     var url = routes.calendar.booking.register;
-                    // console.log(url);
-                    // console.log(formData.get('signup_email'));
-                    // console.log(document.getElementById("signupForm"));
-                    // console.log(this.$refs['signupForm']);
                 }
-                
-                // console.log(url);
-                // return;
                 
                 axios({
                     method: "post",
@@ -131,38 +96,29 @@
                     headers: { "Content-Type": "multipart/form-data" },
                 })
                 .then((response) => {
-                    //handle success
-                    
-                    // console.log(response);
                     let componentApp = this.getParentComponentByName(this, 'app');
                     if(componentApp){
-                        componentApp.login(response.data.token);
                         this.signinErrors = null;
                         this.signupErrors = null;
-                        // this.$emit('authorized');
-                        // if(this.show == 'signin')
+                        componentApp.login(response.data.token);
                     }
-                    
-                    // $emit.setToken('set_token', response.data.token);
-                    // this.$parent.$parent.setToken(response.data.token);
-                    // getComponentByName
                 })
                 .catch(error => {
-                    console.log("ERRRR:: ",error.response.data);
-                    if(error.response.data.errors){
+                    this.signinErrors = null;
+                    this.signupErrors = null;
+                    console.log("ERRRR:: ", error.response.data);
+                    
+                    if(typeof error.response.data.errors !== 'undefined'){
                         if(this.show == 'signin'){
                             this.signinErrors = error.response.data.errors;
                         }else{
                             this.signupErrors = error.response.data.errors;
                         }
                     }
+                    
+                    if(error.response.data.toLowerCase().trim() == 'login invalid')
+                        this.signinErrors = {email: ['Email or password invalid']};
                 });
-                
-                // .catch(function (response) {
-                //     //handle error
-                //     console.log(11111);
-                //     console.log(response);
-                // });
             },
             toggleShow: function(){
                 if(this.show == 'signin'){

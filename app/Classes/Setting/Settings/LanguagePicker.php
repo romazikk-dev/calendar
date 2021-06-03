@@ -18,6 +18,10 @@ class LanguagePicker extends Setting{
         if(is_string($setting))
             $setting = json_decode($setting, true);
         
+        usort($setting, function($a, $b){
+            return $a['position'] > $b['position'];
+        });
+        
         return $setting;
     }
     
@@ -41,18 +45,6 @@ class LanguagePicker extends Setting{
         if(is_string($setting))
             $setting = json_decode($setting, true);
         
-        // foreach($data["lang"] as $k => $v){
-        //     foreach($setting as $kk => &$vv){
-        //         if($k == $vv["abr"]){
-        //             $vv["on"] = 1;
-        //             if(!empty($data["position"]) && array_key_exists($vv["abr"], $data["position"])){
-        //                 $vv["position"] = (int) $data["position"][$vv["abr"]];
-        //             }
-        //         }
-        //         // $data
-        //     }
-        // }
-        
         foreach($setting as $k => &$v){
             $on_found = false;
             foreach($data["lang"] as $kk => $vv){
@@ -68,26 +60,7 @@ class LanguagePicker extends Setting{
                 $v["on"] = 0;
         }
         
-        // dump($setting);
-        // dd($data);
-        
         return $setting;
-        
-        // dump($setting);
-        // dd($data);
-        // 
-        // $params = [];
-        // if(!empty($data))
-        //     foreach($data as $k => $v)
-        //         $params['status_' . $k] = true;
-        
-        // dump($params);
-        
-        // $parsed_data = $this->getPlaceholder($params);
-        
-        // dd($parsed_data);
-        
-        // return $parsed_data;
     }
     
     public function getPlaceholder($params = [], $for_set = false){
@@ -113,11 +86,6 @@ class LanguagePicker extends Setting{
                 }else{
                     $lang['on'] = 0;
                 }
-                // if($lang['abr'] == Abriviations::EN){
-                //     $lang['on'] = 1;
-                // }else{
-                //     $lang['on'] = 0;
-                // }
             }
         }
         

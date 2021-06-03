@@ -12,9 +12,9 @@
                 <div class="alert alert-info alert-arrow" role="alert">
                     <div class="row">
                         <div class="col-sm-8 col">
-                            <div v-if="template.title">Title: <b>{{template.title}}</b></div>
-                            <div v-if="template.duration">Duration: <b>{{templateDuration}}</b></div>
-                            <div v-if="template.description">Description: <b>{{template.description}}</b></div>
+                            <div v-if="cookieItmTemplate.title">Title: <b>{{cookieItmTemplate.title}}</b></div>
+                            <div v-if="cookieItmTemplate.duration">Duration: <b>{{templateDuration}}</b></div>
+                            <div v-if="cookieItmTemplate.description">Description: <b>{{cookieItmTemplate.description}}</b></div>
                             <div>Book on: <b>{{bookOn}}</b></div>
                         </div>
                         <div class="col-sm-4 col">
@@ -161,7 +161,7 @@
                 bookButtonDisabled: true,
                 successfullyBooked: false,
                 bookOn: null,
-                template: filters.template,
+                // template: filters.template,
                 choosedH: null,
                 choosedM: null,
                 initValue: {
@@ -178,18 +178,21 @@
             };
         },
         computed: {
-            // userId: function(){
-            //     return this.$store.getters['owner/ownerId'];
+            // template: function(){
+            //     return this.$store.getters['filters/template'];
             // },
+            cookieItmTemplate: function(){
+                return this.$store.getters['filters/template'];
+            },
             auth: function () {
                 return this.isAuth();
             },
             templateDuration: function () {
-                let durationInMin = parseInt(this.template.duration/60);
+                let durationInMin = parseInt(this.cookieItmTemplate.duration/60);
                 return this.composeHourMinuteTimeFromMinutes(durationInMin);
             },
             templateDurationMinutes: function () {
-                return parseInt(this.template.duration/60);
+                return parseInt(this.cookieItmTemplate.duration/60);
             },
             barStart: function () {
                 return this.bookTimePeriod != null ? this.bookTimePeriod.from : '';
@@ -397,7 +400,7 @@
                 let endPeriodDatetime = (toHour <= 0) ? 0 : toHour*60;
                 endPeriodDatetime += toMinutes;
                 this.endPeriodDatetime = endPeriodDatetime;
-                this.preEndPeriodDatetime = this.endPeriodDatetime - parseInt(filters.template.duration/60);
+                this.preEndPeriodDatetime = this.endPeriodDatetime - parseInt(this.cookieItmTemplate.duration/60);
                 
                 // console.log(this.startPeriodDatetime);
                 // console.log(this.endPeriodDatetime);
@@ -423,7 +426,7 @@
         },
         watch: {
             auth: function(newOne, oldOne) {
-                console.log('auth changed: ' + auth);
+                // console.log('auth changed: ' + auth);
                 this.$refs['loader'].show();
                 setTimeout(() => {
                     this.$refs['loader'].fadeOut(300);

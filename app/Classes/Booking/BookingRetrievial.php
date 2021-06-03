@@ -32,11 +32,15 @@ class BookingRetrievial extends MainBookingRetrievial{
     }
     
     public function getFreeSlots(){
+        // var_dump(111);
+        // die();
         
         $bookings = $this->getBookingsAsDateTimeKeyArray();
         
         $start_date_carbon = \Carbon\Carbon::parse($this->range->getStartDate());
         $end_date_carbon = \Carbon\Carbon::parse($this->range->getEndDate());
+        
+        $max_date_carbon = \Carbon\Carbon::parse($this->max_datetime_to_book);
         
         $output = [];
         do{
@@ -46,26 +50,34 @@ class BookingRetrievial extends MainBookingRetrievial{
             $weekday = Range::getWeekdayFromCarbonInstance($start_date_carbon);
             // $bussiness_hours_of_weekday = $this->hall_business_hours[];
             
+            $bookable = $start_date_carbon->lt($max_date_carbon) ? true : false;
+            $datetime_of_item = $start_date_carbon->format("Y-m-d H:i:s");
+            if(
+                $bookable === true &&
+                (
+                    \Suspension::isSuspendedOnDate($this->worker, $datetime_of_item) ||
+                    \Suspension::isSuspendedOnDate($this->hall, $datetime_of_item)
+                )
+            )
+                $bookable = false;
+                
+            $holiday_val = $start_date_carbon->format("Y_m_d");
+            $is_weekend = !empty($this->holidays) && in_array($holiday_val, $this->holidays) ? true : false;
+            
+            // var_dump($max_date_carbon->format("Y-m-d"));
+            // die();
+            
             //Set initial itm
             $itm = [
                 'year' => $start_date_carbon->format("Y"),
                 'month' => $start_date_carbon->format("m"),
                 'day' => $start_date_carbon->format("d"),
-                'is_weekend' => false,
+                // 'is_weekend' => false,
+                'is_weekend' => $is_weekend,
                 'weekday' => $weekday,
-                'bookable' => true,
-                'items' => null,
+                'bookable' => $bookable,
                 // 'bookable' => false,
-                // 'items' => [
-                //     [
-                //         'from' => $hall_start,
-                //         'to' => $hall_end
-                //     ],
-                //     // [
-                //     //     'from' => '08:40:00',
-                //     //     'to' => '11:30:00'
-                //     // ],
-                // ],
+                'items' => null,
             ];
             
             $itm_date_index = $itm['year'] . '_' . $itm['month'] . '_' . $itm['day'];

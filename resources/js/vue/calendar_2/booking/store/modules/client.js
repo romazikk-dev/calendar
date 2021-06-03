@@ -47,8 +47,9 @@ const mutations = {
         }
     },
     setToken: (state, token) => {
-        if(typeof token !== 'undefined' && typeof token !== null){
+        if(typeof token !== 'undefined' && token !== null){
             state.token = token;
+            cookie.set('token', token);
         }else{
             state.token = null;
             cookie.remove('token');

@@ -14,6 +14,7 @@ use App\Classes\Range\Range;
 use App\Scopes\UserScope;
 use App\Classes\Enums\Weekdays;
 use App\Classes\Setting\Enums\Keys as SettingsKeys;
+use App\Models\Holiday;
 
 // use App\Exceptions\Api\Calendar\BadRangeException;
 
@@ -35,6 +36,14 @@ class MainBookingRetrievial{
     protected $template = null;
     // Array - Hall business hours
     protected $hall_business_hours = null;
+    // Number
+    protected $max_timestamp_to_book = null;
+    // String
+    protected $max_date_to_book = null;
+    // String
+    protected $max_datetime_to_book = null;
+    // Array - all holidays
+    protected $holidays = [];
     
     
     function __construct(
@@ -51,6 +60,9 @@ class MainBookingRetrievial{
         $this->worker = $worker;
         $this->template = $template;
         $this->range = $range;
+        
+        $this->setMaxDatesToBook();
+        $this->setHolidays();
         
         if(!is_null($client))
             $this->client = $client;
@@ -69,6 +81,96 @@ class MainBookingRetrievial{
         // $this->hall_business_hours = \Setting::of(SettingsKeys::HALL_DEFAULT_BUSINESS_HOURS)->arrange($this->hall->business_hours);
         
         $this->composeBookingModel();
+    }
+    
+    protected function setHolidays(){
+        $getKeyFromCarbon = function($carbon_instance){
+            return $carbon_instance->format('Y_m_d');
+        };
+        
+        $getHolidaysFromArray = function($holidays_obj, &$arr_to_fill) use ($getKeyFromCarbon) {
+            if(!empty($holidays_obj)){
+                $holidays_arr = $holidays_obj->toArray();
+                if(!empty($holidays_arr)){
+                    // var_dump($worker_holidays_arr);
+                    foreach($holidays_arr as $holiday){
+                        $from_carbon = \Carbon\Carbon::parse($holiday['from']);
+                        $to_carbon = \Carbon\Carbon::parse($holiday['to']);
+                        // $key = $holiday_to_carbon->format('Y_m_d');
+                        $val = $getKeyFromCarbon($from_carbon);
+                        if(!in_array($val, $arr_to_fill))
+                            $arr_to_fill[] = $val;
+                        // $arr_to_fill[$getKeyFromCarbon($from_carbon)] = $holiday;
+                        
+                        for($i = 0; $i < 1000; $i++){
+                            $from_carbon->addDays(1);
+                            if($to_carbon->lt($from_carbon))
+                                break;
+                                
+                            $val = $getKeyFromCarbon($from_carbon);
+                            if(!in_array($val, $arr_to_fill))
+                                $arr_to_fill[] = $val;
+                        }
+                    }
+                }
+            }
+        };
+        
+        $worker_holidays = [];
+        $getHolidaysFromArray($this->worker->holidays, $worker_holidays);
+        
+        $hall_holidays = [];
+        $getHolidaysFromArray($this->hall->holidays, $hall_holidays);
+        
+        $null_holidays = Holiday::where([
+            'user_id' => $this->user->id,
+            'holidayable_type' => null,
+            'holidayable_id' => null,
+        ])->get();
+        $for_everyone_holidays = [];
+        $getHolidaysFromArray($null_holidays, $for_everyone_holidays);
+        
+        $holidays = array_unique(array_merge($worker_holidays, $hall_holidays, $for_everyone_holidays));
+        
+        $this->holidays = !empty($holidays) ? $holidays : [];
+    }
+    
+    protected function isWorkerSuspended(string $date){
+        return \Suspension::isSuspendedOnDate($this->worker, $date);
+        // $suspension = $this->worker->suspension->toArray();
+        // if(empty($suspension))
+        //     return false;
+        // 
+        // if($suspension)
+        // var_dump($this->worker->suspension->toArray());
+        // die();
+        // return false;
+    }
+    
+    protected function setMaxDatesToBook(){
+        $setting = \Setting::of(SettingsKeys::CLIENTS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder([
+            'user_id' => $this->user->id,
+        ]);
+        
+        // var_dump($setting);
+        // die();
+        
+        $max_future_booking_offset = $setting['max_future_booking_offset'];
+        $max_future_booking_offset_seconds = (60 * 60 * 24) * $max_future_booking_offset;
+        $max_timestamp = time() + $max_future_booking_offset_seconds;
+        $max_datetime = date('Y-m-d 23:59:59', $max_timestamp);
+        
+        $this->max_timestamp_to_book = strtotime($max_datetime);
+        $this->max_date_to_book = trim(explode(' ', $max_datetime)[0]);
+        $this->max_datetime_to_book = $max_datetime;
+        
+        // var_dump([
+        //     $this->max_timestamp_to_book,
+        //     $this->max_date_to_book,
+        //     $this->max_datetime_to_book
+        // ]);
+        // 
+        // die();
     }
     
     protected function parseArrayBusinessHoursToIntWeekKey($business_hours_array){
@@ -136,6 +238,10 @@ class MainBookingRetrievial{
             
         // var_dump($this->booking->get());
         // die();
+    }
+    
+    protected function getMaxTimestamp(){
+        
     }
     
     protected function getBookingsAsDateTimeKeyArray($only_approved = false){

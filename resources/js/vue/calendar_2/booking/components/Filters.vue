@@ -1,6 +1,7 @@
 <template>
     <div>
         <!-- <loader v-show="showFilters" ref="loader" /> -->
+        <modal-alert ref="modal_alert" />
         <div v-show="showFilters" class="filters-select">
             <!-- <h4>Select place, worker, service</h4> -->
             <div class="show-filters-title">
@@ -53,8 +54,6 @@
                         </div>
                         
                         <template-picker :templates="templates"
-                            :picked-hall="pickedItmHall"
-                            :picked-template="pickedItmTemplate"
                             :specifics="templateSpecifics"
                             :specifics-as-id-key="templateSpecificsAsIdKey"
                             :picked-template-ids-trace="pickedTemplateIdsTrace"
@@ -138,6 +137,7 @@
     import ClientInfo from "./ClientInfo.vue";
     import Loader from "./Loader.vue";
     import ExtensiveTemplateFilterPicker from "./template/ExtensiveTemplateFilterPicker.vue";
+    import ModalAlert from "./ModalAlert.vue";
     export default {
         name: 'filters',
         mounted() {
@@ -266,7 +266,9 @@
                 idsTrace.push(itmTemplate.id);
                 
                 // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+                // this.pickedTemplateIdsTrace = null;
                 this.pickedTemplateIdsTrace = idsTrace;
+                // this.pickedTemplateIdsTrace = null;
             },
             backToCalendar: function(){
                 this.showFilters = false;
@@ -280,7 +282,15 @@
                     this.change('hall', this.cookieItmHall);
                     if(this.cookieItmTemplate !== null){
                         this.change('template', this.cookieItmTemplate);
+                        
+                        console.log('22222 - setPickedTemplateIdsTrace');
+                        // console.log(this.cookieItmTemplate);
+                        console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
+                        
                         this.setPickedTemplateIdsTrace();
+                        console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+                        console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+                        
                         if(this.cookieItmWorker !== null){
                             this.change('worker', this.cookieItmWorker);
                         }
@@ -318,7 +328,8 @@
             },
             apply: function(){
                 if(!this.isPickedItmsFilled){
-                    alert('Please fill all fields');
+                    // alert('Please fill all fields');
+                    this.$refs.modal_alert.show('Please fill all fields!');
                 }else{
                     this.$store.commit('filters/changeFilters', {
                         hall: this.pickedItmHall,
@@ -422,6 +433,7 @@
             ClientInfo,
             TemplatePicker: ExtensiveTemplateFilterPicker,
             Loader,
+            ModalAlert,
         },
         watch: {
             showFilters: function(val){

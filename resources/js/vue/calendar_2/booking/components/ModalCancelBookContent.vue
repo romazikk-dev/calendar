@@ -16,7 +16,7 @@
                     </tr>
                     <tr>
                         <td>Hall:</td>
-                        <td><b>{{filters.hall.title}}</b></td>
+                        <td><b>{{cookieItmHall.title}}</b></td>
                     </tr>
                     <tr>
                         <td>Worker:</td>
@@ -72,12 +72,21 @@
                 bTitle: null,
                 bTimeMoment: null,
                 bDuration: null,
-                filters: filters,
+                // filters: filters,
             };
         },
         computed: {
+            cookieItmHall: function(){
+            	return this.$store.getters['filters/hall'];
+            },
+            cookieItmWorker: function(){
+                return this.$store.getters['filters/worker'];
+            },
+            cookieItmTemplate: function(){
+                return this.$store.getters['filters/template'];
+            },
             filterWorkerFullName: function () {
-                return filters.worker.first_name + ` ` + filters.worker.last_name;
+                return this.cookieItmWorker.first_name + ` ` + this.cookieItmWorker.last_name;
             },
             bDate: function () {
                 if(this.bTimeMoment == null)

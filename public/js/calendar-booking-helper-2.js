@@ -3,9 +3,9 @@ var calendarBookingHelperFunc = function(){
     this.filtersList = ['hall','template','worker','view']
     
     this.isFiltersEmpty = function(){
-        if(typeof filters === 'undefined')
+        if(typeof filters === 'undefined' || filters === null)
             return true;
-            
+        // alert(typeof filters.hall);
         for(let i = 0; i < this.filtersList.length; i++)
             if(typeof filters[this.filtersList[i]] === 'undefined' || filters[this.filtersList[i]] === null)
                 return true;

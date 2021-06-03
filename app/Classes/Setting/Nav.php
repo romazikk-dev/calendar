@@ -97,6 +97,11 @@ class Nav{
                 "includes" => true,
                 'route' => route('dashboard.settings.clients_booking_calendar.index'),
                 'items' => [
+                    Keys::CLIENTS_BOOKING_CALENDAR_MAIN => [
+                        'title' => 'Main',
+                        'route' => route('dashboard.settings.clients_booking_calendar.main'),
+                        'route_name' => 'dashboard.settings.clients_booking_calendar.main',
+                    ],
                     Keys::CLIENTS_BOOKING_CALENDAR_LANGUAGES => [
                         'title' => 'Languages',
                         'route' => route('dashboard.settings.clients_booking_calendar.languages'),

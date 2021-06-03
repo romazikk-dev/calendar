@@ -31,6 +31,35 @@ class Suspension extends MainSuspension{
         }
     }
     
+    public function isSuspendedOnDate($model, $date){
+        if(empty($model->suspension))
+            return false;
+        
+        $suspension = $model->suspension->toArray();
+        if(empty($suspension))
+            return false;
+            
+        // var_dump($suspension);
+        // die();
+            
+        if(is_null($suspension['from']) && is_null($suspension['to']))
+            return true;
+            
+        if(!is_null($suspension['from']) && !is_null($suspension['to'])){
+            $carbon_date = \Carbon\Carbon::parse($date);
+            $carbon_from = \Carbon\Carbon::parse($suspension['from']);
+            $carbon_to = \Carbon\Carbon::parse($suspension['to']);
+            if($carbon_date->lte($carbon_to) && $carbon_from->lte($carbon_date)){
+                return true;
+            }
+        }
+        
+        return false;
+        // var_dump($this->worker->suspension->toArray());
+        // die();
+        // return false;
+    }
+    
     public function toogle(
         string $type,
         $model,

@@ -3,11 +3,11 @@
         <ul>
             <li v-for="itm in items">
                 <div v-if="itm.type == 'free'" class='free-slot'>
-                    Free time:<br>
+                    <b>Free time:</b><br>
                     <b>{{itm.from}} - {{itm.to}}</b>
                     <div class="not-approved-bookings" v-if="itm.not_approved_bookings">
                         <div class="not-approved-bookings-itm" v-for="itmm in itm.not_approved_bookings">
-                            In approving:<br>
+                            <b>In approving:</b><br>
                             <b>{{itmm.booking.template_without_user_scope.title}}<br>
                             {{itmm.from}} - {{itmm.to}}</b>
                             <!-- <button @click.prevent="$emit('cancel', itm)"
@@ -23,7 +23,7 @@
                         class="btn btn-link btn-sm btn-block book">Book</button >
                 </div>
                 <div v-if="itm.type == 'booked'" class='booked-slot'>
-                    Booked on:<br>
+                    <b>Booked on:</b><br>
                     <b>{{itm.booking.template_without_user_scope.title}}<br>
                     {{itm.from}} - {{itm.to}}</b>
                     <button @click.prevent="$emit('cancel', itm.booking)"

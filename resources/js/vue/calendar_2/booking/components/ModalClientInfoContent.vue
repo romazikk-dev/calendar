@@ -50,8 +50,6 @@
                     
                     <div class="for-booking-item" v-for="itm in allBookings" :class="{'approved-book': itm.approved, 'requested-book': !itm.approved}">
                         
-                        
-                        
                         <div class="booking-item">
                             <!-- <button type="button"
                                 class="close">
@@ -63,17 +61,22 @@
                                     class="close"
                                     data-toggle="dropdown"
                                     aria-haspopup="true"
-                                    aria-expanded="false">
+                                    aria-expanded="false"
+                                    :id="'bookings_dropdown_toogle_' + itm.id">
                                         <span>×</span>
                                 </button>
                                 <!-- <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Dropleft
                                 </button> -->
                                 <div @click.stop class="dropdown-menu">
-                                    Do you really want delete this request on booking?
+                                    {{
+                                        itm.approved ?
+                                        'Do you really want delete this booking?' :
+                                        'Do you really want delete this request on booking?'
+                                    }}
                                     <div>
-                                        <a class="btn btn-sm btn-link" href="#">Yes</a>
-                                        <a class="btn btn-sm btn-link" href="#">No</a>
+                                        <a class="btn btn-sm btn-link" @click.prevent="cancel(itm)" href="#">Yes</a>
+                                        <a class="btn btn-sm btn-link" @click.prevent="closeDropdown('bookings_dropdown_toogle_' + itm.id)" href="#">No</a>
                                     </div>
                                 </div>
                             </div>
@@ -85,8 +88,8 @@
                                     <tr>
                                         <td>
                                             <div class="small">{{itm.approved ? 'Booked on:' : 'In approving:'}}</div>
-                                            <div class="item-date">2021-04-19</div>
-                                            <div class="item-time"><b>14:00</b></div>
+                                            <div class="item-date">{{getStartDate(itm.time)}}</div>
+                                            <div class="item-time"><b>{{getStartTime(itm.time)}}</b></div>
                                         </td>
                                         <td>
                                             <div class="book-item-property">
@@ -116,9 +119,11 @@
                 </div>
             </template>
             <template v-if="showTab == 'logout'">
-                Do you really want to logout?
-                <div>
-                    <button @click="logout" type="button" class="btn btn-link">Yes</button>
+                <div class="pt-3 pb-3">
+                    Do you really want to logout?
+                    <div>
+                        <button @click="logout" type="button" class="btn btn-link">Yes</button>
+                    </div>
                 </div>
             </template>
 
@@ -173,6 +178,25 @@
         },
         methods: {
             cancel: function (booking){
+                let componentApp = this.getParentComponentByName(this, 'app');
+                componentApp.cancelBooking(booking, (response) => {
+                    console.log('success');
+                    // this.onCancel(response.data);
+                });
+            },
+            // deleteRequest: function (dropdownToogleId){
+            //     $(document).find("#" + dropdownToogleId).click();
+            // },
+            closeDropdown: function (dropdownToogleId){
+                $(document).find("#" + dropdownToogleId).click();
+            },
+            getStartDate: function (dateTime){
+                return moment(dateTime).format('YYYY-MM-DD');
+            },
+            getStartTime: function (dateTime){
+                return moment(dateTime).format('HH:mm');
+            },
+            cancel: function (booking){
                 // console.log(booking);
                 // return;
                 if(this.componentApp == null)
@@ -197,6 +221,13 @@
 <style lang="scss" scoped>
     .modal-content{
         background-color: #6c757d;
+        .modal-header{
+            .modal-title{
+                display: block;
+                width: 100%;
+            }
+            padding-right: 16px!important;
+        }
         .modal-body{
             position: relative;
             background-color: #fff;

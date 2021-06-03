@@ -19,23 +19,15 @@
         mounted() {
             // console.log(JSON.parse(JSON.stringify(7777)));
             // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
-            // console.log(JSON.parse(JSON.stringify(this.pickedTemplate)));
         },
-        // props: ['owner','halls','clientInfo','allBookings','cookieFilters'],
-        props: ['templates','specifics','specificsAsIdKey','pickedHall','pickedTemplate','pickedTemplateIdsTrace'],
+        props: ['templates','specifics','specificsAsIdKey','pickedTemplateIdsTrace'],
         data: function(){
             return {
-                firstLevelIdsOfSpecifics: null,
-                specificsLevelMaxDeep: 0,
                 parsedTemplates: null,
-                rendered: false,
-                // renderedDropdown: false,
-                // pickedTemplateIdsTrace: null,
             };
         },
         computed: {
             templateCustomTitle: function(){
-                // return this.$store.getters['custom_titles/template'];
                 return this.$store.getters['custom_titles/title']('template');
             },
         },
@@ -44,10 +36,6 @@
                 let _this = this;
                 
                 let specificsAsIdKey = _this.specificsAsIdKey;
-                // console.log(JSON.parse(JSON.stringify(7777)));
-                // console.log(JSON.parse(JSON.stringify('specifics')));
-                // console.log(JSON.parse(JSON.stringify(this.specifics)));
-                // console.log(JSON.parse(JSON.stringify('templates')));
                 // console.log(JSON.parse(JSON.stringify(this.templates)));
                 
                 let parsedTemplates = {};
@@ -132,16 +120,24 @@
             
         },
         watch: {
-            pickedTemplate: function(val){
-                // console.log(JSON.parse(JSON.stringify(9999999)));
-            },
+            // pickedTemplateIdsTrace: function(val){
+            //     // alert(val);s
+            //     // this.pickedTemplateIdsTrace = null;
+            //     // this.parsedTemplates = null;
+            //     // if(this.templates !== null){
+            //     //     this.parsedTemplates = null;
+            //     //     this.parseTemplatesAccordingToSpecifics();
+            //     // }
+            //     // this.parseTemplatesAccordingToSpecifics();
+            // },
             templates: function(val){
                 // return;
                 this.parsedTemplates = null;
                 if(val !== null)
-                    this.$nextTick(() => {
-                        this.parseTemplatesAccordingToSpecifics();
-                    });
+                    this.parseTemplatesAccordingToSpecifics();
+                    // this.$nextTick(() => {
+                    //     this.parseTemplatesAccordingToSpecifics();
+                    // });
             },
         },
     }

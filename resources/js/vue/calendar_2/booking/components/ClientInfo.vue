@@ -20,7 +20,7 @@
         </div>
         
         <!-- Modal -->
-        <div class="modal fade" id="enterModal">
+        <div class="modal fade modal-custom-dark-header-footer" id="enterModal">
             <div class="modal-dialog">
                 <!-- ModalClientInfoContent -->
                 <modal-client-info-content

@@ -212,6 +212,7 @@ Route::group([
             Route::get('/', [DashboardSettingClientsBookingCalendarController::class, 'index'])->name('index');
             Route::match(['get', 'post'], '/languages', [DashboardSettingClientsBookingCalendarController::class, 'languages'])->name('languages');
             Route::match(['get', 'post'], '/custom_titles', [DashboardSettingClientsBookingCalendarController::class, 'customTitles'])->name('custom_titles');
+            Route::match(['get', 'post'], '/main', [DashboardSettingClientsBookingCalendarController::class, 'main'])->name('main');
             
         });
         

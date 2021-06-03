@@ -21,8 +21,14 @@ class MainSetting{
     protected $settings = [];
     
     protected $aliases = [
+        //Worker
         Keys::WORKER_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Settings\BussinessHours::class,
+        
+        //Hall
         Keys::HALL_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Settings\BussinessHours::class,
+        
+        //Client`s booking calendar
+        Keys::CLIENTS_BOOKING_CALENDAR_MAIN => \App\Classes\Setting\Settings\Main::class,
         Keys::CLIENTS_BOOKING_CALENDAR_LANGUAGES => \App\Classes\Setting\Settings\LanguagePicker::class,
         Keys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES => \App\Classes\Setting\Settings\CustomFields\CustomFields::class,
     ];

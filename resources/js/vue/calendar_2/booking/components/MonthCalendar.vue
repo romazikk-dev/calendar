@@ -24,10 +24,19 @@
                                     <!-- {{dates[(((i*7) + k))-8].day}} -->
                                     {{getDate(i,k,'day')}}
                                 </div>
-                                <month-cell v-if="notPast(i,k)"
-                                    @open-modal="openModal($event,i,k)"
-                                    @cancel="cancelBook($event)"
-                                    :items="getDate(i,k,'items')"></month-cell>
+                                <template v-if="(getDate(i,k)).is_weekend">
+                                    <div class='for-closed-slot'>
+                                        <div class='closed-slot'>
+                                            <b>Closed</b>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <month-cell v-if="notPast(i,k)"
+                                        @open-modal="openModal($event,i,k)"
+                                        @cancel="cancelBook($event)"
+                                        :items="getDate(i,k,'items')"></month-cell>
+                                </template>
                                 <!-- <a @click.prevent="openModal(i,k)" v-if="notPast(i,k)" class="booking" href="#">book...</a> -->
                             </div>
                         </td>
@@ -271,43 +280,6 @@
                 //     last_date: lastDate,
                 // }
             },
-            // setRange: function(){
-            //     // this.currentViewIdx = parseInt(this.currentDateObj.getMonth()) + 1;
-            // 
-            //     let firstMonthDay = new Date(this.currentDat.getFullYear(), this.currentDat.getMonth(), 1);
-            //     let lastMonthDay = new Date(this.currentDateObj.getFullYear(), this.currentDateObj.getMonth() + 1, 0);
-            //     let firstMonthDayWeekday = firstMonthDay.getDay();
-            //     let totalDaysInMonth = lastMonthDay.getDate();                    
-            // 
-            //     let startOffset;
-            //     if(firstMonthDayWeekday == 1){
-            //         startOffset = 7;
-            //     }else if(firstMonthDayWeekday == 2){
-            //         startOffset = 8;
-            //     }else if(firstMonthDayWeekday == 3){
-            //         startOffset = 9;
-            //     }else if(firstMonthDayWeekday == 4){
-            //         startOffset = 3;
-            //     }else if(firstMonthDayWeekday == 5){
-            //         startOffset = 4;
-            //     }else if(firstMonthDayWeekday == 6){
-            //         startOffset = 5;
-            //     }else if(firstMonthDayWeekday == 0){
-            //         startOffset = 6;
-            //     }
-            // 
-            //     let firstDate = new Date(firstMonthDay);
-            // 
-            //     firstDate.setDate(firstDate.getDate() - startOffset);
-            // 
-            //     let lastDate = new Date(firstDate);
-            //     lastDate.setDate(lastDate.getDate() + 41);
-            // 
-            //     this.range = {
-            //         first_date: firstDate,
-            //         last_date: lastDate,
-            //     }
-            // },
         },
         components: {
             Navigation,
@@ -329,6 +301,24 @@
 </script>
 
 <style lang="scss" scoped>
+    .for-closed-slot{
+        padding-left: 30px;
+        padding-right: 4px;
+        padding-top: 4px;
+        .closed-slot{
+            display: block;
+            width: 100%;
+            background-color: rgba(255, 0, 0, 0.1);
+            margin-bottom: 3px;
+            border-radius: 3px;
+            font-size: 10px;
+            padding: 2px 6px;
+            color: black;
+            text-decoration: none;
+            transition: background .2s ease;
+            margin-bottom: 6px;
+        }
+    }
     #viewDropdown{
         .dropdown-toggle{
             text-transform: capitalize;

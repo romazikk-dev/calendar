@@ -44,7 +44,8 @@
                         },
                         book: {
                             create: '{{ route("api.calendar.bookings.book.create", [$owner->id, ":hall_id", ":template_id", ":worker_id"]) }}',
-                            cancel: '{{ route("api.calendar.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
+                            // cancel: '{{ route("api.calendar.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
+                            cancel: '{{ route("api.calendar.bookings.book.cancel", [$owner->id, ":booking_id"]) }}',
                             all: '{{ route("api.calendar.bookings.book.all", [$owner->id, ":from_date"]) }}',
                         },
                         client: {

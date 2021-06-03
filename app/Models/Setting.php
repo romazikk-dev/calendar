@@ -30,15 +30,13 @@ class Setting extends Model
         static::addGlobalScope(new UserScope);
     }
     
-    /**
-     * Scope a query to only include templates of given key.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int  $user_id
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeByKey($query, $key)
     {
         return $query->where('key', $key);
+    }
+    
+    public function scopeByUser($query, $user_id)
+    {
+        return $query->where('user_id', $user_id);
     }
 }

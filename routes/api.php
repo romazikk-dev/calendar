@@ -93,12 +93,16 @@ Route::group([
                 'worker_id' => '\d+',
             ])->name('create');
             
-            Route::delete('/cancel/{hall_id}/{template_id}/{worker_id}/{booking_id}', [ApiBookController::class, 'cancel'])->where([
-                'hall_id' => '\d+',
-                'template_id' => '\d+',
-                'worker_id' => '\d+',
-                'booking_id' => '\d+',
-            ])->name('cancel');
+            // Route::delete('/cancel/{hall_id}/{template_id}/{worker_id}/{booking_id}', [ApiBookController::class, 'cancel'])->where([
+            //     'hall_id' => '\d+',
+            //     'template_id' => '\d+',
+            //     'worker_id' => '\d+',
+            //     'booking_id' => '\d+',
+            // ])->name('cancel');
+            
+            Route::delete('/cancel/{booking_id}', [ApiBookController::class, 'cancel'])
+                ->where(['booking_id' => '\d+',])
+                ->name('cancel');
         
         });
         

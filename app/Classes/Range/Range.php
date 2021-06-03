@@ -10,6 +10,8 @@ namespace App\Classes\Range;
 // use App\Models\Template;
 // use App\Models\Worker;
 // use App\Exceptions\Api\Calendar\BadRangeException;
+// use App\Classes\Range\Enums\Parameters;
+// use App\Classes\Setting\Enums\Keys as SettingKeys;
 
 class Range{
     
@@ -27,19 +29,46 @@ class Range{
     protected $end_datetime = null;
     // String
     protected $view = null;
+    // String
+    protected $current_server_date = null;
+    // String
+    protected $current_server_time = null;
+    // String
+    protected $current_server_timestamp = null;
+    // Array
+    protected $params = [];
     
     function __construct(
         string $start,
         string $end,
-        string $view
+        string $view,
+        array $params = []
     ) {
+        $this->params = $params;
         $this->view = $view;
+        
+        $this->current_server_date = date("Y-m-d");
+        $this->current_server_time = date("H:i:s");
+        $this->current_server_timestamp = time();
+        
+        // var_dump([
+        //     $this->current_server_date,
+        //     $this->current_server_time,
+        //     $this->current_server_timestamp,
+        // ]);
+        // die();
         
         //Set timestamps
         $this->start_timestamp = strtotime($start);
         $this->end_timestamp = strtotime($end);
+        
+        // var_dump([$this->start_timestamp, $this->end_timestamp]);
+        // die();
+        
         if($this->isWrongTimestamps())
             throw new BadRangeException();
+        
+        // $this->checkInRegardToMaxBookPointInFutureAndFixStartEnd();
         
         //Set dates
         $this->start_date = date('Y-m-d', $this->start_timestamp);
@@ -49,6 +78,33 @@ class Range{
         $this->start_datetime = $this->start_date . ' 00:00:00';
         $this->end_datetime = $this->end_date . ' 23:59:59';
     }
+    
+    // protected function checkInRegardToMaxBookPointInFutureAndFixStartEnd(){
+    //     // if(!array_key_exists(Parameters::CHECK_MAX_BOOK_POINT_IN_FUTURE, $this->params))
+    //     //     return;
+    // 
+    //     $setting = \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
+    //     $max_future_booking_offset = $setting['max_future_booking_offset'];
+    //     $max_future_booking_offset_seconds = (60 * 60 * 24) * $max_future_booking_offset;
+    //     $max_timestamp = $this->current_server_timestamp + $max_future_booking_offset_seconds;
+    //     // var_dump($max_timestamp > $this->start_timestamp);
+    // 
+    //     if($max_timestamp <= $this->start_timestamp){
+    //         $this->start_timestamp = time();
+    //         $this->end_timestamp = $max_timestamp;
+    //     }else{
+    //         if($max_timestamp < $this->end_timestamp){
+    //             $this->end_timestamp = $max_timestamp;
+    //         }
+    //     }
+    // 
+    // 
+    //     // var_dump($max_future_booking_offset);
+    //     // var_dump($max_future_booking_offset_seconds);
+    //     var_dump([$this->start_timestamp, $this->end_timestamp]);
+    //     // var_dump(888);
+    //     die();
+    // }
     
     protected function isWrongTimestamps(){
         return (is_null($this->start_timestamp) || is_null($this->end_timestamp) ||

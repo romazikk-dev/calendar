@@ -27,6 +27,12 @@ class Keys{
     
     /**
     *   Setting key
+    *   Main settings of client booking calendar
+    */
+    const CLIENTS_BOOKING_CALENDAR_MAIN = "clients_booking_calendar_main";
+    
+    /**
+    *   Setting key
     *   Languages of client booking calendar to use
     */
     const CLIENTS_BOOKING_CALENDAR_LANGUAGES = "clients_booking_calendar_languages";
