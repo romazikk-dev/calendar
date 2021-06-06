@@ -98,6 +98,7 @@
         <script src="{{ asset('js/dashboard/worker-assignment.js') }}?{{$rand}}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/phone-picker.js') }}?{{$rand}}"></script>
         <script src="{{ asset('js/dashboard/holidays.js') }}?{{$rand}}"></script>
+        <!-- <script type="text/javascript" src="{{ asset('js/dashboard/timezone-picker.js') }}?{{$rand}}"></script> -->
         
     </x-slot>
     

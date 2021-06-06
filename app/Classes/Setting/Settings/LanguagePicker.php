@@ -45,6 +45,11 @@ class LanguagePicker extends Setting{
         if(is_string($setting))
             $setting = json_decode($setting, true);
         
+        if(empty($setting))
+            $setting = $this->getPlaceholder();
+            
+        // dd($setting);
+        
         foreach($setting as $k => &$v){
             $on_found = false;
             foreach($data["lang"] as $kk => $vv){

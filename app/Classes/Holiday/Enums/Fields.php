@@ -13,4 +13,5 @@ class Fields{
     const DESCRIPTION = "holiday_description";
     const FROM = "holiday_from";
     const TO = "holiday_to";
+    const TIMESTAMP = "holiday_timestamp";
 }

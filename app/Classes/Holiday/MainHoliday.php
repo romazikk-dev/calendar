@@ -19,9 +19,10 @@ class MainHoliday{
     protected $validation_rules = [
         //Holiday rules
         'holiday_title.*' => 'required|max:255',
-        'holiday_description.*' => 'max:1000',
+        'holiday_description.*' => 'nullable|max:1000',
         'holiday_from.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
         'holiday_to.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
+        'holiday_timestamp.*' => 'required|numeric',
     ];
     
     protected function getAllNulls(){
@@ -42,6 +43,9 @@ class MainHoliday{
             ${Fields::FROM} = old(Fields::FROM);
             ${Fields::TO} = old(Fields::TO);
             ${Fields::DESCRIPTION} = old(Fields::DESCRIPTION);
+            ${Fields::TIMESTAMP} = old(Fields::TIMESTAMP);
+            
+            // dd(old(Fields::TIMESTAMP));
             
             $holidays = [];
             foreach(${Fields::TITLE} as $k => $v){
@@ -50,16 +54,20 @@ class MainHoliday{
                     !empty(${Fields::FROM}[$k]) ? ${Fields::FROM}[$k] : null,
                     !empty(${Fields::TO}[$k]) ? ${Fields::TO}[$k] : null,
                     !empty(${Fields::DESCRIPTION}[$k]) ? ${Fields::DESCRIPTION}[$k] : null,
+                    !empty(${Fields::TIMESTAMP}[$k]) ? ${Fields::TIMESTAMP}[$k] : null,
                 );
                 if(!empty($holiday))
                     $holidays[] = $holiday;
             }
+            // dd($holidays);
             return $holidays;
         }
         return null;
     }
     
-    protected function getHoliday($title, $from, $to, $description, $carbon_output_format = false){
+    protected function getHoliday($title, $from, $to, $description, $timestamp, $carbon_output_format = false){
+        
+        // dd($timestamp);
         
         $holiday = [];
         
@@ -100,6 +108,8 @@ class MainHoliday{
         }else{
             $holiday['description'] = null;
         }
+        
+        $holiday['timestamp'] = !empty($timestamp) ? $timestamp : null;
         
         return !empty($holiday) ? $holiday : null;
         

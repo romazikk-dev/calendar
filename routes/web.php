@@ -180,6 +180,7 @@ Route::group([
             Route::get('/', [DashboardSettingHallController::class, 'index'])->name('index');
             Route::match(['get', 'post'], '/business_hours', [DashboardSettingHallController::class, 'businessHours'])->name('default_business_hours');
             Route::match(['get', 'post'], '/holidays', [DashboardSettingHallController::class, 'holidays'])->name('holidays');
+            Route::match(['get', 'post'], '/timezone', [DashboardSettingHallController::class, 'timezone'])->name('timezone');
             
         });
         

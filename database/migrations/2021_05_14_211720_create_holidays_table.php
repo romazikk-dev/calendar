@@ -21,6 +21,7 @@ class CreateHolidaysTable extends Migration
             $table->dateTime('to')->nullable();
             $table->string('title');
         	$table->string('description', 1000)->nullable();
+            $table->unsignedBigInteger('timestamp');
             $table->timestamps();
         });
     }

@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <time-bar :free-time-perc="freeTimePerc"
-                    v-if="!successfullyBooked"
+                    v-if="!successfullyBooked && !errorResponse"
                     ref="time_bar"
                     :start="barStart"
                     :end="barEnd"
@@ -38,6 +38,9 @@
                     @slider_enabled='timeBarSliderEnabled'></time-bar>
                 <div v-if="successfullyBooked">
                     Your successfully requested to book you on choosen time, we will contact you for approving your booking. 
+                </div>
+                <div v-if="errorResponse" class="small text-danger">
+                    {{errorResponse}}
                 </div>
                 <div class="row">
                     
@@ -59,14 +62,14 @@
             </div>
         </div>
         <div class="modal-footer">
-            <template v-if="!successfullyBooked">
+            <template v-if="!successfullyBooked && !errorResponse">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button @click.prevent="book"
                     type="button"
                     class="btn btn-success"
                     :disabled="bookButtonDisabled">Book</button>
             </template>
-            <template v-if="successfullyBooked">
+            <template v-if="successfullyBooked || errorResponse">
                 <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
             </template>
         </div>
@@ -89,63 +92,26 @@
             this.createStyleForArrow();
             this.setStyleForArrow();
             
-            
-            
-            // console.log('dasda:' + this.bookDate);
-            // let interval = setInterval(() => {
-            //     console.log(11);
-            //     if(this.bookTimePeriod != null){
-            //         clearInterval(interval);
-            //         this.setInitValue();
-            //     }
-            // }, 500);
-            
-            // JSON.parse(JSON.stringify(filters.template));
-            
-            // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-            // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-            // if(!this.successfullyBooked)
-            //     this.$refs['loader'].show();
-            
-            // $("#bookModal").on('show.bs.modal', () => {
-            //     this.$refs['loader'].show();
-            // });
-            
             $("#bookModal").on('shown.bs.modal', () => {
                 if(this.successfullyBooked)
                     this.$refs['loader'].fadeOut(300);
                     
                 this.setInitValue();
                 this.$refs['time_bar'].recalculate();
-                
-                // this.$refs['loader'].show();
                 // console.log(JSON.parse(JSON.stringify(this.template)));
-                // console.log(this.bookDate);
-                // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-                // console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
-                // this.startPeriodDate = new Date(
-                //     this.bookDate.year + '-' + this.bookDate.month + '-' + this.bookDate.day + ' ' + this.bookTimePeriod.from + ':00'
-                // );
-                // let startPeriodDate = moment(
-                //     this.bookDate.year + '-' + this.bookDate.month + '-' + this.bookDate.day + ' ' + this.bookTimePeriod.from + ':00'
-                // );
-                // let timezoneOffset = Math.abs(this.startPeriodDate.getTimezoneOffset());
-                // this.startPeriodDate = startPeriodDate.add(timezoneOffset, 'minutes').toDate();
-                // console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
                 this.bookOn = this.bookTimePeriod.from;
                 // this.modalOpened = true
                 this.$refs['loader'].fadeOut(300);
                 setTimeout(() => {
                     this.bookButtonDisabled = false;
                 }, 300);
-                // console.log(this.$refs['time_bar'].sliderDisabled);
-                // console.log(this.startPeriodDate.getTimezoneOffset());
             });
             
             $("#bookModal").on('hidden.bs.modal', () => {
                 // this.modalOpened = false
                 this.successfullyBooked = false;
                 this.bookButtonDisabled = true;
+                this.errorResponse = null;
                 this.$refs['loader'].show();
                 this.arrowPosition = 10;
                 this.setStyleForArrow();
@@ -174,7 +140,8 @@
                 timeBarChangeTimeout: null,
                 s: null,
                 arrowPosition: 10,
-                hintText: 'Move slider to choose time for booking.'
+                hintText: 'Move slider to choose time for booking.',
+                errorResponse: null,
             };
         },
         computed: {
@@ -207,26 +174,6 @@
                 
                 let preEndPeriodDatetime = this.preEndPeriodDatetime;
                 return this.composeHourMinuteTimeFromMinutes(preEndPeriodDatetime);
-                // let minutes = preEndPeriodDatetime%60;
-                // let hours = parseInt(preEndPeriodDatetime/60);
-                // 
-                // if(minutes <= 0){
-                //     minutes = '00'
-                // }else if(minutes > 0 && minutes < 10){
-                //     minutes = '0' + minutes;
-                // }else{
-                //     minutes = minutes;
-                // }
-                // 
-                // if(hours <= 0){
-                //     hours = '00'
-                // }else if(hours > 0 && hours < 10){
-                //     hours = '0' + hours;
-                // }else{
-                //     hours = hours;
-                // }
-                // 
-                // return hours + ':' + minutes;
             },
             freeTimePerc: function () {
                 let onePerc = parseInt(this.endPeriodDatetime/100);
@@ -246,9 +193,6 @@
                     let to = parseInt(toArr[0]);
                     if(parseInt(toArr[1]) == 0)
                         to--;
-                    
-                    // if(parseInt(toArr[1]) == 0)
-                    //     toH--;
                         
                     return [[from, to]];
                 }else{
@@ -285,12 +229,25 @@
                 
                 componentApp.bookOn(this.bookingDate, this.bookOn, (response) => {
                     // this.onBooked(response);
+                    // alert(111);
+                    // errorResponse
+                    // let data = response.data;
+                    if(typeof response.data.error === 'undefined'){
+                        setTimeout(() => {
+                            this.successfullyBooked = true;
+                        }, 300);
+                    }else{
+                        setTimeout(() => {
+                            this.errorResponse = response.data.error;
+                        }, 300);
+                    }
+                    // console.log(response);
                 }, () => {}, () => {
                     
-                    console.log('always');
+                    // console.log('always');
                     this.$refs['loader'].fadeOut(300);
                     setTimeout(() => {
-                        this.successfullyBooked = true;
+                        // this.successfullyBooked = true;
                         this.bookButtonDisabled = false;
                     }, 300);
                     

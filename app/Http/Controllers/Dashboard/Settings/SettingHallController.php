@@ -21,13 +21,42 @@ class SettingHallController extends Controller{
     }
     
     /**
+     * Handle timezone setting.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function timezone(Request $request){
+        if($request->isMethod('post')){
+            $validated = $request->validate(\Timezone::getValidationRules($request));
+            
+            \Setting::of(Keys::HALL_DEFAULT_TIMEZONE)->parseAndSet($validated);
+            
+            return back()->with([
+                'success' => 'Data successfuly saved!'
+            ]);
+        }
+        
+        return view('dashboard.settings.hall.timezone', [
+            'validation_messages' => \Lang::get('validation'),
+            'timezones' => \Timezone::getArrWithKeyGroup(),
+            'timezone_values' => \Timezone::getTimezoneValuesForVueAppInRegardToRequest(),
+        ]);
+    }
+    
+    /**
      * Handle default holidays setting.
      *
      * @return \Illuminate\Http\Response
      */
     public function holidays(Request $request){
         if($request->isMethod('post')){
+            // dd($request->all());
+            
             $validated = $request->validate(\Holiday::getValidationRules());
+            
+            // dd(111);
+            // dd($validated);
+            
             Holiday::where([
                 'holidayable_type' => null,
                 'holidayable_id' => null

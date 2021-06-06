@@ -8,10 +8,26 @@
         <div>
             <button @click="openModal()" type="button" class="btn btn-primary btn-sm open-select-item-modal">
                 Add
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                     <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                 </svg>
             </button>
+            
+            <div class="btn-group">
+                <button type="button"
+                    class="btn btn-sm btn-info dropdown-toggle dropdown-toggle-sort"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    v-html="sortedTitle"></button>
+                <div class="dropdown-menu">
+                    <a v-for="(option, index) in sortOptions"
+                        class="dropdown-item"
+                        href="#"
+                        @click="sortOption = option"
+                        v-html="option.title"></a>
+                </div>
+            </div>
             
             <div class="empty-placeholder" v-if="isShowEmptyPlaceholder && holidays.length == 0">
                 No holidays setted.
@@ -34,6 +50,7 @@
                 <input class="" :name="`holiday_description[` + index + `]`" type="hidden" :value="item.description">
                 <input class="" :name="`holiday_from[` + index + `]`" type="hidden" :value="item.from">
                 <input class="" :name="`holiday_to[` + index + `]`" type="hidden" :value="item.to">
+                <input class="" :name="`holiday_timestamp[` + index + `]`" type="hidden" :value="item.timestamp">
                 
                 <div class="btnns">
                     <a class="btnn btn btn-sm btn-warning" href="#" @click="removeHoliday(index)">
@@ -166,6 +183,7 @@
             // console.log(this.showEmptyPlaceholder);
             // console.log(assignWorkers);
             console.log(JSON.parse(JSON.stringify(validationMessages)));
+            // this.setSortOptions();
             // setTimeout(() => {
     		// 	this.setAssignWorkers();
     		// }, 300);
@@ -177,10 +195,14 @@
             
             // this.setAssignWorkers();
             // this.recalculateBadgeValue(true);
-            // console.log(JSON.parse(JSON.stringify(holidays)));
+            // console.log(JSON.parse(JSON.stringify(holidaysData)));
             if(typeof holidaysData != 'undefined'){
+                // console.log(JSON.parse(JSON.stringify(this.setIndexAsId(holidaysData))));
+                // this.setIndexAsId(holidaysData);s
+                // this.holidays = holidaysData;
+                // this.holidays = this.setIndexAsId(holidaysData);
                 this.holidays = holidaysData;
-                console.log(JSON.parse(JSON.stringify(holidaysData)));
+                this.orderHolidays();
             }
             this.reCalculateTabValue(false);
         },
@@ -188,6 +210,7 @@
         data: function(){
             return {
                 holidays: [],
+                sortedHolidays: [],
                 // holidays: [{
                 //     from: 'dasdasd',
                 //     to: 'dasda',
@@ -211,9 +234,59 @@
                     dateErrorAttrs: []
                 },
                 formHasErrors: false,
+                
+                sortOption: null,
             };
         },
         computed: {
+            sortOptions: function(){
+                return {
+                    byAddedDateAsc: {
+                        key: 'by_added_date_asc',
+                        title: 'By added date ' + this.arrowUp,
+                    },
+                    byAddedDateDesc: {
+                        key: 'by_added_date_desc',
+                        title: 'By added date ' + this.arrowDown,
+                    },
+                    byHolidayDateAsc: {
+                        key: 'by_holiday_date_asc',
+                        title: 'By holiday date ' + this.arrowUp,
+                    },
+                    byHolidayDateDesc: {
+                        key: 'by_holiday_date_desc',
+                        title: 'By holiday date ' + this.arrowDown,
+                    },
+                };
+            },
+            arrowUp: function () {
+                return `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+                    </svg>
+                `;
+            },
+            arrowDown: function () {
+                return `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+                    </svg>
+                `;
+            },
+            sortedTitle: function () {
+                if(this.sortOption === null)
+                    return this.sortOptions.byAddedDateDesc.title;
+                    
+                if(this.sortOption.key === this.sortOptions.byAddedDateAsc.key){
+                    return this.sortOptions.byAddedDateAsc.title;
+                }else if(this.sortOption.key === this.sortOptions.byAddedDateDesc.key){
+                    return this.sortOptions.byAddedDateDesc.title;
+                }else if(this.sortOption.key === this.sortOptions.byHolidayDateAsc.key){
+                    return this.sortOptions.byHolidayDateAsc.title;
+                }else if(this.sortOption.key === this.sortOptions.byHolidayDateDesc.key){
+                    return this.sortOptions.byHolidayDateDesc.title;
+                }
+            },
             isShowEmptyPlaceholder: function () {
                 return typeof this.showEmptyPlaceholder != 'undefined' && this.showEmptyPlaceholder === 'true';
             }
@@ -232,6 +305,43 @@
         methods: {
             isJqueryValidationEnabled: function(){
                 return (typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating());
+            },
+            getTimestamp: function(){
+                return Math.floor(new Date().getTime() / 1000);
+            },
+            orderHolidays: function(){
+                let holidays = JSON.parse(JSON.stringify(this.holidays));
+                
+                if(this.sortOption === null ||
+                this.sortOption.key === this.sortOptions.byAddedDateAsc.key ||
+                this.sortOption.key === this.sortOptions.byAddedDateDesc.key){
+                    holidays.sort((first, second) => {
+                        let firstTimestamp = parseInt(first.timestamp);
+                        let secondTimestamp = parseInt(second.timestamp);
+                        
+                        return this.sortOption !== null && this.sortOption.key === this.sortOptions.byAddedDateAsc.key ?
+                            firstTimestamp - secondTimestamp : secondTimestamp - firstTimestamp;
+                    });
+                }else if(this.sortOption.key === this.sortOptions.byHolidayDateAsc.key ||
+                this.sortOption.key === this.sortOptions.byHolidayDateDesc.key){
+                    holidays.sort((first, second) => {
+                        let firstMoment = moment(first.from, 'DD-MM-YYYY');
+                        let secondMoment = moment(second.from, 'DD-MM-YYYY');
+                        
+                        if(this.sortOption.key === this.sortOptions.byHolidayDateAsc.key){
+                            if(secondMoment.isAfter(firstMoment))
+                                return -1;
+                            return 1;
+                        }else{
+                            if(secondMoment.isAfter(firstMoment))
+                                return 1;
+                            return -1;
+                        }
+                    });
+                }
+                
+                this.holidays = JSON.parse(JSON.stringify(holidays));
+                // return JSON.parse(JSON.stringify(holidays));
             },
             initDatePicker: function(){
                 let _this = this;
@@ -599,12 +709,31 @@
                     //     title: this.holidayTitle,
                     //     description: this.holidayDescription,
                     // }
-                    _this.holidays.push({
+                    // _this.holidays
+                    let holidays = JSON.parse(JSON.stringify(_this.holidays));
+                    holidays.push({
                         from: this.from,
                         to: this.to,
                         title: this.holidayTitle,
                         description: this.holidayDescription,
+                        timestamp: this.getTimestamp(),
                     });
+                    
+                    // holidays.sort((first, second) => {
+                    //     return moment(first.from).isAfter(second.from);
+                    // });
+                    // 
+                    _this.holidays = JSON.parse(JSON.stringify(holidays));
+                    
+                    _this.sortOption = _this.sortOptions.byAddedDateDesc;
+                    // _this.orderHolidays();
+                    
+                    // _this.holidays.push({
+                    //     from: this.from,
+                    //     to: this.to,
+                    //     title: this.holidayTitle,
+                    //     description: this.holidayDescription,
+                    // });
                     
                     $(document).find(this.modalId).modal('hide');
                 }
@@ -629,6 +758,11 @@
         },
         components: {
             
+        },
+        watch: {
+            sortOption: function(){
+                this.orderHolidays();
+            }
         },
     }
 </script>
@@ -655,6 +789,11 @@
 </style>
 
 <style lang="scss">
+.dropdown-toggle-sort::after {
+    margin-left: 0px;
+    content: "";
+    border: none;
+}
 .modal-holiday{
     .modal-content{
         // .modal-footer{
@@ -737,84 +876,4 @@
         }
     }
 }
-
-    // h5{
-    //     position: relative;
-    //     top: 5px;
-    // }
-    // #itemAssignmentModal ul{
-    //     padding: 0px;
-    //     margin: 0px;
-    // }
-    // #itemAssignmentModal ul li{
-    //     padding: 0px;
-    //     margin: 0px;
-    //     list-style: none;
-    // }
-    // .open-select-item-modal{
-    //     svg{
-    //         position: relative;
-    //         top: -2px;
-    //     }
-    // }
-    // .assign-item{
-    //     display: none;
-    // }
-    // .alert-item{
-    //     margin-bottom: 0px;
-    //     margin-top: 10px;
-    //     line-height: 1em;
-    //     span{
-    //         &.small{
-    //             line-height: 1em;
-    //         }
-    //     }
-    //     .close{
-    //         position: absolute;
-    //         top: 5px;
-    //         right: 10px;
-    //     }
-    // }
-    // table.all-items-list{
-    //     width: 100%;
-    //     tr{
-    //         td{
-    //             vertical-align: top;
-    //             line-height: 1em;
-    //             border-top: 1px solid #dee2e6;
-    //             label{
-    //                 cursor: pointer;
-    //             }
-    //             &:first-child{
-    //                 width: 40px;
-    //                 padding-left: 14px;
-    //             }
-    //             &:last-child{
-    //                 padding-top: 7px;
-    //                 label{
-    //                     display: block;
-    //                     width: 100%;
-    //                 }
-    //             }
-    //         }
-    //         &:nth-child(odd){
-    //             td{
-    //                 background-color: rgba(0,0,0,.05);
-    //             }
-    //         }
-    //         &:last-child{
-    //             td{
-    //                 border-bottom: 1px solid #dee2e6;
-    //             }
-    //         }
-    //     }
-    // }
-    /* .card-body{
-        padding: 0px;
-    }
-    .card-padding{
-        padding-top: 15px;
-        padding-left: 15px;
-        padding-right: 15px;
-    } */
 </style>

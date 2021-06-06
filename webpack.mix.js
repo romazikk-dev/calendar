@@ -14,6 +14,7 @@ const mix = require('laravel-mix');
 // mix.js('resources/js/vue/business_hours/app.js', 'public/js/business-hours.js').vue();
 // mix.js('resources/js/vue/users_assignment/app.js', 'public/js/users-assignment.js').vue();
 // mix.js('resources/js/vue/halls_assignment/app.js', 'public/js/halls-assignment.js').vue();
+mix.js('resources/js/vue/dashboard/timezone_picker/app.js', 'public/js/dashboard/timezone-picker.js').vue();
 mix.js('resources/js/vue/dashboard/time_picker/app.js', 'public/js/dashboard/time-picker.js').vue();
 mix.js('resources/js/vue/phone_picker/app.js', 'public/js/dashboard/phone-picker.js').vue();
 

@@ -42,8 +42,10 @@ class MainBookingRetrievial{
     protected $max_date_to_book = null;
     // String
     protected $max_datetime_to_book = null;
-    // Array - all holidays
-    protected $holidays = [];
+    // Array - all worker holidays
+    protected $worker_holidays = [];
+    // Array - all halls holidays
+    protected $hall_holidays = [];
     
     
     function __construct(
@@ -127,12 +129,14 @@ class MainBookingRetrievial{
             'holidayable_type' => null,
             'holidayable_id' => null,
         ])->get();
-        $for_everyone_holidays = [];
-        $getHolidaysFromArray($null_holidays, $for_everyone_holidays);
+        $all_halls_holidays = [];
+        $getHolidaysFromArray($null_holidays, $all_halls_holidays);
         
-        $holidays = array_unique(array_merge($worker_holidays, $hall_holidays, $for_everyone_holidays));
+        $hall_holidays = array_unique(array_merge($hall_holidays, $all_halls_holidays));
         
-        $this->holidays = !empty($holidays) ? $holidays : [];
+        // $this->holidays = !empty($holidays) ? $holidays : [];
+        $this->hall_holidays = !empty($hall_holidays) ? $hall_holidays : [];
+        $this->worker_holidays = !empty($worker_holidays) ? $worker_holidays : [];
     }
     
     protected function isWorkerSuspended(string $date){

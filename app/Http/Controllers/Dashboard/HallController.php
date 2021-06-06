@@ -317,27 +317,16 @@ class HallController extends Controller
         $hall = Hall::find($id);
         
         $business_hours = \Setting::of(SettingKeys::HALL_DEFAULT_BUSINESS_HOURS)->arrange(json_decode($hall->business_hours, true));
-        // $business_hours = \Setting::arrangeByKey(
-        //     SettingKeys::DEFAULT_BUSINESS_HOURS,
-        //     json_decode($hall->business_hours, true)
-        // );
         
         $assign_workers = [];
-        // dd($assign_workers);
         foreach($hall->workers as $itm){
             $assign_workers[$itm->id] = 'on';
-            // dump($itm->id);
         }
-        
-        // dd($assign_workers);
         
         $phones = \PhonePicker::getAllForVue($hall);
         $current_phones = $hall->phones->toArray();
-        // dd($phones);
-        $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
-        // dd($assign_workers);
         
-        // dd(\Holiday::getAllForVue($hall));
+        $tab_errors = \Session::has('tab_errors') ? \Session::get('tab_errors') : null;
         
         return view('dashboard.hall.create', [
             'hall' => $hall,

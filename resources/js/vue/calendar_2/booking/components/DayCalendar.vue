@@ -247,11 +247,12 @@
                 placeBeginningClosedDateItem();
                 placeEndClosedDateItem();
                 
-                this.date.items.forEach((hourItem, i) => {
-                    // if()
-                    placeItem(hourItem, i);
-                    // console.log(JSON.parse(JSON.stringify(freeItem)));
-                });
+                if(this.date.bookable)
+                    this.date.items.forEach((hourItem, i) => {
+                        // if()
+                        placeItem(hourItem, i);
+                        // console.log(JSON.parse(JSON.stringify(freeItem)));
+                    });
                 
                 
                 function placeBeginningClosedDateItem(){

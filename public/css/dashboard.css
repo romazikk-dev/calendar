@@ -5,6 +5,13 @@
   padding-top: 20px;
 }
 
+/* HOME PAGE
+******************************************************************/
+
+.home-page .card {
+  margin-bottom: 20px;
+}
+
 /* TEMPLATE ASSIGNMENT
 ******************************************************************/
 
@@ -134,6 +141,8 @@
   /* Setting template specifics
   ******************************************************************/
   /* Client`s booking calendar main setting
+  ******************************************************************/
+  /* Timezone setting
   ******************************************************************/
 }
 
@@ -313,6 +322,13 @@
   border-radius: 6px;
   margin-top: 10px;
   padding: 10px;
+}
+
+.setting-page .timezone-picker-page {
+  background-color: #f8f9fa !important;
+  margin-top: 20px;
+  padding: 20px 10px;
+  border-radius: 6px;
 }
 
 /* EDIT CREATE NAV TABS

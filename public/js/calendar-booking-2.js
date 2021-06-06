@@ -2590,7 +2590,7 @@ __webpack_require__.r(__webpack_exports__);
 
       placeBeginningClosedDateItem();
       placeEndClosedDateItem();
-      this.date.items.forEach(function (hourItem, i) {
+      if (this.date.bookable) this.date.items.forEach(function (hourItem, i) {
         // if()
         placeItem(hourItem, i); // console.log(JSON.parse(JSON.stringify(freeItem)));
       });
@@ -3605,44 +3605,13 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     var initDate = moment(this.startDate).startOf('week').toDate();
-    this.setDates(initDate); // console.log(this.range.first_date);
-    // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-    // console.log(this.currenyViewIdx);
-    // console.log(initDate);
-    // console.log(this.currentDateMoment.format('YYYY MM DD'));
-    // console.log(this.currentDateMoment.format('YYYY-MM-DD HH:mm:ss'));
-    // console.log(this.currentDate);
-    // console.log(this.firstMonthDate);
-    // console.log(this.lastMonthDate);
-    // console.log(this.firstCalendarDate);
-    // console.log(this.lastCalendarDate);
-    // setTimeout(() => {
-    //     console.log(moment(this.currentDate).format('YYYY MM DD'));
-    //     console.log(this.currentDateMoment.format('YYYY-MM-DD HH:mm:ss'));
-    // }, 10);
-    // let interval = setInterval(() => {
-    //     if(this.search != null){
-    //         // console.log(11111);
-    //         clearInterval(interval);
-    //         this.getData();
-    //     }
-    // }, 300);
+    this.setDates(initDate); // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
 
-    this.getData(); // let intervalDates = setInterval(() => {
-    //     if(this.dates != null){
-    //         clearInterval(intervalDates);
-    //         this.placeItems();
-    //         this.regModalOpenButtons();
-    //     }
-    // }, 300);
-    // this.regModalOpenButtons();
-    // this.getData();
+    this.getData(); // this.getData();
 
     $("#bookModal").on('hidden.bs.modal', function () {
       _this.bookDate = null; // console.log(this.bookDate);
-    }); // console.log(JSON.parse(JSON.stringify([dateItem, hourItem])));
-    // console.log(this.firstMonthDate);
-    // console.log(this.weekdayOfCurrentDate);
+    });
   },
   props: ['startDate'],
   data: function data() {
@@ -3803,7 +3772,7 @@ __webpack_require__.r(__webpack_exports__);
       if (this.dates == null) return false;
       var itemsCount = 0;
       this.dates.forEach(function (date, i) {
-        if (date.bookable && _this3.notPast(date)) itemsCount++;
+        if (date.bookable && !date.is_weekend && _this3.notPast(date)) itemsCount++;
       });
       console.log(itemsCount); // if(itemsCount > 0)
 
@@ -4184,6 +4153,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 
@@ -4197,42 +4169,13 @@ __webpack_require__.r(__webpack_exports__);
     console.log(this.auth); // this.$refs['loader'].fadeOut(300);
 
     this.createStyleForArrow();
-    this.setStyleForArrow(); // console.log('dasda:' + this.bookDate);
-    // let interval = setInterval(() => {
-    //     console.log(11);
-    //     if(this.bookTimePeriod != null){
-    //         clearInterval(interval);
-    //         this.setInitValue();
-    //     }
-    // }, 500);
-    // JSON.parse(JSON.stringify(filters.template));
-    // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-    // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-    // if(!this.successfullyBooked)
-    //     this.$refs['loader'].show();
-    // $("#bookModal").on('show.bs.modal', () => {
-    //     this.$refs['loader'].show();
-    // });
-
+    this.setStyleForArrow();
     $("#bookModal").on('shown.bs.modal', function () {
       if (_this.successfullyBooked) _this.$refs['loader'].fadeOut(300);
 
       _this.setInitValue();
 
-      _this.$refs['time_bar'].recalculate(); // this.$refs['loader'].show();
-      // console.log(JSON.parse(JSON.stringify(this.template)));
-      // console.log(this.bookDate);
-      // console.log(JSON.parse(JSON.stringify(this.bookDate)));
-      // console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
-      // this.startPeriodDate = new Date(
-      //     this.bookDate.year + '-' + this.bookDate.month + '-' + this.bookDate.day + ' ' + this.bookTimePeriod.from + ':00'
-      // );
-      // let startPeriodDate = moment(
-      //     this.bookDate.year + '-' + this.bookDate.month + '-' + this.bookDate.day + ' ' + this.bookTimePeriod.from + ':00'
-      // );
-      // let timezoneOffset = Math.abs(this.startPeriodDate.getTimezoneOffset());
-      // this.startPeriodDate = startPeriodDate.add(timezoneOffset, 'minutes').toDate();
-      // console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
+      _this.$refs['time_bar'].recalculate(); // console.log(JSON.parse(JSON.stringify(this.template)));
 
 
       _this.bookOn = _this.bookTimePeriod.from; // this.modalOpened = true
@@ -4241,13 +4184,13 @@ __webpack_require__.r(__webpack_exports__);
 
       setTimeout(function () {
         _this.bookButtonDisabled = false;
-      }, 300); // console.log(this.$refs['time_bar'].sliderDisabled);
-      // console.log(this.startPeriodDate.getTimezoneOffset());
+      }, 300);
     });
     $("#bookModal").on('hidden.bs.modal', function () {
       // this.modalOpened = false
       _this.successfullyBooked = false;
       _this.bookButtonDisabled = true;
+      _this.errorResponse = null;
 
       _this.$refs['loader'].show();
 
@@ -4276,7 +4219,8 @@ __webpack_require__.r(__webpack_exports__);
       timeBarChangeTimeout: null,
       s: null,
       arrowPosition: 10,
-      hintText: 'Move slider to choose time for booking.'
+      hintText: 'Move slider to choose time for booking.',
+      errorResponse: null
     };
   },
   computed: {
@@ -4306,26 +4250,7 @@ __webpack_require__.r(__webpack_exports__);
       // return 1;
       if (this.preEndPeriodDatetime == null) return '';
       var preEndPeriodDatetime = this.preEndPeriodDatetime;
-      return this.composeHourMinuteTimeFromMinutes(preEndPeriodDatetime); // let minutes = preEndPeriodDatetime%60;
-      // let hours = parseInt(preEndPeriodDatetime/60);
-      // 
-      // if(minutes <= 0){
-      //     minutes = '00'
-      // }else if(minutes > 0 && minutes < 10){
-      //     minutes = '0' + minutes;
-      // }else{
-      //     minutes = minutes;
-      // }
-      // 
-      // if(hours <= 0){
-      //     hours = '00'
-      // }else if(hours > 0 && hours < 10){
-      //     hours = '0' + hours;
-      // }else{
-      //     hours = hours;
-      // }
-      // 
-      // return hours + ':' + minutes;
+      return this.composeHourMinuteTimeFromMinutes(preEndPeriodDatetime);
     },
     freeTimePerc: function freeTimePerc() {
       var onePerc = parseInt(this.endPeriodDatetime / 100);
@@ -4343,9 +4268,7 @@ __webpack_require__.r(__webpack_exports__);
         var toArr = this.bookTimePeriod.to.split(':');
         var from = parseInt(fromArr[0]);
         var to = parseInt(toArr[0]);
-        if (parseInt(toArr[1]) == 0) to--; // if(parseInt(toArr[1]) == 0)
-        //     toH--;
-
+        if (parseInt(toArr[1]) == 0) to--;
         return [[from, to]];
       } else {
         return [[0, 24]];
@@ -4376,14 +4299,27 @@ __webpack_require__.r(__webpack_exports__);
       var componentApp = this.getParentComponentByName(this, 'app');
       this.bookButtonDisabled = true;
       this.$refs['loader'].showTranparent();
-      componentApp.bookOn(this.bookingDate, this.bookOn, function (response) {// this.onBooked(response);
-      }, function () {}, function () {
-        console.log('always');
+      componentApp.bookOn(this.bookingDate, this.bookOn, function (response) {
+        // this.onBooked(response);
+        // alert(111);
+        // errorResponse
+        // let data = response.data;
+        if (typeof response.data.error === 'undefined') {
+          setTimeout(function () {
+            _this2.successfullyBooked = true;
+          }, 300);
+        } else {
+          setTimeout(function () {
+            _this2.errorResponse = response.data.error;
+          }, 300);
+        } // console.log(response);
 
+      }, function () {}, function () {
+        // console.log('always');
         _this2.$refs['loader'].fadeOut(300);
 
         setTimeout(function () {
-          _this2.successfullyBooked = true;
+          // this.successfullyBooked = true;
           _this2.bookButtonDisabled = false;
         }, 300);
       });
@@ -50532,7 +50468,7 @@ var render = function() {
             "tbody",
             [
               _vm._l(_vm.dates, function(date) {
-                return date.bookable && _vm.notPast(date)
+                return date.bookable && !date.is_weekend && _vm.notPast(date)
                   ? [
                       _c(
                         "tr",
@@ -50776,7 +50712,7 @@ var staticRenderFns = [
     return _c("tr", [
       _c("td", { staticClass: "text-center", attrs: { colspan: "2" } }, [
         _vm._v(
-          "\n                            No free time available and no booked items present\n                        "
+          "\n                            No free time available\n                        "
         )
       ])
     ])
@@ -51327,7 +51263,7 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            !_vm.successfullyBooked
+            !_vm.successfullyBooked && !_vm.errorResponse
               ? _c("time-bar", {
                   ref: "time_bar",
                   attrs: {
@@ -51359,6 +51295,16 @@ var render = function() {
                 ])
               : _vm._e(),
             _vm._v(" "),
+            _vm.errorResponse
+              ? _c("div", { staticClass: "small text-danger" }, [
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(_vm.errorResponse) +
+                      "\n            "
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
             _c("div", { staticClass: "row" })
           ],
           1
@@ -51371,7 +51317,7 @@ var render = function() {
       "div",
       { staticClass: "modal-footer" },
       [
-        !_vm.successfullyBooked
+        !_vm.successfullyBooked && !_vm.errorResponse
           ? [
               _c(
                 "button",
@@ -51399,7 +51345,7 @@ var render = function() {
             ]
           : _vm._e(),
         _vm._v(" "),
-        _vm.successfullyBooked
+        _vm.successfullyBooked || _vm.errorResponse
           ? [
               _c(
                 "button",

@@ -5,6 +5,15 @@
 }
 
 
+/* HOME PAGE
+******************************************************************/
+.home-page{
+    .card{
+        margin-bottom: 20px;
+    }
+}
+
+
 /* TEMPLATE ASSIGNMENT
 ******************************************************************/
 // .template-assignment{
@@ -136,29 +145,6 @@
 
 /* SETTING PAGE
 ******************************************************************/
-// .settings-top-navbar{
-//     background-color: #d7d8da !important;
-//     height: 40px;
-//     // border-top: 1px solid #ccc;
-//     ul{
-//         padding: 0px;
-//         margin: 0px;
-//         li{
-//             padding: 0px;
-//             margin: 0px;
-//             list-style: none;
-//             float: left;
-//             a{
-//                 padding: 0px;
-//                 margin: 0px;
-//                 display: block;
-//                 padding: 0px 12px;
-//                 height: 40px;
-//                 line-height: 40px;
-//             }
-//         }
-//     }
-// }
 .setting-page{
     display: table;
     width: 100%;
@@ -209,6 +195,7 @@
             }
         }
     }
+    
     .all-settings{
         .d-table{
             width: 100%;
@@ -236,6 +223,7 @@
             }
         }
     }
+    
     /* Setting template specifics
     ******************************************************************/
     .template-specifics{
@@ -332,6 +320,15 @@
         border-radius: 6px;
         margin-top: 10px;
         padding: 10px;
+    }
+    
+    /* Timezone setting
+    ******************************************************************/
+    .timezone-picker-page{
+        background-color: #f8f9fa !important;
+        margin-top: 20px;
+        padding: 20px 10px;
+        border-radius: 6px;
     }
 }
 

@@ -64,21 +64,54 @@ class BookController extends Controller{
             'book_on_time' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
         ]);
         
-        $client = $request->user();
+        $book_on_datetime = $validated['book_on_date'] . " " . $validated['book_on_time'] . ":00";
         
-        // var_dump($validated);
+        // $book_on_carbon = \Carbon\Carbon::parse($book_on_datetime);
+        // $current_date_carbon = \Carbon\Carbon::now('Europe/Kiev');
+        // 
+        // var_dump($book_on_carbon->format('Y-m-d H:i:s'));
+        // var_dump($current_date_carbon->format('Y-m-d H:i:s'));
         // die();
         
-        // if(!($user = User::find($user_id)))
-        //     abort(404, 'Page not found');
+        $client = $request->user();
         
-        // $errors = [];
-        // if(!($hall = Hall::withoutGlobalScope(UserScope::class)->find($hall_id)))
+        //Check hall
         if(!($hall = Hall::withoutGlobalScope(UserScope::class)->byUser($user->id)->byId($hall_id)->first()))
-            // $errors['hall'] = 'Hall not exist with :id = '.$hall_id;
             return response()->json([
                 'error' => 'Hall not exist with :id = '.$hall_id
             ]);
+        
+        if(\Suspension::isSuspendedOnDate($hall, $book_on_datetime))
+            return response()->json([
+                'error' => 'Hall is suspended on ' . $book_on_datetime
+            ]);
+        
+        //Check worker
+        if(!($worker = Worker::withoutGlobalScope(UserScope::class)->byUser($user->id)->byId($worker_id)->first()))
+            return response()->json([
+                'error' => 'Worker not exist with :id = ' . $worker_id
+            ]);
+        
+        if(\Suspension::isSuspendedOnDate($worker, $book_on_datetime))
+            return response()->json([
+                'error' => 'Worker is suspended on ' . $book_on_datetime
+            ]);
+        
+        $all_holidays = \Holiday::getAllAsUniqueDateValue($hall, $worker, [
+            'user_id' => $user->id
+        ]);
+        $for_holiday_check_val = str_replace('-', '_', $validated['book_on_date']);
+        if(in_array($for_holiday_check_val, $all_holidays))
+            return response()->json([
+                'error' => 'You trying book on date wich is holiday right now.'
+            ]);
+            
+        // var_dump($validated['book_on_date']);
+        // var_dump($for_holiday_check_val);
+        // var_dump($all_holidays);
+        // var_dump($book_on_datetime);
+        // var_dump('success');
+        // die();
         
         $template = Template::withoutGlobalScope(UserScope::class)
             ->byUser($user->id)
@@ -115,25 +148,9 @@ class BookController extends Controller{
             'time' => $validated['book_on_date'] . ' ' . $validated['book_on_time'] . ':00',
         ]);
         
-        // dd($template);
-            // $errors['template'] = 'Template not exist with :id = '.$template_id;
-        // if(!($template = Template::withoutGlobalScope(UserScope::class)->find($template_id)))
-        // ->whereHas('workers', function($query) use ($request) {
-        //     $query->withoutGlobalScope(UserScope::class)->whereHas('halls', function($query) use ($request) {
-        //         $query->withoutGlobalScope(UserScope::class)->where('halls.id', $request->hall);
-        //     });
-        // });
-        
-        //     $errors['template'] = 'Template not exist with :id = '.$template_id;
-        
-        // if(!($worker = Worker::withoutGlobalScope(UserScope::class)->find($worker_id)))
-        //     $errors['worker'] = 'Worker not exist with :id = '.$worker_id;
-            
-        // if(!empty($errors)){
-        //     return response()->json([
-        //         'errors' => $errors
-        //     ]);
-        // }
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
     
     // public function cancel(Request $request, User $user, $hall_id, $template_id, $worker_id, $booking_id){

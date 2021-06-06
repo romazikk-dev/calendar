@@ -9,7 +9,10 @@ class DefaultController extends Controller
 {
     //
     function index(){
-        // dd(111);
-        return view('dashboard.default');
+        // $statistic = \Statistic::getMainPageStatistic();
+        // dd($statistic);
+        return view('dashboard.default', [
+            'statistic' => \Statistic::getMainPageStatistic()
+        ]);
     }
 }

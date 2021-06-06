@@ -9,6 +9,68 @@ use App\Models\Holiday as HolidayModel;
 
 class Holiday extends MainHoliday{
     
+    public function getAllAsUniqueDateValue($hall, $worker, $params = []){
+        $getKeyFromCarbon = function($carbon_instance){
+            return $carbon_instance->format('Y_m_d');
+        };
+        
+        $getHolidaysFromArray = function($holidays_obj, &$arr_to_fill) use ($getKeyFromCarbon) {
+            if(!empty($holidays_obj)){
+                $holidays_arr = $holidays_obj->toArray();
+                if(!empty($holidays_arr)){
+                    // var_dump($worker_holidays_arr);
+                    foreach($holidays_arr as $holiday){
+                        $from_carbon = \Carbon\Carbon::parse($holiday['from']);
+                        $to_carbon = \Carbon\Carbon::parse($holiday['to']);
+                        // $key = $holiday_to_carbon->format('Y_m_d');
+                        $val = $getKeyFromCarbon($from_carbon);
+                        if(!in_array($val, $arr_to_fill))
+                            $arr_to_fill[] = $val;
+                        // $arr_to_fill[$getKeyFromCarbon($from_carbon)] = $holiday;
+                        
+                        for($i = 0; $i < 1000; $i++){
+                            $from_carbon->addDays(1);
+                            if($to_carbon->lt($from_carbon))
+                                break;
+                                
+                            $val = $getKeyFromCarbon($from_carbon);
+                            if(!in_array($val, $arr_to_fill))
+                                $arr_to_fill[] = $val;
+                        }
+                    }
+                }
+            }
+        };
+        
+        $worker_holidays = [];
+        $getHolidaysFromArray($worker->holidays, $worker_holidays);
+        
+        $hall_holidays = [];
+        $getHolidaysFromArray($hall->holidays, $hall_holidays);
+        
+        $null_holidays = HolidayModel::where([
+            'user_id' => array_key_exists('user_id', $params) && !empty($params['user_id']) ? $params['user_id'] : $this->user->id,
+            'holidayable_type' => null,
+            'holidayable_id' => null,
+        ])->get();
+        $all_halls_holidays = [];
+        $getHolidaysFromArray($null_holidays, $all_halls_holidays);
+        
+        $hall_holidays = array_unique(array_merge($hall_holidays, $all_halls_holidays));
+        
+        $total_holidays = array_unique(array_merge($hall_holidays, $worker_holidays));
+        
+        if(array_key_exists('separate', $params) && $params['separate'] == true){
+            return [
+                'hall_holidays' => $hall_holidays,
+                'worker_holidays' => $worker_holidays,
+                'total_holidays' => $total_holidays,
+            ];
+        }
+        
+        return $total_holidays;
+    }
+    
     public function getAllFromRequest($validated = []){
         if(empty($validated)){
             // dd(111);
@@ -16,6 +78,7 @@ class Holiday extends MainHoliday{
             $validated[Fields::FROM] = request()->get(Fields::FROM);
             $validated[Fields::TO] = request()->get(Fields::TO);
             $validated[Fields::DESCRIPTION] = request()->get(Fields::DESCRIPTION);
+            $validated[Fields::TIMESTAMP] = request()->get(Fields::TIMESTAMP);
             // dd(Fields::TITLE);
         }
         $holidays = [];
@@ -28,6 +91,7 @@ class Holiday extends MainHoliday{
                     !empty($validated[Fields::FROM][$k]) ? $validated[Fields::FROM][$k] : null,
                     !empty($validated[Fields::TO][$k]) ? $validated[Fields::TO][$k] : null,
                     !empty($validated[Fields::DESCRIPTION][$k]) ? $validated[Fields::DESCRIPTION][$k] : null,
+                    !empty($validated[Fields::TIMESTAMP][$k]) ? $validated[Fields::TIMESTAMP][$k] : time(),
                     'Y-m-d'
                 );
                 // dd($holiday);
@@ -35,6 +99,8 @@ class Holiday extends MainHoliday{
                     $holidays[] = $holiday;
             }
         }
+        
+        // dd($holidays);
         
         return $holidays;
     }
@@ -76,6 +142,7 @@ class Holiday extends MainHoliday{
                     $v->from,
                     $v->to,
                     $v->description,
+                    $v->timestamp,
                     true
                 );
                 // dd($holiday);
@@ -102,6 +169,7 @@ class Holiday extends MainHoliday{
                     !empty(${Fields::FROM}[$k]) ? ${Fields::FROM}[$k] : null,
                     !empty(${Fields::TO}[$k]) ? ${Fields::TO}[$k] : null,
                     !empty(${Fields::DESCRIPTION}[$k]) ? ${Fields::DESCRIPTION}[$k] : null,
+                    !empty(${Fields::TIMESTAMP}[$k]) ? ${Fields::TIMESTAMP}[$k] : time(),
                 );
                 if(!empty($holiday))
                     $holidays[] = $holiday;
@@ -121,6 +189,7 @@ class Holiday extends MainHoliday{
                         $v->from,
                         $v->to,
                         $v->description,
+                        $v->timestamp,
                         true
                     );
                     if(!empty($holiday))

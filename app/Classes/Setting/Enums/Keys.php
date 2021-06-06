@@ -21,6 +21,12 @@ class Keys{
     
     /**
     *   Setting key
+    *   Main hall`s setting
+    */
+    const HALL_DEFAULT_TIMEZONE = "hall_default_timezone";
+    
+    /**
+    *   Setting key
     *   Default Worker business hours
     */
     const WORKER_DEFAULT_BUSINESS_HOURS = "worker_default_bussiness_hours";

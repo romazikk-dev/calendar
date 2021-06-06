@@ -51,8 +51,13 @@ class Nav{
                 "includes" => true,
                 'route' => route('dashboard.settings.hall.index'),
                 'items' => [
+                    Keys::HALL_DEFAULT_TIMEZONE => [
+                        'title' => 'Default timezone',
+                        'route' => route('dashboard.settings.hall.timezone'),
+                        'route_name' => 'dashboard.settings.hall.timezone',
+                    ],
                     Keys::HALL_DEFAULT_BUSINESS_HOURS => [
-                        'title' => 'Hall`s default bussiness hours',
+                        'title' => 'Default bussiness hours',
                         'route' => route('dashboard.settings.hall.default_business_hours'),
                         'route_name' => 'dashboard.settings.hall.default_business_hours',
                     ],

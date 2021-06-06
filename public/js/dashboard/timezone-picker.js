@@ -1834,10 +1834,310 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=script&lang=js&":
-/*!*********************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=script&lang=js& ***!
-  \*********************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Dropdown_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Dropdown.vue */ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  mounted: function mounted() {
+    console.log(JSON.parse(JSON.stringify(this.timezones)));
+    this.setPickedItemsFromValues();
+  },
+  // props: ['postTitle'],
+  data: function data() {
+    return {
+      timezones: timezones,
+      pickedRegion: null,
+      pickedTimezone: null,
+      disableReseter: false,
+      reseter: 0,
+      values: timezone_values,
+      errors: typeof errors !== 'undefined' ? errors : null
+    };
+  },
+  computed: {
+    regionError: function regionError() {
+      if (this.errors === null || typeof this.errors.timezone_region === 'undefined' || typeof this.errors.timezone_region[0] === 'undefined') return null;
+      return this.errors.timezone_region[0];
+    },
+    timezoneKeyError: function timezoneKeyError() {
+      if (this.errors === null || typeof this.errors.timezone_key === 'undefined' || typeof this.errors.timezone_key[0] === 'undefined') return null;
+      return this.errors.timezone_key[0];
+    },
+    regions: function regions() {
+      var regions = [];
+      var regionsNames = Object.keys(timezones);
+
+      for (var idx in regionsNames) {
+        var regionName = regionsNames[idx].trim();
+        var region = {
+          key: regionName,
+          val: regionName == 'utc' ? regionName.toUpperCase() : this.capitalizeFirstLetter(regionName)
+        };
+        regions.push(region);
+      } // console.log(1111111);
+      // console.log(regionsNames);
+
+
+      return regions;
+    },
+    timezonesByRegion: function timezonesByRegion() {
+      if (this.pickedRegion === null || typeof this.timezones[this.pickedRegion] === 'undefined') return null;
+      var timezonesByRegionParsed = [];
+      var timezonesByRegion = this.timezones[this.pickedRegion];
+
+      for (var idx in timezonesByRegion) {
+        var timezoneByRegion = timezonesByRegion[idx];
+        timezonesByRegionParsed.push({
+          key: timezoneByRegion.key,
+          val: timezoneByRegion.timezone
+        });
+      }
+
+      return timezonesByRegionParsed;
+    }
+  },
+  methods: {
+    setPickedItemsFromValues: function setPickedItemsFromValues() {
+      if (typeof this.values.timezone_region !== 'undefined') {
+        this.disableReseter = true; // this.pickedRegion = this.values.timezone_region;
+
+        for (var idx in this.regions) {
+          var key = this.regions[idx].key;
+
+          if (key === this.values.timezone_region) {
+            this.$refs.dropdown_regions.change(this.regions[idx]);
+            break;
+          }
+        }
+
+        if (typeof this.values.timezone_key !== 'undefined') {
+          // this.pickedRegion = this.values.timezone_region;
+          for (var _idx in this.timezonesByRegion) {
+            var _key = this.timezonesByRegion[_idx].key;
+
+            if (_key === this.values.timezone_key) {
+              // alert(1);
+              console.log(JSON.parse(JSON.stringify(this.timezonesByRegion[_idx])));
+              this.$refs.dropdown_timezone.change(this.timezonesByRegion[_idx]);
+              break;
+            }
+          }
+        }
+
+        this.disableReseter = false;
+      }
+    },
+    regionChange: function regionChange(event) {
+      if (event === null || typeof event.key === 'undefined' || typeof this.timezones[event.key] === 'undefined') {
+        this.pickedRegion = null;
+      } else {
+        this.pickedRegion = event.key;
+      }
+
+      if (!this.disableReseter) this.reseter++;
+    },
+    timezoneChange: function timezoneChange(event) {},
+    capitalizeFirstLetter: function capitalizeFirstLetter(val) {
+      return helper.capitalizeFirstLetter(val);
+    }
+  },
+  components: {
+    Dropdown: _Dropdown_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  },
+  watch: {
+    pickedRegion: function pickedRegion(val) {
+      console.log(JSON.parse(JSON.stringify(val)));
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=script&lang=js&":
+/*!*********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=script&lang=js& ***!
+  \*********************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _DropdownItemsSearch_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DropdownItemsSearch.vue */ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(this.items)));
+    // this.checkIfRegionUtc();
+  },
+  props: ['items', 'pickedItemPlaceholder', 'reseter', 'disabled', 'inputName', 'error'],
+  data: function data() {
+    return {
+      pickedItem: null,
+      dropdownDisabled: false,
+      search: null
+    };
+  },
+  computed: {
+    inputData: function inputData() {
+      return this.pickedItem !== null && typeof this.pickedItem.key !== 'undefined' ? this.pickedItem.key : null;
+    },
+    pickedItemPlaceholderComputed: function pickedItemPlaceholderComputed() {
+      if (this.disabled) return '---';
+      if (this.pickedItemPlaceholder === null || typeof this.pickedItemPlaceholder === 'undefined') return 'Choose item';
+      return this.capitalizeFirstLetter(this.pickedItemPlaceholder);
+    }
+  },
+  methods: {
+    isSearchApplyable: function isSearchApplyable(val) {
+      if (this.search == null || this.search == '') return true;
+      return val.toLowerCase().includes(this.search.toLowerCase());
+    },
+    change: function change(item) {
+      // alert(11);
+      // console.log(JSON.parse(JSON.stringify(777777)));
+      // console.log(JSON.parse(JSON.stringify(item)));
+      this.pickedItem = JSON.parse(JSON.stringify(item)); // this.pickedItem = item;
+      // this.$refs.search.resetClick();
+
+      this.$emit('change', item);
+      if ($(this.$refs.dropdown).hasClass('show')) this.$refs.dropdown_toggle.click();
+      this.$refs.search.resetClick();
+    },
+    capitalizeFirstLetter: function capitalizeFirstLetter(val) {
+      return helper.capitalizeFirstLetter(val);
+    },
+    checkIfRegionUtc: function checkIfRegionUtc() {
+      if (this.items !== null && Array.isArray(this.items) && this.items.length == 1 && typeof this.items[0].key !== 'undefined' && this.items[0].key === 'utc') {
+        // console.log(434343434);
+        this.pickedItem = this.items[0]; // this.dropdownDisabled = true;
+      }
+    }
+  },
+  components: {
+    search: _DropdownItemsSearch_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  },
+  watch: {
+    reseter: function reseter(val) {
+      this.pickedItem = null;
+    },
+    items: function items(val) {
+      this.checkIfRegionUtc();
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1867,706 +2167,85 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  mounted: function mounted() {
-    // console.log(this.showEmptyPlaceholder);
-    // console.log(assignWorkers);
-    console.log(JSON.parse(JSON.stringify(validationMessages))); // this.setSortOptions();
-    // setTimeout(() => {
-    // 	this.setAssignWorkers();
-    // }, 300);
-    // this.showModal = true;
-    // this.openModal();
-    // this.openModal();
-    // this.setAssignWorkers();
-    // this.recalculateBadgeValue(true);
-    // console.log(JSON.parse(JSON.stringify(holidaysData)));
-
-    if (typeof holidaysData != 'undefined') {
-      // console.log(JSON.parse(JSON.stringify(this.setIndexAsId(holidaysData))));
-      // this.setIndexAsId(holidaysData);s
-      // this.holidays = holidaysData;
-      // this.holidays = this.setIndexAsId(holidaysData);
-      this.holidays = holidaysData;
-      this.orderHolidays();
-    }
-
-    this.reCalculateTabValue(false);
+  mounted: function mounted() {// console.log(assignWorkers);
+    // console.log(JSON.parse(JSON.stringify(assignWorkers)));
   },
-  props: ['showEmptyPlaceholder'],
+  // props: ['postTitle'],
   data: function data() {
     return {
-      holidays: [],
-      sortedHolidays: [],
-      // holidays: [{
-      //     from: 'dasdasd',
-      //     to: 'dasda',
-      //     title: 'ddddd',
-      //     description: 'gggg',
-      // }],
-      holidayEditIndex: null,
-      // selectedItems: [],
-      // assignWorkers: assignWorkers,
-      modalId: "#createHolidayModal",
-      formId: "#holidayRangeForm",
-      showTab: "main",
-      from: null,
-      to: null,
-      holidayDescription: null,
-      holidayTitle: null,
-      showModal: false,
-      validator: null,
-      errors: {
-        mainErrorAttrs: [],
-        dateErrorAttrs: []
-      },
-      formHasErrors: false,
-      sortOption: null
+      search: null
     };
   },
-  computed: {
-    sortOptions: function sortOptions() {
-      return {
-        byAddedDateAsc: {
-          key: 'by_added_date_asc',
-          title: 'By added date ' + this.arrowUp
-        },
-        byAddedDateDesc: {
-          key: 'by_added_date_desc',
-          title: 'By added date ' + this.arrowDown
-        },
-        byHolidayDateAsc: {
-          key: 'by_holiday_date_asc',
-          title: 'By holiday date ' + this.arrowUp
-        },
-        byHolidayDateDesc: {
-          key: 'by_holiday_date_desc',
-          title: 'By holiday date ' + this.arrowDown
-        }
-      };
-    },
-    arrowUp: function arrowUp() {
-      return "\n                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-arrow-up\" viewBox=\"0 0 16 16\">\n                    <path fill-rule=\"evenodd\" d=\"M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z\"/>\n                </svg>\n            ";
-    },
-    arrowDown: function arrowDown() {
-      return "\n                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-arrow-down\" viewBox=\"0 0 16 16\">\n                    <path fill-rule=\"evenodd\" d=\"M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z\"/>\n                </svg>\n            ";
-    },
-    sortedTitle: function sortedTitle() {
-      if (this.sortOption === null) return this.sortOptions.byAddedDateDesc.title;
-
-      if (this.sortOption.key === this.sortOptions.byAddedDateAsc.key) {
-        return this.sortOptions.byAddedDateAsc.title;
-      } else if (this.sortOption.key === this.sortOptions.byAddedDateDesc.key) {
-        return this.sortOptions.byAddedDateDesc.title;
-      } else if (this.sortOption.key === this.sortOptions.byHolidayDateAsc.key) {
-        return this.sortOptions.byHolidayDateAsc.title;
-      } else if (this.sortOption.key === this.sortOptions.byHolidayDateDesc.key) {
-        return this.sortOptions.byHolidayDateDesc.title;
-      }
-    },
-    isShowEmptyPlaceholder: function isShowEmptyPlaceholder() {
-      return typeof this.showEmptyPlaceholder != 'undefined' && this.showEmptyPlaceholder === 'true';
-    } // showWarningAlert: function () {
-    //     // if(this.items == null || this.selectedItems.length == 0)
-    //     //     return false;
-    //     // console.log('showWarningAlert');
-    //     if(this.isJqueryValidationEnabled())
-    //         return this.selectedItems.length == 0;
-    //     let assignWorkersIds = this.assignWorkers == null ? [] : Object.keys(this.assignWorkers);
-    //     console.log('showWarningAlert');
+  computed: {// showWarningAlert: function () {
     //     // console.log(JSON.parse(JSON.stringify(this.assignWorkers)));
-    //     return assignWorkersIds.length == 0;
     // },
-
   },
   methods: {
-    isJqueryValidationEnabled: function isJqueryValidationEnabled() {
-      return typeof jqueryValidation != 'undefined' && jqueryValidation.isValidating();
-    },
-    getTimestamp: function getTimestamp() {
-      return Math.floor(new Date().getTime() / 1000);
-    },
-    orderHolidays: function orderHolidays() {
-      var _this2 = this;
-
-      var holidays = JSON.parse(JSON.stringify(this.holidays));
-
-      if (this.sortOption === null || this.sortOption.key === this.sortOptions.byAddedDateAsc.key || this.sortOption.key === this.sortOptions.byAddedDateDesc.key) {
-        holidays.sort(function (first, second) {
-          var firstTimestamp = parseInt(first.timestamp);
-          var secondTimestamp = parseInt(second.timestamp);
-          return _this2.sortOption !== null && _this2.sortOption.key === _this2.sortOptions.byAddedDateAsc.key ? firstTimestamp - secondTimestamp : secondTimestamp - firstTimestamp;
-        });
-      } else if (this.sortOption.key === this.sortOptions.byHolidayDateAsc.key || this.sortOption.key === this.sortOptions.byHolidayDateDesc.key) {
-        holidays.sort(function (first, second) {
-          var firstMoment = moment(first.from, 'DD-MM-YYYY');
-          var secondMoment = moment(second.from, 'DD-MM-YYYY');
-
-          if (_this2.sortOption.key === _this2.sortOptions.byHolidayDateAsc.key) {
-            if (secondMoment.isAfter(firstMoment)) return -1;
-            return 1;
-          } else {
-            if (secondMoment.isAfter(firstMoment)) return 1;
-            return -1;
-          }
-        });
-      }
-
-      this.holidays = JSON.parse(JSON.stringify(holidays)); // return JSON.parse(JSON.stringify(holidays));
-    },
-    initDatePicker: function initDatePicker() {
-      var _this = this; // console.log('initDatePicker');
-
-
-      $(document).ready(function () {
-        var dateFormat = "dd-mm-yy",
-            from = $("#holiday_from").datepicker({
-          defaultDate: "+1w",
-          changeMonth: true,
-          changeYear: true,
-          numberOfMonths: 1,
-          dateFormat: dateFormat,
-          minDate: new Date()
-        }).on("change", function () {
-          var date = getDate(this);
-          to.datepicker("option", "minDate", date); // _this.fromErr = false;
-          // _this.from = _this.formatDataDateForDateChooser(date);
-
-          _this.from = helper.formatStatusDate(date); // $(_this.formId).valid();
-          // _this.from = date;
-
-          $(this).valid();
-          if (_this.to != null) $("#holiday_to").valid();
-        }),
-            to = $("#holiday_to").datepicker({
-          defaultDate: "+1w",
-          changeMonth: true,
-          changeYear: true,
-          numberOfMonths: 1,
-          dateFormat: dateFormat,
-          minDate: new Date()
-        }).on("change", function () {
-          var date = getDate(this);
-          from.datepicker("option", "maxDate", date); // _this.toErr = false;
-          // _this.to = _this.formatDataDateForDateChooser(date);
-          // _this.to = date;
-
-          _this.to = helper.formatStatusDate(date); // $(_this.formId).valid();
-
-          $(this).valid();
-          if (_this.from != null) $("#holiday_from").valid();
-        }); // console.log(_this.holidayEditIndex);
-
-        if (_this.holidayEditIndex != null) {
-          // console.log('maxDate minDate');
-          try {
-            var fromDate = $.datepicker.parseDate(dateFormat, _this.from);
-          } catch (error) {
-            var fromDate = null;
-          }
-
-          try {
-            var toDate = $.datepicker.parseDate(dateFormat, _this.to);
-          } catch (error) {
-            var toDate = null;
-          }
-
-          from.datepicker("option", "maxDate", toDate);
-          to.datepicker("option", "minDate", fromDate);
-        }
-
-        function getDate(element) {
-          var date;
-
-          try {
-            date = $.datepicker.parseDate(dateFormat, element.value);
-          } catch (error) {
-            date = null;
-          }
-
-          return date;
-        }
-      });
-    },
-    handleErrorAttrs: function handleErrorAttrs(type, attr) {
-      var _this = this;
-
-      if (['holiday_title', 'holiday_description'].includes(attr)) {
-        if (type == 'add' && !_this.errors.mainErrorAttrs.includes(attr)) _this.errors.mainErrorAttrs.push(attr);
-
-        if (type == 'delete' && _this.errors.mainErrorAttrs.includes(attr)) {
-          var index = _this.errors.mainErrorAttrs.indexOf(attr);
-
-          _this.errors.mainErrorAttrs.splice(index, 1);
-        }
-      }
-
-      if (['holiday_from', 'holiday_to'].includes(attr)) {
-        if (type == 'add' && !_this.errors.dateErrorAttrs.includes(attr)) _this.errors.dateErrorAttrs.push(attr);
-
-        if (type == 'delete' && _this.errors.dateErrorAttrs.includes(attr)) {
-          var _index = _this.errors.dateErrorAttrs.indexOf(attr);
-
-          _this.errors.dateErrorAttrs.splice(_index, 1);
-        }
-      }
-    },
-    handleErrorNotices: function handleErrorNotices() {
-      var _this = this;
-
-      if (_this.errors.mainErrorAttrs.length > 0) {
-        var errorsCount = _this.errors.mainErrorAttrs.length;
-        $('#mainHolidayErrorBadge').removeClass('d-none').attr('data-original-title', errorsCount + ' errors').text(errorsCount);
-      } else {
-        // console.log('no mainErrorsCount');
-        $('#mainHolidayErrorBadge').addClass('d-none').text('');
-      }
-
-      if (_this.errors.dateErrorAttrs.length > 0) {
-        var _errorsCount = _this.errors.dateErrorAttrs.length;
-        $('#dateRangeHolidayErrorBadge').removeClass('d-none').attr('data-original-title', _errorsCount + ' errors').text(_errorsCount);
-      } else {
-        // console.log('no mainErrorsCount');
-        $('#dateRangeHolidayErrorBadge').addClass('d-none').text('');
-      }
-
-      if (_this.errors.mainErrorAttrs.length > 0 || _this.errors.dateErrorAttrs.length > 0) {
-        // _this.showErrorAlert();
-        _this.formHasErrors = true;
-      } else {
-        _this.formHasErrors = false;
-      }
-    },
-    initValidator: function initValidator() {
-      var _this = this;
-
-      $.validator.addMethod("holiday_date", function (value, element, len) {
-        return value.match(/\d{2}-\d{2}-\d{4}/i);
-      });
-      $.validator.addMethod("maxlength", function (value, element, len) {
-        return value == "" || value.length <= len;
-      });
-      $.validator.addMethod("available", function (value, element, len) {
-        // let momentFrom = moment(value, 'DD-MM-YYYY');
-        // let momentTo = moment(_this.to, 'DD-MM-YYYY');
-        // console.log(_this.from);
-        // console.log(_this.to);
-        var momentValue = moment(value, 'DD-MM-YYYY').startOf('day');
-        var momentFrom = moment(_this.from, 'DD-MM-YYYY').startOf('day');
-        var momentTo = typeof _this.to != 'undefined' && _this.to != null ? moment(_this.to, 'DD-MM-YYYY').startOf('day') : null; // console.log(momentFrom.toDate());
-        // console.log(momentTo.toDate());
-
-        var available = true;
-        var holidayLength = _this.holidays.length;
-
-        for (var i = 0; i < holidayLength; i++) {
-          if (_this.holidayEditIndex == i) continue;
-          var item = _this.holidays[i];
-          if (typeof item.from == 'undefined' || item.from == null || typeof item.to == 'undefined' || item.to == null) continue;
-          var momentItemFrom = moment(item.from, 'DD-MM-YYYY').startOf('day');
-          var momentItemTo = moment(item.to, 'DD-MM-YYYY').startOf('day');
-
-          if (momentTo == null) {
-            if (momentFrom.diff(momentItemFrom) >= 0 && momentFrom.diff(momentItemTo) <= 0) {
-              available = false;
-              break;
-            }
-          } else {
-            // if(momentFrom.diff(momentItemFrom) >= 0 && momentTo.diff(momentItemTo) <= 0){
-            //     available = false;
-            //     break;
-            // }
-            if (momentItemFrom.diff(momentFrom) >= 0 && momentItemTo.diff(momentTo) <= 0) {
-              available = false;
-              break;
-            }
-
-            if (momentValue.diff(momentItemFrom) >= 0 && momentValue.diff(momentItemTo) <= 0) {
-              available = false;
-              break;
-            }
-
-            if (momentValue.diff(momentItemFrom) == 0 || momentValue.diff(momentItemTo) == 0) {
-              available = false;
-              break;
-            }
-          }
-        }
-
-        return available;
-      });
-      _this.validator = $(_this.formId).validate({
-        ignore: "",
-        errorPlacement: function errorPlacement(error, element) {
-          var attrName = element.attr("name");
-          var errorId = 'error_' + attrName;
-          var errorText = $(error).text();
-          $("#" + errorId).text(errorText);
-
-          if (errorText != '') {
-            $("#" + errorId).text(errorText);
-          } else {}
-
-          _this.handleErrorAttrs(errorText == '' ? 'delete' : 'add', attrName);
-
-          _this.handleErrorNotices();
-        },
-        rules: {
-          holiday_title: {
-            required: true,
-            maxlength: 255
-          },
-          holiday_description: {
-            maxlength: 1000
-          },
-          holiday_from: {
-            required: true,
-            maxlength: 20,
-            holiday_date: true,
-            available: true // remote: {
-            //     url: checkPeriodUrl,
-            //     type: "post",
-            //     headers: {
-            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            //     },
-            //     dataType: 'json',
-            //     data: {
-            //         from: _this.from,
-            //         to: _this.to,
-            //     }
-            // },
-
-          },
-          holiday_to: {
-            required: true,
-            maxlength: 20,
-            holiday_date: true,
-            available: true // remote: {
-            //     url: checkPeriodUrl,
-            //     type: "post",
-            //     headers: {
-            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            //     },
-            //     dataType: 'json',
-            //     data: {
-            //         from: _this.from,
-            //         to: _this.to,
-            //     }
-            // },
-
-          }
-        },
-        // Specify validation error messages
-        messages: {
-          // Main tab rules messages
-          holiday_title: {
-            required: validationMessages.required.replace(':attribute', 'holiday title'),
-            maxlength: validationMessages.max.string.replace(':attribute', 'title').replace(':max', '255')
-          },
-          holiday_description: {
-            maxlength: validationMessages.max.string.replace(':attribute', 'holiday description').replace(':max', '1000')
-          },
-          holiday_from: {
-            required: validationMessages.required.replace(':attribute', 'holiday from'),
-            maxlength: validationMessages.max.string.replace(':attribute', 'holiday from').replace(':max', '20'),
-            holiday_date: validationMessages.regex.replace(':attribute', 'holiday from'),
-            available: 'Already taken period or date in range'
-          },
-          holiday_to: {
-            required: validationMessages.required.replace(':attribute', 'holiday to'),
-            maxlength: validationMessages.max.string.replace(':attribute', 'holiday to').replace(':max', '20'),
-            holiday_date: validationMessages.regex.replace(':attribute', 'holiday to'),
-            available: 'Already taken period or date in range'
-          }
-        },
-        submitHandler: function submitHandler(form) {// console.log('submitHandler');
-          // form.submit();
-        },
-        success: function success(label) {// console.log('success');
-        },
-        invalidHandler: function invalidHandler(form, validator) {
-          // _this.resetErrorAttrs();
-          console.log('invalidHandler'); // console.log(validator.invalid);
-        }
-      });
-    },
-    openModal: function openModal() {
-      var _this = this;
-
-      _this.showModal = true;
-      setTimeout(function () {
-        $(document).find(_this.modalId).modal('show');
-
-        _this.initDatePicker();
-
-        _this.initValidator();
-
-        $(document).find(_this.modalId).off('hidden.bs.modal');
-        $(document).find(_this.modalId).on('hidden.bs.modal', function () {
-          _this.from = null;
-          _this.to = null;
-          _this.holidayTitle = null;
-          _this.holidayDescription = null;
-          _this.formHasErrors = false;
-          _this.holidayEditIndex = null;
-          _this.showTab = "main";
-          _this.errors.mainErrorAttrs = [];
-          _this.errors.dateErrorAttrs = [];
-          _this.showModal = false;
-        });
-      }, 100);
-    },
-    removeHoliday: function removeHoliday(index) {
-      if (typeof this.holidays[index] == 'undefined' || this.holidays[index] == null) return;
-      this.holidays.splice(index, 1);
-      this.reCalculateTabValue();
-    },
-    editHoliday: function editHoliday(index) {
-      var _this = this;
-
-      if (typeof _this.holidays[index] == 'undefined' || _this.holidays[index] == null) return;
-      _this.from = _this.holidays[index].from;
-      _this.to = _this.holidays[index].to;
-      _this.holidayTitle = _this.holidays[index].title;
-      _this.holidayDescription = _this.holidays[index].description;
-      _this.holidayEditIndex = index;
-
-      _this.openModal();
-    },
-    updateHoliday: function updateHoliday() {
-      var _this = this;
-
-      console.log('updateHoliday');
-
-      if ($(this.formId).valid() && this.from != null && this.to != null && !isNaN(_this.holidayEditIndex) && typeof _this.holidays[_this.holidayEditIndex] != 'undefined') {
-        _this.holidays[_this.holidayEditIndex].from = this.from;
-        _this.holidays[_this.holidayEditIndex].to = this.to;
-        _this.holidays[_this.holidayEditIndex].title = this.holidayTitle;
-        _this.holidays[_this.holidayEditIndex].description = this.holidayDescription;
-        $(document).find(this.modalId).modal('hide');
-      }
-    },
-    addHoliday: function addHoliday() {
-      var _this = this;
-
-      if ($(this.formId).valid() && this.from != null && this.to != null) {
-        // let holiday = {
-        //     from: this.from,
-        //     to: this.to,
-        //     title: this.holidayTitle,
-        //     description: this.holidayDescription,
-        // }
-        // _this.holidays
-        var holidays = JSON.parse(JSON.stringify(_this.holidays));
-        holidays.push({
-          from: this.from,
-          to: this.to,
-          title: this.holidayTitle,
-          description: this.holidayDescription,
-          timestamp: this.getTimestamp()
-        }); // holidays.sort((first, second) => {
-        //     return moment(first.from).isAfter(second.from);
-        // });
-        // 
-
-        _this.holidays = JSON.parse(JSON.stringify(holidays));
-        _this.sortOption = _this.sortOptions.byAddedDateDesc; // _this.orderHolidays();
-        // _this.holidays.push({
-        //     from: this.from,
-        //     to: this.to,
-        //     title: this.holidayTitle,
-        //     description: this.holidayDescription,
-        // });
-
-        $(document).find(this.modalId).modal('hide');
-      }
-    },
-    reCalculateTabValue: function reCalculateTabValue() {
-      var checkIsJqueryValidationEnabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-      if (checkIsJqueryValidationEnabled && !this.isJqueryValidationEnabled()) return;
-      var holidaysCount = this.holidays.length;
-      var noticeBadges = $("#holidays-tab").find('.notice-badges'); // console.log(noticeBadge);
-
-      noticeBadges.find('.notice-badge').addClass('d-none');
-
-      if (holidaysCount > 0) {
-        noticeBadges.find('.notice-badge-success').removeClass('d-none').attr('data-original-title', holidaysCount + ' days opened').text(holidaysCount);
-      } else {
-        noticeBadges.find('.notice-badge-warning').removeClass('d-none');
-      }
+    resetClick: function resetClick(e) {
+      this.search = null;
+      this.$emit('reset'); // console.log(e);
     }
   },
   components: {},
   watch: {
-    sortOption: function sortOption() {
-      this.orderHolidays();
+    search: function search(val) {
+      this.$emit('search', val);
     }
   }
 });
 
 /***/ }),
 
-/***/ "./resources/js/vue/dashboard/holidays/bootstrap.js":
-/*!**********************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/bootstrap.js ***!
-  \**********************************************************/
+/***/ "./resources/js/vue/dashboard/timezone_picker/app.js":
+/*!***********************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/app.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/dashboard/timezone_picker/components/App.vue");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/dashboard/timezone_picker/bootstrap.js");
+
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// const files = require.context('./', true, /\.vue$/i)
+// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+// Vue.component('dropdown', require('./components/RecursiveDropdown.vue').default);
+
+/**
+ * Next, we will create a fresh Vue application instance and attach it to
+ * the page. Then, you may begin adding components to this application
+ * or customize the JavaScript scaffolding to fit your unique needs.
+ */
+
+
+window.app = new Vue({
+  // const businessHours = new Vue({
+  el: '#timezonePickerApp',
+  render: function render(h) {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default);
+  }
+}); // alert(11);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/bootstrap.js":
+/*!*****************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/bootstrap.js ***!
+  \*****************************************************************/
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
@@ -2606,10 +2285,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true&":
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -2623,17 +2302,17 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".empty-placeholder[data-v-52abfeac] {\n  padding-top: 10px;\n}\n.alert-item[data-v-52abfeac] {\n  margin-bottom: 0px !important;\n  margin-top: 10px !important;\n}\n.alert-item .btnns[data-v-52abfeac] {\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  padding-top: 7px;\n  padding-right: 5px;\n}\n.alert-item .btnns .btnn[data-v-52abfeac] {\n  float: right;\n  margin-left: 8px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".contt .d-table[data-v-44271eb6] {\n  width: 100%;\n}\n.contt .left-coll[data-v-44271eb6] {\n  width: 100px;\n  text-transform: uppercase;\n}\n.contt .dropdown-toggle[data-v-44271eb6] {\n  width: 100%;\n  text-align: left;\n  position: relative;\n}\n.contt .dropdown-toggle[data-v-44271eb6]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  position: absolute;\n  top: 16px;\n  right: 14px;\n}\n.contt .dropdown-menu[data-v-44271eb6] {\n  width: 100%;\n  max-height: 250px;\n  overflow-x: auto;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true&":
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true& ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -2647,7 +2326,31 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".dropdown-toggle-sort::after {\n  margin-left: 0px;\n  content: \"\";\n  border: none;\n}\n.modal-holiday .modal-content .modal-body .range-picker {\n  padding-bottom: 20px;\n  margin-left: 0px;\n  margin-right: 0px;\n  border: 1px solid #e4e4e4;\n  border-radius: 3px;\n  position: relative;\n  margin-top: 30px;\n  background-color: #e4e4e4;\n  padding-top: 5px;\n}\n.modal-holiday .modal-content .modal-body .range-picker .range-picker-titt {\n  padding: 0px 6px;\n  height: 24px;\n  line-height: 24px;\n  position: absolute;\n  top: -24px;\n  left: 10px;\n  z-index: 99;\n  border-radius: 3px 3px 0px 0px;\n}\n.modal-holiday .modal-content .modal-body .range-picker .coll .titt {\n  display: block;\n}\n.modal-holiday .modal-content .modal-body .range-picker .coll .small {\n  position: absolute;\n  margin-top: -2px;\n}\n.modal-holiday .modal-content .modal-body .range-picker .coll input.date-chooser {\n  width: 100%;\n  text-align: center;\n  font-weight: bold;\n  color: #666;\n  border-radius: 3px;\n  background-color: #f6f6f6 !important;\n  border: 2px solid #e4e4e4;\n  cursor: pointer;\n  font-size: 20px;\n  outline: none;\n}\n.modal-holiday .modal-content .modal-body .range-picker .coll input.date-chooser:focus, .modal-holiday .modal-content .modal-body .range-picker .coll input.date-chooser.error {\n  background-color: #fff !important;\n}\n.modal-holiday .modal-content .modal-body .range-picker .coll input.date-chooser.error, .modal-holiday .modal-content .modal-body .range-picker .coll input.date-chooser.error:focus {\n  box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n  -webkit-box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n  -moz-box-shadow: 0px 0px 5px 0px rgba(198, 71, 70, 0.3);\n  border: 2px solid rgba(198, 71, 70, 0.6) !important;\n}\n.modal-holiday .modal-content .modal-body .range-picker .coll input.date-chooser:focus {\n  box-shadow: 0px 0px 5px 0px rgba(70, 198, 85, 0.3);\n  -webkit-box-shadow: 0px 0px 5px 0px rgba(70, 198, 85, 0.3);\n  -moz-box-shadow: 0px 0px 5px 0px rgba(70, 198, 85, 0.3);\n  border: 2px solid rgba(70, 198, 85, 0.6) !important;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".dropdown-toggle[data-v-4dc42d3d] {\n  width: 100%;\n  text-align: left;\n  position: relative;\n}\n.dropdown-toggle[data-v-4dc42d3d]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  position: absolute;\n  top: 16px;\n  right: 14px;\n}\n.dropdown-menu[data-v-4dc42d3d] {\n  width: 100%;\n}\n.dropdown-menu .for-items[data-v-4dc42d3d] {\n  max-height: 250px;\n  overflow-x: auto;\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true&":
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true& ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, ".form-group[data-v-7a0bac3b] {\n  position: relative;\n  padding: 0px 5px;\n}\n.form-group input[data-v-7a0bac3b] {\n  padding-right: 40px;\n}\n.form-group .reset-input[data-v-7a0bac3b] {\n  position: absolute;\n  top: 0px;\n  right: 5px;\n  height: 100%;\n  width: 30px;\n  text-align: center;\n  line-height: 36px;\n  cursor: pointer;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -19942,6 +19645,19 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ }),
 
+/***/ "./resources/sass/dashboard.scss":
+/*!***************************************!*\
+  !*** ./resources/sass/dashboard.scss ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/process/browser.js":
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
@@ -20136,10 +19852,10 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true&":
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true& ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20149,7 +19865,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_52abfeac_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_44271eb6_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true&");
 
             
 
@@ -20158,18 +19874,18 @@ var options = {};
 options.insert = "head";
 options.singleton = false;
 
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_52abfeac_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_44271eb6_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
 
 
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_52abfeac_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_44271eb6_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true&":
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true& ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20179,7 +19895,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=1&lang=scss& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss&");
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_style_index_0_id_4dc42d3d_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true&");
 
             
 
@@ -20188,11 +19904,41 @@ var options = {};
 options.insert = "head";
 options.singleton = false;
 
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_1__.default, options);
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_style_index_0_id_4dc42d3d_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
 
 
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_style_index_0_id_4dc42d3d_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true&":
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true& ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_style_index_0_id_7a0bac3b_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_style_index_0_id_7a0bac3b_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_style_index_0_id_7a0bac3b_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
 
 /***/ }),
 
@@ -20475,10 +20221,10 @@ module.exports = function (list, options) {
 
 /***/ }),
 
-/***/ "./resources/js/vue/dashboard/holidays/components/App.vue":
-/*!****************************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/components/App.vue ***!
-  \****************************************************************/
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/App.vue":
+/*!***********************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/App.vue ***!
+  \***********************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20486,42 +20232,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _App_vue_vue_type_template_id_52abfeac_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./App.vue?vue&type=template&id=52abfeac&scoped=true& */ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=template&id=52abfeac&scoped=true&");
-/* harmony import */ var _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./App.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=script&lang=js&");
-/* harmony import */ var _App_vue_vue_type_style_index_0_id_52abfeac_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true&");
-/* harmony import */ var _App_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=1&lang=scss& */ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _App_vue_vue_type_template_id_44271eb6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./App.vue?vue&type=template&id=44271eb6&scoped=true& */ "./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=template&id=44271eb6&scoped=true&");
+/* harmony import */ var _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./App.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=script&lang=js&");
+/* harmony import */ var _App_vue_vue_type_style_index_0_id_44271eb6_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
 ;
 
 
-
 /* normalize component */
 
-var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_4__.default)(
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
   _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
-  _App_vue_vue_type_template_id_52abfeac_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
-  _App_vue_vue_type_template_id_52abfeac_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  _App_vue_vue_type_template_id_44271eb6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _App_vue_vue_type_template_id_44271eb6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
   false,
   null,
-  "52abfeac",
+  "44271eb6",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/vue/dashboard/holidays/components/App.vue"
+component.options.__file = "resources/js/vue/dashboard/timezone_picker/components/App.vue"
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************/
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue":
+/*!****************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue ***!
+  \****************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20529,58 +20273,219 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=script&lang=js&");
- /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+/* harmony import */ var _Dropdown_vue_vue_type_template_id_4dc42d3d_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true& */ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true&");
+/* harmony import */ var _Dropdown_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Dropdown.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=script&lang=js&");
+/* harmony import */ var _Dropdown_vue_vue_type_style_index_0_id_4dc42d3d_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _Dropdown_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _Dropdown_vue_vue_type_template_id_4dc42d3d_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _Dropdown_vue_vue_type_template_id_4dc42d3d_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "4dc42d3d",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true&":
-/*!**************************************************************************************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true& ***!
-  \**************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_52abfeac_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=0&id=52abfeac&lang=scss&scoped=true&");
-
-
-/***/ }),
-
-/***/ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss&":
-/*!**************************************************************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss& ***!
-  \**************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=1&lang=scss& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=style&index=1&lang=scss&");
-
-
-/***/ }),
-
-/***/ "./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=template&id=52abfeac&scoped=true&":
-/*!***********************************************************************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=template&id=52abfeac&scoped=true& ***!
-  \***********************************************************************************************************/
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue":
+/*!***************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue ***!
+  \***************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_52abfeac_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
-/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_52abfeac_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_52abfeac_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=template&id=52abfeac&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=template&id=52abfeac&scoped=true&");
+/* harmony import */ var _DropdownItemsSearch_vue_vue_type_template_id_7a0bac3b_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true& */ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true&");
+/* harmony import */ var _DropdownItemsSearch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DropdownItemsSearch.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=script&lang=js&");
+/* harmony import */ var _DropdownItemsSearch_vue_vue_type_style_index_0_id_7a0bac3b_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _DropdownItemsSearch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _DropdownItemsSearch_vue_vue_type_template_id_7a0bac3b_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _DropdownItemsSearch_vue_vue_type_template_id_7a0bac3b_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "7a0bac3b",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Dropdown.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./DropdownItemsSearch.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true&":
+/*!*********************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true& ***!
+  \*********************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_44271eb6_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=style&index=0&id=44271eb6&lang=scss&scoped=true&");
 
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=template&id=52abfeac&scoped=true&":
-/*!**************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/holidays/components/App.vue?vue&type=template&id=52abfeac&scoped=true& ***!
-  \**************************************************************************************************************************************************************************************************************************************************/
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true&":
+/*!**************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true& ***!
+  \**************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_style_index_0_id_4dc42d3d_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=style&index=0&id=4dc42d3d&lang=scss&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true&":
+/*!*************************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true& ***!
+  \*************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_style_index_0_id_7a0bac3b_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=style&index=0&id=7a0bac3b&lang=scss&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=template&id=44271eb6&scoped=true&":
+/*!******************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=template&id=44271eb6&scoped=true& ***!
+  \******************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_44271eb6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_44271eb6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_44271eb6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./App.vue?vue&type=template&id=44271eb6&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=template&id=44271eb6&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true&":
+/*!***********************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true& ***!
+  \***********************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_template_id_4dc42d3d_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_template_id_4dc42d3d_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Dropdown_vue_vue_type_template_id_4dc42d3d_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true&":
+/*!**********************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true& ***!
+  \**********************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_template_id_7a0bac3b_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_template_id_7a0bac3b_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_DropdownItemsSearch_vue_vue_type_template_id_7a0bac3b_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=template&id=44271eb6&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/App.vue?vue&type=template&id=44271eb6&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20594,646 +20499,309 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c(
-      "div",
-      [
-        _c(
-          "button",
+    _c("div", { staticClass: "contt" }, [
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col col-sm-12 col-md-6" }, [
+          _c("div", { staticClass: "d-table" }, [
+            _c("div", { staticClass: "d-table-row" }, [
+              _c("div", { staticClass: "left-coll d-table-cell" }, [
+                _vm._v(
+                  "\n                            Region:\n                        "
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "right-coll d-table-cell" },
+                [
+                  _c("dropdown", {
+                    ref: "dropdown_regions",
+                    attrs: {
+                      items: _vm.regions,
+                      error: _vm.regionError,
+                      "input-name": "timezone_region"
+                    },
+                    on: {
+                      change: function($event) {
+                        return _vm.regionChange($event)
+                      }
+                    }
+                  })
+                ],
+                1
+              )
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col col-sm-12 col-md-6" }, [
+          _c("div", { staticClass: "d-table" }, [
+            _c("div", { staticClass: "d-table-row" }, [
+              _c("div", { staticClass: "left-coll d-table-cell" }, [
+                _vm._v(
+                  "\n                            Timezone:\n                        "
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "right-coll d-table-cell" },
+                [
+                  _c("dropdown", {
+                    ref: "dropdown_timezone",
+                    attrs: {
+                      disabled: !_vm.timezonesByRegion,
+                      reseter: _vm.reseter,
+                      items: _vm.timezonesByRegion,
+                      error: _vm.timezoneKeyError,
+                      "input-name": "timezone_key"
+                    },
+                    on: {
+                      change: function($event) {
+                        return _vm.timezoneChange($event)
+                      }
+                    }
+                  })
+                ],
+                1
+              )
+            ])
+          ])
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true&":
+/*!**************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/Dropdown.vue?vue&type=template&id=4dc42d3d&scoped=true& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", { ref: "dropdown", staticClass: "dropdown" }, [
+      _c("input", {
+        directives: [
           {
-            staticClass: "btn btn-primary btn-sm open-select-item-modal",
-            attrs: { type: "button" },
+            name: "model",
+            rawName: "v-model",
+            value: _vm.inputData,
+            expression: "inputData"
+          }
+        ],
+        attrs: { name: _vm.inputName, type: "hidden" },
+        domProps: { value: _vm.inputData },
+        on: {
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.inputData = $event.target.value
+          }
+        }
+      }),
+      _vm._v(" "),
+      _c(
+        "a",
+        {
+          ref: "dropdown_toggle",
+          staticClass: "btn btn-secondary dropdown-toggle",
+          class: {
+            disabled: _vm.dropdownDisabled || _vm.disabled
+          },
+          attrs: {
+            href: "#",
+            role: "button",
+            id: "dropdownMenuLink",
+            "data-toggle": "dropdown",
+            "aria-haspopup": "true",
+            "aria-expanded": "false"
+          }
+        },
+        [
+          _vm._v(
+            "\n                " +
+              _vm._s(
+                _vm.pickedItem == null
+                  ? _vm.pickedItemPlaceholderComputed
+                  : _vm.pickedItem.val
+              ) +
+              "\n        "
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass: "dropdown-menu",
+          attrs: { "aria-labelledby": "dropdownMenuLink" },
+          on: {
+            click: function($event) {
+              $event.preventDefault()
+              $event.stopPropagation()
+            }
+          }
+        },
+        [
+          _c("search", {
+            ref: "search",
             on: {
-              click: function($event) {
-                return _vm.openModal()
+              search: function($event) {
+                _vm.search = $event
               }
             }
-          },
-          [
-            _vm._v("\n            Add\n            "),
-            _c(
-              "svg",
-              {
-                staticClass: "bi bi-plus",
-                attrs: {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "18",
-                  height: "18",
-                  fill: "currentColor",
-                  viewBox: "0 0 16 16"
-                }
-              },
-              [
-                _c("path", {
-                  attrs: {
-                    d:
-                      "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-                  }
-                })
-              ]
-            )
-          ]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "btn-group" }, [
-          _c("button", {
-            staticClass:
-              "btn btn-sm btn-info dropdown-toggle dropdown-toggle-sort",
-            attrs: {
-              type: "button",
-              "data-toggle": "dropdown",
-              "aria-haspopup": "true",
-              "aria-expanded": "false"
-            },
-            domProps: { innerHTML: _vm._s(_vm.sortedTitle) }
           }),
           _vm._v(" "),
           _c(
             "div",
-            { staticClass: "dropdown-menu" },
-            _vm._l(_vm.sortOptions, function(option, index) {
-              return _c("a", {
-                staticClass: "dropdown-item",
-                attrs: { href: "#" },
-                domProps: { innerHTML: _vm._s(option.title) },
-                on: {
-                  click: function($event) {
-                    _vm.sortOption = option
-                  }
-                }
-              })
-            }),
-            0
-          )
-        ]),
-        _vm._v(" "),
-        _vm.isShowEmptyPlaceholder && _vm.holidays.length == 0
-          ? _c("div", { staticClass: "empty-placeholder" }, [
-              _vm._v("\n            No holidays setted.\n        ")
-            ])
-          : _vm._e(),
-        _vm._v(" "),
-        _vm._l(_vm.holidays, function(item, index) {
-          return _c(
-            "div",
-            {
-              staticClass: "alert-item alert alert-primary",
-              attrs: { role: "alert" }
-            },
-            [
-              _c("b", [
-                _vm._v(
-                  "\n                " + _vm._s(item.title) + "\n            "
-                )
-              ]),
-              _c("br"),
-              _vm._v(" "),
-              item.from == item.to
-                ? [
-                    _vm._v("\n                on "),
-                    _c("b", [_vm._v(_vm._s(item.from))])
-                  ]
-                : [
-                    _vm._v("\n                from "),
-                    _c("b", [_vm._v(_vm._s(item.from))]),
-                    _vm._v(" until "),
-                    _c("b", [_vm._v(_vm._s(item.to))])
-                  ],
-              _vm._v(" "),
-              _c("br"),
-              _vm._v(" "),
-              item.description
-                ? _c("span", { staticClass: "small" }, [
-                    _vm._v(_vm._s(item.description))
-                  ])
-                : _vm._e(),
-              _vm._v(" "),
-              _c("input", {
-                attrs: { name: "holiday_title[" + index + "]", type: "hidden" },
-                domProps: { value: item.title }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                attrs: {
-                  name: "holiday_description[" + index + "]",
-                  type: "hidden"
-                },
-                domProps: { value: item.description }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                attrs: { name: "holiday_from[" + index + "]", type: "hidden" },
-                domProps: { value: item.from }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                attrs: { name: "holiday_to[" + index + "]", type: "hidden" },
-                domProps: { value: item.to }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                attrs: {
-                  name: "holiday_timestamp[" + index + "]",
-                  type: "hidden"
-                },
-                domProps: { value: item.timestamp }
-              }),
-              _vm._v(" "),
-              _c("div", { staticClass: "btnns" }, [
-                _c(
-                  "a",
-                  {
-                    staticClass: "btnn btn btn-sm btn-warning",
-                    attrs: { href: "#" },
-                    on: {
-                      click: function($event) {
-                        return _vm.removeHoliday(index)
-                      }
-                    }
-                  },
-                  [
-                    _vm._v(
-                      "\n                    Dismiss\n                    "
-                    ),
-                    _c(
-                      "svg",
-                      {
-                        staticClass: "bi bi-x-lg",
-                        attrs: {
-                          xmlns: "http://www.w3.org/2000/svg",
-                          width: "16",
-                          height: "16",
-                          fill: "currentColor",
-                          viewBox: "0 0 16 16"
-                        }
-                      },
-                      [
-                        _c("path", {
-                          attrs: {
-                            d:
-                              "M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
-                          }
-                        })
-                      ]
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "btnn btn btn-sm btn-info",
-                    attrs: { href: "#" },
-                    on: {
-                      click: function($event) {
-                        return _vm.editHoliday(index)
-                      }
-                    }
-                  },
-                  [
-                    _vm._v("\n                    Edit\n                    "),
-                    _c(
-                      "svg",
-                      {
-                        staticClass: "bi bi-pencil-fill",
-                        attrs: {
-                          xmlns: "http://www.w3.org/2000/svg",
-                          width: "16",
-                          height: "16",
-                          fill: "currentColor",
-                          viewBox: "0 0 16 16"
-                        }
-                      },
-                      [
-                        _c("path", {
-                          attrs: {
-                            d:
-                              "M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"
-                          }
-                        })
-                      ]
-                    )
-                  ]
-                )
-              ])
-            ],
-            2
-          )
-        })
-      ],
-      2
-    ),
-    _vm._v(" "),
-    _vm.showModal
-      ? _c(
-          "div",
-          {
-            staticClass:
-              "modal modal-holiday fade modal-custom-dark-header-footer",
-            attrs: {
-              id: "createHolidayModal",
-              tabindex: "-1",
-              "aria-labelledby": "createHolidayModalLabel",
-              "aria-hidden": "true"
-            }
-          },
-          [
-            _c("div", { staticClass: "modal-dialog" }, [
-              _c("div", { staticClass: "modal-content" }, [
-                _c("div", { staticClass: "modal-header" }, [
-                  _c(
-                    "span",
+            { staticClass: "for-items" },
+            _vm._l(_vm.items, function(item, index) {
+              return _vm.isSearchApplyable(item.val)
+                ? _c(
+                    "a",
                     {
-                      staticClass:
-                        "badge-information badge badge-pill text-uppercase",
-                      class: {
-                        "badge-info": _vm.holidayEditIndex != null,
-                        "badge-success": _vm.holidayEditIndex == null
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n                            " +
-                          _vm._s(
-                            _vm.holidayEditIndex == null ? "new" : "edit"
-                          ) +
-                          "\n                    "
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "h5",
-                    {
-                      staticClass: "modal-title",
-                      attrs: { id: "createHolidayModalLabel" }
-                    },
-                    [
-                      _vm._v(
-                        "\n                        Holiday\n                        "
-                      ),
-                      _vm.formHasErrors
-                        ? _c(
-                            "span",
-                            {
-                              staticClass:
-                                "badge badge-pill badge-danger text-uppercase"
-                            },
-                            [_vm._v("Has errors")]
-                          )
-                        : _vm._e()
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _vm._m(0)
-                ]),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    staticClass: "btn-group",
-                    attrs: { role: "group", "aria-label": "Basic example" }
-                  },
-                  [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-secondary",
-                        class: { active: _vm.showTab == "main" },
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            _vm.showTab = "main"
-                          }
-                        }
-                      },
-                      [
-                        _vm._v(
-                          "\n                            Main\n                            "
-                        ),
-                        _c(
-                          "span",
-                          {
-                            staticClass:
-                              "error-badge badge badge-pill badge-danger d-none",
-                            attrs: {
-                              id: "mainHolidayErrorBadge",
-                              "data-toggle": "tooltip",
-                              "data-placement": "bottom",
-                              title: "0 errors"
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                                    0\n                            "
-                            )
-                          ]
-                        )
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-secondary",
-                        class: { active: _vm.showTab == "date_range" },
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            _vm.showTab = "date_range"
-                          }
-                        }
-                      },
-                      [
-                        _vm._v(
-                          "\n                            Date\n                            "
-                        ),
-                        _c(
-                          "span",
-                          {
-                            staticClass:
-                              "error-badge badge badge-pill badge-danger d-none",
-                            attrs: {
-                              id: "dateRangeHolidayErrorBadge",
-                              "data-toggle": "tooltip",
-                              "data-placement": "bottom",
-                              title: "0 errors"
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                                    0\n                            "
-                            )
-                          ]
-                        )
-                      ]
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "modal-body" }, [
-                  _c("form", { attrs: { id: "holidayRangeForm" } }, [
-                    _c(
-                      "div",
-                      {
-                        directives: [
-                          {
-                            name: "show",
-                            rawName: "v-show",
-                            value: _vm.showTab == "main",
-                            expression: "showTab == 'main'"
-                          }
-                        ],
-                        staticClass: "row"
-                      },
-                      [
-                        _c("div", { staticClass: "col col-sm-12" }, [
-                          _c("div", { staticClass: "form-group" }, [
-                            _c(
-                              "label",
-                              { attrs: { for: "holidayTitleInput" } },
-                              [_vm._v("Title:")]
-                            ),
-                            _vm._v(" "),
-                            _c("input", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.holidayTitle,
-                                  expression: "holidayTitle"
-                                }
-                              ],
-                              staticClass: "form-control",
-                              attrs: {
-                                type: "text",
-                                name: "holiday_title",
-                                id: "holidayTitleInput",
-                                "aria-describedby": "holidayTitleHelp"
-                              },
-                              domProps: { value: _vm.holidayTitle },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.holidayTitle = $event.target.value
-                                }
-                              }
-                            }),
-                            _vm._v(" "),
-                            _c("div", {
-                              staticClass: "text-danger small",
-                              attrs: { id: "error_holiday_title" }
-                            })
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group" }, [
-                            _c(
-                              "label",
-                              { attrs: { for: "holidayDescriptionInput" } },
-                              [_vm._v("Description:")]
-                            ),
-                            _vm._v(" "),
-                            _c("textarea", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.holidayDescription,
-                                  expression: "holidayDescription"
-                                }
-                              ],
-                              staticClass: "form-control",
-                              attrs: {
-                                name: "holiday_description",
-                                id: "holidayDescriptionInput",
-                                rows: "3"
-                              },
-                              domProps: { value: _vm.holidayDescription },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.holidayDescription = $event.target.value
-                                }
-                              }
-                            }),
-                            _vm._v(" "),
-                            _c("div", {
-                              staticClass: "text-danger small",
-                              attrs: { id: "error_holiday_description" }
-                            })
-                          ])
-                        ])
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        directives: [
-                          {
-                            name: "show",
-                            rawName: "v-show",
-                            value: _vm.showTab == "date_range",
-                            expression: "showTab == 'date_range'"
-                          }
-                        ],
-                        staticClass: "row range-picker"
-                      },
-                      [
-                        _c("div", { staticClass: "range-picker-titt" }, [
-                          _vm._v("Set holiday period:")
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "col col-sm-6 coll" }, [
-                          _c("span", { staticClass: "titt" }, [
-                            _vm._v("From:")
-                          ]),
-                          _vm._v(" "),
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.from,
-                                expression: "from"
-                              }
-                            ],
-                            staticClass: "date-chooser",
-                            attrs: {
-                              type: "text",
-                              id: "holiday_from",
-                              name: "holiday_from",
-                              autocomplete: "off",
-                              readonly: "readonly"
-                            },
-                            domProps: { value: _vm.from },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.from = $event.target.value
-                              }
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("div", {
-                            staticClass: "text-danger small",
-                            attrs: { id: "error_holiday_from" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "col col-sm-6 coll" }, [
-                          _c("span", { staticClass: "titt" }, [
-                            _vm._v("Until:")
-                          ]),
-                          _vm._v(" "),
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.to,
-                                expression: "to"
-                              }
-                            ],
-                            staticClass: "date-chooser",
-                            attrs: {
-                              type: "text",
-                              id: "holiday_to",
-                              name: "holiday_to",
-                              autocomplete: "off",
-                              readonly: "readonly"
-                            },
-                            domProps: { value: _vm.to },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.to = $event.target.value
-                              }
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("div", {
-                            staticClass: "text-danger small",
-                            attrs: { id: "error_holiday_to" }
-                          })
-                        ])
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c("input", {
-                      staticStyle: { position: "absolute", left: "-9999px" },
-                      attrs: { type: "submit" }
-                    })
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "modal-footer" }, [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-secondary",
-                      attrs: { type: "button", "data-dismiss": "modal" }
-                    },
-                    [_vm._v("Close")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-success",
-                      attrs: { type: "button" },
+                      staticClass: "dropdown-item",
+                      attrs: { href: "#" },
                       on: {
                         click: function($event) {
-                          _vm.holidayEditIndex != null
-                            ? _vm.updateHoliday()
-                            : _vm.addHoliday()
+                          $event.preventDefault()
+                          return _vm.change(item)
                         }
                       }
                     },
                     [
                       _vm._v(
                         "\n                        " +
-                          _vm._s(
-                            _vm.holidayEditIndex != null ? "Update" : "Add"
-                          ) +
-                          "\n                    "
+                          _vm._s(item.val) +
+                          "\n                "
                       )
                     ]
                   )
-                ])
-              ])
-            ])
-          ]
-        )
+                : _vm._e()
+            }),
+            0
+          )
+        ],
+        1
+      )
+    ]),
+    _vm._v(" "),
+    _vm.error && !_vm.pickedItem
+      ? _c("div", { staticClass: "small text-danger" }, [
+          _vm._v(_vm._s(_vm.error))
+        ])
       : _vm._e()
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass: "close",
-        attrs: {
-          type: "button",
-          "data-dismiss": "modal",
-          "aria-label": "Close"
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true&":
+/*!*************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/timezone_picker/components/DropdownItemsSearch.vue?vue&type=template&id=7a0bac3b&scoped=true& ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", { staticClass: "form-group" }, [
+      _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.search,
+            expression: "search"
+          }
+        ],
+        staticClass: "form-control",
+        attrs: { type: "text", placeholder: "Search ..." },
+        domProps: { value: _vm.search },
+        on: {
+          blur: function($event) {
+            $event.preventDefault()
+            $event.stopPropagation()
+          },
+          input: function($event) {
+            if ($event.target.composing) {
+              return
+            }
+            _vm.search = $event.target.value
+          }
         }
-      },
-      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-    )
-  }
-]
+      }),
+      _vm._v(" "),
+      _vm.search
+        ? _c(
+            "div",
+            {
+              staticClass: "reset-input",
+              on: {
+                click: function($event) {
+                  return _vm.resetClick()
+                }
+              }
+            },
+            [
+              _c(
+                "svg",
+                {
+                  staticClass: "bi bi-x",
+                  attrs: {
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "16",
+                    height: "16",
+                    fill: "currentColor",
+                    viewBox: "0 0 16 16"
+                  }
+                },
+                [
+                  _c("path", {
+                    attrs: {
+                      d:
+                        "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                    }
+                  })
+                ]
+              )
+            ]
+          )
+        : _vm._e()
+    ])
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -33377,7 +32945,41 @@ Vue.compile = compileToFunctions;
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					result = fn();
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -33439,53 +33041,66 @@ Vue.compile = compileToFunctions;
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"/js/dashboard/timezone-picker": 0,
+/******/ 			"css/dashboard": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			for(moduleId in moreModules) {
+/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 				}
+/******/ 			}
+/******/ 			if(runtime) runtime(__webpack_require__);
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkIds[i]] = 0;
+/******/ 			}
+/******/ 			__webpack_require__.O();
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-/*!****************************************************!*\
-  !*** ./resources/js/vue/dashboard/holidays/app.js ***!
-  \****************************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/dashboard/holidays/components/App.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/dashboard/holidays/bootstrap.js");
-
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-
-window.app = new Vue({
-  el: '#holidaysApp',
-  render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_0__.default, {
-      props: {
-        showEmptyPlaceholder: document.querySelector("#holidaysApp").dataset.showEmptyPlaceholder
-      }
-    });
-  }
-}); // alert(11);
-})();
-
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	__webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/js/vue/dashboard/timezone_picker/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/sass/dashboard.scss")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
 /******/ })()
 ;

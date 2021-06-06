@@ -26,6 +26,7 @@ class MainSetting{
         
         //Hall
         Keys::HALL_DEFAULT_BUSINESS_HOURS => \App\Classes\Setting\Settings\BussinessHours::class,
+        Keys::HALL_DEFAULT_TIMEZONE => \App\Classes\Setting\Settings\Timezone::class,
         
         //Client`s booking calendar
         Keys::CLIENTS_BOOKING_CALENDAR_MAIN => \App\Classes\Setting\Settings\Main::class,

@@ -9,7 +9,7 @@
         <div class="for-table">
             <table>
                 <tbody>
-                    <template v-for="date in dates" v-if="date.bookable && notPast(date)">
+                    <template v-for="date in dates" v-if="date.bookable && !date.is_weekend && notPast(date)">
                     <!-- <template v-for="date in dates"> -->
                         
                         <tr class="day-title" :class="{'current-date': isCurrentDate(date)}">
@@ -51,7 +51,7 @@
                     <template v-if="empty">
                         <tr>
                             <td colspan="2" class="text-center">
-                                No free time available and no booked items present
+                                No free time available
                             </td>
                         </tr>
                     </template>
@@ -96,54 +96,15 @@
         mounted() {
             let initDate = moment(this.startDate).startOf('week').toDate();
             this.setDates(initDate);
-            // console.log(this.range.first_date);
             // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
-            // console.log(this.currenyViewIdx);
-            
-            // console.log(initDate);
-            // console.log(this.currentDateMoment.format('YYYY MM DD'));
-            // console.log(this.currentDateMoment.format('YYYY-MM-DD HH:mm:ss'));
-            
-            // console.log(this.currentDate);
-            // console.log(this.firstMonthDate);
-            // console.log(this.lastMonthDate);
-            // console.log(this.firstCalendarDate);
-            // console.log(this.lastCalendarDate);
-            
-            // setTimeout(() => {
-            //     console.log(moment(this.currentDate).format('YYYY MM DD'));
-            //     console.log(this.currentDateMoment.format('YYYY-MM-DD HH:mm:ss'));
-            // }, 10);
-            
-            // let interval = setInterval(() => {
-            //     if(this.search != null){
-            //         // console.log(11111);
-            //         clearInterval(interval);
-            //         this.getData();
-            //     }
-            // }, 300);
             
             this.getData();
-            
-            // let intervalDates = setInterval(() => {
-            //     if(this.dates != null){
-            //         clearInterval(intervalDates);
-            //         this.placeItems();
-            //         this.regModalOpenButtons();
-            //     }
-            // }, 300);
-            
-            // this.regModalOpenButtons();
             
             // this.getData();
             $("#bookModal").on('hidden.bs.modal', () => {
                 this.bookDate = null;
                 // console.log(this.bookDate);
             });
-            
-            // console.log(JSON.parse(JSON.stringify([dateItem, hourItem])));
-            // console.log(this.firstMonthDate);
-            // console.log(this.weekdayOfCurrentDate);
         },
         props: ['startDate'],
         data: function(){
@@ -330,7 +291,7 @@
                     return false;
                 let itemsCount = 0;
                 this.dates.forEach((date, i) => {
-                    if(date.bookable && this.notPast(date))
+                    if(date.bookable && !date.is_weekend && this.notPast(date))
                         itemsCount++;
                 });
                 console.log(itemsCount);

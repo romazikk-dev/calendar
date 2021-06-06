@@ -11,7 +11,7 @@ class Holiday extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['from', 'to', 'description', 'title'];
+    protected $fillable = ['from', 'to', 'description', 'title', 'timestamp'];
     
     /**
      * Get the parent holidayable model

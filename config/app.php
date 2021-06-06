@@ -187,6 +187,8 @@ return [
         App\Providers\LanguageServiceProvider::class,
         App\Providers\SpecificsServiceProvider::class,
         App\Providers\TemporaryMessagesServiceProvider::class,
+        App\Providers\TimezoneServiceProvider::class,
+        App\Providers\StatisticServiceProvider::class,
 
     ],
 
@@ -250,6 +252,8 @@ return [
         'Language'   =>  App\Classes\Language\LanguageFacade::class,
         'Specifics'   =>  App\Classes\Specifics\SpecificsFacade::class,
         'TempMsgs'   =>  App\Classes\TemporaryMessages\TemporaryMessagesFacade::class,
+        'Timezone'   =>  App\Classes\Timezone\TimezoneFacade::class,
+        'Statistic'   =>  App\Classes\Statistic\StatisticFacade::class,
 
     ],
 

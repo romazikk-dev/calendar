@@ -7,6 +7,21 @@ use App\Classes\Suspension\Enums\Types;
 
 class Suspension extends MainSuspension{
     
+    public function isSuspendedOnModel($suspension_model){
+        if(empty($suspension_model))
+            return false;
+        if(empty($v->suspension->from) && empty($v->suspension->to)){
+            return true;
+        }else if(!empty($v->suspension->from) && !empty($v->suspension->to)){
+            $carbon_from = \Carbon\Carbon::parse($v->suspension->from);
+            $carbon_to = \Carbon\Carbon::parse($v->suspension->to);
+            if($carbon_from->lte($this->carbon_now) && $this->carbon_now->lte($carbon_to)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public function getOldForVue(){
         if(old('status')){
             $old_suspension = [
