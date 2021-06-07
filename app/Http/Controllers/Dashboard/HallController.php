@@ -381,7 +381,13 @@ class HallController extends Controller
         $validated = $validator->valid();
         
         $holidays = \Holiday::getAllFromRequest();
-        unset($validated['holiday_title'], $validated['holiday_from'], $validated['holiday_to'], $validated['holiday_description']);
+        unset(
+            $validated['holiday_title'],
+            $validated['holiday_from'],
+            $validated['holiday_to'],
+            $validated['holiday_description'],
+            $validated['holiday_timestamp']
+        );
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
         

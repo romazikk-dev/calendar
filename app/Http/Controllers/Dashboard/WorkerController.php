@@ -798,7 +798,13 @@ class WorkerController extends Controller
         $validated = $validator->valid();
         
         $holidays = \Holiday::getAllFromRequest();
-        unset($validated['holiday_title'], $validated['holiday_from'], $validated['holiday_to'], $validated['holiday_description']);
+        unset(
+            $validated['holiday_title'],
+            $validated['holiday_from'],
+            $validated['holiday_to'],
+            $validated['holiday_description'],
+            $validated['holiday_timestamp']
+        );
         
         // Set suspension variable for further applying a proper suspension
         if(!empty($validated['status']))

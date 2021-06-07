@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
             
         User::factory()
             ->state([
-                'email' => 'roman2@mail.ru',
+                'email' => 'test@gmail.com',
                 'password' => Hash::make('123')
             ])
             ->count(1)
