@@ -12,6 +12,199 @@
   margin-bottom: 20px;
 }
 
+/* CALENDAR ALL BOOKINGS
+******************************************************************/
+
+.calendar-all-bookings .for-closed-slot {
+  padding-left: 30px;
+  padding-right: 4px;
+  padding-top: 4px;
+}
+
+.calendar-all-bookings .for-closed-slot .closed-slot {
+  display: block;
+  width: 100%;
+  background-color: rgba(255, 0, 0, 0.1);
+  margin-bottom: 3px;
+  border-radius: 3px;
+  font-size: 10px;
+  padding: 2px 6px;
+  color: black;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  margin-bottom: 6px;
+}
+
+.calendar-all-bookings .month-calendar {
+  padding-top: 10px !important;
+  min-width: 800px;
+}
+
+.calendar-all-bookings .month-calendar table {
+  width: 100%;
+}
+
+.calendar-all-bookings .month-calendar table td,
+.calendar-all-bookings .month-calendar table th {
+  border: 1px solid #ccc;
+}
+
+.calendar-all-bookings .month-calendar table th {
+  text-align: center;
+}
+
+.calendar-all-bookings .month-calendar table td {
+  width: 14.25%;
+  vertical-align: top;
+}
+
+.calendar-all-bookings .month-calendar table td:hover .counters {
+  opacity: 1;
+}
+
+.calendar-all-bookings .month-calendar table td .cell-content {
+  min-height: 80px !important;
+  position: relative;
+}
+
+.calendar-all-bookings .month-calendar table td .cell-content .day {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  font-weight: bold;
+  padding: 0px 4px;
+  background-color: #444;
+  border-radius: 3px;
+  color: white;
+}
+
+.calendar-all-bookings .month-calendar table tr.divider td {
+  height: 10px;
+  background-color: #6c757d;
+}
+
+.calendar-all-bookings .month-calendar .day.not-period {
+  color: #999;
+}
+
+.calendar-all-bookings .month-calendar .current-day {
+  background-color: rgba(8, 232, 222, 0.3);
+}
+
+.calendar-all-bookings .month-calendar .booking {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+}
+
+.calendar-all-bookings .month-calendar .counters {
+  width: 26px;
+  float: left;
+  font-size: 12px;
+  padding-top: 26px;
+  padding-left: 4px;
+  line-height: 14px;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+
+.calendar-all-bookings .month-calendar .counters ul {
+  padding: 0px;
+  margin: 0px;
+}
+
+.calendar-all-bookings .month-calendar .counters ul li {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.calendar-all-bookings .month-calendar .counters ul li span {
+  cursor: pointer;
+}
+
+.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-total {
+  background-color: #17a2b8 !important;
+  color: white;
+}
+
+.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-approved {
+  background-color: #723380;
+  color: white;
+}
+
+.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-not-approved {
+  background-color: #cf582c;
+  color: white;
+}
+
+.calendar-all-bookings .month-calendar .events {
+  padding-left: 30px;
+}
+
+.calendar-all-bookings .month-calendar .events ul {
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  padding-left: 30px;
+  padding-right: 4px;
+  padding-top: 4px;
+}
+
+.calendar-all-bookings .month-calendar .events ul li {
+  list-style: none;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event {
+  background-color: red;
+  display: block;
+  width: 100%;
+  min-height: 60px;
+  background-color: #cf582c;
+  /* margin-bottom: 3px; */
+  border-radius: 3px;
+  font-size: 10px;
+  padding: 2px 22px 2px 6px;
+  color: white;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  position: relative;
+  left: -27px;
+  width: calc(100% + 27px);
+  margin-bottom: 6px;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event.approved {
+  background-color: #723380;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event .actions {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 20px;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event .actions ul {
+  padding: 0px;
+  margin: 0px;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event .actions ul li {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event .actions ul li a {
+  color: white;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .event .actions ul li:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 /* TEMPLATE ASSIGNMENT
 ******************************************************************/
 

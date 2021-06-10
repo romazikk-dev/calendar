@@ -8,6 +8,8 @@ use App\Http\Controllers\Dashboard\HallController as DashboardHallController;
 use App\Http\Controllers\Dashboard\TemplateController as DashboardTemplateController;
 use App\Http\Controllers\Dashboard\ClientController as DashboardClientController;
 
+use App\Http\Controllers\Dashboard\Ajax\TemplateController as AjaxTemplateController;
+
 use App\Http\Controllers\Dashboard\SettingsController as DashboardSettingsController;
 
 use App\Http\Controllers\Dashboard\Settings\SettingController as DashboardSettingController;
@@ -58,11 +60,35 @@ Route::group([
     Route::get('/', [DashboardDefaultController::class, 'index'])->name('index');
     
     Route::group([
+        'prefix' => '/ajax',
+        'as' => 'ajax.'
+    ], function () {
+        
+        Route::group([
+            'prefix' => '/template',
+            'as' => 'template.'
+        ], function () {
+            
+            Route::post('/get', [AjaxTemplateController::class, 'get'])->name('get');
+                
+            // Route::post('/by_hall/{hall_id}', [AjaxTemplateController::class, 'byHall'])
+            //     ->where('id', '[0-9]+')
+            //     ->name('by_hall');
+            
+        });
+        
+    });
+    
+    Route::group([
         'prefix' => '/bookings',
         'as' => 'bookings.'
     ], function () {
         
         Route::get('/', [DashboardBookingsController::class, 'index'])->name('index');
+        Route::get('/range/{start}/{end}', [DashboardBookingsController::class, 'range'])->where([
+            'start' => '\d{2}-\d{2}-\d{4}',
+            'end' => '\d{2}-\d{2}-\d{4}',
+        ])->name('range');
         
     });
     

@@ -189,6 +189,7 @@ return [
         App\Providers\TemporaryMessagesServiceProvider::class,
         App\Providers\TimezoneServiceProvider::class,
         App\Providers\StatisticServiceProvider::class,
+        App\Providers\GetterServiceProvider::class,
 
     ],
 
@@ -254,6 +255,7 @@ return [
         'TempMsgs'   =>  App\Classes\TemporaryMessages\TemporaryMessagesFacade::class,
         'Timezone'   =>  App\Classes\Timezone\TimezoneFacade::class,
         'Statistic'   =>  App\Classes\Statistic\StatisticFacade::class,
+        'Getter'   =>  App\Classes\Getter\GetterFacade::class,
 
     ],
 

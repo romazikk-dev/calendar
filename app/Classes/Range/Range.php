@@ -35,6 +35,8 @@ class Range{
     protected $current_server_time = null;
     // String
     protected $current_server_timestamp = null;
+    // String
+    protected $current_server_datetime = null;
     // Array
     protected $params = [];
     
@@ -47,9 +49,17 @@ class Range{
         $this->params = $params;
         $this->view = $view;
         
-        $this->current_server_date = date("Y-m-d");
-        $this->current_server_time = date("H:i:s");
-        $this->current_server_timestamp = time();
+        $carbon_now = \Carbon\Carbon::now(\Timezone::getCurrentTimezone());
+        $carbon_start = \Carbon\Carbon::parse($start, \Timezone::getCurrentTimezone());
+        $carbon_end = \Carbon\Carbon::parse($end, \Timezone::getCurrentTimezone());
+        
+        // $this->current_server_date = date("Y-m-d");
+        $this->current_server_date = $carbon_now->format("Y-m-d");
+        // $this->current_server_time = date("H:i:s");
+        $this->current_server_time = $carbon_now->format("H:i:s");
+        $this->current_server_datetime = $carbon_now->format("Y-m-d H:i:s");
+        // $this->current_server_timestamp = time();
+        $this->current_server_timestamp = $carbon_now->timestamp;
         
         // var_dump([
         //     $this->current_server_date,
@@ -59,8 +69,10 @@ class Range{
         // die();
         
         //Set timestamps
-        $this->start_timestamp = strtotime($start);
-        $this->end_timestamp = strtotime($end);
+        // $this->start_timestamp = strtotime($start);
+        $this->start_timestamp = $carbon_start->timestamp;
+        // $this->end_timestamp = strtotime($end);
+        $this->end_timestamp = $carbon_end->timestamp;
         
         // var_dump([$this->start_timestamp, $this->end_timestamp]);
         // die();
@@ -71,44 +83,23 @@ class Range{
         // $this->checkInRegardToMaxBookPointInFutureAndFixStartEnd();
         
         //Set dates
-        $this->start_date = date('Y-m-d', $this->start_timestamp);
-        $this->end_date = date('Y-m-d', $this->end_timestamp);
+        // $this->start_date = date('Y-m-d', $this->start_timestamp);
+        $this->start_date = $carbon_start->format('Y-m-d');
+        // $this->end_date = date('Y-m-d', $this->end_timestamp);
+        $this->end_date = $carbon_end->format('Y-m-d');
         
         //Set datetimes
         $this->start_datetime = $this->start_date . ' 00:00:00';
         $this->end_datetime = $this->end_date . ' 23:59:59';
     }
     
-    // protected function checkInRegardToMaxBookPointInFutureAndFixStartEnd(){
-    //     // if(!array_key_exists(Parameters::CHECK_MAX_BOOK_POINT_IN_FUTURE, $this->params))
-    //     //     return;
-    // 
-    //     $setting = \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
-    //     $max_future_booking_offset = $setting['max_future_booking_offset'];
-    //     $max_future_booking_offset_seconds = (60 * 60 * 24) * $max_future_booking_offset;
-    //     $max_timestamp = $this->current_server_timestamp + $max_future_booking_offset_seconds;
-    //     // var_dump($max_timestamp > $this->start_timestamp);
-    // 
-    //     if($max_timestamp <= $this->start_timestamp){
-    //         $this->start_timestamp = time();
-    //         $this->end_timestamp = $max_timestamp;
-    //     }else{
-    //         if($max_timestamp < $this->end_timestamp){
-    //             $this->end_timestamp = $max_timestamp;
-    //         }
-    //     }
-    // 
-    // 
-    //     // var_dump($max_future_booking_offset);
-    //     // var_dump($max_future_booking_offset_seconds);
-    //     var_dump([$this->start_timestamp, $this->end_timestamp]);
-    //     // var_dump(888);
-    //     die();
-    // }
-    
     protected function isWrongTimestamps(){
         return (is_null($this->start_timestamp) || is_null($this->end_timestamp) ||
         $this->start_timestamp > $this->end_timestamp);
+    }
+    
+    public function getNowDatetime(){
+        return $this->current_server_datetime;
     }
     
     public function getStartDate(){

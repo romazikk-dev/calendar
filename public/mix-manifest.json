@@ -4,6 +4,7 @@
     "/js/dashboard/phone-picker.js": "/js/dashboard/phone-picker.js",
     "/js/calendar-booking.js": "/js/calendar-booking.js",
     "/js/calendar-booking-2.js": "/js/calendar-booking-2.js",
+    "/js/dashboard/calendar-booking-admin.js": "/js/dashboard/calendar-booking-admin.js",
     "/js/dashboard/halls/halls-list.js": "/js/dashboard/halls/halls-list.js",
     "/js/dashboard/template/templates-list.js": "/js/dashboard/template/templates-list.js",
     "/js/dashboard/client/clients-list.js": "/js/dashboard/client/clients-list.js",

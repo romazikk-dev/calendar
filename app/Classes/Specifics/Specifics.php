@@ -33,13 +33,15 @@ class Specifics extends MainSpecifics{
         return \Specifics::parseCollectionDbReesultToTreeArray($db_specifics);
     }
     
-    public function createSpecificTitledTraceFromIdsTrace(int $specific_id, string $specific_ids_trace, $template, $with_template_title = false){
-        // $this->setDbSpecifics();
-        
-        $specific_ids_trace_arr = explode(',', $specific_ids_trace);
-        $specific_ids_trace_arr = array_map(function($val){
-            return (int) trim($val);
-        }, $specific_ids_trace_arr);
+    public function createSpecificTitledTraceFromIdsTrace(int $specific_id, $specific_ids_trace, $template, $with_template_title = false){
+        if(!empty($specific_ids_trace)){
+            $specific_ids_trace_arr = explode(',', $specific_ids_trace);
+            $specific_ids_trace_arr = array_map(function($val){
+                return (int) trim($val);
+            }, $specific_ids_trace_arr);
+        }else{
+            $specific_ids_trace_arr = [];
+        }
         
         $specific_ids_trace_arr[] = $specific_id;
         

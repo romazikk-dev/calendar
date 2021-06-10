@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Classes\Booking;
+namespace App\Classes\BookedAndRequested;
 
 // use App\Http\Controllers\Controller;
 // use Illuminate\Http\Request;
@@ -12,32 +12,21 @@ namespace App\Classes\Booking;
 use App\Classes\Range\Range;
 // use App\Exceptions\Api\Calendar\BadRangeException;
 
-class BookingRetrievial extends MainBookingRetrievial{
+// use App\Classes\BookedAndRequested\Retrievial;
+
+class Retrieval extends MainRetrieval{
     
-    public function getBusinessHours($as_array = false, $int_week_key_if_array = false){
-        if($as_array === true){
-            // $hall_business_hours = (array)$this->hall_business_hours;
-            $hall_business_hours = json_decode(json_encode($this->hall_business_hours), true);
-        }else{
-            $hall_business_hours = $this->hall_business_hours;
-        }
-        
-        if($as_array === true && $int_week_key_if_array === true)
-            $hall_business_hours = $this->parseArrayBusinessHoursToIntWeekKey($hall_business_hours);
-        
-        return $hall_business_hours;
-        // var_dump($hall_business_hours);
-        // die();
-        // return $this->hall_business_hours;
+    public function gett(){
+        dd(33333);
     }
     
-    public function getBookedAndRequested(){
-        
-    }
-    
-    public function getFreeSlots(){
+    public function get(){
         // var_dump(111);
         // die();
+        
+        dd(33333);
+        
+        return;
         
         $bookings = $this->getBookingsAsDateTimeKeyArray();
         
