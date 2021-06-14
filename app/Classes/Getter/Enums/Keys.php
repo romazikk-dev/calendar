@@ -10,4 +10,7 @@ class Keys{
     use Enumerable;
     
     const TEMPLATES = "templates";
+    const WORKERS = "workers";
+    const CLIENTS = "clients";
+    const BOOKINGS = "bookings";
 }

@@ -12,11 +12,9 @@
             
             // alert(111);
             
-            var token = @if(!empty($token)) '{{$token}}' @else null @endif;
             
             // console.log(73737373);
             // console.log(token);
-            
             var owner = @json($owner);
             var halls = @json($halls);
             var templateSpecifics = @json($template_specifics);
@@ -37,23 +35,18 @@
             var routes = {
                 calendar: {
                     booking: {
-                        register: '{{ route("api.calendar.bookings.register", [$owner->id]) }}',
-                        login: '{{ route("api.calendar.bookings.login", [$owner->id]) }}',
-                        range: '{{ route("dashboard.bookings.range", [":start", ":end"] ) }}',
+                        booking: {
+                            all: '{{ route("dashboard.ajax.booking.get", [":start", ":end"]) }}',
+                            byType: '{{ route("dashboard.ajax.booking.get", [":start", ":end", ":type"]) }}',
+                        },
                         worker: {
-                            index: '{{ route("api.calendar.bookings.worker.index", [$owner->id]) }}',
+                            get: '{{ route("dashboard.ajax.worker.get") }}',
                         },
                         template: {
                             get: '{{ route("dashboard.ajax.template.get") }}'
                         },
-                        book: {
-                            create: '{{ route("api.calendar.bookings.book.create", [$owner->id, ":hall_id", ":template_id", ":worker_id"]) }}',
-                            // cancel: '{{ route("api.calendar.bookings.book.cancel", [$owner->id, ":hall_id", ":template_id", ":worker_id", ":booking_id"]) }}',
-                            cancel: '{{ route("api.calendar.bookings.book.cancel", [$owner->id, ":booking_id"]) }}',
-                            all: '{{ route("api.calendar.bookings.book.all", [$owner->id, ":from_date"]) }}',
-                        },
                         client: {
-                            info: '{{ route("api.calendar.bookings.client.info", [$owner->id]) }}',
+                            get: '{{ route("dashboard.ajax.client.get") }}',
                         }
                     }
                 }

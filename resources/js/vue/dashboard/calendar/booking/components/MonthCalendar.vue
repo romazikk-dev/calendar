@@ -6,9 +6,31 @@
             @next="next"
             @today="today"></navigation>
             
-        <modal-move-path-picker ref="move_path_picker" />
+        <modal-move-path-picker
+            @pick_time="pickTime()"
+            ref="move_path_picker" />
         
         <div class="month-calendar">
+            <table v-if="movedEvent">
+                <tr class="divider">
+                    <td v-for="td in 7"></td>
+                </tr>
+                <tr>
+                    <td class="alert-info" colspan="7">
+                        <span class="badge badge-info titt">Moving event:</span><br>
+                        Client: <b>{{componentApp.fullName(movedEventClient)}}</b><br>
+                        Email:  <b>{{movedEventClient.email ? movedEventClient.email : ''}}</b><br>
+                        <!-- {{movedEventClient.email ? movedEventClient.email : ''}}<br>
+                        <div class="small">
+                            <b v-if="!isPickedItemsChanged">{{eventDate}} {{eventWeekday}} {{eventTime}}</b>
+                            <b v-else class="badge badge-warning text-left">Please choose all fields and pick a time</b>
+                        </div> -->
+                    </td>
+                </tr>
+                <tr class="divider">
+                    <td v-for="td in 7"></td>
+                </tr>
+            </table>
             <table>
                 <thead>
                     <tr>
@@ -16,14 +38,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="divider">
-                        <td v-for="td in 7"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="7">
-                        eqweada
-                        </td>
-                    </tr>
                     <tr class="divider">
                         <td v-for="td in 7"></td>
                     </tr>
@@ -108,12 +122,15 @@
                 cancelBookData: null,
                 
                 componentApp: null,
-                
-                movedEvent: null,
-                // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
             };
         },
         computed: {
+            movedEvent: function(){
+                return this.$store.getters['moving_event/event'];
+            },
+            movedEventClient: function(){
+                return this.$store.getters['moving_event/client'];
+            },
             halls: function(){
                 return this.$store.getters['halls/all'];
             },
@@ -138,9 +155,33 @@
             // }
         },
         methods: {
+            pickTime: function(){
+                if(this.movedEvent !== null){
+                    // store.commit('move_event/setItems', items);
+                    this.getData({type: 'free_time'});
+                    console.log(JSON.parse(JSON.stringify('movedEvent not null')));
+                }
+                console.log(JSON.parse(JSON.stringify('pickTime')));
+            },
             moveEvent: function(event){
-                console.log('moveEvent');
-                this.$refs.move_path_picker.show();
+                // console.log('moveEvent');
+                // console.log(JSON.parse(JSON.stringify(event)));
+                
+                new Promise((resolve, reject) => {
+                    this.componentApp.getClientInfo(event.client_id, (data) => {
+                        if(data === null){
+                            alert('Can`t get client info');
+                            return;
+                        }
+                        resolve(data);
+                    });
+                }).then((data) => {
+                    this.$store.commit('moving_event/setItems', {
+                        client: data,
+                        event: event,
+                    });
+                    this.$refs.move_path_picker.show();
+                });
             },
             cancelBook: function(event){
                 this.cancelBookData = event;
@@ -218,11 +259,18 @@
                     return date[type];
                 return date;
             },
-            getData: function(from = null){
+            getData: function(params = null){
                 this.componentApp.getData(
                     moment(this.firstCalendarDate).format('DD-MM-YYYY'),
                     moment(this.lastCalendarDate).format('DD-MM-YYYY'),
+                    params,
                     (response) => {
+                        // if(params !== null && typeof params.type !== 'undefined' && params.type == 'free'){
+                        //     this.datesByType = response.data.data;
+                        // }else{
+                        //     this.dates = response.data.data;
+                        // }
+                        
                         this.dates = response.data.data;
                         
                         // console.log(JSON.parse(JSON.stringify(666666)));

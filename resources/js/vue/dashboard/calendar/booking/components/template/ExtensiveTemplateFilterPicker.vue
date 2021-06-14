@@ -18,7 +18,7 @@
         name: 'extensive_template_filter_picker',
         mounted() {
             // console.log(JSON.parse(JSON.stringify(7777)));
-            // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+            // console.log(JSON.parse(JSON.stringify(this.templates)));
         },
         props: ['templates','specifics','specificsAsIdKey','pickedTemplateIdsTrace'],
         data: function(){
@@ -43,8 +43,8 @@
                 
                 this.parsedTemplates = parsedTemplates;
                 
-                console.log(JSON.parse(JSON.stringify('parsedTemplates')));
-                console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
+                // console.log(JSON.parse(JSON.stringify('parsedTemplates')));
+                // console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
                 
                 // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
                 

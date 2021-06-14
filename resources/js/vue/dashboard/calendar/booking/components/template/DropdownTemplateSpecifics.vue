@@ -37,7 +37,8 @@
     export default {
         name: 'dropdown_template_specifics',
         mounted() {
-            // console.log(JSON.parse(JSON.stringify(999999996666666)));
+            // console.log(JSON.parse(JSON.stringify(7777)));
+            // console.log(JSON.parse(JSON.stringify(this.pickedParsedTemplateFields)));
             this.pickItemIfAlreadyPicked();
         },
         props: ['templates','parsedTemplates','specifics','specificsAsIdKey','pickedTemplateIdsTrace'],
@@ -70,11 +71,13 @@
             },
         },
         methods: {
+            //Exucutes on specific pick and emmits change if specific is template(do )
             change: function(itm){
                 if(this.pickedParsedTemplate !== null && itm.id == this.pickedParsedTemplate.id)
                     return;
                 
                 this.pickedParsedTemplate = null;
+                // if(typeof itm.fields === 'undefined')
                 this.$emit('change', null);
                 this.$nextTick(() => {
                     this.pickedParsedTemplate = itm;
@@ -82,9 +85,13 @@
                         this.$emit('change', itm.template);
                 });
             },
+            //Used if have been passed ids trace of already setted template
             pickItemIfAlreadyPicked: function(){
                 let _this = this;
                 if(this.pickedTemplateIdsTraceFirstElement !== null){
+                    // console.log(JSON.parse(JSON.stringify(4444)));
+                    // console.log(JSON.parse(JSON.stringify(_this.pickedTemplateIdsTraceFirstElement)));
+                    
                     let i = 0;
                     let interval = setInterval(function () {
                         if(i > 10)
@@ -110,7 +117,12 @@
         },
         watch: {
             pickedTemplateIdsTrace: function(val){
-                this.pickItemIfAlreadyPicked();
+                if(val === null){
+                    this.pickedParsedTemplate = null;
+                    this.pickedTemplateIdsTraceWithoutFirstElement = null
+                }else{
+                    this.pickItemIfAlreadyPicked();
+                }
             },
             parsedTemplates: function(val){
                 if(val === null)

@@ -5,7 +5,13 @@ var calendarBookingHelperFunc = function(){
         'dashboard_admin_calendar.template',
         'dashboard_admin_calendar.worker',
         'dashboard_admin_calendar.view'
-    ]
+    ];
+    
+    this.dashboardCalendarMoveEventItemsList = [
+        'hall',
+        'template',
+        'worker',
+    ];
     
     this.isFiltersEmpty = function(){
         if(typeof filters === 'undefined' || filters === null)
@@ -24,7 +30,26 @@ var calendarBookingHelperFunc = function(){
         return filters[type];
     }
     
+    this.getDashboardCalendarMoveEvent = function(type){
+        let _this = this;
+        
+        if(isDashboardCalendarMoveEventEmpty() || !this.dashboardCalendarMoveEventItemsList.includes(type))
+            return null;
+        return dashboardCalendarMoveEvent[type];
+        
+        function isDashboardCalendarMoveEventEmpty(){
+            if(typeof dashboardCalendarMoveEvent === 'undefined' || dashboardCalendarMoveEvent === null)
+                return true;
+            
+            let eventItemsList = _this.dashboardCalendarMoveEventItemsList;
+            for(let i = 0; i < eventItemsList.length; i++)
+                if(typeof dashboardCalendarMoveEvent[eventItemsList[i]] === 'undefined' || dashboardCalendarMoveEvent[eventItemsList[i]] === null)
+                    return true;
+            
+            return false;
+        }
+    }
+    
 }
-
 
 var calendarBookingHelper = new calendarBookingHelperFunc();

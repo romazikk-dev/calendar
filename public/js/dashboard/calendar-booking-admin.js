@@ -1934,23 +1934,74 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    getData: function getData(startDate, endDate) {
-      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
+    fullName: function fullName(obj) {
+      if (obj === null || typeof obj.first_name === 'undefined' || typeof obj.last_name === 'undefined') return null;
+      var fullName = obj.first_name;
+      if (obj.last_name !== null && typeof obj.last_name === 'string' && obj.last_name.length > 0) fullName += ' ' + obj.last_name;
+      return fullName;
+    },
+    getClientInfo: function getClientInfo(id) {
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
         console.log('success');
       };
-      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+      var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
         console.log('error');
       };
-      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
+      var finalCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
         console.log('final');
       };
-      // alert(3333);
+      var url, urlParams;
+      url = new URL(routes.calendar.booking.client.get);
+      urlParams = new URLSearchParams();
+      urlParams.append('id', id);
+      url.search = urlParams;
+      axios.get(url.toString()).then(function (response) {
+        var client = null;
+        if (typeof response.data.clients !== 'undefined' && Array.isArray(response.data.clients) && response.data.clients.length == 1) client = response.data.clients[0];
+        successCallback(client);
+      })["catch"](function (error) {// handle error
+        // console.log(error);
+      }).then(function () {// always executed
+      });
+    },
+    getData: function getData(startDate, endDate) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var successCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+        console.log('success');
+      };
+      var errorCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
+        console.log('error');
+      };
+      var finalCallback = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : function () {
+        console.log('final');
+      };
+      var url; // alert(3333);
       // return;
+      // console.log(JSON.parse(JSON.stringify('Params 8888')));
+      // console.log(JSON.parse(JSON.stringify(params)));
       // routes.calendar.booking.range
-      var url = routes.calendar.booking.range;
+
+      if (params !== null && typeof params.type !== 'undefined' && params.type !== null) {
+        url = routes.calendar.booking.booking.byType;
+      } else {
+        url = routes.calendar.booking.booking.all;
+      } // console.log(JSON.parse(JSON.stringify('Params 8888')));
+
+
       url = url.replace(':start', startDate);
       url = url.replace(':end', endDate);
-      url += '?' + this.search;
+      url += '?' + this.search; // console.log(JSON.parse(JSON.stringify('44444')));
+
+      if (params !== null && typeof params.type !== 'undefined' && params.type == 'free_time') {
+        url = url.replace(':type', 'free');
+        url = new URL(url);
+        var urlSearchParams = new URLSearchParams(url.search);
+        urlSearchParams.append("hall", 2);
+        urlSearchParams.append("worker", 1);
+        url.search = urlSearchParams;
+        url = url.toString();
+      }
+
       axios.get(url).then(function (response) {
         // handle success
         successCallback(response); // console.log(JSON.parse(JSON.stringify(this.dates)));
@@ -1961,6 +2012,10 @@ __webpack_require__.r(__webpack_exports__);
         // always executed
         finalCallback(); // $('#cancelBookModal').modal('hide');
       });
+
+      function isParam(param) {
+        return params !== null && typeof params[param] !== 'undefined';
+      }
     },
     bookOn: function bookOn(bookOnDate, bookOnTime) {
       var _this = this;
@@ -4809,32 +4864,96 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'ModalMovePathPicker',
-  mounted: function mounted() {// console.log('ModalMovePathPicker');
-    // $('.popover-dismiss').popover({
-    //     trigger: 'focus'
-    // });
-    // console.log(11111);
-    // console.log(component.$options.name);
-    // $('#enterModal').on('hidden.bs.modal', () => {
-    //     this.showTab = 'info';
-    // })
+  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
   },
-  props: ['clientInfo'],
+  // props: ['movingEvent'],
   data: function data() {
     return {
       modalId: 'pathPickerModal',
       pickedHall: null,
       pickedWorker: null,
       pickedTemplate: null,
+      eventDateObj: null,
       pickedTemplateIdsTrace: null,
       workers: null,
-      templates: null
+      templates: null // clientInfo: null,
+
     };
   },
   computed: {
+    movingEvent: function movingEvent() {
+      return this.$store.getters['moving_event/event'];
+    },
+    clientInfo: function clientInfo() {
+      return this.$store.getters['moving_event/client'];
+    },
+    eventDate: function eventDate() {
+      if (this.eventDateObj === null) return null;
+      return moment(this.eventDateObj).format('YYYY-MM-DD');
+    },
+    eventTime: function eventTime() {
+      if (this.eventDateObj === null) return null;
+      return moment(this.eventDateObj).format('HH:mm');
+    },
+    eventWeekday: function eventWeekday() {
+      if (this.eventDateObj === null) return null;
+      return moment(this.eventDateObj).format('ddd');
+    },
+    isAllItemsPicked: function isAllItemsPicked() {
+      return this.pickedHall !== null && this.pickedWorker !== null && this.pickedTemplate !== null;
+    },
+    isPickedItemsChanged: function isPickedItemsChanged() {
+      if (!this.isAllItemsPicked || this.movingEvent === null) return true;
+      return this.pickedHall.id !== this.movingEvent.hall_id || this.pickedWorker.id !== this.movingEvent.worker_id || this.pickedTemplate.id !== this.movingEvent.template_id;
+    },
+    fullPickedWorkerName: function fullPickedWorkerName() {
+      var fullName = this.fullName(this.pickedWorker);
+      return fullName !== null ? fullName : '---';
+    },
+    isHallPicked: function isHallPicked() {
+      return this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined';
+    },
     halls: function halls() {
       return this.$store.getters['halls/all'];
     },
@@ -4843,47 +4962,102 @@ __webpack_require__.r(__webpack_exports__);
     },
     templateSpecificsAsIdKey: function templateSpecificsAsIdKey() {
       return this.$store.getters['specifics/templateSpecificsAsIdKey'];
-    } // customTitle: function(){
-    //     return (name) => {
-    //         return this.$store.getters['custom_titles/title'](name);
-    //     }
-    // },
-
+    },
+    isMovingEvent: function isMovingEvent() {
+      return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
+    },
+    movingEventTemplate: function movingEventTemplate() {
+      return this.isMovingEvent ? this.movingEvent.template_without_user_scope : null;
+    },
+    isShown: function isShown() {
+      return $('#' + this.modalId).hasClass('in');
+    }
   },
   methods: {
+    close: function close() {
+      this.$store.commit('moving_event/reset');
+      this.hide();
+    },
+    pickTime: function pickTime() {
+      if (this.isAllItemsPicked) {
+        this.$store.commit('move_event/setItems', {
+          hall: this.pickedHall,
+          worker: this.pickedWorker,
+          template: this.pickedTemplate
+        });
+        this.hide();
+        this.$emit('pick_time');
+      }
+    },
+    reset: function reset() {
+      this.resetPickedItems();
+      this.fillFields();
+    },
+    setPickedTemplateIdsTrace: function setPickedTemplateIdsTrace() {
+      if (this.movingEventTemplate === null) return;
+      var template = JSON.parse(JSON.stringify(this.movingEventTemplate));
+      if (typeof template.specific === 'undefined' || template.specific === null) return;
+      if (typeof template.specific.ids_trace === 'undefined' || template.specific.ids_trace === null) return [template.specific.id];
+      var idsTraceString = JSON.parse(JSON.stringify(template.specific.ids_trace));
+      var idsTrace = idsTraceString.split(',').map(function (val) {
+        return parseInt(val);
+      });
+      idsTrace.push(template.specific.id);
+      idsTrace.push(template.id);
+      this.pickedTemplateIdsTrace = idsTrace; // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+      // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+    },
+    fullName: function fullName(obj) {
+      if (obj === null || typeof obj.first_name === 'undefined' || typeof obj.last_name === 'undefined') return null;
+      var fullName = obj.first_name;
+      if (obj.last_name !== null && typeof obj.last_name === 'string' && obj.last_name.length > 0) fullName += ' ' + obj.last_name;
+      return fullName;
+    },
     show: function show() {
       $('#' + this.modalId).modal('show');
+    },
+    hide: function hide() {
+      $('#' + this.modalId).modal('hide');
     },
     resetPickedItems: function resetPickedItems() {
       var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       if (items !== null && !Array.isArray(items)) return;
       if (items === null || items.includes("hall")) this.pickedHall = null;
-      if (items === null || items.includes("template")) this.pickedTemplate = null;
+
+      if (items === null || items.includes("template")) {
+        this.pickedTemplate = null;
+        this.pickedTemplateIdsTrace = null;
+      }
+
       if (items === null || items.includes("worker")) this.pickedWorker = null;
     },
     change: function change(type, itm) {
-      var _this = this,
-          _itm,
-          _itm2;
+      var _this = this;
 
-      itm = JSON.parse(JSON.stringify(itm)); // console.log(itm);
+      var callbackResolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      itm = JSON.parse(JSON.stringify(itm));
+      var url, urlParams; // if(itm === null)
+      //     return;
 
       switch (type) {
         case 'hall':
+          if (this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined' && parseInt(this.pickedHall.id) === parseInt(itm.id)) return;
           this.resetPickedItems();
-          var url = new URL(routes.calendar.booking.template.get);
-          var params = new URLSearchParams();
-          params.append('hall_id', itm.id);
-          url.search = params;
-          axios.post(url.toString()).then(function (response) {
+          url = new URL(routes.calendar.booking.template.get);
+          urlParams = new URLSearchParams();
+          urlParams.append('hall_id', itm.id);
+          url.search = urlParams;
+          axios.get(url.toString()).then(function (response) {
+            _this.pickedHall = itm;
             if (typeof response.data.templates === 'undefined' || response.data.templates === null) return;
             var templates = [];
             response.data.templates.forEach(function (item, i) {
               templates.push(item);
             });
-            _this.templates = templates;
-            _this.pickedItmHall = itm;
+            _this.templates = templates; // this.pickedHall = itm;
+
             console.log(JSON.parse(JSON.stringify(_this.templates)));
+            if (callbackResolver !== null) callbackResolver();
           })["catch"](function (error) {
             // handle error
             console.log(error);
@@ -4892,19 +5066,34 @@ __webpack_require__.r(__webpack_exports__);
           break;
 
         case 'template':
+          // alert(8888);
+          console.log(JSON.parse(JSON.stringify(itm))); // return;
+
           this.resetPickedItems(['template', 'worker']); // lo(222);
           // console.log('5555555');
           // console.log(this.pickedItmTemplate);
+          // this.pickedTemplate = null;
 
-          if (itm === null) return; // alert(111);
+          if (itm === null) {
+            // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+            return;
+          }
 
-          axios.get(routes.calendar.booking.worker.index + '?template=' + itm.id).then(function (response) {
+          url = new URL(routes.calendar.booking.worker.get);
+          urlParams = new URLSearchParams();
+          urlParams.append('hall_id', this.pickedHall.id);
+          urlParams.append('template_id', itm.id);
+          url.search = urlParams; // alert(111);
+
+          axios.get(url.toString()).then(function (response) {
             var workers = [];
             response.data.workers.forEach(function (item, i) {
               workers.push(item);
             });
             _this.workers = workers;
-            _this.pickedItmTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
+            _this.pickedTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
+
+            if (callbackResolver !== null) callbackResolver();
           })["catch"](function (error) {
             // handle error
             console.log(error);
@@ -4913,19 +5102,84 @@ __webpack_require__.r(__webpack_exports__);
           break;
 
         case 'worker':
-          this.pickedItmWorker = (_itm = itm) !== null && _itm !== void 0 ? _itm : null;
+          this.pickedWorker = itm ? itm : null;
           break;
-
-        case 'view':
-          this.pickedItmView = (_itm2 = itm) !== null && _itm2 !== void 0 ? _itm2 : null;
-          break;
+        // case 'view':
+        // 
+        //     this.pickedView = (itm ?? null);
+        // 
+        //     break;
 
         default:
+      }
+    },
+    getItemById: function getItemById(items, id) {
+      var item = null;
+
+      for (var i = 0; i < items.length; i++) {
+        if (typeof items[i].id !== 'undefined' && items[i].id == id) {
+          item = items[i];
+          break;
+        }
+      }
+
+      return item;
+    },
+    fillFields: function fillFields() {
+      var _this2 = this;
+
+      if (this.isMovingEvent) {
+        this.eventDateObj = moment(this.movingEvent.time).toDate();
+        this.resetPickedItems();
+        var hall = this.getItemById(this.halls, this.movingEvent.hall_id); // console.log(JSON.parse(JSON.stringify(hall)));
+
+        if (hall === null) return;
+        new Promise(function (resolve, reject) {
+          _this2.change('hall', hall, function () {
+            return resolve();
+          });
+        }).then(function (result) {
+          var template = _this2.getItemById(_this2.templates, _this2.movingEvent.template_id);
+
+          return new Promise(function (resolve, reject) {
+            _this2.change('template', template, function () {
+              return resolve();
+            });
+
+            _this2.setPickedTemplateIdsTrace();
+          });
+        }).then(function (result) {
+          var worker = _this2.getItemById(_this2.workers, _this2.movingEvent.worker_id);
+
+          _this2.change('worker', worker);
+        });
       }
     }
   },
   components: {
     TemplatePicker: _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  },
+  watch: {
+    movingEvent: function movingEvent(val) {
+      // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
+      // console.log(JSON.parse(JSON.stringify(val)));
+      if (val !== null) {
+        this.fillFields(); // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
+        // console.log(JSON.parse(JSON.stringify(val)));
+      }
+    },
+    pickedHall: function pickedHall(val) {
+      // console.log(JSON.parse(JSON.stringify('pickedHall changed')));
+      if (val === null) {
+        this.templates = null;
+        this.workers = null;
+      }
+    },
+    pickedTemplate: function pickedTemplate(val) {
+      if (val === null) {
+        this.workers = null;
+      }
+    }
   }
 });
 
@@ -4945,6 +5199,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Navigation_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Navigation.vue */ "./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue");
 /* harmony import */ var _MonthCell_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MonthCell.vue */ "./resources/js/vue/dashboard/calendar/booking/components/MonthCell.vue");
 /* harmony import */ var _ModalMovePathPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalMovePathPicker.vue */ "./resources/js/vue/dashboard/calendar/booking/components/ModalMovePathPicker.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5047,12 +5315,16 @@ __webpack_require__.r(__webpack_exports__);
       firstCalendarDate: null,
       lastCalendarDate: null,
       cancelBookData: null,
-      componentApp: null,
-      movedEvent: null // firstMonthDate: moment(this.currentDateObj).startOf('month').toDate(),
-
+      componentApp: null
     };
   },
   computed: {
+    movedEvent: function movedEvent() {
+      return this.$store.getters['moving_event/event'];
+    },
+    movedEventClient: function movedEventClient() {
+      return this.$store.getters['moving_event/client'];
+    },
     halls: function halls() {
       return this.$store.getters['halls/all'];
     },
@@ -5077,9 +5349,39 @@ __webpack_require__.r(__webpack_exports__);
 
   },
   methods: {
+    pickTime: function pickTime() {
+      if (this.movedEvent !== null) {
+        // store.commit('move_event/setItems', items);
+        this.getData({
+          type: 'free_time'
+        });
+        console.log(JSON.parse(JSON.stringify('movedEvent not null')));
+      }
+
+      console.log(JSON.parse(JSON.stringify('pickTime')));
+    },
     moveEvent: function moveEvent(event) {
-      console.log('moveEvent');
-      this.$refs.move_path_picker.show();
+      var _this2 = this;
+
+      // console.log('moveEvent');
+      // console.log(JSON.parse(JSON.stringify(event)));
+      new Promise(function (resolve, reject) {
+        _this2.componentApp.getClientInfo(event.client_id, function (data) {
+          if (data === null) {
+            alert('Can`t get client info');
+            return;
+          }
+
+          resolve(data);
+        });
+      }).then(function (data) {
+        _this2.$store.commit('moving_event/setItems', {
+          client: data,
+          event: event
+        });
+
+        _this2.$refs.move_path_picker.show();
+      });
     },
     cancelBook: function cancelBook(event) {
       this.cancelBookData = event;
@@ -5150,13 +5452,18 @@ __webpack_require__.r(__webpack_exports__);
       return date;
     },
     getData: function getData() {
-      var _this2 = this;
+      var _this3 = this;
 
-      var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      this.componentApp.getData(moment(this.firstCalendarDate).format('DD-MM-YYYY'), moment(this.lastCalendarDate).format('DD-MM-YYYY'), function (response) {
-        _this2.dates = response.data.data; // console.log(JSON.parse(JSON.stringify(666666)));
+      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      this.componentApp.getData(moment(this.firstCalendarDate).format('DD-MM-YYYY'), moment(this.lastCalendarDate).format('DD-MM-YYYY'), params, function (response) {
+        // if(params !== null && typeof params.type !== 'undefined' && params.type == 'free'){
+        //     this.datesByType = response.data.data;
+        // }else{
+        //     this.dates = response.data.data;
+        // }
+        _this3.dates = response.data.data; // console.log(JSON.parse(JSON.stringify(666666)));
 
-        console.log(JSON.parse(JSON.stringify(_this2.dates)));
+        console.log(JSON.parse(JSON.stringify(_this3.dates)));
       }, function () {}, function () {
         $('#cancelBookModal').modal('hide');
       });
@@ -5235,6 +5542,67 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -6479,7 +6847,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'dropdown_template_specifics',
   mounted: function mounted() {
-    // console.log(JSON.parse(JSON.stringify(999999996666666)));
+    // console.log(JSON.parse(JSON.stringify(7777)));
+    // console.log(JSON.parse(JSON.stringify(this.pickedParsedTemplateFields)));
     this.pickItemIfAlreadyPicked();
   },
   props: ['templates', 'parsedTemplates', 'specifics', 'specificsAsIdKey', 'pickedTemplateIdsTrace'],
@@ -6509,21 +6878,26 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    //Exucutes on specific pick and emmits change if specific is template(do )
     change: function change(itm) {
       var _this2 = this;
 
       if (this.pickedParsedTemplate !== null && itm.id == this.pickedParsedTemplate.id) return;
-      this.pickedParsedTemplate = null;
+      this.pickedParsedTemplate = null; // if(typeof itm.fields === 'undefined')
+
       this.$emit('change', null);
       this.$nextTick(function () {
         _this2.pickedParsedTemplate = itm;
         if (itm.type == 'template') _this2.$emit('change', itm.template);
       });
     },
+    //Used if have been passed ids trace of already setted template
     pickItemIfAlreadyPicked: function pickItemIfAlreadyPicked() {
       var _this = this;
 
       if (this.pickedTemplateIdsTraceFirstElement !== null) {
+        // console.log(JSON.parse(JSON.stringify(4444)));
+        // console.log(JSON.parse(JSON.stringify(_this.pickedTemplateIdsTraceFirstElement)));
         var i = 0;
         var interval = setInterval(function () {
           if (i > 10) clearInterval(interval);
@@ -6543,7 +6917,12 @@ __webpack_require__.r(__webpack_exports__);
   components: {},
   watch: {
     pickedTemplateIdsTrace: function pickedTemplateIdsTrace(val) {
-      this.pickItemIfAlreadyPicked();
+      if (val === null) {
+        this.pickedParsedTemplate = null;
+        this.pickedTemplateIdsTraceWithoutFirstElement = null;
+      } else {
+        this.pickItemIfAlreadyPicked();
+      }
     },
     parsedTemplates: function parsedTemplates(val) {
       if (val === null) this.pickedParsedTemplate = null;
@@ -6582,7 +6961,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'extensive_template_filter_picker',
   mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(7777)));
-    // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+    // console.log(JSON.parse(JSON.stringify(this.templates)));
   },
   props: ['templates', 'specifics', 'specificsAsIdKey', 'pickedTemplateIdsTrace'],
   data: function data() {
@@ -6603,9 +6982,9 @@ __webpack_require__.r(__webpack_exports__);
 
       var parsedTemplates = {};
       getRowOfTemps();
-      this.parsedTemplates = parsedTemplates;
-      console.log(JSON.parse(JSON.stringify('parsedTemplates')));
-      console.log(JSON.parse(JSON.stringify(this.parsedTemplates))); // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
+      this.parsedTemplates = parsedTemplates; // console.log(JSON.parse(JSON.stringify('parsedTemplates')));
+      // console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
+      // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
 
       function getRowOfTemps() {
         // let parsedTemplatesLevel = [];
@@ -6729,14 +7108,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/dashboard/calendar/booking/store/modules/filters.js");
-/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/dashboard/calendar/booking/store/modules/owner.js");
-/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/dashboard/calendar/booking/store/modules/client.js");
-/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/dashboard/calendar/booking/store/modules/halls.js");
-/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/dashboard/calendar/booking/store/modules/updater.js");
-/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/dashboard/calendar/booking/store/modules/specifics.js");
-/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/dashboard/calendar/booking/store/modules/custom_titles.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/dashboard/calendar/booking/store/modules/filters.js");
+/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/dashboard/calendar/booking/store/modules/owner.js");
+/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/dashboard/calendar/booking/store/modules/client.js");
+/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/dashboard/calendar/booking/store/modules/halls.js");
+/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/dashboard/calendar/booking/store/modules/updater.js");
+/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/dashboard/calendar/booking/store/modules/specifics.js");
+/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/dashboard/calendar/booking/store/modules/custom_titles.js");
+/* harmony import */ var _modules_moving_event__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/moving_event */ "./resources/js/vue/dashboard/calendar/booking/store/modules/moving_event.js");
 
 
 
@@ -6746,17 +7126,19 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_8__.default.use(vuex__WEBPACK_IMPORTED_MODULE_0__.default); // const debug = process.env.NODE_ENV !== 'production'
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_0__.default.Store({
+vue__WEBPACK_IMPORTED_MODULE_8__.default.use(vuex__WEBPACK_IMPORTED_MODULE_9__.default); // const debug = process.env.NODE_ENV !== 'production'
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_9__.default.Store({
   modules: {
-    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_1__.default,
-    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_2__.default,
-    client: _modules_client__WEBPACK_IMPORTED_MODULE_3__.default,
-    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_4__.default,
-    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_5__.default,
-    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_6__.default,
-    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_7__.default
+    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_0__.default,
+    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_1__.default,
+    client: _modules_client__WEBPACK_IMPORTED_MODULE_2__.default,
+    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_3__.default,
+    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default,
+    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_5__.default,
+    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__.default,
+    moving_event: _modules_moving_event__WEBPACK_IMPORTED_MODULE_7__.default
   } // strict: debug,
   // plugins: debug ? [createLogger()] : []
 
@@ -7050,6 +7432,115 @@ var mutations = {// changeFilters: (state, newFilters) => {
   getters: getters // actions,
   // mutations
 
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/store/modules/moving_event.js":
+/*!***********************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/store/modules/moving_event.js ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    event: null,
+    client: null // template: calendarBookingHelper.getFilter('template'),
+    // worker: calendarBookingHelper.getFilter('worker'),
+    // urlSearchPath: null,
+
+  };
+}; // getters
+
+
+var getters = {
+  all: function all(state) {
+    return {
+      event: state.event,
+      client: state.client // hall: state.template,
+      // worker: state.worker,
+
+    };
+  },
+  event: function event(state) {
+    return state.event;
+  },
+  client: function client(state) {
+    return state.client;
+  }
+}; // mutations
+
+var mutations = {
+  my: function my(state) {
+    alert(111);
+  },
+  reset: function reset(state) {
+    state.event = null;
+    state.client = null;
+  },
+  setItems: function setItems(state, items) {
+    if (typeof items === 'undefined') return; // alert(newFilters);
+    // console.log(newFilters);
+
+    if (typeof items.event !== 'undefined' && typeof items.event !== null) state.event = items.event;
+    if (typeof items.client !== 'undefined' && typeof items.client !== null) state.client = items.client;
+
+    if (typeof items.event !== 'undefined' && typeof items.event !== null || typeof items.client !== 'undefined' && typeof items.client !== null) {
+      cookie.set('moved_event', {
+        event: state.event.id,
+        client: state.client.id
+      });
+    }
+  } // changeFilters: (state, newFilters) => {
+  //     // alert(newFilters);
+  //     // console.log(newFilters);
+  //     if(typeof newFilters !== 'undefined' &&
+  //     typeof newFilters.hall !== 'undefined' && typeof newFilters.hall !== null &&
+  //     typeof newFilters.template !== 'undefined' && typeof newFilters.template !== null &&
+  //     typeof newFilters.worker !== 'undefined' && typeof newFilters.worker !== null &&
+  //     typeof newFilters.view !== 'undefined'){
+  //         state.items.hall = newFilters.hall;
+  //         state.items.template = newFilters.template;
+  //         state.items.worker = newFilters.worker;
+  //         state.items.view = newFilters.view;
+  // 
+  //         cookie.set('filters', {
+  //             hall: state.items.hall.id,
+  //             worker: state.items.worker.id,
+  //             template: state.items.template.id,
+  //             view: state.items.view,
+  //         });
+  //     }
+  // },
+  // changeView: (state, view) => {
+  //     if(typeof view !== 'undefined' && view !== null &&
+  //     state.views.includes(view.toLowerCase().trim())){
+  //         state.items.view = view;
+  //         // cookie.set('filters.view', view);
+  //         cookie.set('filters', {
+  //             hall: state.items.hall.id,
+  //             worker: state.items.worker.id,
+  //             template: state.items.template.id,
+  //             view: state.items.view,
+  //         });
+  //     }
+  // },
+
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters,
+  // actions,
+  mutations: mutations
 });
 
 /***/ }),
@@ -7398,7 +7889,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".card-body[data-v-747a5bcd] {\n  padding: 0px;\n}\n.card-body #hallDropdown .dropdown-toggle[data-v-747a5bcd] {\n  width: 100%;\n  text-align: left;\n  position: relative;\n}\n.card-body #hallDropdown .dropdown-toggle[data-v-747a5bcd]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  position: absolute;\n  top: 12px;\n  right: 10px;\n}\n.card-body #hallDropdown .dropdown-menu[data-v-747a5bcd] {\n  width: 100%;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".card-body[data-v-747a5bcd] {\n  padding: 0px;\n}\n.card-body .btn-reset[data-v-747a5bcd] {\n  width: 100%;\n}\n.card-body .client-info[data-v-747a5bcd] {\n  position: relative;\n}\n.card-body .client-info .titt[data-v-747a5bcd] {\n  position: absolute;\n  top: -10px;\n  left: 14px;\n}\n.card-body .dropdown-standart .dropdown-toggle[data-v-747a5bcd] {\n  width: 100%;\n  text-align: left;\n  position: relative;\n}\n.card-body .dropdown-standart .dropdown-toggle[data-v-747a5bcd]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  position: absolute;\n  top: 12px;\n  right: 10px;\n}\n.card-body .dropdown-standart .dropdown-menu[data-v-747a5bcd] {\n  width: 100%;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -52120,10 +52611,27 @@ var render = function() {
                     staticClass: "modal-title",
                     attrs: { id: _vm.modalId + "Label" }
                   },
-                  [_vm._v("Modal title")]
+                  [_vm._v("Event")]
                 ),
                 _vm._v(" "),
-                _vm._m(0)
+                _c(
+                  "button",
+                  {
+                    staticClass: "close",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.close()
+                      }
+                    }
+                  },
+                  [
+                    _c("span", { attrs: { "aria-hidden": "true" } }, [
+                      _vm._v("×")
+                    ])
+                  ]
+                )
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "modal-body" }, [
@@ -52131,10 +52639,87 @@ var render = function() {
                   "div",
                   { staticClass: "card-body" },
                   [
+                    _vm.clientInfo
+                      ? _c(
+                          "div",
+                          {
+                            staticClass: "alert alert-info client-info",
+                            attrs: { role: "alert" }
+                          },
+                          [
+                            _c(
+                              "span",
+                              { staticClass: "badge badge-info titt" },
+                              [_vm._v("Client:")]
+                            ),
+                            _vm._v(" "),
+                            _c("b", [
+                              _vm._v(_vm._s(_vm.fullName(_vm.clientInfo)))
+                            ]),
+                            _c("br"),
+                            _vm._v(
+                              "\n                                " +
+                                _vm._s(
+                                  _vm.clientInfo.email
+                                    ? _vm.clientInfo.email
+                                    : ""
+                                )
+                            ),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "small" }, [
+                              !_vm.isPickedItemsChanged
+                                ? _c("b", [
+                                    _vm._v(
+                                      _vm._s(_vm.eventDate) +
+                                        " " +
+                                        _vm._s(_vm.eventWeekday) +
+                                        " " +
+                                        _vm._s(_vm.eventTime)
+                                    )
+                                  ])
+                                : _c(
+                                    "b",
+                                    {
+                                      staticClass:
+                                        "badge badge-warning text-left"
+                                    },
+                                    [
+                                      _vm._v(
+                                        "Please choose all fields and pick a time"
+                                      )
+                                    ]
+                                  )
+                            ])
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.isPickedItemsChanged
+                      ? _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-sm btn-warning btn-reset",
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.reset()
+                              }
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                                    Reset to initial values\n                            "
+                            )
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
                     _c(
                       "div",
                       {
-                        staticClass: "dropdown",
+                        staticClass: "dropdown dropdown-standart",
                         attrs: { id: "hallDropdown" }
                       },
                       [
@@ -52151,7 +52736,7 @@ var render = function() {
                             _vm._v(
                               "\n                                    " +
                                 _vm._s(
-                                  _vm.pickedHall == null
+                                  !_vm.isHallPicked
                                     ? "---"
                                     : _vm.pickedHall.title
                                 ) +
@@ -52166,20 +52751,24 @@ var render = function() {
                           [
                             _vm.halls.length
                               ? _vm._l(_vm.halls, function(itm) {
-                                  return _c(
-                                    "a",
-                                    {
-                                      staticClass: "dropdown-item",
-                                      attrs: { href: "#" },
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.change("hall", itm)
-                                        }
-                                      }
-                                    },
-                                    [_vm._v(_vm._s(itm.title))]
-                                  )
+                                  return !_vm.isHallPicked ||
+                                    (_vm.isHallPicked &&
+                                      _vm.pickedHall.id !== itm.id)
+                                    ? _c(
+                                        "a",
+                                        {
+                                          staticClass: "dropdown-item",
+                                          attrs: { href: "#" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.change("hall", itm)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v(_vm._s(itm.title))]
+                                      )
+                                    : _vm._e()
                                 })
                               : [
                                   _c(
@@ -52213,13 +52802,125 @@ var render = function() {
                             }
                           }
                         })
-                      : _vm._e()
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "dropdown dropdown-standart",
+                        attrs: { id: "workerDropdown" }
+                      },
+                      [
+                        _c("span", [_vm._v("Worker:")]),
+                        _c("br"),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-sm btn-info dropdown-toggle",
+                            class: { disabled: !_vm.workers },
+                            attrs: {
+                              href: "#",
+                              "data-toggle": "dropdown",
+                              "aria-haspopup": "true",
+                              "aria-expanded": "false"
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(_vm.fullPickedWorkerName) +
+                                "\n                                "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "dropdown-menu" },
+                          _vm._l(_vm.workers, function(itm) {
+                            return _c(
+                              "a",
+                              {
+                                staticClass: "dropdown-item",
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.change("worker", itm)
+                                  }
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                        " +
+                                    _vm._s(_vm.fullName(itm)) +
+                                    "\n                                    "
+                                )
+                              ]
+                            )
+                          }),
+                          0
+                        )
+                      ]
+                    )
                   ],
                   1
                 )
               ]),
               _vm._v(" "),
-              _vm._m(1)
+              _c("div", { staticClass: "modal-footer" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-sm btn-secondary",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.close()
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                                Close\n                        "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-sm btn-primary",
+                    attrs: { disabled: !_vm.isAllItemsPicked, type: "button" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.pickTime()
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                                Choose time\n                        "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-sm btn-success",
+                    attrs: {
+                      disabled:
+                        !_vm.isAllItemsPicked || !_vm.isPickedItemsChanged,
+                      type: "button"
+                    }
+                  },
+                  [_vm._v("Save")]
+                )
+              ])
             ])
           ]
         )
@@ -52227,46 +52928,7 @@ var render = function() {
     )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass: "close",
-        attrs: {
-          type: "button",
-          "data-dismiss": "modal",
-          "aria-label": "Close"
-        }
-      },
-      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-footer" }, [
-      _c(
-        "button",
-        {
-          staticClass: "btn btn-secondary",
-          attrs: { type: "button", "data-dismiss": "modal" }
-        },
-        [_vm._v("Close")]
-      ),
-      _vm._v(" "),
-      _c(
-        "button",
-        { staticClass: "btn btn-primary", attrs: { type: "button" } },
-        [_vm._v("Save changes")]
-      )
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -52300,9 +52962,69 @@ var render = function() {
         on: { previous: _vm.previous, next: _vm.next, today: _vm.today }
       }),
       _vm._v(" "),
-      _c("modal-move-path-picker", { ref: "move_path_picker" }),
+      _c("modal-move-path-picker", {
+        ref: "move_path_picker",
+        on: {
+          pick_time: function($event) {
+            return _vm.pickTime()
+          }
+        }
+      }),
       _vm._v(" "),
       _c("div", { staticClass: "month-calendar" }, [
+        _vm.movedEvent
+          ? _c("table", [
+              _c(
+                "tr",
+                { staticClass: "divider" },
+                _vm._l(7, function(td) {
+                  return _c("td")
+                }),
+                0
+              ),
+              _vm._v(" "),
+              _c("tr", [
+                _c(
+                  "td",
+                  { staticClass: "alert-info", attrs: { colspan: "7" } },
+                  [
+                    _c("span", { staticClass: "badge badge-info titt" }, [
+                      _vm._v("Moving event:")
+                    ]),
+                    _c("br"),
+                    _vm._v("\n                    Client: "),
+                    _c("b", [
+                      _vm._v(
+                        _vm._s(_vm.componentApp.fullName(_vm.movedEventClient))
+                      )
+                    ]),
+                    _c("br"),
+                    _vm._v("\n                    Email:  "),
+                    _c("b", [
+                      _vm._v(
+                        _vm._s(
+                          _vm.movedEventClient.email
+                            ? _vm.movedEventClient.email
+                            : ""
+                        )
+                      )
+                    ]),
+                    _c("br")
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "tr",
+                { staticClass: "divider" },
+                _vm._l(7, function(td) {
+                  return _c("td")
+                }),
+                0
+              )
+            ])
+          : _vm._e(),
+        _vm._v(" "),
         _c("table", [
           _c("thead", [
             _c(
@@ -52317,17 +53039,6 @@ var render = function() {
           _c(
             "tbody",
             [
-              _c(
-                "tr",
-                { staticClass: "divider" },
-                _vm._l(7, function(td) {
-                  return _c("td")
-                }),
-                0
-              ),
-              _vm._v(" "),
-              _vm._m(0),
-              _vm._v(" "),
               _c(
                 "tr",
                 { staticClass: "divider" },
@@ -52412,18 +53123,7 @@ var render = function() {
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("tr", [
-      _c("td", { attrs: { colspan: "7" } }, [
-        _vm._v("\n                    eqweada\n                    ")
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -52527,142 +53227,232 @@ var render = function() {
             "ul",
             _vm._l(_vm.items, function(itm) {
               return _vm.item.items
-                ? _c("li", [
-                    _c(
-                      "div",
-                      {
-                        staticClass: "event",
-                        class: {
-                          approved: itm.approved
-                        }
-                      },
-                      [
-                        _c("div", { staticClass: "top-part" }, [
-                          _c("b", [
-                            _vm._v(_vm._s(itm.approved ? "Booked" : "Request"))
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "actions" }, [
-                            _c("ul", [
-                              _c("li", [
-                                _c(
-                                  "a",
-                                  {
-                                    attrs: { href: "#" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.$emit("move", itm)
-                                      }
-                                    }
-                                  },
-                                  [
-                                    _c(
-                                      "svg",
-                                      {
-                                        staticClass: "bi bi-arrows-move",
-                                        attrs: {
-                                          xmlns: "http://www.w3.org/2000/svg",
-                                          width: "12",
-                                          height: "12",
-                                          fill: "currentColor",
-                                          viewBox: "0 0 16 16"
-                                        }
-                                      },
-                                      [
-                                        _c("path", {
-                                          attrs: {
-                                            "fill-rule": "evenodd",
-                                            d:
-                                              "M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"
-                                          }
-                                        })
-                                      ]
-                                    )
-                                  ]
+                ? _c(
+                    "li",
+                    [
+                      itm.type == "free"
+                        ? [
+                            _c("div", { staticClass: "free-slot" }, [
+                              _c("b", [_vm._v("Free time:")]),
+                              _c("br"),
+                              _vm._v(" "),
+                              _c("b", [
+                                _vm._v(
+                                  _vm._s(itm.from) + " - " + _vm._s(itm.to)
                                 )
                               ]),
                               _vm._v(" "),
-                              _c("li", [
-                                _c("a", { attrs: { href: "#" } }, [
-                                  _c(
-                                    "svg",
-                                    {
-                                      staticClass: "bi bi-check",
-                                      attrs: {
-                                        xmlns: "http://www.w3.org/2000/svg",
-                                        width: "18",
-                                        height: "18",
-                                        fill: "currentColor",
-                                        viewBox: "0 0 16 16"
-                                      }
-                                    },
-                                    [
-                                      _c("path", {
-                                        attrs: {
-                                          d:
-                                            "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-                                        }
-                                      })
-                                    ]
+                              itm.not_approved_bookings
+                                ? _c(
+                                    "div",
+                                    { staticClass: "not-approved-bookings" },
+                                    _vm._l(itm.not_approved_bookings, function(
+                                      itmm
+                                    ) {
+                                      return _c(
+                                        "div",
+                                        {
+                                          staticClass:
+                                            "not-approved-bookings-itm"
+                                        },
+                                        [
+                                          _c("b", [_vm._v("In approving:")]),
+                                          _c("br"),
+                                          _vm._v(" "),
+                                          _c("b", [
+                                            _vm._v(
+                                              _vm._s(
+                                                itmm.booking
+                                                  .template_without_user_scope
+                                                  .title
+                                              )
+                                            ),
+                                            _c("br"),
+                                            _vm._v(
+                                              "\n                                " +
+                                                _vm._s(itmm.from) +
+                                                " - " +
+                                                _vm._s(itmm.to)
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c(
+                                            "button",
+                                            {
+                                              staticClass:
+                                                "btn btn-link btn-sm btn-block cancel",
+                                              attrs: { type: "button" },
+                                              on: {
+                                                click: function($event) {
+                                                  $event.preventDefault()
+                                                  return _vm.$emit(
+                                                    "cancel",
+                                                    itmm.booking
+                                                  )
+                                                }
+                                              }
+                                            },
+                                            [_c("span", [_vm._v("×")])]
+                                          )
+                                        ]
+                                      )
+                                    }),
+                                    0
+                                  )
+                                : _vm._e()
+                            ])
+                          ]
+                        : [
+                            _c(
+                              "div",
+                              {
+                                staticClass: "event",
+                                class: {
+                                  approved: itm.approved
+                                }
+                              },
+                              [
+                                _c("div", { staticClass: "top-part" }, [
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(
+                                        itm.approved ? "Booked" : "Request"
+                                      )
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("div", { staticClass: "actions" }, [
+                                    _c("ul", [
+                                      _c("li", [
+                                        _c(
+                                          "a",
+                                          {
+                                            attrs: { href: "#" },
+                                            on: {
+                                              click: function($event) {
+                                                $event.preventDefault()
+                                                return _vm.$emit("move", itm)
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _c(
+                                              "svg",
+                                              {
+                                                staticClass:
+                                                  "bi bi-arrows-move",
+                                                attrs: {
+                                                  xmlns:
+                                                    "http://www.w3.org/2000/svg",
+                                                  width: "12",
+                                                  height: "12",
+                                                  fill: "currentColor",
+                                                  viewBox: "0 0 16 16"
+                                                }
+                                              },
+                                              [
+                                                _c("path", {
+                                                  attrs: {
+                                                    "fill-rule": "evenodd",
+                                                    d:
+                                                      "M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"
+                                                  }
+                                                })
+                                              ]
+                                            )
+                                          ]
+                                        )
+                                      ]),
+                                      _vm._v(" "),
+                                      _c("li", [
+                                        _c("a", { attrs: { href: "#" } }, [
+                                          _c(
+                                            "svg",
+                                            {
+                                              staticClass: "bi bi-check",
+                                              attrs: {
+                                                xmlns:
+                                                  "http://www.w3.org/2000/svg",
+                                                width: "18",
+                                                height: "18",
+                                                fill: "currentColor",
+                                                viewBox: "0 0 16 16"
+                                              }
+                                            },
+                                            [
+                                              _c("path", {
+                                                attrs: {
+                                                  d:
+                                                    "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+                                                }
+                                              })
+                                            ]
+                                          )
+                                        ])
+                                      ]),
+                                      _vm._v(" "),
+                                      _c("li", [
+                                        _c(
+                                          "a",
+                                          {
+                                            attrs: { href: "#" },
+                                            on: {
+                                              click: function($event) {
+                                                $event.preventDefault()
+                                                return _vm.$emit("remove", itm)
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _c(
+                                              "svg",
+                                              {
+                                                staticClass: "bi bi-x",
+                                                attrs: {
+                                                  xmlns:
+                                                    "http://www.w3.org/2000/svg",
+                                                  width: "16",
+                                                  height: "16",
+                                                  fill: "currentColor",
+                                                  viewBox: "0 0 16 16"
+                                                }
+                                              },
+                                              [
+                                                _c("path", {
+                                                  attrs: {
+                                                    d:
+                                                      "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                                                  }
+                                                })
+                                              ]
+                                            )
+                                          ]
+                                        )
+                                      ])
+                                    ])
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("b", [
+                                  _vm._v(
+                                    _vm._s(
+                                      itm.template_without_user_scope.title
+                                    )
+                                  ),
+                                  _c("br"),
+                                  _vm._v(
+                                    "\n                        " +
+                                      _vm._s(itm.time_from) +
+                                      " - " +
+                                      _vm._s(itm.time_to)
                                   )
                                 ])
-                              ]),
-                              _vm._v(" "),
-                              _c("li", [
-                                _c(
-                                  "a",
-                                  {
-                                    attrs: { href: "#" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.$emit("remove", itm)
-                                      }
-                                    }
-                                  },
-                                  [
-                                    _c(
-                                      "svg",
-                                      {
-                                        staticClass: "bi bi-x",
-                                        attrs: {
-                                          xmlns: "http://www.w3.org/2000/svg",
-                                          width: "16",
-                                          height: "16",
-                                          fill: "currentColor",
-                                          viewBox: "0 0 16 16"
-                                        }
-                                      },
-                                      [
-                                        _c("path", {
-                                          attrs: {
-                                            d:
-                                              "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
-                                          }
-                                        })
-                                      ]
-                                    )
-                                  ]
-                                )
-                              ])
-                            ])
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c("b", [
-                          _vm._v(_vm._s(itm.template_without_user_scope.title)),
-                          _c("br"),
-                          _vm._v(
-                            "\n                    " +
-                              _vm._s(itm.time_from) +
-                              " - " +
-                              _vm._s(itm.time_to)
-                          )
-                        ])
-                      ]
-                    )
-                  ])
+                              ]
+                            )
+                          ]
+                    ],
+                    2
+                  )
                 : _vm._e()
             }),
             0

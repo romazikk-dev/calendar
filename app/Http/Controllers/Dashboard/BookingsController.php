@@ -12,6 +12,7 @@ use App\Models\Client;
 use App\Scopes\UserScope;
 use App\Models\TemplateSpecifics;
 use App\Classes\Setting\Enums\Keys as SettingKeys;
+use App\Classes\Getter\Enums\Keys as GetterKeys;
 use App\Classes\BookedAndRequested\Retrieval as BookedAndRequestedRetrieval;
 use App\Classes\Range\Range;
 
@@ -19,6 +20,7 @@ class BookingsController extends Controller
 {
     public function index(){
         
+        // \Getter::of(GetterKeys::BOOKINGS)->my();
         // $range = new Range('01-06-2021', '01-07-2021', 'month');
         // // dd($range);
         // $hall = Hall::find(3);
@@ -35,7 +37,12 @@ class BookingsController extends Controller
         
         // dd(auth()->user()->id);
         $filters = !empty($_COOKIE['filters']) ? json_decode($_COOKIE['filters']) : null;
+        $dashboard_calendar_move_event = !empty($_COOKIE['dashboard_calendar_move_event']) ?
+            json_decode($_COOKIE['dashboard_calendar_move_event']) : null;
         $token = !empty($_COOKIE['token']) ? $_COOKIE['token'] : null;
+        
+        
+        // dd($dashboard_calendar_move_event);
         
         // $filters = [
         //     "hall" => 1,
@@ -49,11 +56,13 @@ class BookingsController extends Controller
         //     $filters, $token
         // ]);
         
-        $owner_id = auth()->user()->id;
+        // $owner_id = auth()->user()->id;
+        // 
+        // $owner = User::find($owner_id);
+        // 
+        // $hall_model = Hall::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
         
-        $owner = User::find($owner_id);
-        
-        $hall_model = Hall::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
+        $hall_model = Hall::query();
         
         // $hall_model = Hall::withoutGlobalScope(UserScope::class)->whereHas('workers', function($query) use ($owner){
         //     // dd(3333);
@@ -66,8 +75,9 @@ class BookingsController extends Controller
         // dd($hall_model->workers[0]->templates);
         // dd($hall_model->toArray());
         
-        $worker_model = Worker::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
-        $template_model = Template::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id)->with('specific');
+        // $worker_model = Worker::withoutGlobalScope(UserScope::class)->where('user_id', '=', $owner->id);
+        $worker_model = Worker::query();
+        $template_model = Template::query()->with('specific');
         
         $halls = $hall_model->get();
         
@@ -98,9 +108,12 @@ class BookingsController extends Controller
         // dd($templates);
         // dd($templates->toArray());
         
+        // dd(auth()->user()->toArray());
+        
         $output = [
-            'token' => $token,
-            'owner' => $owner,
+            // 'token' => $token,
+            // 'owner' => auth()->user()->toArray(),
+            'owner' => auth()->user(),
             'halls' => $halls->toArray(),
             'template_specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
             'template_specifics_as_id_key' => !empty($db_specifics_arr_as_key_index) ? $db_specifics_arr_as_key_index : [],
@@ -134,44 +147,5 @@ class BookingsController extends Controller
         
         // dd($output);
         return view('dashboard.bookings.index', $output);
-    }
-    
-    public function range(Request $request, $start, $end){
-        $validated = $request->validate([
-            'hall' => 'nullable|integer|exists:halls,id',
-            'worker' => 'nullable|integer|exists:workers,id',
-            'template' => 'nullable|integer|exists:templates,id',
-            'client' => 'nullable|integer|exists:clients,id',
-        ]);
-        
-        if(!empty($validated['hall']))
-            $hall = Hall::find($validated['hall']);
-        
-        if(!empty($validated['worker']))
-            $worker = Worker::find($validated['worker']);
-            
-        if(!empty($validated['template']))
-            $template = Template::find($validated['template']);
-        
-        if(!empty($validated['client']))
-            $client = Client::find($validated['client']);
-        
-        $range = new Range($start, $end, 'month');
-        
-        $retrieval = new BookedAndRequestedRetrieval($range, [
-            "hall" => !empty($hall) ? $hall : null,
-            "worker" => !empty($worker) ? $worker : null,
-            "template" => !empty($template) ? $template : null,
-            "client" => !empty($client) ? $client : null,
-            // "past_ignore" => true,
-        ]);
-        
-        return response()->json([
-            'data' => $retrieval->get(),
-        ]);
-    }
-    
-    public function ajaxTemplatesByHall(Request $request, $hall_id){
-        
     }
 }

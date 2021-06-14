@@ -26,20 +26,27 @@ class Template{
         if(!empty($params[Params::ID]) && is_numeric($params[Params::ID]))
             $template_model->where('id', (int)$params[Params::ID]);
         
-        if(!empty($params[Params::WORKER_ID]) || !empty($params[Params::HALL_ID]))
+        if(!empty($params[Params::WORKER_ID]) || !empty($params[Params::HALL_ID])){
             $template_model->whereHas('workers', function($query) use ($params) {
-                if(!empty($params[Params::WORKER_ID]))
+                if(!empty($params[Params::WORKER_ID])){
                     $query->byId($params[Params::WORKER_ID]);
-                if(!empty($params[Params::HALL_ID]))
+                }
+                if(!empty($params[Params::HALL_ID])){
                     $query->whereHas('halls', function($query) use ($params) {
                         $query->byId($params[Params::HALL_ID]);
                     });
+                }
             });
+        }
+        
+        // var_dump($template_model->toSql());
+        // die();
         
         if(!empty($params[Params::WITH]))
             $template_model->with($params[Params::WITH]);
         
         $templates = $template_model->get();
+        
         return $templates->isEmpty() || $templates === false ? null : $templates;
     }
     

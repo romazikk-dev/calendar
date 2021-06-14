@@ -2,12 +2,7 @@
 
 namespace App\Classes\Getter;
 
-// use App\Classes\Range\Range;
-// use App\Classes\Suspension\Enums\Types;
-// use App\Classes\Holiday\Enums\Fields;
-// use App\Models\Holiday as HolidayModel;
 use App\Classes\Getter\Enums\Keys;
-use App\Classes\Getter\Template\Template as TemplateGetter;
 
 class MainGetter{
     
@@ -15,12 +10,11 @@ class MainGetter{
     private $getter = null;
     
     private $aliases = [
-        Keys::TEMPLATES => TemplateGetter::class,
+        Keys::TEMPLATES => \App\Classes\Getter\Template\Template::class,
+        Keys::WORKERS => \App\Classes\Getter\Worker\Worker::class,
+        Keys::CLIENTS => \App\Classes\Getter\Client\Client::class,
+        Keys::BOOKINGS => \App\Classes\Getter\Booking\Booking::class,
     ];
-    
-    // function __construct() {
-    //     // $this->name = $name;
-    // }
     
     protected function setGetter(string $getter){
         if(!in_array($getter, Keys::all()) || !array_key_exists($getter, $this->aliases))

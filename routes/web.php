@@ -9,6 +9,9 @@ use App\Http\Controllers\Dashboard\TemplateController as DashboardTemplateContro
 use App\Http\Controllers\Dashboard\ClientController as DashboardClientController;
 
 use App\Http\Controllers\Dashboard\Ajax\TemplateController as AjaxTemplateController;
+use App\Http\Controllers\Dashboard\Ajax\WorkerController as AjaxWorkerController;
+use App\Http\Controllers\Dashboard\Ajax\ClientController as AjaxClientController;
+use App\Http\Controllers\Dashboard\Ajax\BookingController as AjaxBookingController;
 
 use App\Http\Controllers\Dashboard\SettingsController as DashboardSettingsController;
 
@@ -65,15 +68,48 @@ Route::group([
     ], function () {
         
         Route::group([
+            'prefix' => '/booking',
+            'as' => 'booking.'
+        ], function () {
+            
+            // Route::get('/get', [AjaxBookingController::class, 'get'])->name('get');
+            Route::get('/get/{start}/{end}/{type?}', [AjaxBookingController::class, 'get'])->where([
+                'start' => '\d{2}-\d{2}-\d{4}',
+                'end' => '\d{2}-\d{2}-\d{4}',
+                'type' => '^(all|free)$',
+            ])->name('get');
+            
+        });
+        
+        Route::group([
             'prefix' => '/template',
             'as' => 'template.'
         ], function () {
             
-            Route::post('/get', [AjaxTemplateController::class, 'get'])->name('get');
+            Route::get('/get', [AjaxTemplateController::class, 'get'])->name('get');
                 
             // Route::post('/by_hall/{hall_id}', [AjaxTemplateController::class, 'byHall'])
             //     ->where('id', '[0-9]+')
             //     ->name('by_hall');
+            
+        });
+        
+        Route::group([
+            'prefix' => '/worker',
+            'as' => 'worker.'
+        ], function () {
+            
+            Route::get('/get', [AjaxWorkerController::class, 'get'])->name('get');
+            
+        });
+        
+        Route::group([
+            'prefix' => '/client',
+            'as' => 'client.'
+        ], function () {
+            // var_dump(4444);
+            // die();
+            Route::get('/get', [AjaxClientController::class, 'get'])->name('get');
             
         });
         
@@ -85,10 +121,10 @@ Route::group([
     ], function () {
         
         Route::get('/', [DashboardBookingsController::class, 'index'])->name('index');
-        Route::get('/range/{start}/{end}', [DashboardBookingsController::class, 'range'])->where([
-            'start' => '\d{2}-\d{2}-\d{4}',
-            'end' => '\d{2}-\d{2}-\d{4}',
-        ])->name('range');
+        // Route::get('/range/{start}/{end}', [DashboardBookingsController::class, 'range'])->where([
+        //     'start' => '\d{2}-\d{2}-\d{4}',
+        //     'end' => '\d{2}-\d{2}-\d{4}',
+        // ])->name('range');
         
     });
     

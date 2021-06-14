@@ -88,24 +88,91 @@
             },
         },
         methods: {
-            getData: function(startDate, endDate, successCallback = () => {
+            fullName: function (obj){
+                if(obj === null ||
+                typeof obj.first_name === 'undefined' ||
+                typeof obj.last_name === 'undefined')
+                    return null;
+                    
+                let fullName = obj.first_name;
+                
+                if(obj.last_name !== null && typeof obj.last_name === 'string' &&
+                obj.last_name.length > 0)
+                    fullName += ' ' + obj.last_name;
+                    
+                return fullName;
+            },
+            getClientInfo: function(id, successCallback = () => {
                 console.log('success');
             }, errorCallback = () => {
                 console.log('error');
             }, finalCallback = () => {
                 console.log('final');
             },){
+                let url, urlParams;
+                url = new URL(routes.calendar.booking.client.get);
+                urlParams = new URLSearchParams();
+                urlParams.append('id', id);
+                url.search = urlParams;
+                
+                axios.get(url.toString())
+                    .then((response) => {
+                        let client = null;
+                        if(typeof response.data.clients !== 'undefined' && Array.isArray(response.data.clients) &&
+                        response.data.clients.length == 1)
+                            client = response.data.clients[0];
+                            
+                        successCallback(client);
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        // console.log(error);
+                    })
+                    .then(function () {
+                        // always executed
+                    });
+            },
+            getData: function(startDate, endDate, params = null, successCallback = () => {
+                console.log('success');
+            }, errorCallback = () => {
+                console.log('error');
+            }, finalCallback = () => {
+                console.log('final');
+            },){
+                let url;
                 
                 // alert(3333);
                 // return;
                 
-                // routes.calendar.booking.range
-                var url = routes.calendar.booking.range;
+                // console.log(JSON.parse(JSON.stringify('Params 8888')));
+                // console.log(JSON.parse(JSON.stringify(params)));
                 
+                // routes.calendar.booking.range
+                if(params !== null && typeof params.type !== 'undefined' &&
+                params.type !== null){
+                    url = routes.calendar.booking.booking.byType;
+                }else{
+                    url = routes.calendar.booking.booking.all;
+                }
+                    
+                // console.log(JSON.parse(JSON.stringify('Params 8888')));
+                    
                 url = url.replace(':start', startDate);
                 url = url.replace(':end', endDate);
-                
                 url += '?' + this.search;
+                
+                // console.log(JSON.parse(JSON.stringify('44444')));
+                
+                if(params !== null && typeof params.type !== 'undefined' && params.type == 'free_time'){
+                    url = url.replace(':type', 'free');
+                    url = new URL(url);
+                    
+                    let urlSearchParams = new URLSearchParams(url.search);
+                    urlSearchParams.append("hall", 2);
+                    urlSearchParams.append("worker", 1);
+                    url.search = urlSearchParams;
+                    url = url.toString();
+                }
                 
                 axios.get(url)
                 .then((response) => {
@@ -123,6 +190,9 @@
                     // $('#cancelBookModal').modal('hide');
                 });
                 
+                function isParam(param){
+                    return params !== null && typeof params[param] !== 'undefined';
+                }
             },
             bookOn: function(bookOnDate, bookOnTime, successCallback = () => {
                 console.log('success');

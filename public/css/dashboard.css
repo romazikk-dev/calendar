@@ -138,10 +138,6 @@
   color: white;
 }
 
-.calendar-all-bookings .month-calendar .events {
-  padding-left: 30px;
-}
-
 .calendar-all-bookings .month-calendar .events ul {
   padding: 0px;
   margin: 0px;
@@ -153,6 +149,21 @@
 
 .calendar-all-bookings .month-calendar .events ul li {
   list-style: none;
+}
+
+.calendar-all-bookings .month-calendar .events ul li .free-slot {
+  background-color: red;
+  display: block;
+  width: 100%;
+  background-color: rgba(144, 238, 144, 0.5);
+  margin-bottom: 3px;
+  border-radius: 3px;
+  font-size: 10px;
+  padding: 2px 6px;
+  color: black;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  margin-bottom: 6px;
 }
 
 .calendar-all-bookings .month-calendar .events ul li .event {
@@ -169,8 +180,6 @@
   text-decoration: none;
   transition: background 0.2s ease;
   position: relative;
-  left: -27px;
-  width: calc(100% + 27px);
   margin-bottom: 6px;
 }
 
