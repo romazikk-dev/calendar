@@ -51,7 +51,11 @@ mix.js('resources/js/vue/dashboard/setting/custom_fields/app.js', 'public/js/das
 mix.js('resources/js/vue/dashboard/setting/specifics_index/app.js', 'public/js/dashboard/setting/specifics-index.js').vue();
 mix.js('resources/js/vue/dashboard/specific_assignment/app.js', 'public/js/dashboard/specific-assignment.js').vue();
 
-// mix.js('resources/js/ts/calendar-helper.ts', 'public/js/calendar-helper.js').webpackConfig({
+
+//TS apps
+mix.ts('resources/js/ts/dashboard/calendar_helper/app.ts', 'public/js/dashboard/ts/calendar-helper.js');
+
+
 mix.webpackConfig({
     module: {
         rules: [

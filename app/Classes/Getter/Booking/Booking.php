@@ -28,6 +28,8 @@ class Booking extends MainBooking{
             return [
                 'hall' => 'required|integer|exists:halls,id',
                 'worker' => 'required|integer|exists:workers,id',
+                'with' => 'nullable|array',
+                'with.*' => 'nullable|string|max:255',
             ];
         
         return [
@@ -35,6 +37,8 @@ class Booking extends MainBooking{
             'worker' => 'nullable|integer|exists:workers,id',
             'template' => 'nullable|integer|exists:templates,id',
             'client' => 'nullable|integer|exists:clients,id',
+            'with' => 'nullable|array',
+            'with.*' => 'nullable|string|max:255',
         ];
     }
     

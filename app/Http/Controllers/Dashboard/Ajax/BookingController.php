@@ -27,7 +27,7 @@ class BookingController extends Controller
         $validation_rules = $getter->getValidationRules(["type" => $type]);
         
         $params = $request->validate($validation_rules);
-        $params["with"] = 'templateWithoutUserScope.specific';
+        // $params["with"] = 'templateWithoutUserScope.specific';
         
         $range = new Range($start, $end, 'month');
         $owner = auth()->user();

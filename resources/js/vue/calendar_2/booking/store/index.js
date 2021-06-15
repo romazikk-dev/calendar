@@ -8,7 +8,6 @@ import halls from './modules/halls';
 import updater from './modules/updater';
 import specifics from './modules/specifics';
 import custom_titles from './modules/custom_titles';
-import moved_event from './modules/moved_event';
 
 
 Vue.use(Vuex);
@@ -25,7 +24,6 @@ export default new Vuex.Store({
         updater,
         specifics,
         custom_titles,
-        // moved_event,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

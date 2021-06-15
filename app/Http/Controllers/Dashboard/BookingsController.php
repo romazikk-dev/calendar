@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Booking;
 use App\Models\Hall;
 use App\Models\Worker;
 use App\Models\Template;
@@ -41,6 +42,10 @@ class BookingsController extends Controller
             json_decode($_COOKIE['dashboard_calendar_move_event']) : null;
         $token = !empty($_COOKIE['token']) ? $_COOKIE['token'] : null;
         
+        
+        $moving_event = !empty($_COOKIE['moving_event']) ? json_decode($_COOKIE['moving_event'], true) : null;
+        
+        // dd($moving_event);
         
         // dd($dashboard_calendar_move_event);
         
@@ -120,8 +125,48 @@ class BookingsController extends Controller
             // 'workers' => $workers->toArray(),
             // 'templates' => $templates->toArray(),
             'filters' => null,
+            'moving_event' => null,
             'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
         ];
+        
+        if(!empty($moving_event)){
+            $output_moving_event = [];
+            if(!empty($moving_event['event']) && is_numeric($moving_event['event'])){
+                $output_moving_event['event'] = Booking::where('id', (int)$moving_event['event'])
+                    ->with([
+                        'templateWithoutUserScope.specific',
+                        'workerWithoutUserScope',
+                        'hallWithoutUserScope'
+                    ])->first()->toArray();
+            }
+            
+            if(!empty($moving_event['client']) && is_numeric($moving_event['client'])){
+                $output_moving_event['client'] = Client::where('id', (int)$moving_event['client'])
+                    ->first()->toArray();
+            }
+            
+            if(!empty($moving_event['picked']) && is_array($moving_event['picked'])){
+                $picked = $moving_event['picked'];
+                $output_moving_event['picked'] = [];
+                if(!empty($picked['hall']) && is_numeric($picked['hall'])){
+                    $output_moving_event['picked']['hall'] = Hall::where('id', (int)$picked['hall'])
+                        ->first()->toArray();
+                }
+                if(!empty($picked['worker']) && is_numeric($picked['worker'])){
+                    $output_moving_event['picked']['worker'] = Worker::where('id', (int)$picked['worker'])
+                        ->first()->toArray();
+                }
+                if(!empty($picked['template']) && is_numeric($picked['template'])){
+                    $output_moving_event['picked']['template'] = Hall::where('id', (int)$picked['template'])
+                        ->first()->toArray();
+                }
+            }
+            
+            if(!empty($output_moving_event))
+                $output['moving_event'] = $output_moving_event;
+        }
+        
+        // dd($output);
         
         if(!empty($filtered_hall) || !empty($filtered_worker) || !empty($filtered_template)){
             $output['filters'] = [

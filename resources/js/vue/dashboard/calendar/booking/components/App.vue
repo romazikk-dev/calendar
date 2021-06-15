@@ -139,7 +139,7 @@
             }, finalCallback = () => {
                 console.log('final');
             },){
-                let url;
+                let url, urlSearchParams;
                 
                 // alert(3333);
                 // return;
@@ -167,9 +167,19 @@
                     url = url.replace(':type', 'free');
                     url = new URL(url);
                     
-                    let urlSearchParams = new URLSearchParams(url.search);
+                    urlSearchParams = new URLSearchParams(url.search);
                     urlSearchParams.append("hall", 2);
                     urlSearchParams.append("worker", 1);
+                    url.search = urlSearchParams;
+                    url = url.toString();
+                }else{
+                    url = new URL(url);
+                    urlSearchParams = new URLSearchParams(url.search);
+                    
+                    urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
+                    urlSearchParams.append("with[]", 'workerWithoutUserScope');
+                    urlSearchParams.append("with[]", 'hallWithoutUserScope');
+                    
                     url.search = urlSearchParams;
                     url = url.toString();
                 }
@@ -178,7 +188,6 @@
                 .then((response) => {
                     // handle success
                     successCallback(response);
-                    // console.log(JSON.parse(JSON.stringify(this.dates)));
                 })
                 .catch(function (error) {
                     // handle error
@@ -187,7 +196,6 @@
                 .then(() => {
                     // always executed
                     finalCallback();
-                    // $('#cancelBookModal').modal('hide');
                 });
                 
                 function isParam(param){

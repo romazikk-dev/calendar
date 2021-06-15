@@ -152,6 +152,9 @@ class MainBookingGetter{
         if(!empty($this->client) && is_numeric($this->client))
             $booking_model->where('client_id', '=', $this->client);
         
+        // var_dump($this->with);
+        // die();
+        
         if(!empty($this->with) && is_array($this->with))
             foreach($this->with as $k => $v){
                 if(is_string($v))

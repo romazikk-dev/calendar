@@ -11,26 +11,13 @@
             ref="move_path_picker" />
         
         <div class="month-calendar">
-            <table v-if="movedEvent">
-                <tr class="divider">
-                    <td v-for="td in 7"></td>
-                </tr>
-                <tr>
-                    <td class="alert-info" colspan="7">
-                        <span class="badge badge-info titt">Moving event:</span><br>
-                        Client: <b>{{componentApp.fullName(movedEventClient)}}</b><br>
-                        Email:  <b>{{movedEventClient.email ? movedEventClient.email : ''}}</b><br>
-                        <!-- {{movedEventClient.email ? movedEventClient.email : ''}}<br>
-                        <div class="small">
-                            <b v-if="!isPickedItemsChanged">{{eventDate}} {{eventWeekday}} {{eventTime}}</b>
-                            <b v-else class="badge badge-warning text-left">Please choose all fields and pick a time</b>
-                        </div> -->
-                    </td>
-                </tr>
-                <tr class="divider">
-                    <td v-for="td in 7"></td>
-                </tr>
-            </table>
+            <transition name="fade">
+                <moving-event v-if="movedEvent"
+                    @close="resetMovedEvent"
+                    @edit="openModalMovePathPicker" />
+            </transition>
+            
+            <!-- <moving-event /> -->
             <table>
                 <thead>
                     <tr>
@@ -68,6 +55,7 @@
     import Navigation from "./Navigation.vue";
     import MonthCell from "./MonthCell.vue";
     import ModalMovePathPicker from "./ModalMovePathPicker.vue";
+    import MonthMovingEvent from "./MonthMovingEvent.vue";
     // import MonthCellCounters from "./MonthCellCounters.vue";
     export default {
         name: 'monthCalendar',
@@ -83,7 +71,11 @@
             // this.setDates(moment(new Date()).startOf('month').toDate());
             this.setDates(moment(this.startDate).startOf('month').toDate());
             
-            this.getData();
+            if(this.movedEvent !== null){
+                this.getData({type: 'free_time'});
+            }else{
+                this.getData();
+            }
             
             // this.getData();
             $("#bookModal").on('hidden.bs.modal', () => {
@@ -125,6 +117,12 @@
             };
         },
         computed: {
+            // movedEventClientName: function(){
+            //     return componentApp.fullName(this.movedEventClient)
+            // },
+            // movedEventClientEmail: function(){
+            //     return movedEventClient.email ? movedEventClient.email : '---';
+            // },
             movedEvent: function(){
                 return this.$store.getters['moving_event/event'];
             },
@@ -155,6 +153,14 @@
             // }
         },
         methods: {
+            openModalMovePathPicker: function(){
+                // alert(111);
+                this.$refs.move_path_picker.show();
+            },
+            resetMovedEvent: function(){
+                this.$store.dispatch('moving_event/reset');
+                this.getData();
+            },
             pickTime: function(){
                 if(this.movedEvent !== null){
                     // store.commit('move_event/setItems', items);
@@ -176,7 +182,14 @@
                         resolve(data);
                     });
                 }).then((data) => {
-                    this.$store.commit('moving_event/setItems', {
+                    // this.$store.commit('moving_event/setItems', {
+                    //     client: data,
+                    //     event: event,
+                    // });
+                    
+                    console.log(JSON.parse(JSON.stringify(event)));
+                    
+                    this.$store.dispatch('moving_event/setItems', {
                         client: data,
                         event: event,
                     });
@@ -342,6 +355,7 @@
             Navigation,
             MonthCell,
             ModalMovePathPicker,
+            movingEvent: MonthMovingEvent,
         },
         watch: {
             dates: function () {
@@ -359,5 +373,10 @@
 </script>
 
 <style lang="scss" scoped>
-    
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .3s;
+    }
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+        opacity: 0;
+    }
 </style>

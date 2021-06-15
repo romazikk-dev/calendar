@@ -18,5 +18,6 @@
     "/js/dashboard/setting/custom-fields.js": "/js/dashboard/setting/custom-fields.js",
     "/js/dashboard/setting/specifics-index.js": "/js/dashboard/setting/specifics-index.js",
     "/js/dashboard/specific-assignment.js": "/js/dashboard/specific-assignment.js",
+    "/js/dashboard/ts/calendar-helper.js": "/js/dashboard/ts/calendar-helper.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }
