@@ -33,6 +33,7 @@ export default {
             }, 10);
         },
         show: function (){
+            // alert('show');
             $(this.$refs['loader']).show();
         },
         fadeOut: function (ms){

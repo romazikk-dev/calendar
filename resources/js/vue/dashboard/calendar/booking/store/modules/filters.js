@@ -44,25 +44,58 @@ const getters = {
             state.items.worker === null || state.items.client === null
         );
     },
-    urlSearchPath: (state) => {
-        let search = '';
-        
-        if(state.items.hall != null && typeof state.items.hall.id !== 'undefined')
-            search += (search == '' ? '' : '&') + 'hall=' + state.items.hall.id;
-        if(state.items.worker != null && typeof state.items.worker.id !== 'undefined')
-            search += (search == '' ? '' : '&') + 'worker=' + state.items.worker.id;
-        if(state.items.template != null && typeof state.items.template.id !== 'undefined')
-            search += (search == '' ? '' : '&') + 'template=' + state.items.template.id;
-        if(state.items.client != null && typeof state.items.client.id !== 'undefined')
-            search += (search == '' ? '' : '&') + 'client=' + state.items.client.id;
-        if(state.items.view != null)
-            search += (search == '' ? '' : '&') + 'view=' + state.items.view.toLowerCase().trim();
-        
-        if(search == '')
-            return null;
+    urlSearchParams: (state) => {
+            let urlSearchParams = new URLSearchParams();
+    
+            if(state.items.hall != null && typeof state.items.hall.id !== 'undefined')
+                urlSearchParams.append("hall", state.items.hall.id);
+            if(state.items.worker != null && typeof state.items.worker.id !== 'undefined')
+                urlSearchParams.append("worker", state.items.worker.id);
+            if(state.items.template != null && typeof state.items.template.id !== 'undefined')
+                urlSearchParams.append("template", state.items.template.id);
+            if(state.items.client != null && typeof state.items.client.id !== 'undefined')
+                urlSearchParams.append("client", state.items.client.id);
+            if(state.items.view != null)
+                urlSearchParams.append("view", state.items.view.toLowerCase().trim());
             
-        return search;
+            // console.log(JSON.parse(JSON.stringify('Params 8888')));
+            // // console.log(JSON.parse(JSON.stringify(_this.urlSearchParams(true))));
+            // // console.log(JSON.parse(JSON.stringify(_this.urlSearchParams(true))));
+            // // console.log(JSON.parse(JSON.stringify(_this.urlSearchParams(true))));
+            // // console.log(JSON.parse(JSON.stringify(_this.urlSearchParams(true))));
+            // console.log(JSON.parse(JSON.stringify(urlSearchParams.toString())));
+                
+            // console.log(JSON.parse(JSON.stringify(search.toString())));
+            return urlSearchParams;
     },
+}
+
+const actions = {
+    // getUrlSearchPath: ({state}, as_string = false) => {
+    //     let search = new URLSearchParams();
+    // 
+    //     if(state.items.hall != null && typeof state.items.hall.id !== 'undefined')
+    //         search.append("hall", state.items.hall.id);
+    //     if(state.items.worker != null && typeof state.items.worker.id !== 'undefined')
+    //         search.append("worker", state.items.worker.id);
+    //     if(state.items.template != null && typeof state.items.template.id !== 'undefined')
+    //         search.append("template", state.items.template.id);
+    //     if(state.items.client != null && typeof state.items.client.id !== 'undefined')
+    //         search.append("client", state.items.client.id);
+    //     if(state.items.view != null)
+    //         search.append("view", state.items.view.toLowerCase().trim());
+    // 
+    //     console.log(JSON.parse(JSON.stringify('search ggggggdsd s'))); 
+    //     // console.log(JSON.parse(JSON.stringify(as_string)));
+    //     // console.log(JSON.parse(JSON.stringify(search.toString())));
+    // 
+    //     // alert(as_string);
+    //     // alert(search.toString());
+    // 
+    //     if(as_string === true)
+    //         return search.toString();
+    //     return search;
+    // },
 }
 
 // mutations
@@ -113,6 +146,6 @@ export default {
   namespaced: true,
   state,
   getters,
-  // actions,
+  actions,
   mutations
 }

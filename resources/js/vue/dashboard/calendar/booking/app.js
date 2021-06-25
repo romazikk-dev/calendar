@@ -163,7 +163,105 @@ Vue.mixin({
             weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
         };
     },
+    computed: {
+        // Current filters
+        currentEventFilter: function(){
+            if(this.movingEvent !== null)
+                return this.movingEvent;
+            return null;
+        },
+        currentHallFilter: function(){
+            if(this.movingEvent !== null){
+                if(this.movingEventIsPickedFull)
+                    return this.movingEventPicked.hall;
+                return this.movingEvent.hall_without_user_scope;
+            }
+            return null;
+        },
+        currentWorkerFilter: function(){
+            if(this.movingEvent !== null){
+                if(this.movingEventIsPickedFull)
+                    return this.movingEventPicked.worker;
+                return this.movingEvent.worker_without_user_scope;
+            }
+            return null;
+        },
+        currentTemplateFilter: function(){
+            if(this.movingEvent !== null){
+                if(this.movingEventIsPickedFull)
+                    return this.movingEventPicked.template;
+                return this.movingEvent.template_without_user_scope;
+            }
+            return null;
+        },
+        
+        // Moving event data of moving_event `$store` module
+        movingEventIsPickedFull: function(){
+            return this.$store.getters['moving_event/isPickedFull'];
+        },
+        movingEventPicked: function(){
+            return this.$store.getters['moving_event/picked'];
+        },
+        movingEvent: function(){
+            return this.$store.getters['moving_event/event'];
+        },
+        isMovingEvent: function(){
+            // return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
+            return this.movingEvent !== null;
+        },
+        movingEventClient: function(){
+            return this.$store.getters['moving_event/client'];
+        },
+        movingEventDateObj: function(){
+            if(this.movingEvent === null)
+                return null;
+            return moment(this.movingEvent.time).toDate();
+        },
+        movingEventDateMoment: function(){
+            if(this.movingEvent === null)
+                return null;
+            return moment(this.movingEvent.time);
+        },
+        movingEventDate: function(){
+            if(this.movingEventDateMoment === null)
+                return null;
+            return this.movingEventDateMoment.format('YYYY-MM-DD ddd HH:mm');
+        },
+        
+        // Specifics
+        templateSpecifics: function(){
+            return this.$store.getters['specifics/templateSpecifics'];
+        },
+        templateSpecificsAsIdKey: function(){
+            return this.$store.getters['specifics/templateSpecificsAsIdKey'];
+        },
+        
+        // All halls
+        halls: function(){
+            return this.$store.getters['halls/all'];
+        },
+        
+        // Data updater
+        storeDataUpdater: function () {
+            return this.$store.getters['updater/counter'];
+        },
+        
+        // Store filters
+        storeFilters: function () {
+            return this.$store.getters['filters/all'];
+        },
+    },
     methods: {
+        urlSearchParams: function(as_string = false){
+            let urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] :
+                this.$store.getters['filters/urlSearchParams'];
+            
+            urlSearchParams = new URLSearchParams(urlSearchParams);
+                
+            if(as_string)
+                return urlSearchParams.toString();
+            return urlSearchParams;
+        },
         getParentComponentByName: function (_thisComponent, componentName) {
             let component = null;
             if(_thisComponent.$options.name === componentName)

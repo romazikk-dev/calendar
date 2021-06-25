@@ -9,6 +9,7 @@ import updater from './modules/updater';
 import specifics from './modules/specifics';
 import custom_titles from './modules/custom_titles';
 import moving_event from './modules/moving_event';
+import template from './modules/template';
 
 
 Vue.use(Vuex);
@@ -25,7 +26,8 @@ export default new Vuex.Store({
         updater,
         specifics,
         custom_titles,
-        moving_event
+        moving_event,
+        template,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

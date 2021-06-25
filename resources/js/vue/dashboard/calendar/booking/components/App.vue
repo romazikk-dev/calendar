@@ -7,6 +7,7 @@
         
         <div class="container-fluid">
             <month-calendar v-if="monthView"
+                @showPickTimeModal="showPickTimeModal($event)"
                 :start-date="startDateMonth"></month-calendar>
             <week-calendar v-if="weekView"
                 :start-date="startDateWeek"></week-calendar>
@@ -15,6 +16,8 @@
             <list-calendar v-if="listView"
                 :start-date="startDateWeek"></list-calendar>
         </div>
+        
+        <time-picker-modal v-if="currentEventFilter" ref="time_picker_modal" />
         
     </div>
 </template>
@@ -26,6 +29,7 @@
     import ListCalendar from "./ListCalendar.vue";
     import Filters from "./Filters.vue";
     import Loader from "./Loader.vue";
+    import TimePickerModal from "./modals/TimePickerModal.vue";
     export default {
         name: 'app',
         mounted() {
@@ -33,6 +37,7 @@
             // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
             
             console.log(JSON.parse(JSON.stringify(777777777)));
+            console.log(JSON.parse(JSON.stringify(this.movingEvent)));
             // console.log(JSON.parse(JSON.stringify(this.$store.getters['filters/all'])));
             
             if(this.cookieFilters !== null)
@@ -88,6 +93,13 @@
             },
         },
         methods: {
+            showPickTimeModal: function (e){
+                // console.log(JSON.parse(JSON.stringify('showPickTimeModal')));
+                // console.log(e);
+                // console.log(JSON.parse(JSON.stringify(e)));
+                this.$refs.time_picker_modal.show(e);
+                // alert(2222);
+            },
             fullName: function (obj){
                 if(obj === null ||
                 typeof obj.first_name === 'undefined' ||
@@ -132,59 +144,18 @@
                         // always executed
                     });
             },
-            getData: function(startDate, endDate, params = null, successCallback = () => {
+            getData: function(startDate, endDate, successCallback = () => {
                 console.log('success');
             }, errorCallback = () => {
                 console.log('error');
             }, finalCallback = () => {
                 console.log('final');
             },){
-                let url, urlSearchParams;
-                
-                // alert(3333);
-                // return;
-                
+                let _this = this;
                 // console.log(JSON.parse(JSON.stringify('Params 8888')));
-                // console.log(JSON.parse(JSON.stringify(params)));
+                // console.log(JSON.parse(JSON.stringify(url)));
                 
-                // routes.calendar.booking.range
-                if(params !== null && typeof params.type !== 'undefined' &&
-                params.type !== null){
-                    url = routes.calendar.booking.booking.byType;
-                }else{
-                    url = routes.calendar.booking.booking.all;
-                }
-                    
-                // console.log(JSON.parse(JSON.stringify('Params 8888')));
-                    
-                url = url.replace(':start', startDate);
-                url = url.replace(':end', endDate);
-                url += '?' + this.search;
-                
-                // console.log(JSON.parse(JSON.stringify('44444')));
-                
-                if(params !== null && typeof params.type !== 'undefined' && params.type == 'free_time'){
-                    url = url.replace(':type', 'free');
-                    url = new URL(url);
-                    
-                    urlSearchParams = new URLSearchParams(url.search);
-                    urlSearchParams.append("hall", 2);
-                    urlSearchParams.append("worker", 1);
-                    url.search = urlSearchParams;
-                    url = url.toString();
-                }else{
-                    url = new URL(url);
-                    urlSearchParams = new URLSearchParams(url.search);
-                    
-                    urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
-                    urlSearchParams.append("with[]", 'workerWithoutUserScope');
-                    urlSearchParams.append("with[]", 'hallWithoutUserScope');
-                    
-                    url.search = urlSearchParams;
-                    url = url.toString();
-                }
-                
-                axios.get(url)
+                axios.get(getUrl())
                 .then((response) => {
                     // handle success
                     successCallback(response);
@@ -198,8 +169,31 @@
                     finalCallback();
                 });
                 
-                function isParam(param){
-                    return params !== null && typeof params[param] !== 'undefined';
+                function getUrl(){
+                    let url, urlSearchParams;
+                    
+                    if(_this.isMovingEvent){
+                        url = routes.calendar.booking.booking.byType.replace(':type', 'free');
+                    }else{
+                        url = routes.calendar.booking.booking.all;
+                    }
+                        
+                    url = url.replace(':start', startDate);
+                    url = url.replace(':end', endDate);
+                    
+                    url = new URL(url);
+                    // console.log(JSON.parse(JSON.stringify('Params 8888')));
+                    
+                    urlSearchParams = _this.urlSearchParams();
+                    if(!_this.isMovingEvent){
+                        urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
+                        urlSearchParams.append("with[]", 'workerWithoutUserScope');
+                        urlSearchParams.append("with[]", 'hallWithoutUserScope');
+                    }
+                    
+                    url.search = urlSearchParams;
+                    
+                    return url.toString();
                 }
             },
             bookOn: function(bookOnDate, bookOnTime, successCallback = () => {
@@ -338,7 +332,8 @@
             DayCalendar,
             ListCalendar,
             Filters,
-            Loader
+            Loader,
+            TimePickerModal
         },
         watch: {
             showCalendar: function (val) {

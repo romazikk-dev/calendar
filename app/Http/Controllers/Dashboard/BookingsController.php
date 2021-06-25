@@ -157,7 +157,7 @@ class BookingsController extends Controller
                         ->first()->toArray();
                 }
                 if(!empty($picked['template']) && is_numeric($picked['template'])){
-                    $output_moving_event['picked']['template'] = Hall::where('id', (int)$picked['template'])
+                    $output_moving_event['picked']['template'] = Template::where('id', (int)$picked['template'])
                         ->first()->toArray();
                 }
             }

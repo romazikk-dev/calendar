@@ -79,6 +79,8 @@ Route::group([
                 'type' => '^(all|free)$',
             ])->name('get');
             
+            Route::get('/edit/{id}', [AjaxBookingController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
+            
         });
         
         Route::group([

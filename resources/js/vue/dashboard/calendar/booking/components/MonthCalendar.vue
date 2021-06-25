@@ -1,5 +1,11 @@
 <template>
     <div>
+        <div class="pb-3">
+            <time-bar-new @change="" :durationInMinutes="20" :stopper="40"/>
+        </div>
+        <div class="pb-3">
+            <time-bar-fill @change="" :durationInMinutes="42"/>
+        </div>
         <navigation :can-go-to-previous="canGoToPrevious"
             :calendar-title="calendarTitle"
             @previous="previous"
@@ -39,6 +45,7 @@
                                         @open-modal="openModal($event,i,k)"
                                         @cancel="cancelBook($event)"
                                         @move="moveEvent($event)"
+                                        @showPickTimeModal="showPickTimeModal($event)"
                                         :item="getDate(i,k)"></month-cell>
                                 </template>
                             </div>
@@ -56,6 +63,8 @@
     import MonthCell from "./MonthCell.vue";
     import ModalMovePathPicker from "./ModalMovePathPicker.vue";
     import MonthMovingEvent from "./MonthMovingEvent.vue";
+    import TimeBarFill from "./modals/TimeBarFill.vue";
+    import TimeBarNew from "./modals/TimeBarNew.vue";
     // import MonthCellCounters from "./MonthCellCounters.vue";
     export default {
         name: 'monthCalendar',
@@ -153,6 +162,10 @@
             // }
         },
         methods: {
+            showPickTimeModal: function(e){
+                this.$emit('showPickTimeModal', e);
+                // alert(event);
+            },
             openModalMovePathPicker: function(){
                 // alert(111);
                 this.$refs.move_path_picker.show();
@@ -165,9 +178,9 @@
                 if(this.movedEvent !== null){
                     // store.commit('move_event/setItems', items);
                     this.getData({type: 'free_time'});
-                    console.log(JSON.parse(JSON.stringify('movedEvent not null')));
+                    // console.log(JSON.parse(JSON.stringify('movedEvent not null')));
                 }
-                console.log(JSON.parse(JSON.stringify('pickTime')));
+                // console.log(JSON.parse(JSON.stringify('pickTime')));
             },
             moveEvent: function(event){
                 // console.log('moveEvent');
@@ -272,11 +285,12 @@
                     return date[type];
                 return date;
             },
-            getData: function(params = null){
+            getData: function(){
+                // alert(this.firstCalendarDate);
+                // return;
                 this.componentApp.getData(
                     moment(this.firstCalendarDate).format('DD-MM-YYYY'),
                     moment(this.lastCalendarDate).format('DD-MM-YYYY'),
-                    params,
                     (response) => {
                         // if(params !== null && typeof params.type !== 'undefined' && params.type == 'free'){
                         //     this.datesByType = response.data.data;
@@ -284,10 +298,11 @@
                         //     this.dates = response.data.data;
                         // }
                         
+                        // alert(333);
                         this.dates = response.data.data;
                         
                         // console.log(JSON.parse(JSON.stringify(666666)));
-                        console.log(JSON.parse(JSON.stringify(this.dates)));
+                        // console.log(JSON.parse(JSON.stringify(this.dates)));
                     },
                     () => {},
                     () => {
@@ -356,6 +371,8 @@
             MonthCell,
             ModalMovePathPicker,
             movingEvent: MonthMovingEvent,
+            TimeBarFill,
+            TimeBarNew,
         },
         watch: {
             dates: function () {

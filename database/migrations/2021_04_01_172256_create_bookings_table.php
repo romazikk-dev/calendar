@@ -21,6 +21,7 @@ class CreateBookingsTable extends Migration
             $table->unsignedBigInteger('template_id');
             $table->unsignedBigInteger('client_id');
             $table->dateTime('time');
+            $table->unsignedInteger('custom_duration')->nullable();
             $table->tinyInteger('approved')->default(0);
             $table->timestamps();
             

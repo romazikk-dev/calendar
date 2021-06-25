@@ -2,9 +2,9 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./resources/js/ts/dashboard/calendar_helper/movingE.ts":
+/***/ "./resources/js/ts/dashboard/calendar_helper/MovingE.ts":
 /*!**************************************************************!*\
-  !*** ./resources/js/ts/dashboard/calendar_helper/movingE.ts ***!
+  !*** ./resources/js/ts/dashboard/calendar_helper/MovingE.ts ***!
   \**************************************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -13,22 +13,22 @@
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.movingE = void 0;
+exports.MovingE = void 0;
 
-var movingE =
+var MovingE =
 /** @class */
 function () {
   // range: DateRange;
-  function movingE() {
+  function MovingE() {
     this.movingEvent = movingEvent;
   }
 
-  movingE.prototype.parse = function () {// console.log(movingEvent);
+  MovingE.prototype.parse = function () {// console.log(movingEvent);
     // console.log(JSON.parse(movingEvent));
     // console.log(JSON.parse(JSON.stringify(this.movingEvent)));
   };
 
-  movingE.prototype.getItem = function (item) {
+  MovingE.prototype.getItem = function (item) {
     if (item === void 0) {
       item = null;
     }
@@ -45,10 +45,103 @@ function () {
     return null;
   };
 
-  return movingE;
+  return MovingE;
 }();
 
-exports.movingE = movingE;
+exports.MovingE = MovingE;
+
+/***/ }),
+
+/***/ "./resources/js/ts/dashboard/calendar_helper/Person.ts":
+/*!*************************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/Person.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.Person = void 0;
+
+var Person =
+/** @class */
+function () {
+  function Person() {} // constructor() {
+  //     this.movingEvent = movingEvent;
+  // }
+
+
+  Person.prototype.fullName = function (obj) {
+    if (obj === null || typeof obj.first_name === 'undefined' || typeof obj.last_name === 'undefined') return null;
+    var fullName = obj.first_name;
+    if (obj.last_name !== null && typeof obj.last_name === 'string' && obj.last_name.length > 0) fullName += ' ' + obj.last_name;
+    return fullName;
+  };
+
+  return Person;
+}();
+
+exports.Person = Person;
+
+/***/ }),
+
+/***/ "./resources/js/ts/dashboard/calendar_helper/Time.ts":
+/*!***********************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/Time.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.Time = void 0;
+
+var Time =
+/** @class */
+function () {
+  function Time() {} // constructor() {
+  //     // this.movingEvent = movingEvent;
+  // } 
+
+
+  Time.prototype.composeHourMinuteTimeFromMinutes = function (mins) {
+    // alert(mins);
+    // console.log(mins);
+    var minutesStr, hoursStr, minutes, hours;
+    minutes = mins % 60;
+    hours = Math.floor(mins / 60); // alert(hours);
+
+    if (minutes <= 0) {
+      minutesStr = '00';
+    } else if (minutes > 0 && minutes < 10) {
+      minutesStr = '0' + String(minutes);
+    } else {
+      minutesStr = String(minutes);
+    }
+
+    if (hours <= 0) {
+      hoursStr = '00';
+    } else if (hours > 0 && hours < 10) {
+      hoursStr = '0' + String(hours);
+    } else {
+      hoursStr = String(hours);
+    } // console.log(mins);
+    // console.log(hours);
+    // console.log(minutes);
+    // alert(minutesStr);
+
+
+    return hoursStr + ':' + minutesStr;
+  };
+
+  return Time;
+}();
+
+exports.Time = Time;
 
 /***/ })
 
@@ -94,15 +187,20 @@ Object.defineProperty(exports, "__esModule", ({
 //     return "Hello world!";
 // }
 
-var movingE_1 = __webpack_require__(/*! ./movingE */ "./resources/js/ts/dashboard/calendar_helper/movingE.ts"); // import { View as EnumView } from "./enums/View";
+var MovingE_1 = __webpack_require__(/*! ./MovingE */ "./resources/js/ts/dashboard/calendar_helper/MovingE.ts");
 
+var Person_1 = __webpack_require__(/*! ./Person */ "./resources/js/ts/dashboard/calendar_helper/Person.ts");
+
+var Time_1 = __webpack_require__(/*! ./Time */ "./resources/js/ts/dashboard/calendar_helper/Time.ts");
 
 var Helper =
 /** @class */
 function () {
   // range: DateRange;
   function Helper() {
-    this.movingE = new movingE_1.movingE(); // alert(1111); 
+    this.movingE = new MovingE_1.MovingE();
+    this.person = new Person_1.Person();
+    this.time = new Time_1.Time(); // alert(1111); 
     // this.view = EnumView.MONTH;
     // this.range = new DateRange(EnumView.MONTH);
   }

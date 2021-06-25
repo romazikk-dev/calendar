@@ -13,18 +13,36 @@ class Booking extends Model
     protected $keyDateArray = null;
     
     protected $guarded = [];
+    protected $appends = ['from','to','date'];
     
-    public function getFreeSlots($year, $month, $day){
-        if(is_null($this->keyDateArray)){
-            $this->keyDateArray = [];
-            foreach($this->toArray() as $itm){
-                $time = \Carbon\Carbon::parse($this->time);
-                dd($time);
-                // $this->keyDateArray[]
-                // $start_date_carbon = \Carbon\Carbon::parse($start_date);
-                // $end_date_carbon = \Carbon\Carbon::parse($end_date);
-            }
-        }
+    // public function getFreeSlots($year, $month, $day){
+    //     if(is_null($this->keyDateArray)){
+    //         $this->keyDateArray = [];
+    //         foreach($this->toArray() as $itm){
+    //             $time = \Carbon\Carbon::parse($this->time);
+    //             dd($time);
+    //             // $this->keyDateArray[]
+    //             // $start_date_carbon = \Carbon\Carbon::parse($start_date);
+    //             // $end_date_carbon = \Carbon\Carbon::parse($end_date);
+    //         }
+    //     }
+    // }
+    
+    public function getDateAttribute()
+    {
+        return \Carbon\Carbon::parse($this->time)->format('Y-m-d');
+    }
+    
+    public function getFromAttribute()
+    {
+        return \Carbon\Carbon::parse($this->time)->format('H:i');
+    }
+    
+    public function getToAttribute()
+    {
+        return \Carbon\Carbon::parse($this->time)->addSeconds(
+            $this->templateWithoutUserScope->duration
+        )->format('H:i');
     }
     
     /**

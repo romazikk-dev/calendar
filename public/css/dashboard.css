@@ -74,8 +74,12 @@
   font-weight: bold;
   padding: 0px 4px;
   background-color: #444;
-  border-radius: 3px;
+  border-radius: 50%;
   color: white;
+}
+
+.calendar-all-bookings .month-calendar table td .cell-content .day.not-period {
+  opacity: 0.5;
 }
 
 .calendar-all-bookings .month-calendar table tr.divider td {
@@ -164,6 +168,7 @@
   text-decoration: none;
   transition: background 0.2s ease;
   margin-bottom: 6px;
+  cursor: pointer;
 }
 
 .calendar-all-bookings .month-calendar .events ul li .event {

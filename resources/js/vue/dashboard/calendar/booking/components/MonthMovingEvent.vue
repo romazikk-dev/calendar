@@ -21,7 +21,7 @@
                                 Client:
                             </div>
                             <div class="d-table-cell">
-                                <b>{{componentApp.fullName(client)}}</b>
+                                <b>{{fullName(client)}}</b>
                             </div>
                         </div>
                         <div class="d-table-row">
@@ -120,16 +120,22 @@
                 // return this.event.hall_without_user_scope.title;
             },
             hallTitle: function(){
+                if(this.picked !== null && typeof this.picked.hall !== 'undefined' && this.picked.hall !== null)
+                    return this.picked.hall.title;
                 if(this.event === null || typeof this.event.hall_without_user_scope === 'undefined')
                     return null;
                 return this.event.hall_without_user_scope.title;
             },
             workerFullName: function(){
+                if(this.picked !== null && typeof this.picked.worker !== 'undefined' && this.picked.worker !== null)
+                    return this.fullName(this.picked.worker);
                 if(this.event === null || typeof this.event.worker_without_user_scope === 'undefined')
                     return null;
-                return this.componentApp.fullName(this.event.worker_without_user_scope);
+                return this.fullName(this.event.worker_without_user_scope);
             },
             templateTitle: function(){
+                if(this.picked !== null && typeof this.picked.template !== 'undefined' && this.picked.template !== null)
+                    return this.picked.template.title;
                 if(this.event === null || typeof this.event.template_without_user_scope === 'undefined')
                     return null;
                 return this.event.template_without_user_scope.title;
@@ -137,12 +143,15 @@
             clientName: function(){
                 if(this.event === null)
                     return null;
-                return this.componentApp.fullName(this.event);
+                return this.fullName(this.event);
             },
             clientEmail: function(){
                 return this.client === null ||
                 typeof client.email === 'undefined' || client.email === null ?
                     '---' : client.email;
+            },
+            picked: function(){
+                return this.$store.getters['moving_event/picked'];
             },
             event: function(){
                 return this.$store.getters['moving_event/event'];
@@ -152,6 +161,9 @@
             },
         },
         methods: {
+            fullName: function(obj){
+                return calendarHelper.person.fullName(obj);
+            },
             // close: function(){
             //     this.$store.commit('moving_event/reset');
             // },

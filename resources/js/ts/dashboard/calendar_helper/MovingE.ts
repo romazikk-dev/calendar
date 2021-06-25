@@ -1,4 +1,6 @@
-export class movingE{
+declare var movingEvent: any;
+
+export class MovingE{
     movingEvent: any;
     // range: DateRange;
   
@@ -12,7 +14,7 @@ export class movingE{
         // console.log(JSON.parse(JSON.stringify(this.movingEvent)));
     }
     
-    getItem(item = null){
+    getItem(item:any = null){
         if(item === null || typeof this.movingEvent === 'undefined' || this.movingEvent === null)
             return null;
             

@@ -18,26 +18,33 @@
                                     <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div class="modal-body">
-                                
+                        <div ref="modal_body" class="modal-body">
+                            <loader ref="loader" />
                             <div class="card-body">
                                 
-                                <div v-if="clientInfo" class="alert alert-info client-info" role="alert">
+                                <div v-if="movingEventClient" class="alert alert-info client-info" role="alert">
                                     <span class="badge badge-info titt">Client:</span>
-                                    <b>{{fullName(clientInfo)}}</b><br>
-                                    {{clientInfo.email ? clientInfo.email : ''}}<br>
+                                    <b>{{fullName(movingEventClient)}}</b><br>
+                                    {{movingEventClient.email ? movingEventClient.email : ''}}<br>
                                     <div class="small">
-                                        <b v-if="!isPickedItemsChanged">{{eventDate}} {{eventWeekday}} {{eventTime}}</b>
-                                        <b v-else class="badge badge-warning text-left">Please choose all fields and pick a time</b>
+                                        <b v-if="!isPickedItemsChanged">{{movingEventDate}}</b>
+                                        <b v-else class="badge badge-warning text-left">
+                                            <template v-if="isAllItemsPicked">
+                                                Please choose a time
+                                            </template>
+                                            <template v-else>
+                                                Please choose all fields and pick a time
+                                            </template>
+                                        </b>
                                     </div>
                                 </div>
                                 
-                                <a v-if="isPickedItemsChanged"
+                                <!-- <a v-if="isPickedItemsChanged"
                                     @click.prevent="reset()"
                                     href="#"
                                     class="btn btn-sm btn-warning btn-reset">
                                         Reset to initial values
-                                </a>
+                                </a> -->
                                 
                                 <div id="hallDropdown" class="dropdown dropdown-standart">
                                     <span>Hall: </span><br>
@@ -85,11 +92,11 @@
                             
                         </div>
                         <div class="modal-footer">
-                            <button type="button"
+                            <!-- <button type="button"
                                 @click.prevent="close()"
                                 class="btn btn-sm btn-secondary">
                                     Close
-                            </button>
+                            </button> -->
                             <button :disabled="!isAllItemsPicked"
                                 @click.prevent="pickTime()"
                                 type="button"
@@ -97,6 +104,12 @@
                                     Choose time
                             </button>
                             <button :disabled="!isAllItemsPicked || !isPickedItemsChanged" type="button" class="btn btn-sm btn-success">Save</button>
+                            <a v-if="isPickedItemsChanged"
+                                @click.prevent="reset()"
+                                href="#"
+                                class="btn btn-sm btn-warning btn-reset">
+                                    Reset
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -107,6 +120,7 @@
 
 <script>
     import ExtensiveTemplateFilterPicker from "./template/ExtensiveTemplateFilterPicker.vue";
+    import Loader from "./Loader.vue";
     export default {
         name: 'ModalMovePathPicker',
         mounted() {
@@ -116,45 +130,19 @@
         data: function(){
             return {
                 modalId: 'pathPickerModal',
+                
                 pickedHall: null,
                 pickedWorker: null,
                 pickedTemplate: null,
-                
-                eventDateObj: null,
                 
                 pickedTemplateIdsTrace: null,
                 
                 workers: null,
                 templates: null,
-                
-                // clientInfo: null,
             };
         },
         computed: {
-            movingEvent: function(){
-                return this.$store.getters['moving_event/event'];
-            },
-            clientInfo: function(){
-                return this.$store.getters['moving_event/client'];
-            },
-            eventDate: function(){
-                if(this.eventDateObj === null)
-                    return null;
-                    
-                return moment(this.eventDateObj).format('YYYY-MM-DD');
-            },
-            eventTime: function(){
-                if(this.eventDateObj === null)
-                    return null;
-                    
-                return moment(this.eventDateObj).format('HH:mm');
-            },
-            eventWeekday: function(){
-                if(this.eventDateObj === null)
-                    return null;
-                    
-                return moment(this.eventDateObj).format('ddd');
-            },
+            // Data of picked items (`pickedHall`, `pickedWorker`, `pickedTemplate`)
             isAllItemsPicked: function(){
                 return this.pickedHall !== null && this.pickedWorker !== null &&
                 this.pickedTemplate !== null;
@@ -174,21 +162,7 @@
             isHallPicked: function(){
                 return this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined';
             },
-            halls: function(){
-                return this.$store.getters['halls/all'];
-            },
-            templateSpecifics: function(){
-                return this.$store.getters['specifics/templateSpecifics'];
-            },
-            templateSpecificsAsIdKey: function(){
-                return this.$store.getters['specifics/templateSpecificsAsIdKey'];
-            },
-            isMovingEvent: function(){
-                return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
-            },
-            movingEventTemplate: function(){
-                return this.isMovingEvent ? this.movingEvent.template_without_user_scope : null;
-            },
+            // Status of this modal (Shown/Hidden)
             isShown: function(){
                 return $('#' + this.modalId).hasClass('in');
             },
@@ -198,9 +172,10 @@
                 this.$store.commit('moving_event/reset');
                 this.hide();
             },
+            // Show free slots to pick time for moving_event
             pickTime: function(){
                 if(this.isAllItemsPicked){
-                    this.$store.commit('move_event/setItems', {
+                    this.$store.dispatch('moving_event/setPicked', {
                         hall: this.pickedHall,
                         worker: this.pickedWorker,
                         template: this.pickedTemplate,
@@ -210,46 +185,39 @@
                 }
             },
             reset: function(){
+                this.showLoader();
+                this.$store.dispatch('moving_event/resetPicked');
                 this.resetPickedItems();
                 this.fillFields();
             },
             setPickedTemplateIdsTrace: function(){
-                if(this.movingEventTemplate === null)
+                // if(this.movingEventTemplate === null)
+                if(this.pickedTemplate === null)
                     return;
+            
+                let template = JSON.parse(JSON.stringify(this.pickedTemplate));
                 
-                let template = JSON.parse(JSON.stringify(this.movingEventTemplate));
                 if(typeof template.specific === 'undefined' || template.specific === null)
                     return;
-                
+            
                 if(typeof template.specific.ids_trace === 'undefined' || template.specific.ids_trace === null)
                     return [template.specific.id];
-                
+            
                 let idsTraceString = JSON.parse(JSON.stringify(template.specific.ids_trace));
                 let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
                 idsTrace.push(template.specific.id);
                 idsTrace.push(template.id);
-                
+            
                 this.pickedTemplateIdsTrace = idsTrace;
-                
                 // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
-                // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
             },
             fullName: function (obj){
-                if(obj === null ||
-                typeof obj.first_name === 'undefined' ||
-                typeof obj.last_name === 'undefined')
-                    return null;
-                    
-                let fullName = obj.first_name;
-                
-                if(obj.last_name !== null && typeof obj.last_name === 'string' &&
-                obj.last_name.length > 0)
-                    fullName += ' ' + obj.last_name;
-                    
-                return fullName;
+                return calendarHelper.person.fullName(obj);
             },
             show: function (){
+                this.showLoader();
                 $('#' + this.modalId).modal('show');
+                this.fillFields();
             },
             hide: function (){
                 $('#' + this.modalId).modal('hide');
@@ -257,23 +225,21 @@
             resetPickedItems: function(items = null){
                 if(items !== null && !Array.isArray(items))
                     return;
-                    
+                
                 if(items === null || items.includes("hall"))
                     this.pickedHall = null;
-                    
+                
                 if(items === null || items.includes("template")){
                     this.pickedTemplate = null;
                     this.pickedTemplateIdsTrace = null;
                 }
-                    
+                
                 if(items === null || items.includes("worker"))
                     this.pickedWorker = null;
             },
             change: function(type, itm, callbackResolver = null){
                 itm = JSON.parse(JSON.stringify(itm));
                 let url, urlParams;
-                // if(itm === null)
-                //     return;
                 
                 switch(type) {
                     case 'hall':
@@ -315,19 +281,9 @@
                             
                         break;
                     case 'template':
-                        // alert(8888);
-                        console.log(JSON.parse(JSON.stringify(itm)));
-                        // return;
-                    
                         this.resetPickedItems(['template','worker']);
-                        // lo(222);
-                        // console.log('5555555');
-                        // console.log(this.pickedItmTemplate);
-                        // this.pickedTemplate = null;
-                        if(itm === null){
-                            // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+                        if(itm === null)
                             return;
-                        }
                         
                         url = new URL(routes.calendar.booking.worker.get);
                         urlParams = new URLSearchParams();
@@ -335,7 +291,6 @@
                         urlParams.append('template_id', itm.id);
                         url.search = urlParams;
                         
-                        // alert(111);
                         axios.get(url.toString())
                             .then((response) => {
                                 let workers = [];
@@ -344,7 +299,6 @@
                                 });
                                 this.workers = workers;
                                 this.pickedTemplate = itm;
-                                // console.log(JSON.parse(JSON.stringify(this.templates)));
                                 
                                 if(callbackResolver !== null)
                                     callbackResolver();
@@ -359,16 +313,8 @@
                             
                         break;
                     case 'worker':
-                    
                         this.pickedWorker = (itm ? itm : null);
-                        
                         break;
-                    // case 'view':
-                    // 
-                    //     this.pickedView = (itm ?? null);
-                    // 
-                    //     break;
-                    default:
                 }
             },
             getItemById: function(items, id){
@@ -382,13 +328,28 @@
                 }
                 return item;
             },
+            showLoader: function(){
+                $(this.$refs.modal_body).css({'max-weight':'100px'});
+                $(this.$refs.modal_body).find('.card-body').css({'position':'absolute'});
+                this.$refs.loader.show();
+            },
+            hideLoader: function(){
+                $(this.$refs.modal_body).css({'max-weight':'auto'});
+                $(this.$refs.modal_body).find('.card-body').css({'position':'relative'});
+                this.$refs.loader.fadeOut(300);
+            },
             fillFields: function(){
+                // return;
+                let _this = this;
+                
                 if(this.isMovingEvent){
-                    this.eventDateObj = moment(this.movingEvent.time).toDate();
+                    let hall, template, worker;
                     
                     this.resetPickedItems();
-                    let hall = this.getItemById(this.halls, this.movingEvent.hall_id);
-                    // console.log(JSON.parse(JSON.stringify(hall)));
+                    hall = getItem('hall');
+                    
+                    console.log(JSON.parse(JSON.stringify('hall')));
+                    console.log(JSON.parse(JSON.stringify(hall)));
                     
                     if(hall === null)
                         return;
@@ -396,33 +357,75 @@
                     new Promise((resolve, reject) => {
                         this.change('hall', hall, () => resolve());
                     }).then((result) => {
-                        let template = this.getItemById(this.templates, this.movingEvent.template_id);
+                        template = getItem('template');
+                        
+                        console.log(JSON.parse(JSON.stringify('template')));
+                        console.log(JSON.parse(JSON.stringify(template)));
+                        
                         return new Promise((resolve, reject) => {
-                            this.change('template', template, () => resolve());
-                            this.setPickedTemplateIdsTrace();
+                            this.change('template', template, () => {
+                                this.setPickedTemplateIdsTrace();
+                                resolve();
+                            });
+                            
+                            console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace')));
+                            // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
                         });
                     }).then((result) => {
-                        let worker = this.getItemById(this.workers, this.movingEvent.worker_id);
+                        worker = getItem('worker');
+                        
+                        console.log(JSON.parse(JSON.stringify('worker')));
+                        console.log(JSON.parse(JSON.stringify(worker)));
+                        
                         this.change('worker', worker);
+                        this.hideLoader();
                     });
+                }
+                
+                // Returns item one of (`worker`,`hall`,`template`)
+                // depending on filled data in moving_event $store module
+                function getItem(type){
+                    if(!['hall','template','worker'].includes(type))
+                        return null;
+                        
+                    let item, itemId;
+                    
+                    let aliases = {
+                        hall: {
+                            thisItems: 'halls',
+                            movingEventId: 'hall_id'
+                        },
+                        template: {
+                            thisItems: 'templates',
+                            movingEventId: 'template_id'
+                        },
+                        worker: {
+                            thisItems: 'workers',
+                            movingEventId: 'worker_id'
+                        },
+                    }
+                    
+                    if(_this.movingEventIsPickedFull)
+                        item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEventPicked.[type].id);
+                    if(typeof item === 'undefined' || item === null)
+                        item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEvent[aliases[type].movingEventId]);
+                        
+                    return item
                 }
             },
         },
         components: {
             TemplatePicker: ExtensiveTemplateFilterPicker,
+            Loader,
         },
         watch: {
-            movingEvent: function(val){
-                // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
-                // console.log(JSON.parse(JSON.stringify(val)));
-                if(val !== null){
-                    this.fillFields();
-                    // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
-                    // console.log(JSON.parse(JSON.stringify(val)));
-                }
-            },
+            // movingEvent: function(val){
+            //     // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
+            //     if(val !== null){
+            //         // this.fillFields();
+            //     }
+            // },
             pickedHall: function(val){
-                // console.log(JSON.parse(JSON.stringify('pickedHall changed')));
                 if(val === null){
                     this.templates = null;
                     this.workers = null;
@@ -438,8 +441,12 @@
 </script>
 
 <style lang="scss" scoped>
+    .modal-body{
+        min-height: 100px;
+    }
     .card-body{
         padding: 0px;
+        position: absolute;
         .btn-reset{
             width: 100%;
         }

@@ -30,7 +30,8 @@
                 <li v-if="item.items" v-for="itm in items">
                     <template v-if="itm.type == 'free'">
                         
-                        <div class='free-slot'>
+                        <div class='free-slot'
+                            @click.prevent="$emit('showPickTimeModal', itm)">
                             <b>Free time:</b><br>
                             <b>{{itm.from}} - {{itm.to}}</b>
                             <div class="not-approved-bookings" v-if="itm.not_approved_bookings">

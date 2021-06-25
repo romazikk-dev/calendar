@@ -1,17 +1,24 @@
 // export function helloWorld(): string {
 //     return "Hello world!";
 // }
-import { movingE } from "./movingE";
+import { MovingE } from "./MovingE";
+import { Person } from "./Person";
+import { Time } from "./Time";
 // import { View as EnumView } from "./enums/View";
 
+declare var window: any;
 
 
 class Helper{
-    movingE: any;
+    movingE?: MovingE;
+    person?: Person;
+    time?: Time;
     // range: DateRange;
   
     constructor() {
-        this.movingE = new movingE();
+        this.movingE = new MovingE();
+        this.person = new Person();
+        this.time = new Time();
         // alert(1111); 
         // this.view = EnumView.MONTH;
         // this.range = new DateRange(EnumView.MONTH);
@@ -19,16 +26,8 @@ class Helper{
     
     parse() { 
         // return JSON.parse(JSON.stringify(value));
-        alert(2222); 
+        alert(2222);
     }
-
-    // getRange(){
-    //     return this.range.range;
-    // }
-    // 
-    // getDates(){
-    //     return this.range.dates;
-    // }
 }
 
 window.calendarHelper = new Helper();
