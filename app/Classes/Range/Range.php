@@ -49,6 +49,14 @@ class Range{
         $this->params = $params;
         $this->view = $view;
         
+        if(preg_match("/^\d{4}\-\d{2}-\d{2}$/", $start))
+            $start .= ' 00:00:00';
+        if(preg_match("/^\d{4}\-\d{2}-\d{2}$/", $end))
+            $end .= ' 23:59:59';
+        
+        // var_dump($start);
+        // die();
+        
         $carbon_now = \Carbon\Carbon::now(\Timezone::getCurrentTimezone());
         $carbon_start = \Carbon\Carbon::parse($start, \Timezone::getCurrentTimezone());
         $carbon_end = \Carbon\Carbon::parse($end, \Timezone::getCurrentTimezone());
@@ -89,8 +97,8 @@ class Range{
         $this->end_date = $carbon_end->format('Y-m-d');
         
         //Set datetimes
-        $this->start_datetime = $this->start_date . ' 00:00:00';
-        $this->end_datetime = $this->end_date . ' 23:59:59';
+        $this->start_datetime = $carbon_start->format('Y-m-d H:i:s');
+        $this->end_datetime = $carbon_end->format('Y-m-d H:i:s');
     }
     
     protected function isWrongTimestamps(){

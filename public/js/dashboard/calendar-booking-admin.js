@@ -1852,6 +1852,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Filters_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Filters.vue */ "./resources/js/vue/dashboard/calendar/booking/components/Filters.vue");
 /* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Loader.vue */ "./resources/js/vue/dashboard/calendar/booking/components/Loader.vue");
 /* harmony import */ var _modals_TimePickerModal_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modals/TimePickerModal.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimePickerModal.vue");
+/* harmony import */ var _modals_ModalDuration_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modals/ModalDuration.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue");
 //
 //
 //
@@ -1876,6 +1877,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+
 
 
 
@@ -1920,9 +1926,10 @@ __webpack_require__.r(__webpack_exports__);
     cookieFilters: function cookieFilters() {
       return this.$store.getters['filters/all'];
     },
-    view: function view() {
-      return 'month'; // return this.$store.getters['filters/view'];
-    },
+    // view: function () {
+    //     return 'month';
+    //     // return this.$store.getters['filters/view'];
+    // },
     search: function search() {
       return this.$store.getters['filters/urlSearchPath'];
     },
@@ -1940,6 +1947,49 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    /*
+    *   param: event
+    *   return: Promise
+    */
+    setMovingEvent: function setMovingEvent(event) {
+      var _this2 = this;
+
+      return new Promise(function (resolve, reject) {
+        _this2.getClientInfo(event.client_id, function (data) {
+          if (data === null) {
+            alert('Can`t get client info');
+            return;
+          }
+
+          resolve(data);
+        });
+      }).then(function (client) {
+        return new Promise(function (resolve, reject) {
+          _this2.$store.dispatch('moving_event/setItems', {
+            client: client,
+            event: event
+          });
+
+          resolve({
+            client: client,
+            event: event
+          });
+        });
+      });
+    },
+    showModalDuration: function showModalDuration(e) {
+      var _this3 = this;
+
+      // console.log(JSON.parse(JSON.stringify('showPickTimeModal')));
+      // console.log(e);
+      // console.log(JSON.parse(JSON.stringify(e)));
+      // this.$refs.modal_duration.show(e);
+      // alert(2222);
+      this.$nextTick(function () {
+        // console.log(this.$refs);
+        _this3.$refs.modal_duration.show(e);
+      }); // console.log(JSON.parse(JSON.stringify(this.$refs)));
+    },
     showPickTimeModal: function showPickTimeModal(e) {
       // console.log(JSON.parse(JSON.stringify('showPickTimeModal')));
       // console.log(e);
@@ -1951,6 +2001,68 @@ __webpack_require__.r(__webpack_exports__);
       var fullName = obj.first_name;
       if (obj.last_name !== null && typeof obj.last_name === 'string' && obj.last_name.length > 0) fullName += ' ' + obj.last_name;
       return fullName;
+    },
+    approveEvent: function approveEvent(id) {
+      var url, urlParams;
+      url = new URL(routes.calendar.booking.booking.approve.replace(':id', id));
+      return new Promise(function (resolve, reject) {
+        axios.post(url.toString()).then(function (response) {
+          resolve(response.data);
+        })["catch"](function (error) {// handle error
+          // console.log(error);
+        }).then(function () {// always executed
+        });
+      });
+    },
+    // approveEvent: function(id, successCallback = () => {
+    //     console.log('success');
+    // }, errorCallback = () => {
+    //     console.log('error');
+    // }, finalCallback = () => {
+    //     console.log('final');
+    // },){
+    //     let url, urlParams;
+    //     url = new URL(routes.calendar.booking.booking.approve.replace(':id', id));
+    // 
+    //     axios.post(url.toString())
+    //         .then((response) => {
+    //             // let client = null;
+    //             // if(typeof response.data.status !== 'undefined' && Array.isArray(response.data.clients) &&
+    //             // response.data.clients.length == 1)
+    //             //     client = response.data.clients[0];
+    // 
+    //             successCallback(response.data);
+    //         })
+    //         .catch(function (error) {
+    //             // handle error
+    //             // console.log(error);
+    //         })
+    //         .then(function () {
+    //             // always executed
+    //         });
+    // },
+    removeEvent: function removeEvent(id) {
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
+        console.log('success');
+      };
+      var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
+        console.log('error');
+      };
+      var finalCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+        console.log('final');
+      };
+      var url;
+      url = new URL(routes.calendar.booking.booking["delete"].replace(':id', id));
+      axios.post(url.toString()).then(function (response) {
+        // let client = null;
+        // if(typeof response.data.status !== 'undefined' && Array.isArray(response.data.clients) &&
+        // response.data.clients.length == 1)
+        //     client = response.data.clients[0];
+        successCallback(response.data);
+      })["catch"](function (error) {// handle error
+        // console.log(error);
+      }).then(function () {// always executed
+      });
     },
     getClientInfo: function getClientInfo(id) {
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
@@ -1976,21 +2088,30 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function () {// always executed
       });
     },
-    getData: function getData(startDate, endDate) {
-      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
+    // getData: function(startDate, endDate, params = null, successCallback = () => {
+    getData: function getData() {
+      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
         console.log('success');
       };
-      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+      var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
         console.log('error');
       };
-      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
+      var finalCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
         console.log('final');
       };
 
       var _this = this; // console.log(JSON.parse(JSON.stringify('Params 8888')));
-      // console.log(JSON.parse(JSON.stringify(url)));
 
 
+      console.log(JSON.parse(JSON.stringify(getUrl()))); // if(isParam('exceptIds') && Array.isArray(params.exceptIds) && params.exceptIds.length > 0)
+      //     for(let i = 0; i < params.exceptIds.length; i++){
+      //         urlSearchParams.append("except_ids[]", params.exceptIds[i]);
+      //     }
+      // this.$store.dispatch('dates/goNext');
+
+      var startDate = moment(this.$store.getters['dates/interval'].firstDate).format('DD-MM-YYYY');
+      var endDate = moment(this.$store.getters['dates/interval'].lastDate).format('DD-MM-YYYY');
       axios.get(getUrl()).then(function (response) {
         // handle success
         successCallback(response);
@@ -2021,14 +2142,25 @@ __webpack_require__.r(__webpack_exports__);
           urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
           urlSearchParams.append("with[]", 'workerWithoutUserScope');
           urlSearchParams.append("with[]", 'hallWithoutUserScope');
+          urlSearchParams.append("with[]", 'clientWithoutUserScope');
+        } else {
+          // console.log(params.exceptIds);
+          // console.log(isParam('exceptIds'));
+          if (isParam('exclude_ids') && Array.isArray(params.exclude_ids) && params.exclude_ids.length > 0) for (var i = 0; i < params.exclude_ids.length; i++) {
+            urlSearchParams.append("exclude_ids[]", params.exclude_ids[i]);
+          }
         }
 
         url.search = urlSearchParams;
         return url.toString();
       }
+
+      function isParam(param) {
+        return params !== null && typeof params[param] !== 'undefined' && params[param] !== null;
+      }
     },
     bookOn: function bookOn(bookOnDate, bookOnTime) {
-      var _this2 = this;
+      var _this4 = this;
 
       var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
         console.log('success');
@@ -2049,7 +2181,36 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         successCallback(response);
 
-        _this2.$store.commit('updater/increaseCounter');
+        _this4.$store.commit('updater/increaseCounter');
+      })["catch"](function (error) {
+        // handle error
+        console.log(error);
+      }).then(function () {
+        finalCallback();
+      });
+    },
+    bookEdit: function bookEdit(bookId, data) {
+      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
+        console.log('success');
+      };
+      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+        console.log('error');
+      };
+      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
+        console.log('final');
+      };
+      // if(this.currentEventFilter === null)
+      //     return;
+      // console.log(JSON.parse(JSON.stringify('bookEdit')));
+      // return;
+      var url = routes.calendar.booking.booking.edit;
+      url = url.replace(':id', bookId); // console.log(JSON.parse(JSON.stringify('bookEdit')));
+      // console.log(JSON.parse(JSON.stringify(url)));
+      // 
+      // return;
+
+      axios.post(url, data).then(function (response) {
+        successCallback(response); // this.$store.commit('updater/increaseCounter');
       })["catch"](function (error) {
         // handle error
         console.log(error);
@@ -2058,7 +2219,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     cancelBooking: function cancelBooking(booking) {
-      var _this3 = this;
+      var _this5 = this;
 
       var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
         console.log('success');
@@ -2071,7 +2232,7 @@ __webpack_require__.r(__webpack_exports__);
       axios["delete"](url).then(function (response) {
         successCallback(response);
 
-        _this3.$store.commit('updater/increaseCounter');
+        _this5.$store.commit('updater/increaseCounter');
       })["catch"](function (error) {
         // handle error
         console.log(error);
@@ -2166,7 +2327,8 @@ __webpack_require__.r(__webpack_exports__);
     ListCalendar: _ListCalendar_vue__WEBPACK_IMPORTED_MODULE_3__.default,
     Filters: _Filters_vue__WEBPACK_IMPORTED_MODULE_4__.default,
     Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_5__.default,
-    TimePickerModal: _modals_TimePickerModal_vue__WEBPACK_IMPORTED_MODULE_6__.default
+    TimePickerModal: _modals_TimePickerModal_vue__WEBPACK_IMPORTED_MODULE_6__.default,
+    ModalDuration: _modals_ModalDuration_vue__WEBPACK_IMPORTED_MODULE_7__.default
   },
   watch: {
     showCalendar: function showCalendar(val) {// if(val === true){
@@ -3774,7 +3936,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    showTranparent: function showTranparent() {
+    showTransparent: function showTransparent() {
       var _this = this;
 
       this.transparent = true;
@@ -3797,6 +3959,56 @@ __webpack_require__.r(__webpack_exports__);
         }, ms);
       }, 20);
     }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+//
+//
+//
+//
+//
+//
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'loader_action',
+  mounted: function mounted() {// this.getRenderData();
+  },
+  // props: ['text'],
+  data: function data() {
+    return {// transparent: false,
+    };
+  },
+  methods: {// showTransparent: function (){
+    //     this.transparent = true;
+    //     setTimeout(() => {
+    //         $(this.$refs['loader']).show();
+    //     }, 10);
+    // },
+    // show: function (){
+    //     // alert('show');
+    //     $(this.$refs['loader']).show();
+    // },
+    // fadeOut: function (ms){
+    //     // $(this.$refs['loader']).fadeOut(ms);
+    //     setTimeout(() => {
+    //         $(this.$refs['loader']).fadeOut(ms);
+    //         setTimeout(() => {
+    //             this.transparent = false;
+    //         }, ms);
+    //     }, 20);
+    // },
   }
 });
 
@@ -5105,18 +5317,35 @@ __webpack_require__.r(__webpack_exports__);
         'max-weight': '100px'
       });
       $(this.$refs.modal_body).find('.card-body').css({
-        'position': 'absolute'
+        'position': 'absolute',
+        'display': 'none'
       });
       this.$refs.loader.show();
     },
     hideLoader: function hideLoader() {
-      $(this.$refs.modal_body).css({
-        'max-weight': 'auto'
-      });
-      $(this.$refs.modal_body).find('.card-body').css({
-        'position': 'relative'
-      });
-      this.$refs.loader.fadeOut(300);
+      var milliseconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+      var _this = this;
+
+      if (milliseconds > 0) {
+        setTimeout(function () {
+          hideLoader();
+        }, milliseconds);
+      } else {
+        hideLoader();
+      }
+
+      function hideLoader() {
+        $(_this.$refs.modal_body).css({
+          'max-weight': 'auto'
+        });
+        $(_this.$refs.modal_body).find('.card-body').css({
+          'position': 'relative',
+          'display': 'block'
+        });
+
+        _this.$refs.loader.fadeOut(300);
+      }
     },
     fillFields: function fillFields() {
       var _this3 = this;
@@ -5155,7 +5384,7 @@ __webpack_require__.r(__webpack_exports__);
 
           _this3.change('worker', worker);
 
-          _this3.hideLoader();
+          _this3.hideLoader(200);
         });
       } // Returns item one of (`worker`,`hall`,`template`)
       // depending on filled data in moving_event $store module
@@ -5226,8 +5455,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MonthCell_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MonthCell.vue */ "./resources/js/vue/dashboard/calendar/booking/components/MonthCell.vue");
 /* harmony import */ var _ModalMovePathPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalMovePathPicker.vue */ "./resources/js/vue/dashboard/calendar/booking/components/ModalMovePathPicker.vue");
 /* harmony import */ var _MonthMovingEvent_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MonthMovingEvent.vue */ "./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue");
-/* harmony import */ var _modals_TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modals/TimeBarFill.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarFill.vue");
-/* harmony import */ var _modals_TimeBarNew_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modals/TimeBarNew.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarNew.vue");
+/* harmony import */ var _modals_ModalMoreEvents_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modals/ModalMoreEvents.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue");
+//
+//
+//
 //
 //
 //
@@ -5292,45 +5523,38 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
- // import MonthCellCounters from "./MonthCellCounters.vue";
+ // import TimeBarFill from "./modals/TimeBarFill.vue";
+// import TimeBarNew from "./modals/TimeBarNew.vue";
+// import MonthCellCounters from "./MonthCellCounters.vue";
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'monthCalendar',
   updated: function updated() {
     $('.tooltip-active').tooltip({
-      html: true
+      html: true,
+      // trigger: "click",
+      trigger: "hover"
     });
   },
   mounted: function mounted() {
     var _this = this;
 
-    if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app'); // this.setDates(moment(new Date()).startOf('month').toDate());
-
-    this.setDates(moment(this.startDate).startOf('month').toDate());
+    this.$store.dispatch('dates/setMonthDates', this.startDate);
 
     if (this.movedEvent !== null) {
+      // this.getData({type: 'free_time'});
+      // console.log(this.movedEvent);
       this.getData({
-        type: 'free_time'
-      });
+        exclude_ids: [this.movedEvent.id]
+      }); // this.app.getData({exclude_ids: [this.movedEvent.id]});
     } else {
-      this.getData();
+      this.getData(); // this.app.getData();
     } // this.getData();
 
 
     $("#bookModal").on('hidden.bs.modal', function () {
       _this.bookDate = null; // console.log(this.bookDate);
-    }); // setTimeout(function(){
-    //     $('.tooltip-active').tooltip({
-    //         html: true,
-    //     });
-    // }, 500);
-    // this.$nextTick(function(){
-    //     $('.tooltip-active').tooltip({
-    //         html: true,
-    //     });
-    // });
-    // $('[data-toggle="tooltip"]').tooltip();
+    });
   },
   props: ['startDate'],
   data: function data() {
@@ -5339,22 +5563,21 @@ __webpack_require__.r(__webpack_exports__);
       dates: null,
       bookDate: null,
       bookTimePeriod: null,
-      currentDate: new Date(),
-      yearOfCurrentDate: null,
-      monthOfCurrentDate: null,
-      dayOfCurrentDate: null,
-      currentCalendarMonth: null,
-      firstMonthDate: null,
-      lastMonthDate: null,
-      firstCalendarDate: null,
-      lastCalendarDate: null,
-      cancelBookData: null,
-      componentApp: null
+      cancelBookData: null
     };
   },
   computed: {
+    firstMonthDate: function firstMonthDate() {
+      return new Date(this.$store.getters['dates/month'].firstDate);
+    },
+    lastMonthDate: function lastMonthDate() {
+      return new Date(this.$store.getters['dates/month'].lastDate);
+    },
+    monthTwoDigits: function monthTwoDigits() {
+      return this.$store.getters['dates/month'].monthTwoDigits;
+    },
     // movedEventClientName: function(){
-    //     return componentApp.fullName(this.movedEventClient)
+    //     return app.fullName(this.movedEventClient)
     // },
     // movedEventClientEmail: function(){
     //     return movedEventClient.email ? movedEventClient.email : '---';
@@ -5374,23 +5597,23 @@ __webpack_require__.r(__webpack_exports__);
     calendarTitle: function calendarTitle() {
       return moment(this.firstMonthDate).format('MMMM YYYY');
     },
-    canGoToPrevious: function canGoToPrevious() {
-      var firstMonthDay = moment(this.firstMonthDate).startOf('month');
-      var currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
-      return firstMonthDay.isAfter(currentDateFirstMonthDay);
-    },
-    search: function search() {
-      return this.$store.getters['filters/urlSearchPath'];
-    } // hasCurrentDate: function () {
+    // canGoToPrevious: function () {
     //     let firstMonthDay = moment(this.firstMonthDate).startOf('month');
     //     let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
-    //     return firstMonthDay.diff(currentDateFirstMonthDay) == 0;
-    // }
-
+    //     return firstMonthDay.isAfter(currentDateFirstMonthDay);
+    // },
+    search: function search() {
+      return this.$store.getters['filters/urlSearchPath'];
+    }
   },
   methods: {
-    showPickTimeModal: function showPickTimeModal(e) {
-      this.$emit('showPickTimeModal', e); // alert(event);
+    showModalMoreEvent: function showModalMoreEvent(e) {
+      console.log(JSON.parse(JSON.stringify(e)));
+      this.$refs.modal_more_events.show(e);
+    },
+    onRemove: function onRemove() {
+      // this.$store.dispatch('moving_event/reset');
+      this.getData();
     },
     openModalMovePathPicker: function openModalMovePathPicker() {
       // alert(111);
@@ -5400,22 +5623,13 @@ __webpack_require__.r(__webpack_exports__);
       this.$store.dispatch('moving_event/reset');
       this.getData();
     },
-    pickTime: function pickTime() {
-      if (this.movedEvent !== null) {
-        // store.commit('move_event/setItems', items);
-        this.getData({
-          type: 'free_time'
-        }); // console.log(JSON.parse(JSON.stringify('movedEvent not null')));
-      } // console.log(JSON.parse(JSON.stringify('pickTime')));
-
-    },
     moveEvent: function moveEvent(event) {
       var _this2 = this;
 
       // console.log('moveEvent');
       // console.log(JSON.parse(JSON.stringify(event)));
       new Promise(function (resolve, reject) {
-        _this2.componentApp.getClientInfo(event.client_id, function (data) {
+        _this2.app.getClientInfo(event.client_id, function (data) {
           if (data === null) {
             alert('Can`t get client info');
             return;
@@ -5428,8 +5642,7 @@ __webpack_require__.r(__webpack_exports__);
         //     client: data,
         //     event: event,
         // });
-        console.log(JSON.parse(JSON.stringify(event)));
-
+        // console.log(JSON.parse(JSON.stringify(event)));
         _this2.$store.dispatch('moving_event/setItems', {
           client: data,
           event: event
@@ -5447,31 +5660,30 @@ __webpack_require__.r(__webpack_exports__);
       return dateFirstItem.type == 'booked' ? true : false;
     },
     next: function next() {
-      console.log('next');
-      var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M'); // console.log(dateOfNextMonth.toDate());
-
-      this.setDates(dateOfNextMonth.toDate());
+      // console.log('next');
+      // var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M');
+      // console.log(dateOfNextMonth.toDate());
+      // this.setDates(dateOfNextMonth.toDate());
+      // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+      this.$store.dispatch('dates/goNext');
       this.$parent.setStartDate('month', new Date(this.firstMonthDate));
       this.getData();
     },
     previous: function previous() {
-      if (!this.canGoToPrevious) return; // console.log('previous');
-
-      var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
-      this.setDates(dateOfPreviousMonth.toDate());
+      // if(!this.canGoToPrevious)
+      //     return;
+      // console.log('previous');
+      // var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
+      // this.setDates(dateOfPreviousMonth.toDate());
+      // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+      this.$store.dispatch('dates/goPrevious');
       this.$parent.setStartDate('month', new Date(this.firstMonthDate));
       this.getData();
     },
     today: function today() {
-      this.setDates(moment(new Date()).startOf('month').toDate());
+      this.$store.dispatch('dates/goToday');
       this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-      this.getData(); // let interval = setInterval(() => {
-      //     if(this.search != null){
-      //         // console.log(11111);
-      //         clearInterval(interval);
-      //         this.getData();
-      //     }
-      // }, 300);
+      this.getData();
     },
     openModal: function openModal(itm, i, k) {
       // console.log(itm);
@@ -5497,7 +5709,8 @@ __webpack_require__.r(__webpack_exports__);
       // this.currentDate.day == this.getDate(i,k,'day');
     },
     isCurrentDate: function isCurrentDate(i, k) {
-      return this.yearOfCurrentDate == this.getDate(i, k, 'year') && this.monthOfCurrentDate == this.getDate(i, k, 'month') && this.dayOfCurrentDate == this.getDate(i, k, 'day');
+      // console.log(this.currentYear);
+      return this.currentYear == this.getDate(i, k, 'year') && this.currentMonth == this.getDate(i, k, 'month') && this.currentDay == this.getDate(i, k, 'day');
     },
     getDate: function getDate(i, k) {
       var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -5509,9 +5722,12 @@ __webpack_require__.r(__webpack_exports__);
     getData: function getData() {
       var _this3 = this;
 
+      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       // alert(this.firstCalendarDate);
       // return;
-      this.componentApp.getData(moment(this.firstCalendarDate).format('DD-MM-YYYY'), moment(this.lastCalendarDate).format('DD-MM-YYYY'), function (response) {
+      this.app.getData( // moment(this.firstCalendarDate).format('DD-MM-YYYY'),
+      // moment(this.lastCalendarDate).format('DD-MM-YYYY'),
+      params, function (response) {
         // if(params !== null && typeof params.type !== 'undefined' && params.type == 'free'){
         //     this.datesByType = response.data.data;
         // }else{
@@ -5523,49 +5739,6 @@ __webpack_require__.r(__webpack_exports__);
       }, function () {}, function () {
         $('#cancelBookModal').modal('hide');
       });
-    },
-    setDates: function setDates(firstCalendarMonthDate) {
-      if (this.yearOfCurrentDate == null) this.yearOfCurrentDate = moment(this.currentDate).format('YYYY');
-      if (this.monthOfCurrentDate == null) this.monthOfCurrentDate = moment(this.currentDate).format('MM');
-      if (this.dayOfCurrentDate == null) this.dayOfCurrentDate = moment(this.currentDate).format('DD'); // console.log([
-      //     this.yearOfCurrentDate, this.monthOfCurrentDate, this.dayOfCurrentDate
-      // ]);
-      // this.monthOfCurrentDate = parseInt(moment(this.currentDate).format('MM')) + 1;
-      // this.dayOfCurrentDate = parseInt(moment(this.currentDate).format('YYYY'));
-
-      this.firstMonthDate = firstCalendarMonthDate;
-      this.lastMonthDate = moment(firstCalendarMonthDate).endOf('month').toDate(); // this.currentMonthIdx = firstCalendarMonthDate;
-
-      this.currentCalendarMonth = moment(this.firstMonthDate).format('MM');
-      var firstMonthDateWeekday = this.firstMonthDate.getDay();
-      var totalDaysInMonth = this.lastMonthDate.getDate();
-      var startOffset;
-
-      if (firstMonthDateWeekday == 1) {
-        startOffset = 7;
-      } else if (firstMonthDateWeekday == 2) {
-        startOffset = 8;
-      } else if (firstMonthDateWeekday == 3) {
-        startOffset = 9;
-      } else if (firstMonthDateWeekday == 4) {
-        startOffset = 3;
-      } else if (firstMonthDateWeekday == 5) {
-        startOffset = 4;
-      } else if (firstMonthDateWeekday == 6) {
-        startOffset = 5;
-      } else if (firstMonthDateWeekday == 0) {
-        startOffset = 6;
-      }
-
-      var firstDate = new Date(this.firstMonthDate);
-      firstDate.setDate(firstDate.getDate() - startOffset);
-      var lastDate = new Date(firstDate);
-      lastDate.setDate(lastDate.getDate() + 41);
-      this.firstCalendarDate = firstDate;
-      this.lastCalendarDate = lastDate; // this.range = {
-      //     first_date: firstDate,
-      //     last_date: lastDate,
-      // }
     }
   },
   components: {
@@ -5573,8 +5746,9 @@ __webpack_require__.r(__webpack_exports__);
     MonthCell: _MonthCell_vue__WEBPACK_IMPORTED_MODULE_1__.default,
     ModalMovePathPicker: _ModalMovePathPicker_vue__WEBPACK_IMPORTED_MODULE_2__.default,
     movingEvent: _MonthMovingEvent_vue__WEBPACK_IMPORTED_MODULE_3__.default,
-    TimeBarFill: _modals_TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_4__.default,
-    TimeBarNew: _modals_TimeBarNew_vue__WEBPACK_IMPORTED_MODULE_5__.default
+    ModalMoreEvents: _modals_ModalMoreEvents_vue__WEBPACK_IMPORTED_MODULE_4__.default // TimeBarFill,
+    // TimeBarNew,
+
   },
   watch: {
     dates: function dates() {},
@@ -5601,6 +5775,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var _event_Actions_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event/Actions.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue");
 //
 //
 //
@@ -5723,19 +5898,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+// import LoaderAction from "./LoaderAction.vue";
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'monthCell',
   mounted: function mounted() {// console.log(this.dateRange);
@@ -5744,16 +5908,129 @@ __webpack_require__.r(__webpack_exports__);
   props: ['item'],
   data: function data() {
     return {// range: helper.range.range,
+      // app: null,
     };
   },
   computed: {
     items: function items() {
       if (this.item === null || typeof this.item.items === 'undefined' || this.item.items === null) return null;
       return this.item.items;
+    },
+    maxEventsPerDay: function maxEventsPerDay() {
+      return this.calendarSettings.month_max_events_per_day_to_show;
     }
   },
-  methods: {},
-  components: {}
+  methods: {
+    getNextEvent: function getNextEvent(event) {
+      if (this.items === null) return null;
+      var nextEvent = null;
+      var isNext = false;
+
+      for (var i = 0; i < this.items.length; i++) {
+        if (isNext && this.items[i].approved == 1) {
+          nextEvent = this.items[i];
+          break;
+        }
+
+        if (event.id == this.items[i].id) {
+          isNext = true;
+        }
+      }
+
+      return nextEvent;
+    },
+    clickActionMove: function clickActionMove(event) {
+      var _this = this;
+
+      this.app.setMovingEvent(event).then(function (data) {
+        _this.calendar.$refs.move_path_picker.show();
+      });
+    },
+    clickActionDuration: function clickActionDuration(event) {
+      var _this2 = this;
+
+      if (typeof event.time_crossing !== 'undefined' && event.time_crossing === true) return;
+      this.app.setMovingEvent(event).then(function (data) {
+        _this2.app.showModalDuration({
+          day: _this2.item,
+          event: event,
+          nextEvent: _this2.getNextEvent(event)
+        });
+      });
+    },
+    clickActionDateTime: function clickActionDateTime(event) {
+      var _this3 = this;
+
+      this.app.setMovingEvent(event).then(function (data) {
+        _this3.calendar.getData({
+          exclude_ids: [_this3.movingEvent.id]
+        });
+      });
+    },
+    clickActionApprove: function clickActionApprove(event) {
+      var _this4 = this;
+
+      if (typeof event.time_crossing !== 'undefined' && event.time_crossing === true) return;
+      this.$refs['actions_' + event.id][0].toggleActionLoader('action_approve_loader_' + event.id, 'action_approve_btn_' + event.id);
+      this.app.approveEvent(event.id).then(function (data) {
+        if (typeof data.status !== 'undefined' && data.status == 'success') {// alert('Successfuly approved!!!');
+        } else {
+          if (typeof data.msg !== 'undefined' && data.msg !== null) alert(data.msg);
+        }
+
+        _this4.$refs['actions_' + event.id][0].toggleActionLoader('action_approve_btn_' + event.id, 'action_approve_loader_' + event.id);
+
+        _this4.calendar.getData();
+      });
+    },
+    onActionRemove: function onActionRemove(e, event) {
+      alert(111);
+    },
+    clickActionRemove: function clickActionRemove(e, event) {
+      var _this5 = this;
+
+      // let _this = this;
+      this.$refs['action_remove_drop_toggle_' + event.id][0].click(); // this.toggleActionLoader(true, 'action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+
+      alert(222);
+      return;
+      new Promise(function (resolve, reject) {
+        _this5.$refs['actions_' + event.id][0].toggleActionLoader('action_remove_loader_' + event.id, 'action_remove_drop_' + event.id);
+
+        _this5.app.removeEvent(event.id, function (data) {
+          resolve(data);
+        });
+      }).then(function (data) {
+        if (typeof data.status !== 'undefined' && data.status == 'success') {// alert('Successfuly removed!!!');
+        } else {
+          if (typeof data.msg !== 'undefined' && data.msg !== null) alert(data.msg);
+        }
+
+        _this5.$refs['actions_' + event.id][0].toggleActionLoader('action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+
+        _this5.$emit('removed');
+      });
+    },
+    toggleActionLoader: function toggleActionLoader(refShow, refHide) {
+      console.log(this.$refs); // console.log(JSON.parse(JSON.stringify(this.$refs)));
+      // this.$refs.actions.toggleActionLoader(refShow, refHide)
+      // $(this.$refs.actions.$refs[refShow]).removeClass('d-none');
+      // $(this.$refs.actions.$refs[refHide]).addClass('d-none');
+    },
+    actionDropdownMenuHover: function actionDropdownMenuHover(e) {
+      $(e.target).closest('.action-drop').find('.drop-toggle').tooltip('hide');
+    },
+    chooseFreeClick: function chooseFreeClick(itm) {
+      this.app.showPickTimeModal({
+        day: this.item,
+        item: itm
+      });
+    }
+  },
+  components: {
+    // LoaderAction,
+    Actions: _event_Actions_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  }
 });
 
 /***/ }),
@@ -5769,6 +6046,46 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5879,10 +6196,20 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
-    bookingTime: function bookingTime() {
+    itemmInfoTooltipTitle: function itemmInfoTooltipTitle() {
+      return "\n                <div class=\"tooltip-moving-event-info\">\n                    <div>\n                        <h5>Client:</h5>\n                        <div class=\"d-table info-list\">\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Name:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>" + this.fullName(this.client) + "</b>\n                                </div>\n                            </div>\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Email:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>" + (this.client.email ? this.client.email : '') + "</b>\n                                </div>\n                            </div>\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Time:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>" + this.bookingTimeTwoRow + "</b>\n                                </div>\n                            </div>\n                        </div>\n                        \n                    </div>\n                    <hr />\n                    <div>\n                        <h5>Event:</h5>\n                        <div class=\"d-table info-list\">\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Hall:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>".concat(this.hallTitle, "</b>\n                                </div>\n                            </div>\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Template:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>").concat(this.templateTitle, "</b>\n                                </div>\n                            </div>\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Worker:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>").concat(this.workerFullName, "</b>\n                                </div>\n                            </div>\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Approved:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>") + (this.event.approved ? 'Yes' : 'No') + "</b>\n                                </div>\n                            </div>\n                            <div class=\"d-table-row\">\n                                <div class=\"d-table-cell\">\n                                    Duration:\n                                </div>\n                                <div class=\"d-table-cell\">\n                                    <b>".concat(this.durationStrHoursAndMinutes, "</b>\n                                </div>\n                            </div>\n                        </div>\n                        \n                    </div>\n                </div>\n            ");
+    },
+    durationStrHoursAndMinutes: function durationStrHoursAndMinutes(e) {
+      if (this.movingEventDuration === null) return null;
+      return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.movingEventDuration);
+    },
+    bookingTimeOneRow: function bookingTimeOneRow() {
       if (this.event === null || typeof this.event.time === 'undefined' || this.event.time === null) return null;
-      return moment(this.event.time).format('YYYY-MM-DD ddd HH:mm'); // let bookingTimeMoment = moment(this.event.time);
-      // return this.event.hall_without_user_scope.title;
+      return moment(this.event.time).format('YYYY-MM-DD ddd HH:mm');
+    },
+    bookingTimeTwoRow: function bookingTimeTwoRow() {
+      if (this.event === null || typeof this.event.time === 'undefined' || this.event.time === null) return null;
+      return moment(this.event.time).format('YYYY-MM-DD<br>ddd HH:mm');
     },
     hallTitle: function hallTitle() {
       if (this.picked !== null && typeof this.picked.hall !== 'undefined' && this.picked.hall !== null) return this.picked.hall.title;
@@ -5917,6 +6244,14 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    clickClose: function clickClose(e) {
+      $(".tooltip-active").tooltip("hide");
+      this.$emit('close');
+    },
+    clickEdit: function clickEdit(e) {
+      $(".tooltip-active").tooltip("hide");
+      this.$emit('edit');
+    },
     fullName: function fullName(obj) {
       return calendarHelper.person.fullName(obj);
     } // close: function(){
@@ -5998,7 +6333,7 @@ __webpack_require__.r(__webpack_exports__);
     console.log(this.view);
     console.log(this.views);
   },
-  props: ['canGoToPrevious', 'calendarTitle'],
+  props: ['calendarTitle'],
   // props: ['userId','search', 'views','view','startDate','canGoToPrevious'],
   data: function data() {
     return {// dateRange: helper.range.range,
@@ -7034,6 +7369,1470 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _LoaderAction_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../LoaderAction.vue */ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'Actions',
+  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(this.rightPlaced)));
+    // console.log(this.bigger);
+    // alert(1111);
+  },
+  props: ['itm', 'bigger', 'rightPlaced'],
+  data: function data() {
+    return {// range: helper.range.range,
+      // app: null,
+    };
+  },
+  computed: {
+    pencilIcoSize: function pencilIcoSize() {
+      return this.bigger === true ? 16 : 12;
+    },
+    clockIcoSize: function clockIcoSize() {
+      return this.bigger === true ? 16 : 12;
+    },
+    okIcoSize: function okIcoSize() {
+      return this.bigger === true ? 26 : 18;
+    },
+    removeIcoSize: function removeIcoSize() {
+      return this.bigger === true ? 26 : 16;
+    }
+  },
+  methods: {
+    clickActionMove: function clickActionMove(e) {
+      // console.log(e.target);
+      $(e.target).closest('.action-move').find('.tooltip-active').tooltip("hide");
+      this.$emit('clickActionMove');
+    },
+    clickActionDuration: function clickActionDuration(e, event) {
+      if (typeof event.time_crossing !== 'undefined' && event.time_crossing === true) return;
+      $(e.target).closest('.action-drop').find('.tooltip-active').click();
+      this.$emit('clickActionDuration');
+    },
+    clickActionApprove: function clickActionApprove(e, event) {
+      if (typeof event.time_crossing !== 'undefined' && event.time_crossing === true) return; // this.toggleActionLoader('action_approve_loader_' + event.id, 'action_approve_btn_' + event.id);
+
+      this.$emit('clickActionApprove');
+    },
+    onActionRemove: function onActionRemove(e, event) {
+      // let _this = this;
+      this.$refs['action_remove_drop_toggle_' + event.id].click(); // this.toggleActionLoader(true, 'action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+      // this.$emit.()
+
+      return; // new Promise((resolve, reject) => {
+      //     this.toggleActionLoader('action_remove_loader_' + event.id, 'action_remove_drop_' + event.id);
+      //     this.app.removeEvent(event.id, (data) => {
+      //         resolve(data);
+      //     });
+      // }).then((data) => {
+      //     if(typeof data.status !== 'undefined' && data.status == 'success'){
+      //         // alert('Successfuly removed!!!');
+      //     }else{
+      //         if(typeof data.msg !== 'undefined' && data.msg !== null)
+      //             alert(data.msg);
+      //     }
+      //     this.toggleActionLoader('action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+      //     this.$emit('removed');
+      // });
+    },
+    toggleActionLoader: function toggleActionLoader(refShow, refHide) {
+      $(this.$refs[refShow]).removeClass('d-none');
+      $(this.$refs[refHide]).addClass('d-none');
+    },
+    actionDropdownMenuHover: function actionDropdownMenuHover(e) {
+      $(e.target).closest('.action-drop').find('.drop-toggle').tooltip('hide');
+    }
+  },
+  components: {
+    LoaderAction: _LoaderAction_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _modals_TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../modals/TimeBarFill.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarFill.vue");
+var _this3 = undefined;
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// import TimeBar from "./TimeBar.vue";
+ // import TimeBarNew from "./TimeBarNew.vue";
+// import Loader from "../Loader.vue";
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'duration',
+  mounted: function mounted() {
+    this.setDuration();
+  },
+
+  /*
+  *   e = {event, nextEvent}
+  */
+  props: ['e'],
+  data: function data() {
+    return {
+      errorResponse: null,
+      duration: 100 // choosenTime: null,
+
+    };
+  },
+  computed: {
+    isDurationChanged: function isDurationChanged() {
+      // console.log(this.currentEventFilterDuration);
+      // console.log(this.isE);
+      // console.log(this.duration);
+      return this.isE && this.duration != this.currentEventFilterDuration;
+    },
+    isE: function isE() {
+      return typeof this.e !== 'undefined' && this.e !== null;
+    },
+    event: function event() {
+      if (this.isE && typeof this.e.event !== 'undefined' && this.e.event !== null) return this.e.event;
+      return null;
+    },
+    nextEvent: function nextEvent() {
+      if (this.isE && typeof this.e.nextEvent !== 'undefined' && this.e.nextEvent !== null) return this.e.nextEvent;
+      return null;
+    },
+    stopper: function stopper() {
+      if (this.event === null || this.nextEvent === null) return null;
+      var eventStartMinutes, nextEventStartMinutes;
+      eventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.from);
+      nextEventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.nextEvent.from); // console.log(eventStartMinutes, nextEventStartMinutes);
+      // console.log(nextEventStartMinutes - nextEventStartMinutes);
+
+      return nextEventStartMinutes - eventStartMinutes;
+    },
+    durationStrHoursAndMinutes: function durationStrHoursAndMinutes() {
+      // return '111';
+      return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
+    },
+    bookData: function bookData() {
+      if (this.currentHallFilter === null || this.currentWorkerFilter === null || this.currentTemplateFilter === null) return null;
+      var data = {
+        // hall: this.currentHallFilter.id,
+        // worker: this.currentWorkerFilter.id,
+        // template: this.currentTemplateFilter.id,
+        // time: this.date + ' ' + this.choosenTime + ':00',
+        duration: this.durationStrHoursAndMinutes
+      };
+      return data;
+    }
+  },
+  methods: {
+    // setChoosenTime: function () {
+    //     // console.log(JSON.parse(JSON.stringify(something)));
+    //     this.choosenTime = this.$refs.time_bar_book.inputStrHoursAndMinutes;
+    //     console.log(JSON.parse(JSON.stringify(this.choosenTime)));
+    //     // return this.$refs.time_bar_book.inputStrHoursAndMinutes;
+    // },
+    reset: function reset() {
+      this.setDuration();
+    },
+    timeBarBookChange: function timeBarBookChange(e) {
+      this.choosenTime = e.time;
+    },
+    timeBarDurationChange: function timeBarDurationChange(e) {
+      // console.log(e);
+      this.duration = e;
+      this.emitChange();
+    },
+    emitChange: function emitChange() {
+      this.$emit('change', {
+        duration: this.duration
+      });
+    },
+    setDuration: function setDuration(e) {
+      if (this.currentEventFilterDuration !== null) this.duration = this.currentEventFilterDuration;
+    },
+    // show: function (e){
+    //     console.log(JSON.parse(JSON.stringify(e)));
+    //     this.event = e;
+    //     $('#' + this.modalId).modal('show');
+    // },
+    edit: function edit() {
+      var _this = this;
+
+      if (this.currentEventFilter === null || this.eventData === null) return; // let componentApp = this.getParentComponentByName(this, 'app');
+      // let data;
+      // this.bookButtonDisabled = true;
+
+      this.$refs['loader'].showTransparent(); // data = {
+      // 
+      // }
+
+      this.app.bookEdit(this.currentEventFilter.id, this.bookData, function (response) {
+        // this.onBooked(response);
+        // alert(111);
+        // errorResponse
+        // let data = response.data;
+        // if(typeof response.data.error === 'undefined'){
+        //     setTimeout(() => {
+        //         this.successfullyBooked = true;
+        //     }, 300);
+        // }else{
+        //     setTimeout(() => {
+        //         this.errorResponse = response.data.error;
+        //     }, 300);
+        // }
+        console.log(response);
+      }, function () {}, function () {
+        // console.log('always');
+        _this.$refs['loader'].fadeOut(300); // setTimeout(() => {
+        //     // this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+
+      });
+    },
+    book: function book() {
+      var _this2 = this;
+
+      if (this.currentEventFilter === null || this.bookData === null) return; // let componentApp = this.getParentComponentByName(this, 'app');
+
+      var data; // this.bookButtonDisabled = true;
+
+      this.$refs['loader'].showTransparent(); // data = {
+      // 
+      // }
+
+      this.app.bookEdit(this.currentEventFilter.id, this.bookData, function (response) {
+        // this.onBooked(response);
+        // alert(111);
+        // errorResponse
+        // let data = response.data;
+        // if(typeof response.data.error === 'undefined'){
+        //     setTimeout(() => {
+        //         this.successfullyBooked = true;
+        //     }, 300);
+        // }else{
+        //     setTimeout(() => {
+        //         this.errorResponse = response.data.error;
+        //     }, 300);
+        // }
+        console.log(response);
+      }, function () {}, function () {
+        // console.log('always');
+        _this2.$refs['loader'].fadeOut(300); // setTimeout(() => {
+        //     // this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+
+      });
+    }
+  },
+  components: {
+    // TimeBar,
+    TimeBarFill: _modals_TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_0__.default // TimeBarNew,
+    // Loader,
+
+  },
+  watch: {
+    e: function e(newValue, oldValue) {
+      _this3.setDuration();
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../template/ExtensiveTemplateFilterPicker.vue */ "./resources/js/vue/dashboard/calendar/booking/components/template/ExtensiveTemplateFilterPicker.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'ModalMovePathPicker',
+  mounted: function mounted() {
+    // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
+    this.fillFields();
+  },
+  // props: ['movingEvent'],
+  data: function data() {
+    return {
+      pickedHall: null,
+      pickedWorker: null,
+      pickedTemplate: null,
+      pickedTemplateIdsTrace: null,
+      workers: null,
+      templates: null
+    };
+  },
+  computed: {
+    // Data of picked items (`pickedHall`, `pickedWorker`, `pickedTemplate`)
+    isAllItemsPicked: function isAllItemsPicked() {
+      return this.pickedHall !== null && this.pickedWorker !== null && this.pickedTemplate !== null;
+    },
+    isPickedItemsChanged: function isPickedItemsChanged() {
+      if (!this.isAllItemsPicked || this.movingEvent === null) return true;
+      return this.pickedHall.id !== this.movingEvent.hall_id || this.pickedWorker.id !== this.movingEvent.worker_id || this.pickedTemplate.id !== this.movingEvent.template_id;
+    },
+    fullPickedWorkerName: function fullPickedWorkerName() {
+      var fullName = this.fullName(this.pickedWorker);
+      return fullName !== null ? fullName : '---';
+    },
+    isHallPicked: function isHallPicked() {
+      return this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined';
+    },
+    // Status of this modal (Shown/Hidden)
+    isShown: function isShown() {
+      return $('#' + this.modalId).hasClass('in');
+    }
+  },
+  methods: {
+    // close: function(){
+    //     this.$store.commit('moving_event/reset');
+    //     // this.hide();
+    // },
+    // Show free slots to pick time for moving_event
+    // pickTime: function(){
+    setMovingEventPickedItems: function setMovingEventPickedItems() {
+      if (this.isAllItemsPicked) {
+        this.$store.dispatch('moving_event/setPicked', {
+          hall: this.pickedHall,
+          worker: this.pickedWorker,
+          template: this.pickedTemplate
+        }); // this.hide();
+        // this.$emit('pick_time');
+      }
+    },
+    reset: function reset() {
+      this.$store.dispatch('moving_event/resetPicked');
+      this.resetPickedItems();
+      this.fillFields();
+    },
+    setPickedTemplateIdsTrace: function setPickedTemplateIdsTrace() {
+      // if(this.movingEventTemplate === null)
+      if (this.pickedTemplate === null) return;
+      var template = JSON.parse(JSON.stringify(this.pickedTemplate));
+      if (typeof template.specific === 'undefined' || template.specific === null) return;
+      if (typeof template.specific.ids_trace === 'undefined' || template.specific.ids_trace === null) return [template.specific.id];
+      var idsTraceString = JSON.parse(JSON.stringify(template.specific.ids_trace));
+      var idsTrace = idsTraceString.split(',').map(function (val) {
+        return parseInt(val);
+      });
+      idsTrace.push(template.specific.id);
+      idsTrace.push(template.id);
+      this.pickedTemplateIdsTrace = idsTrace; // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+    },
+    fullName: function fullName(obj) {
+      return calendarHelper.person.fullName(obj);
+    },
+    // show: function (){
+    //     // $('#' + this.modalId).modal('show');
+    //     this.fillFields();
+    // },
+    // hide: function (){
+    //     $('#' + this.modalId).modal('hide');
+    // },
+    resetPickedItems: function resetPickedItems() {
+      var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      if (items !== null && !Array.isArray(items)) return;
+      if (items === null || items.includes("hall")) this.pickedHall = null;
+
+      if (items === null || items.includes("template")) {
+        this.pickedTemplate = null;
+        this.pickedTemplateIdsTrace = null;
+      }
+
+      if (items === null || items.includes("worker")) this.pickedWorker = null;
+      if (items === null || items.includes("hall") || items.includes("template") || items.includes("worker")) this.$emit('change');
+    },
+    change: function change(type, itm) {
+      var _this2 = this;
+
+      var callbackResolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      var _this = this;
+
+      itm = JSON.parse(JSON.stringify(itm));
+      var url, urlParams;
+
+      switch (type) {
+        case 'hall':
+          if (this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined' && parseInt(this.pickedHall.id) === parseInt(itm.id)) return;
+          this.resetPickedItems();
+          url = new URL(routes.calendar.booking.template.get);
+          urlParams = new URLSearchParams();
+          urlParams.append('hall_id', itm.id);
+          url.search = urlParams;
+          axios.get(url.toString()).then(function (response) {
+            _this2.pickedHall = itm;
+            if (typeof response.data.templates === 'undefined' || response.data.templates === null) return;
+            var templates = [];
+            response.data.templates.forEach(function (item, i) {
+              templates.push(item);
+            });
+            _this2.templates = templates; // this.pickedHall = itm;
+
+            console.log(JSON.parse(JSON.stringify(_this2.templates)));
+            if (callbackResolver !== null) callbackResolver();
+          })["catch"](function (error) {
+            // handle error
+            console.log(error);
+          }).then(function () {
+            // always executed
+            _this.$emit('change');
+          });
+          break;
+
+        case 'template':
+          this.resetPickedItems(['template', 'worker']);
+          if (itm === null) return;
+          url = new URL(routes.calendar.booking.worker.get);
+          urlParams = new URLSearchParams();
+          urlParams.append('hall_id', this.pickedHall.id);
+          urlParams.append('template_id', itm.id);
+          url.search = urlParams;
+          axios.get(url.toString()).then(function (response) {
+            var workers = [];
+            response.data.workers.forEach(function (item, i) {
+              workers.push(item);
+            });
+            _this2.workers = workers;
+            _this2.pickedTemplate = itm;
+            if (callbackResolver !== null) callbackResolver();
+          })["catch"](function (error) {
+            // handle error
+            console.log(error);
+          }).then(function () {
+            // always executed
+            _this.$emit('change');
+          });
+          break;
+
+        case 'worker':
+          this.pickedWorker = itm ? itm : null;
+
+          _this.$emit('change');
+
+          break;
+      }
+    },
+    getItemById: function getItemById(items, id) {
+      var item = null;
+
+      for (var i = 0; i < items.length; i++) {
+        if (typeof items[i].id !== 'undefined' && items[i].id == id) {
+          item = items[i];
+          break;
+        }
+      }
+
+      return item;
+    },
+    fillFields: function fillFields() {
+      var _this3 = this;
+
+      // return;
+      var _this = this;
+
+      if (this.isMovingEvent) {
+        var hall, template, worker;
+        this.resetPickedItems();
+        hall = getItem('hall');
+        console.log(JSON.parse(JSON.stringify('hall')));
+        console.log(JSON.parse(JSON.stringify(hall)));
+        if (hall === null) return;
+        new Promise(function (resolve, reject) {
+          _this3.change('hall', hall, function () {
+            return resolve();
+          });
+        }).then(function (result) {
+          template = getItem('template');
+          console.log(JSON.parse(JSON.stringify('template')));
+          console.log(JSON.parse(JSON.stringify(template)));
+          return new Promise(function (resolve, reject) {
+            _this3.change('template', template, function () {
+              _this3.setPickedTemplateIdsTrace();
+
+              resolve();
+            });
+
+            console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace'))); // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+          });
+        }).then(function (result) {
+          worker = getItem('worker');
+          console.log(JSON.parse(JSON.stringify('worker')));
+          console.log(JSON.parse(JSON.stringify(worker)));
+
+          _this3.change('worker', worker);
+        });
+      } // Returns item one of (`worker`,`hall`,`template`)
+      // depending on filled data in moving_event $store module
+
+
+      function getItem(type) {
+        if (!['hall', 'template', 'worker'].includes(type)) return null;
+        var item, itemId;
+        var aliases = {
+          hall: {
+            thisItems: 'halls',
+            movingEventId: 'hall_id'
+          },
+          template: {
+            thisItems: 'templates',
+            movingEventId: 'template_id'
+          },
+          worker: {
+            thisItems: 'workers',
+            movingEventId: 'worker_id'
+          }
+        };
+        if (_this.movingEventIsPickedFull) item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEventPicked[type].id);
+        if (typeof item === 'undefined' || item === null) item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEvent[aliases[type].movingEventId]);
+        return item;
+      }
+    }
+  },
+  components: {
+    TemplatePicker: _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_0__.default
+  },
+  watch: {
+    pickedHall: function pickedHall(val) {
+      if (val === null) {
+        this.templates = null;
+        this.workers = null;
+      }
+    },
+    pickedTemplate: function pickedTemplate(val) {
+      if (val === null) {
+        this.workers = null;
+      }
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TimeBarFill.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarFill.vue");
+/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Loader.vue */ "./resources/js/vue/dashboard/calendar/booking/components/Loader.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// import TimeBar from "./TimeBar.vue";
+ // import TimeBarNew from "./TimeBarNew.vue";
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'modalDuration',
+  mounted: function mounted() {
+    var _this = this;
+
+    // if(this.app === null)
+    //     this.app = this.getParentComponentByName(this, 'app');
+    // console.log(111);
+    // console.log(this.auth);
+    // this.$refs['loader'].fadeOut(300);
+    // this.setDuration();
+    $("#" + this.modalId).on('show.bs.modal', function () {
+      _this.setDuration();
+    });
+    $("#" + this.modalId).on('shown.bs.modal', function () {
+      _this.$refs['loader'].fadeOut(300);
+    });
+    $("#" + this.modalId).on('hidden.bs.modal', function () {
+      _this.errorResponse = null;
+
+      _this.$refs['loader'].show();
+
+      _this.$refs.time_bar_duration.reset();
+    });
+  },
+  props: ['bookDate'],
+  data: function data() {
+    return {
+      modalId: 'durationPickerModal',
+      errorResponse: null,
+      duration: 100,
+      event: null,
+      choosenTime: null
+    };
+  },
+  computed: {
+    stopper: function stopper() {
+      if (this.event === null || typeof this.event.event === 'undefined' || this.event.event === null || typeof this.event.nextEvent === 'undefined' || this.event.nextEvent === null) return null;
+      var eventStartMinutes, nextEventStartMinutes;
+      eventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.event.from);
+      nextEventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.nextEvent.from); // console.log(eventStartMinutes, nextEventStartMinutes);
+      // console.log(nextEventStartMinutes - nextEventStartMinutes);
+
+      return nextEventStartMinutes - eventStartMinutes;
+    },
+    date: function date() {
+      if (this.event == null || typeof this.event.day === 'undefined' || this.event.day === null) return null;
+      return this.event.day.year + '-' + this.event.day.month + '-' + this.event.day.day;
+    },
+    startPeriodDatetime: function startPeriodDatetime() {
+      if (this.event === null || typeof this.event.item === 'undefined' || this.event.item === null || typeof this.event.item.from === 'undefined' || this.event.item.from === null) return 0;
+      var fromArr, fromHours, fromMinutes;
+      fromArr = this.event.item.from.split(':');
+      if (fromArr.length != 2) return 0;
+      fromHours = parseInt(fromArr[0]);
+      fromMinutes = parseInt(fromArr[1]);
+      return fromHours < 0 ? 0 : fromHours * 60 + fromMinutes;
+    },
+    endPeriodDatetime: function endPeriodDatetime() {
+      if (this.event === null || typeof this.event.item === 'undefined' || this.event.item === null || typeof this.event.item.to === 'undefined' || this.event.item.to === null) return 0;
+      var toArr, toHours, toMinutes;
+      toArr = this.event.item.to.split(':');
+      if (toArr.length != 2) return 0;
+      toHours = parseInt(toArr[0]);
+      toMinutes = parseInt(toArr[1]);
+      return toHours > 23 ? 23 * 60 + 59 : toHours * 60 + toMinutes;
+    },
+    durationStrHoursAndMinutes: function durationStrHoursAndMinutes() {
+      // return '111';
+      return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
+    },
+    bookData: function bookData() {
+      if (this.currentHallFilter === null || this.currentWorkerFilter === null || this.currentTemplateFilter === null) return null;
+      var data = {
+        // hall: this.currentHallFilter.id,
+        // worker: this.currentWorkerFilter.id,
+        // template: this.currentTemplateFilter.id,
+        // time: this.date + ' ' + this.choosenTime + ':00',
+        duration: this.durationStrHoursAndMinutes
+      };
+      return data;
+    }
+  },
+  methods: {
+    setChoosenTime: function setChoosenTime() {
+      // console.log(JSON.parse(JSON.stringify(something)));
+      this.choosenTime = this.$refs.time_bar_book.inputStrHoursAndMinutes;
+      console.log(JSON.parse(JSON.stringify(this.choosenTime))); // return this.$refs.time_bar_book.inputStrHoursAndMinutes;
+    },
+    timeBarBookChange: function timeBarBookChange(e) {
+      this.choosenTime = e.time;
+    },
+    timeBarDurationChange: function timeBarDurationChange(e) {
+      // console.log(e);
+      this.duration = e;
+    },
+    setDuration: function setDuration(e) {
+      if (typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null && typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null) {
+        console.log(JSON.parse(JSON.stringify(this.currentTemplateFilter)));
+        console.log(JSON.parse(JSON.stringify(this.currentEventFilter)));
+
+        if (typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null) {
+          this.duration = this.currentEventFilter.custom_duration;
+        } else {
+          this.duration = this.currentTemplateFilter.duration;
+        }
+      } // alert(this.duration);
+      // this.$refs.time_bar_duration.reset();
+      // return this.$store.getters['filters/template'];
+
+    },
+    show: function show(e) {
+      console.log(JSON.parse(JSON.stringify(e)));
+      this.event = e;
+      $('#' + this.modalId).modal('show');
+    },
+    edit: function edit() {
+      var _this2 = this;
+
+      if (this.currentEventFilter === null || this.eventData === null) return; // let componentApp = this.getParentComponentByName(this, 'app');
+      // let data;
+      // this.bookButtonDisabled = true;
+
+      this.$refs['loader'].showTransparent(); // data = {
+      // 
+      // }
+
+      this.app.bookEdit(this.currentEventFilter.id, this.bookData, function (response) {
+        // this.onBooked(response);
+        // alert(111);
+        // errorResponse
+        // let data = response.data;
+        // if(typeof response.data.error === 'undefined'){
+        //     setTimeout(() => {
+        //         this.successfullyBooked = true;
+        //     }, 300);
+        // }else{
+        //     setTimeout(() => {
+        //         this.errorResponse = response.data.error;
+        //     }, 300);
+        // }
+        console.log(response);
+      }, function () {}, function () {
+        // console.log('always');
+        _this2.$refs['loader'].fadeOut(300); // setTimeout(() => {
+        //     // this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+
+      });
+    },
+    book: function book() {
+      var _this3 = this;
+
+      if (this.currentEventFilter === null || this.bookData === null) return; // let componentApp = this.getParentComponentByName(this, 'app');
+
+      var data; // this.bookButtonDisabled = true;
+
+      this.$refs['loader'].showTransparent(); // data = {
+      // 
+      // }
+
+      this.app.bookEdit(this.currentEventFilter.id, this.bookData, function (response) {
+        // this.onBooked(response);
+        // alert(111);
+        // errorResponse
+        // let data = response.data;
+        // if(typeof response.data.error === 'undefined'){
+        //     setTimeout(() => {
+        //         this.successfullyBooked = true;
+        //     }, 300);
+        // }else{
+        //     setTimeout(() => {
+        //         this.errorResponse = response.data.error;
+        //     }, 300);
+        // }
+        console.log(response);
+      }, function () {}, function () {
+        // console.log('always');
+        _this3.$refs['loader'].fadeOut(300); // setTimeout(() => {
+        //     // this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+
+      });
+    }
+  },
+  components: {
+    // TimeBar,
+    TimeBarFill: _TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_0__.default,
+    // TimeBarNew,
+    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_1__.default
+  },
+  watch: {// initValue: (newOne, oldOne) => {
+    //     console.log(helper.parse(newOne));
+    // 	// console.log("Title changed from " + newOne + " to " + oldOne)
+    // },
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Loader.vue */ "./resources/js/vue/dashboard/calendar/booking/components/Loader.vue");
+/* harmony import */ var _event_Actions_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../event/Actions.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue");
+/* harmony import */ var _event_Edit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../event/Edit.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue");
+/* harmony import */ var _event_Duration_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../event/Duration.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// import TimeBar from "./TimeBar.vue";
+// import TimeBarFill from "./TimeBarFill.vue";
+// import TimeBarNew from "./TimeBarNew.vue";
+
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'modalMoreEvents',
+  updated: function updated() {
+    // this.showTab = 'events';
+    $('.tooltip-active').tooltip({
+      html: true,
+      // trigger: "click",
+      trigger: "hover"
+    });
+  },
+  mounted: function mounted() {
+    var _this = this;
+
+    this.showTab = 'events'; // if(this.app === null)
+    //     this.app = this.getParentComponentByName(this, 'app');
+    // console.log(111);
+    // console.log(this.auth);
+    // this.$refs['loader'].fadeOut(300);
+    // this.setDuration();
+
+    $("#" + this.modalId).on('show.bs.modal', function () {
+      // this.setDuration();
+      _this.showTab = 'events';
+    });
+    $("#" + this.modalId).on('shown.bs.modal', function () {// this.$refs['loader'].fadeOut(300);
+    });
+    $("#" + this.modalId).on('hidden.bs.modal', function () {
+      _this.showTab = 'events';
+    });
+  },
+  // props: ['bookDate'],
+  data: function data() {
+    return {
+      // app: null,
+      showTab: 'events',
+      modalId: 'moreEventsModal',
+      // errorResponse: null,
+      e: null,
+      // choosenTime: null,
+      showEditResetBtn: false,
+      showEditPickTimeBtn: false,
+      // For DURATION tab
+      durationE: null,
+      showDurationApplyBtn: false
+    };
+  },
+  computed: {
+    events: function events() {
+      if (this.e === null || typeof this.e.items === 'undefined' || this.e.items === null || !Array.isArray(this.e.items) || this.e.items.length == 0) return null;
+      return this.e.items;
+    },
+    date: function date() {
+      if (this.e == null || typeof this.e.day === 'undefined' || this.e.day === null || typeof this.e.month === 'undefined' || this.e.month === null || typeof this.e.year === 'undefined' || this.e.year === null) return null;
+      var momentDate = moment(this.e.year + '-' + this.e.month + '-' + this.e.day);
+      return momentDate.format('D MMMM YYYY, ddd'); // return this.e.year + '-' + this.e.month + '-' + this.e.day;
+    }
+  },
+  methods: {
+    eventDate: function eventDate() {
+      if (this.e == null || typeof this.e.day === 'undefined' || this.e.day === null || typeof this.e.month === 'undefined' || this.e.month === null || typeof this.e.year === 'undefined' || this.e.year === null) return null;
+      var momentDate = moment(this.e.year + '-' + this.e.month + '-' + this.e.day);
+      return momentDate.format('D MMMM YYYY, ddd'); // return this.e.year + '-' + this.e.month + '-' + this.e.day;
+    },
+    pickMovingEventTime: function pickMovingEventTime() {
+      this.$refs.edit.setMovingEventPickedItems(); // this.setShowMovingEvent(true);
+      // alert(this.showMovingEvent);
+      // this.$store.dispatch('moving_event/setShow', true);
+
+      this.$store.commit('updater/increaseCounter');
+      this.$store.dispatch('moving_event/setShow', true);
+      this.hide(false); // alert(11111);
+    },
+    setShowEditResetBtn: function setShowEditResetBtn() {
+      if (typeof this.$refs.edit === 'undefined' || this.$refs.edit === null) {
+        this.showEditResetBtn = false;
+      } else {
+        this.showEditResetBtn = this.$refs.edit.isPickedItemsChanged;
+      }
+    },
+    setShowEditPickTimeBtn: function setShowEditPickTimeBtn() {
+      if (typeof this.$refs.edit === 'undefined' || this.$refs.edit === null) {
+        this.showEditPickTimeBtn = false;
+      } else {
+        this.showEditPickTimeBtn = this.$refs.edit.isAllItemsPicked;
+      }
+    },
+    onEditChange: function onEditChange() {
+      this.setShowEditResetBtn();
+      this.setShowEditPickTimeBtn();
+    },
+    backToEvents: function backToEvents() {
+      this.$store.dispatch('moving_event/reset');
+      this.showTab = 'events';
+    },
+    clickActionMove: function clickActionMove(event) {
+      var _this2 = this;
+
+      this.app.setMovingEvent(event).then(function (data) {
+        // console.log(JSON.parse(JSON.stringify(event)));
+        _this2.showTab = 'edit';
+      });
+    },
+    clickActionDuration: function clickActionDuration(event) {
+      var _this3 = this;
+
+      this.app.setMovingEvent(event).then(function (data) {
+        // console.log(JSON.parse(JSON.stringify(event)));
+        _this3.durationE = {
+          event: event,
+          nextEvent: _this3.getNextEventFromEvents(_this3.events, event)
+        };
+        _this3.showTab = 'duration'; // console.log(JSON.parse(JSON.stringify(event)));
+
+        console.log(JSON.parse(JSON.stringify(_this3.durationE)));
+      });
+    },
+    durationStrHoursAndMinutes: function durationStrHoursAndMinutes(event) {
+      return calendarHelper.time.composeHourMinuteTimeFromMinutes(event.right_duration);
+    },
+    show: function show(e) {
+      // console.log(JSON.parse(JSON.stringify(e)));
+      this.e = e;
+      $('#' + this.modalId).modal('show');
+    },
+    hide: function hide() {
+      var _this4 = this;
+
+      var resetMovingEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      $('#' + this.modalId).modal('hide'); // alert(resetMovingEvent);
+
+      if (resetMovingEvent === true) {
+        setTimeout(function () {
+          _this4.$store.dispatch('moving_event/reset');
+        }, 400);
+      } // setTimeout(() => {
+      //     this.showTab = 'events';
+      // }, 1000);
+      // this.showTab = 'events';
+
+    },
+    // For DURATION tab
+    durationChanged: function durationChanged(e) {
+      // console.log(this.$refs.duration.isDurationChanged);
+      this.setShowDurationApplyBtn();
+    },
+    setShowDurationApplyBtn: function setShowDurationApplyBtn() {
+      this.showDurationApplyBtn = typeof this.$refs.duration !== 'undefined' && this.$refs.duration.isDurationChanged;
+    }
+  },
+  components: {
+    // TimeBar,
+    // TimeBarFill,
+    // TimeBarNew,
+    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_0__.default,
+    Actions: _event_Actions_vue__WEBPACK_IMPORTED_MODULE_1__.default,
+    Edit: _event_Edit_vue__WEBPACK_IMPORTED_MODULE_2__.default,
+    Duration: _event_Duration_vue__WEBPACK_IMPORTED_MODULE_3__.default
+  },
+  watch: {// initValue: (newOne, oldOne) => {
+    //     console.log(helper.parse(newOne));
+    // 	// console.log("Title changed from " + newOne + " to " + oldOne)
+    // },
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=script&lang=js&":
 /*!****************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=script&lang=js& ***!
@@ -7401,21 +9200,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'timeBar',
-  mounted: function mounted() {
-    // this.setInputInitValue();
+  mounted: function mounted() {// this.setInputInitValue();
     // console.log('duration');
     // console.log(JSON.parse(JSON.stringify(this.duration)));
     // console.log(this.durationInMinutes);
     // console.log(this.durationInSeconds);
     // console.log(this.min);
     // console.log(this.max);
-    this.setInputInitValue();
-    console.log('duration iii');
-    console.log(this.duration);
-    console.log(this.input);
+    // this.setInputInitValue();
+    // console.log('duration iii');
+    // console.log(this.duration);
+    // console.log(this.input);
   },
   // props: ['start','end','preEnd','startMinutes','endMinutes','preEndMinutes','duration','durationMinutes'],
   props: ['minInMinutes', 'maxInMinutes', 'durationInMinutes', 'durationInSeconds', 'stopper', 'showOutput', 'outputTransparency'],
@@ -7469,6 +9266,9 @@ __webpack_require__.r(__webpack_exports__);
     //     // console.log(this.sliderMax);
     //     // console.log(this.sliderThumbWidth);
     // },
+    // inputStrHoursAndMinutesFromBegginingOfDay: function () {
+    //     return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.min + this.input);
+    // },
     inputStrHoursAndMinutes: function inputStrHoursAndMinutes() {
       return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.input);
     },
@@ -7492,7 +9292,11 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    reset: function reset() {
+      this.setInputInitValue();
+    },
     setInputInitValue: function setInputInitValue(e) {
+      // alert('setInputInitValue');
       if (this.duration === null) {
         this.input = this.min;
       } else {
@@ -7504,10 +9308,17 @@ __webpack_require__.r(__webpack_exports__);
           this.input = this.duration;
         }
       }
+
+      console.log('duration iii');
+      console.log(this.duration);
+      console.log(this.input);
     }
   },
   components: {},
   watch: {
+    minInMinutes: function minInMinutes() {
+      this.setInputInitValue();
+    },
     stopper: function stopper(val) {
       var tillStopper = this.max - this.stopper;
       if (parseInt(this.input) > parseInt(tillStopper)) this.input = tillStopper;
@@ -7521,9 +9332,11 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.$refs.range_slider.style.setProperty('--value', val);
-      this.$refs.range_slider.style.setProperty('--text-value', JSON.stringify((+val).toLocaleString())); // console.log(this.inputStrHoursAndMinutes);
-
-      this.$emit('change', val);
+      this.$refs.range_slider.style.setProperty('--text-value', JSON.stringify((+val).toLocaleString()));
+      this.$emit('change', {
+        input: val,
+        time: this.inputStrHoursAndMinutes
+      });
     }
   }
 });
@@ -7599,69 +9412,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// import VueTimepicker from 'vue2-timepicker'
-// import 'vue2-timepicker/dist/VueTimepicker.css'
 
 
 
@@ -7671,312 +9421,188 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
+    // if(this.app === null)
+    //     this.app = this.getParentComponentByName(this, 'app');
     // console.log(111);
     // console.log(this.auth);
     // this.$refs['loader'].fadeOut(300);
-    // this.createStyleForArrow();
-    // this.setStyleForArrow();
     // this.setDuration();
     $("#" + this.modalId).on('show.bs.modal', function () {
       _this.setDuration();
+
+      _this.setChoosenTime();
     });
     $("#" + this.modalId).on('shown.bs.modal', function () {
-      // alert(111);
-      // if(this.successfullyBooked)
-      //     this.$refs['loader'].fadeOut(300);
-      // this.setInitValue();
-      // this.$refs['time_bar'].recalculate();
-      // console.log(JSON.parse(JSON.stringify(this.template)));
-      _this.bookOn = _this.currentEventFilter.from; // this.modalOpened = true
-
       _this.$refs['loader'].fadeOut(300);
-
-      setTimeout(function () {
-        _this.bookButtonDisabled = false;
-      }, 300);
     });
     $("#" + this.modalId).on('hidden.bs.modal', function () {
-      // this.modalOpened = false
-      _this.successfullyBooked = false;
-      _this.bookButtonDisabled = true;
       _this.errorResponse = null;
 
       _this.$refs['loader'].show();
 
-      _this.arrowPosition = 10; // this.setStyleForArrow();
-
       _this.$refs.time_bar_duration.reset();
+
+      _this.$refs.time_bar_book.reset();
     });
   },
-  // updated() {
-  //     // alert(111);
-  //     this.setDuration();
-  //     // alert(this.duration);
-  // },
   props: ['bookDate'],
   data: function data() {
     return {
+      // app: null,
       modalId: 'timePickerModal',
-      // modalOpened: false,
-      bookButtonDisabled: true,
-      successfullyBooked: false,
-      bookOn: null,
-      // template: filters.template,
-      choosedH: null,
-      choosedM: null,
-      initValue: {
-        HH: '',
-        mm: ''
-      },
-      startPeriodDatetime: null,
-      endPeriodDatetime: null,
-      preEndPeriodDatetime: null,
-      timeBarChangeTimeout: null,
-      s: null,
-      arrowPosition: 10,
-      hintText: 'Move slider to pick a time.',
       errorResponse: null,
-      barStart: null,
-      barEnd: null,
-      duration: 100
+      duration: 100,
+      event: null,
+      choosenTime: null
     };
   },
   computed: {
-    cookieItmTemplate: function cookieItmTemplate() {
-      return this.$store.getters['filters/template'];
+    date: function date() {
+      if (this.event == null || typeof this.event.day === 'undefined' || this.event.day === null) return null;
+      return this.event.day.year + '-' + this.event.day.month + '-' + this.event.day.day;
     },
-    // auth: function () {
-    //     return this.isAuth();
-    // },
-    templateDuration: function templateDuration() {
-      var durationInMin = parseInt(this.currentTemplateFilter.duration / 60); // alert(durationInMin);
-
-      return calendarHelper.time.composeHourMinuteTimeFromMinutes(durationInMin);
+    startPeriodDatetime: function startPeriodDatetime() {
+      if (this.event === null || typeof this.event.item === 'undefined' || this.event.item === null || typeof this.event.item.from === 'undefined' || this.event.item.from === null) return 0;
+      var fromArr, fromHours, fromMinutes;
+      fromArr = this.event.item.from.split(':');
+      if (fromArr.length != 2) return 0;
+      fromHours = parseInt(fromArr[0]);
+      fromMinutes = parseInt(fromArr[1]);
+      return fromHours < 0 ? 0 : fromHours * 60 + fromMinutes;
     },
-    templateDurationMinutes: function templateDurationMinutes() {
-      return parseInt(this.currentTemplateFilter.duration / 60);
+    endPeriodDatetime: function endPeriodDatetime() {
+      if (this.event === null || typeof this.event.item === 'undefined' || this.event.item === null || typeof this.event.item.to === 'undefined' || this.event.item.to === null) return 0;
+      var toArr, toHours, toMinutes;
+      toArr = this.event.item.to.split(':');
+      if (toArr.length != 2) return 0;
+      toHours = parseInt(toArr[0]);
+      toMinutes = parseInt(toArr[1]);
+      return toHours > 23 ? 23 * 60 + 59 : toHours * 60 + toMinutes;
     },
-    // barStart: function () {
-    //     return "09:00";
-    //     return this.currentEventFilter != null ? this.currentEventFilter.from : '';
-    // },
-    // barEnd: function () {
-    //     return "20:00";
-    //     return this.currentEventFilter != null ? this.currentEventFilter.to : '';
-    // },
-    barPreEnd: function barPreEnd() {
-      // return 1;
-      if (this.preEndPeriodDatetime == null) return '';
-      var preEndPeriodDatetime = this.preEndPeriodDatetime; // alert(preEndPeriodDatetime);
-
-      return calendarHelper.time.composeHourMinuteTimeFromMinutes(preEndPeriodDatetime);
+    durationStrHoursAndMinutes: function durationStrHoursAndMinutes() {
+      // return '111';
+      return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
     },
-    freeTimePerc: function freeTimePerc() {
-      var onePerc = parseInt(this.endPeriodDatetime / 100);
-      var percents = parseInt(this.preEndPeriodDatetime / onePerc);
-      return percents;
-    },
-    // bookingDate: function () {
-    //     if(this.bookDate != null){
-    //         return this.bookDate.year + '-' + this.bookDate.month + '-' + this.bookDate.day;
-    //     }
-    // },
-    hourRange: function hourRange() {
-      if (this.currentEventFilter) {
-        var fromArr = this.currentEventFilter.from.split(':');
-        var toArr = this.currentEventFilter.to.split(':');
-        var from = parseInt(fromArr[0]);
-        var to = parseInt(toArr[0]);
-        if (parseInt(toArr[1]) == 0) to--;
-        return [[from, to]];
-      } else {
-        return [[0, 24]];
-      }
-    },
-    minuteRange: function minuteRange() {
-      // return [[0,60]];
-      if (this.currentEventFilter) {
-        var fromArr = this.currentEventFilter.from.split(':');
-        var toArr = this.currentEventFilter.to.split(':');
-        var fromH = parseInt(fromArr[0]);
-        var fromM = parseInt(fromArr[1]);
-        var toH = parseInt(toArr[0]);
-        var toM = parseInt(toArr[1]) == 0 ? 59 : parseInt(toArr[1]); // if(parseInt(toArr[1]) == 0)
-        //     to--;
-
-        if (toH != this.choosedH && fromH != toH) toM = 59;
-        return [[fromM, toM]];
-      } else {
-        return [[0, 60]];
-      }
+    bookData: function bookData() {
+      if (this.currentHallFilter === null || this.currentWorkerFilter === null || this.currentTemplateFilter === null) return null;
+      var data = {
+        hall: this.currentHallFilter.id,
+        worker: this.currentWorkerFilter.id,
+        template: this.currentTemplateFilter.id,
+        time: this.date + ' ' + this.choosenTime + ':00',
+        duration: this.durationStrHoursAndMinutes
+      };
+      return data;
     }
   },
   methods: {
+    setChoosenTime: function setChoosenTime() {
+      // console.log(JSON.parse(JSON.stringify(something)));
+      this.choosenTime = this.$refs.time_bar_book.inputStrHoursAndMinutes;
+      console.log(JSON.parse(JSON.stringify(this.choosenTime))); // return this.$refs.time_bar_book.inputStrHoursAndMinutes;
+    },
+    timeBarBookChange: function timeBarBookChange(e) {
+      this.choosenTime = e.time;
+    },
     timeBarDurationChange: function timeBarDurationChange(e) {
-      console.log(e);
+      // console.log(e);
       this.duration = e;
     },
     setDuration: function setDuration(e) {
-      if (typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null) {
-        this.duration = Math.floor(this.currentTemplateFilter.duration / 60);
+      if (typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null && typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null) {
+        if (typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null) {
+          this.duration = this.currentEventFilter.custom_duration;
+        } else {
+          this.duration = this.currentTemplateFilter.duration;
+        }
       } // alert(this.duration);
       // this.$refs.time_bar_duration.reset();
       // return this.$store.getters['filters/template'];
 
     },
     show: function show(e) {
-      this.barStart = e.from;
-      this.barEnd = e.to;
-      this.setInitValue(e);
-      this.$refs['time_bar'].recalculate();
+      console.log(JSON.parse(JSON.stringify(e)));
+      this.event = e;
       $('#' + this.modalId).modal('show');
     },
-    book: function book() {
+    edit: function edit() {
       var _this2 = this;
 
-      var componentApp = this.getParentComponentByName(this, 'app');
-      this.bookButtonDisabled = true;
-      this.$refs['loader'].showTranparent();
-      componentApp.bookOn(this.bookingDate, this.bookOn, function (response) {
+      if (this.currentEventFilter === null || this.eventData === null) return; // let componentApp = this.getParentComponentByName(this, 'app');
+      // let data;
+      // this.bookButtonDisabled = true;
+
+      this.$refs['loader'].showTransparent(); // data = {
+      // 
+      // }
+
+      this.app.bookEdit(this.currentEventFilter.id, this.bookData, function (response) {
         // this.onBooked(response);
         // alert(111);
         // errorResponse
         // let data = response.data;
-        if (typeof response.data.error === 'undefined') {
-          setTimeout(function () {
-            _this2.successfullyBooked = true;
-          }, 300);
-        } else {
-          setTimeout(function () {
-            _this2.errorResponse = response.data.error;
-          }, 300);
-        } // console.log(response);
-
+        // if(typeof response.data.error === 'undefined'){
+        //     setTimeout(() => {
+        //         this.successfullyBooked = true;
+        //     }, 300);
+        // }else{
+        //     setTimeout(() => {
+        //         this.errorResponse = response.data.error;
+        //     }, 300);
+        // }
+        console.log(response);
       }, function () {}, function () {
         // console.log('always');
-        _this2.$refs['loader'].fadeOut(300);
+        _this2.$refs['loader'].fadeOut(300); // setTimeout(() => {
+        //     // this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
 
-        setTimeout(function () {
-          // this.successfullyBooked = true;
-          _this2.bookButtonDisabled = false;
-        }, 300);
       });
     },
-    timeBarSliderEnabled: function timeBarSliderEnabled() {
-      // console.log('timeBarSliderEnabled');
-      this.hintText = 'Move slider to pick a time.';
-    },
-    timeBarSliderDisabled: function timeBarSliderDisabled() {
-      // console.log('timeBarSliderDisabled');
-      this.hintText = 'In this period you can only book on <b>' + this.currentEventFilter.from + '</b>.';
-    },
-    // createStyleForArrow: function (){
-    //     this.s = document.createElement("style");
-    //     document.head.appendChild(this.s);
-    // },
-    // setStyleForArrow: function (){
-    //     // console.log(33333);
-    //     this.s.textContent = `
-    //         .alert-arrow:after {
-    //             left: ` + this.arrowPosition + `px!important;
-    //         }
-    //     `;
-    // },
-    timeBarChange: function timeBarChange(event) {
+    book: function book() {
       var _this3 = this;
 
-      clearTimeout(this.timeBarChangeTimeout);
-      this.timeBarChangeTimeout = setTimeout(function () {
-        // console.log(event.sliderValue);
-        var minPerc = event.freeMinutes / event.freeMinutesForStart;
-        var minutes = Math.round(event.sliderValue / minPerc);
-        _this3.bookOn = calendarHelper.time.composeHourMinuteTimeFromMinutes(_this3.startPeriodDatetime + minutes);
-        var widthOnePerc = (event.sliderWidth - event.sliderThumbWidth) / 100;
-        var minutesOnePerc = event.freeMinutesForStart / 100;
-        var minutesPerc = minutes / minutesOnePerc;
-        var offset = widthOnePerc * minutesPerc; // console.log(offset);
-        // this.arrowPosition = offset + 10;
+      if (this.currentEventFilter === null || this.bookData === null) return; // let componentApp = this.getParentComponentByName(this, 'app');
 
-        _this3.arrowPosition = offset + 7; // this.setStyleForArrow();
-      }, 0); // this.$emit('change', {
-      //     freeMinutes: this.freeMinutes,
-      //     freeMinutesForStart: this.freeMinutesForStart,
-      //     sliderValue: sliderValue,
-      //     sliderWidth: this.sliderWidth,
-      //     sliderThumbWidth: this.sliderThumbWidth,
-      // });
-      // let minPerc = event.freeMinutes/event.freeMinutesForStart;
-      // let minutes = Math.round(event.sliderValue/minPerc)
-      // console.log(calendarHelper.time.composeHourMinuteTimeFromMinutes(this.startPeriodDatetime + minutes));
-      // this.$emit('change', {
-      //     freeMinutes: this.freeMinutes,
-      //     freeMinutesForStart: this.freeMinutesForStart,
-      // });
-    },
-    // composeHourMinuteTimeFromMinutes: function (mins) {
-    //     let minutes = mins%60;
-    //     let hours = parseInt(mins/60);
-    // 
-    //     if(minutes <= 0){
-    //         minutes = '00'
-    //     }else if(minutes > 0 && minutes < 10){
-    //         minutes = '0' + minutes;
-    //     }else{
-    //         minutes = minutes;
-    //     }
-    // 
-    //     if(hours <= 0){
-    //         hours = '00'
-    //     }else if(hours > 0 && hours < 10){
-    //         hours = '0' + hours;
-    //     }else{
-    //         hours = hours;
-    //     }
-    // 
-    //     return hours + ':' + minutes;
-    // },
-    input: function input(val) {
-      if (val.HH != '') this.choosedH = val.HH;
-      if (val.mm != '') this.choosedM = val.mm; // console.log(val);
-    },
-    setInitValue: function setInitValue(e) {
-      // alert(this.currentEventFilter.from);
-      var fromArr = e.from.split(':');
-      var toArr = e.to.split(':');
-      this.initValue.HH = fromArr[0];
-      this.initValue.mm = fromArr[1];
-      var fromHour = parseInt(fromArr[0]);
-      var fromMinutes = parseInt(fromArr[1]);
-      var startPeriodDatetime = fromHour <= 0 ? 0 : fromHour * 60;
-      startPeriodDatetime += fromMinutes;
-      this.startPeriodDatetime = startPeriodDatetime; // alert(this.startPeriodDatetime);
+      var data; // this.bookButtonDisabled = true;
 
-      var toHour = parseInt(toArr[0]);
-      var toMinutes = parseInt(toArr[1]);
-      var endPeriodDatetime = toHour <= 0 ? 0 : toHour * 60;
-      endPeriodDatetime += toMinutes;
-      this.endPeriodDatetime = endPeriodDatetime;
-      this.preEndPeriodDatetime = this.endPeriodDatetime - parseInt(this.currentTemplateFilter.duration / 60);
+      this.$refs['loader'].showTransparent(); // data = {
+      // 
+      // }
+
+      this.app.bookEdit(this.currentEventFilter.id, this.bookData, function (response) {
+        // this.onBooked(response);
+        // alert(111);
+        // errorResponse
+        // let data = response.data;
+        // if(typeof response.data.error === 'undefined'){
+        //     setTimeout(() => {
+        //         this.successfullyBooked = true;
+        //     }, 300);
+        // }else{
+        //     setTimeout(() => {
+        //         this.errorResponse = response.data.error;
+        //     }, 300);
+        // }
+        console.log(response);
+      }, function () {}, function () {
+        // console.log('always');
+        _this3.$refs['loader'].fadeOut(300); // setTimeout(() => {
+        //     // this.successfullyBooked = true;
+        //     this.bookButtonDisabled = false;
+        // }, 300);
+
+      });
     }
   },
   components: {
-    // VueTimepicker,
     TimeBar: _TimeBar_vue__WEBPACK_IMPORTED_MODULE_0__.default,
     TimeBarFill: _TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_1__.default,
     TimeBarNew: _TimeBarNew_vue__WEBPACK_IMPORTED_MODULE_2__.default,
     Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_3__.default
   },
-  watch: {// auth: function(newOne, oldOne) {
-    //     // console.log('auth changed: ' + auth);
-    //     this.$refs['loader'].show();
-    //     setTimeout(() => {
-    //         this.$refs['loader'].fadeOut(300);
-    //     }, 200);
-    //     // this.$refs['loader'].fadeOut(300);
-    //     // console.log(this.auth);
-    // 	// console.log("Title changed from " + newOne + " to " + oldOne)
-    // },
-    // initValue: (newOne, oldOne) => {
+  watch: {// initValue: (newOne, oldOne) => {
     //     console.log(helper.parse(newOne));
     // 	// console.log("Title changed from " + newOne + " to " + oldOne)
     // },
@@ -8240,6 +9866,386 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/calendar/booking/app.js":
+/*!************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/app.js ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store */ "./resources/js/vue/dashboard/calendar/booking/store/index.js");
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/dashboard/calendar/booking/components/App.vue");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/dashboard/calendar/booking/bootstrap.js");
+
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+ // import Vuex from 'vuex';
+// 
+// Vue.use(Vuex);
+// 
+// 
+// const store = new Vuex.Store({
+//   state: {
+//     count: 0
+//   },
+//   mutations: {
+//     increment (state) {
+//       state.count++
+//     }
+//   }
+// });
+// 
+// 
+// console.log(store.state.count)
+
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// const files = require.context('./', true, /\.vue$/i)
+// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+
+Vue.component('dropdown-template-specifics', __webpack_require__(/*! ./components/template/DropdownTemplateSpecifics.vue */ "./resources/js/vue/dashboard/calendar/booking/components/template/DropdownTemplateSpecifics.vue").default);
+/**
+ * Next, we will create a fresh Vue application instance and attach it to
+ * the page. Then, you may begin adding components to this application
+ * or customize the JavaScript scaffolding to fit your unique needs.
+ */
+// const Helper = require("../../../ts/calendar_helper/app").Helper;
+// const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
+
+window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js"); // window.viewEnums = new ViewEnums();
+// window.helper = new Helper();
+// console.log(helper.my());
+
+
+Vue.mixin({
+  mounted: function mounted() {
+    // this.setApp();
+    if (this.isMovingEvent) this.$store.dispatch('moving_event/setShow', true); //     this.showMovingEvent = true;
+  },
+  data: function data() {
+    return {
+      // app: null,
+      hoursList: [{
+        hour: '00',
+        minute: '00'
+      }, {
+        hour: '01',
+        minute: '00'
+      }, {
+        hour: '02',
+        minute: '00'
+      }, {
+        hour: '03',
+        minute: '00'
+      }, {
+        hour: '04',
+        minute: '00'
+      }, {
+        hour: '05',
+        minute: '00'
+      }, {
+        hour: '06',
+        minute: '00'
+      }, {
+        hour: '07',
+        minute: '00'
+      }, {
+        hour: '08',
+        minute: '00'
+      }, {
+        hour: '09',
+        minute: '00'
+      }, {
+        hour: '10',
+        minute: '00'
+      }, {
+        hour: '11',
+        minute: '00'
+      }, {
+        hour: '12',
+        minute: '00'
+      }, {
+        hour: '13',
+        minute: '00'
+      }, {
+        hour: '14',
+        minute: '00'
+      }, {
+        hour: '15',
+        minute: '00'
+      }, {
+        hour: '16',
+        minute: '00'
+      }, {
+        hour: '17',
+        minute: '00'
+      }, {
+        hour: '18',
+        minute: '00'
+      }, {
+        hour: '19',
+        minute: '00'
+      }, {
+        hour: '20',
+        minute: '00'
+      }, {
+        hour: '21',
+        minute: '00'
+      }, {
+        hour: '22',
+        minute: '00'
+      }, {
+        hour: '23',
+        minute: '00'
+      }],
+      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      calendarSettings: calendarSettings
+    };
+  },
+  computed: {
+    app: function app() {
+      return this.$root.$children[0];
+    },
+    calendar: function calendar() {
+      if (this.view.toLowerCase() === 'month' && typeof this.app.$refs.month_calendar !== 'undefined') return this.app.$refs.month_calendar;
+      return null;
+    },
+    showMovingEvent: function showMovingEvent() {
+      return this.$store.getters['moving_event/show'];
+    },
+    view: function view() {
+      // return 'month';
+      return this.$store.getters['filters/view'];
+    },
+    canGoToPrevious: function canGoToPrevious() {
+      if (this.view.toLowerCase() == 'month') {
+        return this.$store.getters['dates/canGoToPreviousMonth'];
+      } // alert(this.$store.dispatch('dates/canGoToPrevious'));
+      // return this.$store.dispatch('dates/canGoToPrevious');
+      // return this.$store.getters['dates/canGoToPrevious'];
+
+
+      return false;
+    },
+    // Current dates
+    currentDate: function currentDate() {
+      return new Date(this.$store.getters['dates/current'].date);
+    },
+    currentYear: function currentYear() {
+      return this.$store.getters['dates/current'].year;
+    },
+    currentMonth: function currentMonth() {
+      return this.$store.getters['dates/current'].month;
+    },
+    currentDay: function currentDay() {
+      return this.$store.getters['dates/current'].day;
+    },
+    currentWeekday: function currentWeekday() {
+      return this.$store.getters['dates/current'].weekday;
+    },
+    currentIsoWeekday: function currentIsoWeekday() {
+      return this.$store.getters['dates/current'].isoWeekday;
+    },
+    // Current filters
+    currentEventFilter: function currentEventFilter() {
+      if (this.movingEvent !== null) return this.movingEvent;
+      return null;
+    },
+    currentEventFilterDuration: function currentEventFilterDuration() {
+      if (typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null && typeof this.currentEventFilter.right_duration !== 'undefined' && this.currentEventFilter.right_duration !== null) return this.currentEventFilter.right_duration;
+      return null;
+    },
+    currentHallFilter: function currentHallFilter() {
+      if (this.movingEvent !== null) {
+        if (this.movingEventIsPickedFull) return this.movingEventPicked.hall;
+        return this.movingEvent.hall_without_user_scope;
+      }
+
+      return null;
+    },
+    currentWorkerFilter: function currentWorkerFilter() {
+      if (this.movingEvent !== null) {
+        if (this.movingEventIsPickedFull) return this.movingEventPicked.worker;
+        return this.movingEvent.worker_without_user_scope;
+      }
+
+      return null;
+    },
+    currentTemplateFilter: function currentTemplateFilter() {
+      if (this.movingEvent !== null) {
+        if (this.movingEventIsPickedFull) return this.movingEventPicked.template;
+        return this.movingEvent.template_without_user_scope;
+      }
+
+      return null;
+    },
+    // Moving event data of moving_event `$store` module
+    movingEventIsPickedFull: function movingEventIsPickedFull() {
+      return this.$store.getters['moving_event/isPickedFull'];
+    },
+    movingEventPicked: function movingEventPicked() {
+      return this.$store.getters['moving_event/picked'];
+    },
+    movingEventDuration: function movingEventDuration() {
+      if (typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null && typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null) {
+        if (typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null) return this.currentEventFilter.custom_duration;
+        return this.currentTemplateFilter.duration;
+      }
+
+      return null;
+    },
+    movingEvent: function movingEvent() {
+      return this.$store.getters['moving_event/event'];
+    },
+    isMovingEvent: function isMovingEvent() {
+      // return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
+      return typeof this.movingEvent !== 'undefined' && this.movingEvent !== null;
+    },
+    movingEventClient: function movingEventClient() {
+      return this.$store.getters['moving_event/client'];
+    },
+    movingEventDateObj: function movingEventDateObj() {
+      if (this.movingEvent === null) return null;
+      return moment(this.movingEvent.time).toDate();
+    },
+    movingEventDateMoment: function movingEventDateMoment() {
+      if (this.movingEvent === null) return null;
+      return moment(this.movingEvent.time);
+    },
+    movingEventDate: function movingEventDate() {
+      if (this.movingEvent === null) return null;
+      return calendarHelper.time.getEventDate(this.movingEvent);
+    },
+    // Specifics
+    templateSpecifics: function templateSpecifics() {
+      return this.$store.getters['specifics/templateSpecifics'];
+    },
+    templateSpecificsAsIdKey: function templateSpecificsAsIdKey() {
+      return this.$store.getters['specifics/templateSpecificsAsIdKey'];
+    },
+    // All halls
+    halls: function halls() {
+      return this.$store.getters['halls/all'];
+    },
+    // Data updater
+    storeDataUpdater: function storeDataUpdater() {
+      return this.$store.getters['updater/counter'];
+    },
+    // Store filters
+    storeFilters: function storeFilters() {
+      return this.$store.getters['filters/all'];
+    }
+  },
+  methods: {
+    getNextEventFromEvents: function getNextEventFromEvents(events, event) {
+      var nextEvent = null;
+      var isNext = false;
+
+      for (var i = 0; i < events.length; i++) {
+        if (isNext && events[i].approved == 1) {
+          nextEvent = events[i];
+          break;
+        }
+
+        if (event.id == events[i].id) {
+          isNext = true;
+        }
+      }
+
+      return nextEvent;
+    },
+    setApp: function setApp() {
+      if (this.app === null) this.app = this.$root.$children[0];
+    },
+    urlSearchParams: function urlSearchParams() {
+      var as_string = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] : this.$store.getters['filters/urlSearchParams'];
+      urlSearchParams = new URLSearchParams(urlSearchParams);
+      if (as_string) return urlSearchParams.toString();
+      return urlSearchParams;
+    },
+    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
+      var component = null;
+      if (_thisComponent.$options.name === componentName) return _thisComponent;
+      var parent = _thisComponent.$parent;
+
+      while (parent && !component) {
+        if (parent.$options.name === componentName) {
+          component = parent;
+        }
+
+        parent = parent.$parent;
+      }
+
+      return component;
+    },
+    isAuth: function isAuth() {
+      var componentApp = this.$root.$children[0];
+      return componentApp.clientAuthorized; // return false;
+      // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
+      // if(componentApp)
+      //     return componentApp.isAuth;
+      // return false;
+    },
+    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
+      // console.log(milliseconds);
+      var minutes = seconds / 60; // console.log('seconds:' + seconds);
+      // let minutes = seconds/60;
+      // console.log('minutes:' + minutes);
+
+      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
+      // console.log(hours + ':' + minutes);
+
+      if (hours > 0) {
+        minutes = minutes % 60;
+        hours = this.formatTimeItemToTwoDigitString(hours);
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } else {
+        hours = '00';
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } // console.log(hours + ':' + minutes);
+
+
+      return hours + ':' + minutes;
+    },
+    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
+      var timeItemInt = parseInt(timeItem);
+      if (timeItemInt < 10) return '0' + timeItemInt;
+      return '' + timeItemInt;
+    } // showChildren: function () {
+    //     // console.log(this.$root.$children[0].$options.name);
+    //     console.log(this.$root.$children[0].$options.name);
+    // }
+
+  }
+});
+window.app = new Vue({
+  // const businessHours = new Vue({
+  el: '#calendarBooking',
+  store: _store__WEBPACK_IMPORTED_MODULE_0__.default,
+  render: function render(h) {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_1__.default, {
+      props: {
+        userId: document.querySelector("#calendarBooking").dataset.userId
+      }
+    });
+  }
+}); // alert(111);
+// console.log(document.querySelector("#calendarBooking").dataset.userId);
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/calendar/booking/bootstrap.js":
 /*!******************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/bootstrap.js ***!
@@ -8295,16 +10301,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/dashboard/calendar/booking/store/modules/filters.js");
-/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/dashboard/calendar/booking/store/modules/owner.js");
-/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/dashboard/calendar/booking/store/modules/client.js");
-/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/dashboard/calendar/booking/store/modules/halls.js");
-/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/dashboard/calendar/booking/store/modules/updater.js");
-/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/dashboard/calendar/booking/store/modules/specifics.js");
-/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/dashboard/calendar/booking/store/modules/custom_titles.js");
-/* harmony import */ var _modules_moving_event__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/moving_event */ "./resources/js/vue/dashboard/calendar/booking/store/modules/moving_event.js");
-/* harmony import */ var _modules_template__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/template */ "./resources/js/vue/dashboard/calendar/booking/store/modules/template.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/dashboard/calendar/booking/store/modules/filters.js");
+/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/dashboard/calendar/booking/store/modules/owner.js");
+/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/dashboard/calendar/booking/store/modules/client.js");
+/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/dashboard/calendar/booking/store/modules/halls.js");
+/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/dashboard/calendar/booking/store/modules/updater.js");
+/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/dashboard/calendar/booking/store/modules/specifics.js");
+/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/dashboard/calendar/booking/store/modules/custom_titles.js");
+/* harmony import */ var _modules_moving_event__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/moving_event */ "./resources/js/vue/dashboard/calendar/booking/store/modules/moving_event.js");
+/* harmony import */ var _modules_template__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/template */ "./resources/js/vue/dashboard/calendar/booking/store/modules/template.js");
+/* harmony import */ var _modules_dates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/dates */ "./resources/js/vue/dashboard/calendar/booking/store/modules/dates.js");
 
 
 
@@ -8316,19 +10323,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_10__.default.use(vuex__WEBPACK_IMPORTED_MODULE_0__.default); // const debug = process.env.NODE_ENV !== 'production'
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_0__.default.Store({
+vue__WEBPACK_IMPORTED_MODULE_10__.default.use(vuex__WEBPACK_IMPORTED_MODULE_11__.default); // const debug = process.env.NODE_ENV !== 'production'
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_11__.default.Store({
   modules: {
-    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_1__.default,
-    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_2__.default,
-    client: _modules_client__WEBPACK_IMPORTED_MODULE_3__.default,
-    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_4__.default,
-    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_5__.default,
-    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_6__.default,
-    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_7__.default,
-    moving_event: _modules_moving_event__WEBPACK_IMPORTED_MODULE_8__.default,
-    template: _modules_template__WEBPACK_IMPORTED_MODULE_9__.default
+    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_0__.default,
+    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_1__.default,
+    client: _modules_client__WEBPACK_IMPORTED_MODULE_2__.default,
+    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_3__.default,
+    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default,
+    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_5__.default,
+    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__.default,
+    moving_event: _modules_moving_event__WEBPACK_IMPORTED_MODULE_7__.default,
+    template: _modules_template__WEBPACK_IMPORTED_MODULE_8__.default,
+    dates: _modules_dates__WEBPACK_IMPORTED_MODULE_9__.default
   } // strict: debug,
   // plugins: debug ? [createLogger()] : []
 
@@ -8465,6 +10474,158 @@ var getters = {
   namespaced: true,
   state: state,
   getters: getters
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/store/modules/dates.js":
+/*!****************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/store/modules/dates.js ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// import shop from '../../api/shop'
+// initial state
+// shape: [{ id, quantity }]
+var state = function state() {
+  return {
+    current: {
+      date: null,
+      year: null,
+      month: null,
+      day: null,
+      weekday: null,
+      isoWeekday: null
+    },
+    interval: {
+      firstDate: null,
+      lastDate: null
+    },
+    month: {
+      firstDate: null,
+      lastDate: null,
+      monthTwoDigits: null,
+      totalDays: null,
+      firstDateWeekday: null,
+      firstDateIsoWeekday: null
+    }
+  };
+}; // getters
+
+
+var getters = {
+  current: function current(state) {
+    return state.current;
+  },
+  interval: function interval(state) {
+    return state.interval;
+  },
+  month: function month(state) {
+    return state.month;
+  },
+  canGoToPreviousMonth: function canGoToPreviousMonth(state) {
+    var firstMonthDay, firstDayOfCurrentMonth;
+    firstMonthDay = moment(state.month.firstDate).startOf('month');
+    firstDayOfCurrentMonth = moment(state.current.date).startOf('month');
+    return firstMonthDay.isAfter(firstDayOfCurrentMonth);
+  }
+}; //actions
+
+var actions = {
+  goToday: function goToday(_ref) {
+    var state = _ref.state;
+    var view = this.getters['filters/view'];
+    if (view.toLowerCase() == 'month') this.dispatch('dates/goTodayMonth'); // console.log(JSON.parse(JSON.stringify(555566666)));
+
+    console.log(JSON.parse(JSON.stringify(view)));
+  },
+  goNext: function goNext(_ref2) {
+    var state = _ref2.state;
+    var view = this.getters['filters/view'];
+    if (view.toLowerCase() == 'month') this.dispatch('dates/goNextMonth'); // console.log(JSON.parse(JSON.stringify(555566666)));
+
+    console.log(JSON.parse(JSON.stringify(view)));
+  },
+  goPrevious: function goPrevious(_ref3) {
+    var state = _ref3.state;
+    var view = this.getters['filters/view'];
+    if (view.toLowerCase() == 'month' && this.getters['dates/canGoToPreviousMonth']) this.dispatch('dates/goPreviousMonth');
+  },
+  setCurrentDateDates: function setCurrentDateDates(_ref4) {
+    var state = _ref4.state;
+    var currentDate = new Date();
+    var momentCurrentDate = moment(currentDate);
+    if (state.current.date == null) state.current.date = currentDate;
+    if (state.current.year == null) state.current.year = momentCurrentDate.format('YYYY');
+    if (state.current.month == null) state.current.month = momentCurrentDate.format('MM');
+    if (state.current.day == null) state.current.day = momentCurrentDate.format('DD');
+    if (state.current.weekday == null) state.current.weekday = momentCurrentDate.weekday();
+    if (state.current.isoWeekday == null) state.current.isoWeekday = momentCurrentDate.isoWeekday();
+  },
+  goPreviousMonth: function goPreviousMonth(_ref5) {
+    var state = _ref5.state;
+    var dateOfMonth = moment(state.month.firstDate).subtract(1, 'M').toDate();
+    this.dispatch('dates/setMonthDates', dateOfMonth);
+  },
+  goNextMonth: function goNextMonth(_ref6) {
+    var state = _ref6.state;
+    var dateOfMonth = moment(state.month.firstDate).add(1, 'M').toDate();
+    this.dispatch('dates/setMonthDates', dateOfMonth); // console.log(dateOfNextMonth.toDate());
+    // this.setDates(dateOfNextMonth.toDate());
+    // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+    // this.getData();
+  },
+  goTodayMonth: function goTodayMonth(_ref7) {
+    var state = _ref7.state;
+    // let dateOfMonth = moment(state.current.date).toDate();
+    this.dispatch('dates/setMonthDates', state.current.date); // console.log(dateOfNextMonth.toDate());
+    // this.setDates(dateOfNextMonth.toDate());
+    // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+    // this.getData();
+  },
+  setMonthDates: function setMonthDates(_ref8, oneOfMonthDate) {
+    var state = _ref8.state;
+    this.dispatch('dates/setCurrentDateDates');
+    var momentOneOfMonthDate, firstDate, lastDate;
+    momentOneOfMonthDate = moment(oneOfMonthDate);
+    state.month.firstDate = momentOneOfMonthDate.startOf('month').toDate();
+    state.month.lastDate = momentOneOfMonthDate.endOf('month').toDate();
+    state.month.monthTwoDigits = momentOneOfMonthDate.format('MM');
+    state.month.firstDateWeekday = moment(state.month.firstDate).weekday();
+    state.month.firstDateIsoWeekday = moment(state.month.firstDate).isoWeekday();
+    state.month.totalDays = state.month.lastDate.getDate(); // alert(state.month.firstDateIsoWeekday);
+
+    firstDate = state.month.firstDateWeekday < 4 ? moment(state.month.firstDate).subtract(7, "days").startOf('week').add(1, 'days') : moment(state.month.firstDate).startOf('week').add(1, 'days');
+    lastDate = new Date(firstDate);
+    lastDate.setDate(lastDate.getDate() + 41);
+    state.interval.firstDate = firstDate;
+    state.interval.lastDate = lastDate;
+    console.log(JSON.parse(JSON.stringify(state))); // console.log(JSON.parse(JSON.stringify(firstDate)));
+    // console.log(JSON.parse(JSON.stringify(lastDate)));
+  }
+}; // mutations
+
+var mutations = {// setInfo: (state, info) => {
+  //     // alert(newFilters);
+  //     // console.log(newFilters);
+  //     if(typeof info !== 'undefined' && typeof info !== null){
+  //         state.info = info;
+  //     }else{
+  //         state.info = null;
+  //     }
+  // },
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters,
+  actions: actions // mutations
+
 });
 
 /***/ }),
@@ -8681,7 +10842,9 @@ var state = function state() {
       worker: calendarHelper.movingE.getItem('picked.worker'),
       template: calendarHelper.movingE.getItem('picked.template')
     },
-    pickedTime: null // time: calendarHelper.movingE.getItem('time'),
+    pickedTime: null,
+    show: calendarHelper.movingE.getItem('show') // show: false,
+    // time: calendarHelper.movingE.getItem('time'),
     // template: calendarBookingHelper.getFilter('template'),
     // worker: calendarBookingHelper.getFilter('worker'),
     // urlSearchPath: null,
@@ -8691,6 +10854,9 @@ var state = function state() {
 
 
 var getters = {
+  show: function show(state) {
+    return state.show;
+  },
   all: function all(state) {
     return state; // return {
     //     event: state.event,
@@ -8760,9 +10926,19 @@ var mutations = {
       template: null
     };
     state.pickedTime = null;
+    state.show = false;
   },
   setPickedTime: function setPickedTime(state, pickedTime) {
     if (typeof pickedTime !== 'undefined' && pickedTime !== null) state.pickedTime = pickedTime;
+  },
+  setShow: function setShow(state, newValue) {
+    if (typeof newValue === 'undefined') return;
+
+    if (newValue === true) {
+      state.show = true;
+    } else {
+      state.show = false;
+    }
   },
   setPicked: function setPicked(state, picked) {
     if (typeof picked === 'undefined') return;
@@ -8794,9 +10970,14 @@ var actions = {
     this.commit('moving_event/setPickedTime', pickedTime);
     this.dispatch('moving_event/set_cookie');
   },
+  setShow: function setShow(context, value) {
+    this.commit('moving_event/setShow', value);
+    this.dispatch('moving_event/set_cookie');
+  },
   setItems: function setItems(context, items) {
     this.commit('moving_event/setItems', items);
     this.dispatch('moving_event/set_cookie'); // console.log(this);
+    // console.log(JSON.parse(JSON.stringify(3333333333)));
     // console.log(JSON.parse(JSON.stringify(context)));
   },
   set_cookie: function set_cookie(_ref) {
@@ -8809,7 +10990,8 @@ var actions = {
         worker: null,
         template: null
       },
-      pickedTime: null
+      pickedTime: null,
+      show: false
     };
     if (state.event !== null && typeof state.event.id !== 'undefined') cookieData.event = state.event.id;
     if (state.client !== null && typeof state.client.id !== 'undefined') cookieData.client = state.client.id;
@@ -8817,6 +10999,7 @@ var actions = {
     if (state.picked.worker !== null && typeof state.picked.worker.id !== 'undefined') cookieData.picked.worker = state.picked.worker.id;
     if (state.picked.template !== null && typeof state.picked.template.id !== 'undefined') cookieData.picked.template = state.picked.template.id;
     if (state.pickedTime !== null) cookieData.pickedTime = state.pickedTime;
+    cookieData.show = state.show === true ? true : false;
 
     if (cookieData.event === null && cookieData.client === null && cookieData.picked.hall === null && cookieData.picked.worker === null && cookieData.picked.template === null) {
       cookie.remove('moving_event');
@@ -9356,6 +11539,54 @@ ___CSS_LOADER_EXPORT___.push([module.id, "\n.calendar-top-item[data-v-2f81fcc0]{
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css&":
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css& ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/* .vue__time-picker, .vue__time-picker input{\n    width: 100%!important;\n}\n.modal-body{\n    position: relative;\n}\n.modal-header, .modal-footer{\n    background-color: #6c757d;\n    color: white;\n}\n.modal-header{\n    position: relative;\n}\n.close{\n    font-size: 60px;\n    color: #fff;\n    opacity: .7;\n    transition: opacity .3s ease;\n    line-height: .8em;\n    padding: 0px;\n    margin: 0px;\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close span{\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close:hover{\n    color: #fff;\n    opacity: 1!important;\n}\n.modal-title{\n    font-weight: normal;\n    color: #f4f4f4;\n}\n.modal-title b{\n    color: white;\n}\n.small{\n    line-height: 1.2em!important;\n} */\n", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "\n.for-actions[data-v-1be627a6]{\n    position: absolute;\n    top: 2px;\n    right: 4px;\n}\n", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=style&index=0&id=079c705e&scoped=true&lang=css&":
 /*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=style&index=0&id=079c705e&scoped=true&lang=css& ***!
@@ -9421,7 +11652,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.vue__time-picker[data-v-07983a7d], .vue__time-picker input[data-v-07983a7d]{\n    width: 100%!important;\n}\n.alert-arrow[data-v-07983a7d] {\n\tposition: relative;\n}\n.alert-arrow[data-v-07983a7d]:after {\n\ttop: 100%;\n\tleft: 10px;\n\tborder: solid transparent;\n\tcontent: \"\";\n\theight: 0;\n\twidth: 0;\n\tposition: absolute;\n\tpointer-events: none;\n\tborder-color: rgba(190, 229, 235, 0);\n\tborder-top-color: #d1ecf1;\n\tborder-width: 6px;\n\tmargin-left: -6px;\n}\n.modal-body[data-v-07983a7d]{\n    position: relative;\n}\n.modal-header[data-v-07983a7d], .modal-footer[data-v-07983a7d]{\n    background-color: #6c757d;\n    color: white;\n}\n.modal-header[data-v-07983a7d]{\n    position: relative;\n}\n.close[data-v-07983a7d]{\n    font-size: 60px;\n    color: #fff;\n    opacity: .7;\n    transition: opacity .3s ease;\n    line-height: .8em;\n    padding: 0px;\n    margin: 0px;\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close span[data-v-07983a7d]{\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close[data-v-07983a7d]:hover{\n    color: #fff;\n    opacity: 1!important;\n}\n.modal-title[data-v-07983a7d]{\n    font-weight: normal;\n    color: #f4f4f4;\n}\n.modal-title b[data-v-07983a7d]{\n    color: white;\n}\n.small[data-v-07983a7d]{\n    line-height: 1.2em!important;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.vue__time-picker[data-v-07983a7d], .vue__time-picker input[data-v-07983a7d]{\n    width: 100%!important;\n}\n.modal-body[data-v-07983a7d]{\n    position: relative;\n}\n.modal-header[data-v-07983a7d], .modal-footer[data-v-07983a7d]{\n    background-color: #6c757d;\n    color: white;\n}\n.modal-header[data-v-07983a7d]{\n    position: relative;\n}\n.close[data-v-07983a7d]{\n    font-size: 60px;\n    color: #fff;\n    opacity: .7;\n    transition: opacity .3s ease;\n    line-height: .8em;\n    padding: 0px;\n    margin: 0px;\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close span[data-v-07983a7d]{\n    position: absolute;\n    top: 0px;\n    right: 0px;\n    height: 60px;\n    width: 60px;\n}\n.close[data-v-07983a7d]:hover{\n    color: #fff;\n    opacity: 1!important;\n}\n.modal-title[data-v-07983a7d]{\n    font-weight: normal;\n    color: #f4f4f4;\n}\n.modal-title b[data-v-07983a7d]{\n    color: white;\n}\n.small[data-v-07983a7d]{\n    line-height: 1.2em!important;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -9548,6 +11779,30 @@ ___CSS_LOADER_EXPORT___.push([module.id, "#loader[data-v-5e0928c7] {\n  position
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "#loader[data-v-5b28d8dd] {\n  display: inline;\n  box-sizing: border-box;\n}\n.lds-dual-ring[data-v-5b28d8dd] {\n  display: inline-block;\n  width: 14px;\n  height: 14px;\n}\n.lds-dual-ring[data-v-5b28d8dd]:after {\n  content: \" \";\n  display: block;\n  width: 12px;\n  height: 12px;\n  margin: 0px;\n  border-radius: 50%;\n  border: 2px solid #fff;\n  border-color: #fff transparent #fff transparent;\n  -webkit-animation: lds-dual-ring-data-v-5b28d8dd 1.2s linear infinite;\n          animation: lds-dual-ring-data-v-5b28d8dd 1.2s linear infinite;\n}\n@-webkit-keyframes lds-dual-ring-data-v-5b28d8dd {\n0% {\n    transform: rotate(0deg);\n}\n100% {\n    transform: rotate(360deg);\n}\n}\n@keyframes lds-dual-ring-data-v-5b28d8dd {\n0% {\n    transform: rotate(0deg);\n}\n100% {\n    transform: rotate(360deg);\n}\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/ModalClientInfoContent.vue?vue&type=style&index=0&id=bd41f6b2&lang=scss&scoped=true&":
 /*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/ModalClientInfoContent.vue?vue&type=style&index=0&id=bd41f6b2&lang=scss&scoped=true& ***!
@@ -9644,30 +11899,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, ".not-approved-bookings-itm[data-v-7644
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true&":
-/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true& ***!
-  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/***/ ((module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
-// Imports
-
-var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
-// Module
-___CSS_LOADER_EXPORT___.push([module.id, ".alert[data-v-31f93180] {\n  position: relative;\n  padding: 6px;\n}\n.alert .titt[data-v-31f93180] {\n  float: left;\n  position: relative;\n  top: 4px;\n}\n.alert .actts[data-v-31f93180] {\n  float: right;\n}\n.alert hr[data-v-31f93180] {\n  margin-top: 8px;\n  margin-bottom: 8px;\n}\n.alert .info-list[data-v-31f93180] {\n  margin: auto;\n}\n.alert .info-list .d-table-cell[data-v-31f93180]:first-child {\n  text-align: right;\n}\n.alert .info-list .d-table-cell[data-v-31f93180]:last-child {\n  padding-left: 10px;\n}", ""]);
-// Exports
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
-
-
-/***/ }),
-
 /***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue?vue&type=style&index=0&id=7105ec48&lang=scss&scoped=true&":
 /*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue?vue&type=style&index=0&id=7105ec48&lang=scss&scoped=true& ***!
@@ -9716,6 +11947,30 @@ ___CSS_LOADER_EXPORT___.push([module.id, "#viewDropdown .dropdown-toggle[data-v-
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true&":
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true& ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, ".btn-reset[data-v-00078dda] {\n  width: 100%;\n}\n.dropdown-standart .dropdown-toggle[data-v-00078dda] {\n  width: 100%;\n  text-align: left;\n  position: relative;\n}\n.dropdown-standart .dropdown-toggle[data-v-00078dda]::after {\n  display: inline-block;\n  margin-left: 0.255em;\n  vertical-align: 0.255em;\n  content: \"\";\n  border-top: 0.3em solid;\n  border-right: 0.3em solid transparent;\n  border-bottom: 0;\n  border-left: 0.3em solid transparent;\n  position: absolute;\n  top: 12px;\n  right: 10px;\n}\n.dropdown-standart .dropdown-menu[data-v-00078dda] {\n  width: 100%;\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarFill.vue?vue&type=style&index=0&id=7a006374&lang=scss&scoped=true&":
 /*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarFill.vue?vue&type=style&index=0&id=7a006374&lang=scss&scoped=true& ***!
@@ -9733,7 +11988,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".range-slider.grad[data-v-7a006374] {\n  width: 100%;\n  --progress-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2) inset;\n  --progress-flll-shadow: var(--progress-shadow);\n  --fill-color: linear-gradient(to right, LightCyan, var(--primary-color));\n}\n.range-slider.grad input[data-v-7a006374]:hover {\n  --thumb-transform: scale(1.2);\n}\n.range-slider.grad input[data-v-7a006374]:active {\n  --thumb-transform: scale(1);\n}\n.range-slider[data-v-7a006374] {\n  --primary-color: #328bf0;\n  --value-offset-y: var(--ticks-gap);\n  --value-active-color: white;\n  --value-background: transparent;\n  --value-background-hover: var(--primary-color);\n  --value-background-opacity: rgba(50,139,240, var(--output-transparency, 1));\n  --value-font: 700 12px/1 Arial;\n  --fill-color: var(--primary-color);\n  --progress-background: #eee;\n  --progress-radius: 20px;\n  --track-height: calc(var(--thumb-size) / 2);\n  --min-max-font: 12px Arial;\n  --min-max-opacity: 0.5;\n  --min-max-x-offset: 10%;\n  --thumb-size: 16px;\n  --thumb-color: white;\n  --thumb-shadow: 0 0 3px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.5) inset,\n    0 0 0 99px var(--thumb-color) inset;\n  --thumb-shadow-active: 0 0 0 calc(var(--thumb-size) / 4) inset\n      var(--thumb-color),\n    0 0 0 99px var(--primary-color) inset, 0 0 3px rgba(0, 0, 0, 0.4);\n  --thumb-shadow-hover: var(--thumb-shadow);\n  --ticks-thickness: 1px;\n  --ticks-height: 5px;\n  --ticks-gap: var(\n    --ticks-height,\n    0\n  );\n  --ticks-color: silver;\n  --step: 1;\n  --ticks-count: Calc(var(--max) - var(--min)) / var(--step);\n  --maxTicksAllowed: 30;\n  --too-many-ticks: Min(1, Max(var(--ticks-count) - var(--maxTicksAllowed), 0));\n  --x-step: Max(\n    var(--step),\n    var(--too-many-ticks) * (var(--max) - var(--min))\n  );\n  --tickInterval: 100/ ((var(--max) - var(--min)) / var(--step)) * var(--tickEvery, 1);\n  --tickIntervalPerc: calc(\n    (100% - var(--thumb-size)) / ((var(--max) - var(--min)) / var(--x-step)) *\n      var(--tickEvery, 1)\n  );\n  --value-a: Clamp(\n    var(--min),\n    var(--value, 0),\n    var(--max)\n  );\n  --value-b: var(--value, 0);\n  --text-value-a: var(--text-value, \"\");\n  --completed-a: calc(\n    (var(--value-a) - var(--min)) / (var(--max) - var(--min)) * 100\n  );\n  --completed-b: calc(\n    (var(--value-b) - var(--min)) / (var(--max) - var(--min)) * 100\n  );\n  --ca: Min(var(--completed-a), var(--completed-b));\n  --cb: Max(var(--completed-a), var(--completed-b));\n  --thumbs-too-close: Clamp(\n    -1,\n    1000 * (Min(1, Max(var(--cb) - var(--ca) - 5, -1)) + 0.001),\n    1\n  );\n  --thumb-close-to-min: Min(1, Max(var(--ca) - 2, 0));\n  --thumb-close-to-max: Min(1, Max(98 - var(--cb), 0));\n  display: inline-block;\n  height: max(var(--track-height), var(--thumb-size));\n  background: linear-gradient(to right, var(--ticks-color) var(--ticks-thickness), transparent 1px) repeat-x;\n  background-size: var(--tickIntervalPerc) var(--ticks-height);\n  background-position-x: calc( var(--thumb-size) / 2 - var(--ticks-thickness) / 2 );\n  background-position-y: var(--flip-y, bottom);\n  padding-bottom: var(--flip-y, var(--ticks-gap));\n  padding-top: calc(var(--flip-y) * var(--ticks-gap));\n  position: relative;\n  z-index: 1;\n}\n.range-slider[data-ticks-position=top][data-v-7a006374] {\n  --flip-y: 1;\n}\n.range-slider .min-tick[data-v-7a006374],\n.range-slider .max-tick[data-v-7a006374] {\n  --offset: calc(var(--thumb-size) / 2);\n  display: block;\n  font: var(--min-max-font);\n  position: absolute;\n  bottom: var(--flip-y, -2.5ch);\n  top: calc(-2.5ch * var(--flip-y));\n  opacity: var(--min-max-opacity);\n  transform: translateX(calc(var(--min-max-x-offset) * var(--before, -1) * -1)) scale(var(--at-edge));\n  pointer-events: none;\n}\n.range-slider .min-tick[data-v-7a006374] {\n  --before: 1;\n  content: calc(var(--min) + \" /\");\n  left: var(--offset);\n}\n.range-slider .max-tick[data-v-7a006374] {\n  content: var(--max);\n  right: var(--offset);\n}\n.range-slider__values[data-v-7a006374] {\n  position: relative;\n  top: 50%;\n  line-height: 0;\n  text-align: justify;\n  width: 100%;\n  pointer-events: none;\n  margin: 0 auto;\n  z-index: 5;\n}\n.range-slider__values[data-v-7a006374]::after {\n  content: \"\";\n  width: 100%;\n  display: inline-block;\n  height: 0;\n  background: red;\n}\n.range-slider__progress[data-v-7a006374] {\n  --start-end: calc(var(--thumb-size) / 2);\n  --clip-end: calc(100% - (var(--cb)) * 1%);\n  --clip-start: calc(var(--ca) * 1%);\n  --clip: inset(-2px var(--clip-end) -2px var(--clip-start));\n  position: absolute;\n  left: var(--start-end);\n  right: var(--start-end);\n  top: calc( var(--ticks-gap) * var(--flip-y, 0) + var(--thumb-size) / 2 - var(--track-height) / 2 );\n  height: calc(var(--track-height));\n  background: var(--progress-background, #eee);\n  pointer-events: none;\n  z-index: -1;\n  border-radius: var(--progress-radius);\n}\n.range-slider__progress .stopper[data-v-7a006374] {\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  height: 100%;\n  background-color: red;\n  z-index: 9999;\n}\n.range-slider__progress[data-v-7a006374]::before {\n  content: \"\";\n  position: absolute;\n  left: 0;\n  right: 0;\n  -webkit-clip-path: var(--clip);\n          clip-path: var(--clip);\n  top: 0;\n  bottom: 0;\n  background: var(--fill-color, black);\n  box-shadow: var(--progress-flll-shadow);\n  z-index: 1;\n  border-radius: inherit;\n}\n.range-slider__progress[data-v-7a006374]::after {\n  content: \"\";\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  box-shadow: var(--progress-shadow);\n  pointer-events: none;\n  border-radius: inherit;\n}\n.range-slider > input[data-v-7a006374] {\n  -webkit-appearance: none;\n  width: 100% !important;\n  height: var(--thumb-size);\n  margin: 0;\n  position: absolute;\n  left: 0;\n  top: 0;\n  cursor: -webkit-grab;\n  cursor: grab;\n  outline: none;\n  background: none !important;\n}\n.range-slider > input[data-v-7a006374]:not(:only-of-type) {\n  pointer-events: none;\n}\n.range-slider > input[data-v-7a006374]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n          appearance: none;\n  height: var(--thumb-size);\n  width: var(--thumb-size);\n  transform: var(--thumb-transform);\n  border-radius: var(--thumb-radius, 50%);\n  background: var(--thumb-color);\n  box-shadow: var(--thumb-shadow);\n  border: none;\n  pointer-events: auto;\n  -webkit-transition: 0.1s;\n  transition: 0.1s;\n}\n.range-slider > input[data-v-7a006374]::-moz-range-thumb {\n  -moz-appearance: none;\n       appearance: none;\n  height: var(--thumb-size);\n  width: var(--thumb-size);\n  transform: var(--thumb-transform);\n  border-radius: var(--thumb-radius, 50%);\n  background: var(--thumb-color);\n  box-shadow: var(--thumb-shadow);\n  border: none;\n  pointer-events: auto;\n  -moz-transition: 0.1s;\n  transition: 0.1s;\n}\n.range-slider > input[data-v-7a006374]::-ms-thumb {\n  appearance: none;\n  height: var(--thumb-size);\n  width: var(--thumb-size);\n  transform: var(--thumb-transform);\n  border-radius: var(--thumb-radius, 50%);\n  background: var(--thumb-color);\n  box-shadow: var(--thumb-shadow);\n  border: none;\n  pointer-events: auto;\n  -ms-transition: 0.1s;\n  transition: 0.1s;\n}\n.range-slider > input[data-v-7a006374]:hover {\n  --thumb-shadow: var(--thumb-shadow-hover);\n}\n.range-slider > input:hover + output[data-v-7a006374] {\n  --value-background: var(--value-background-opacity);\n  --y-offset: -5px;\n  color: var(--value-active-color);\n  box-shadow: 0 0 0 3px var(--value-background);\n}\n.range-slider > input[data-v-7a006374]:active {\n  --thumb-shadow: var(--thumb-shadow-active);\n  cursor: -webkit-grabbing;\n  cursor: grabbing;\n  z-index: 2;\n}\n.range-slider > input:active + output[data-v-7a006374] {\n  transition: 0s;\n}\n.range-slider > input[data-v-7a006374]:nth-of-type(1) {\n  --is-left-most: Clamp(0, (var(--value-a) - var(--value-b)) * 99999, 1);\n}\n.range-slider > input:nth-of-type(1) + output[data-v-7a006374] {\n  --value: var(--value-a);\n  --x-offset: calc(var(--completed-a) * -1%);\n}\n.range-slider > input:nth-of-type(1) + output[data-v-7a006374]:not(:only-of-type) {\n  --flip: calc(var(--thumbs-too-close) * -1);\n}\n.range-slider > input:nth-of-type(1) + output[data-v-7a006374]::after {\n  content: var(--prefix, \"\") var(--text-value-a) var(--suffix, \"\");\n}\n.range-slider > input[data-v-7a006374]:nth-of-type(2) {\n  --is-left-most: Clamp(0, (var(--value-b) - var(--value-a)) * 99999, 1);\n}\n.range-slider > input:nth-of-type(2) + output[data-v-7a006374] {\n  --value: var(--value-b);\n}\n.range-slider > input:only-of-type ~ .range-slider__progress[data-v-7a006374] {\n  --clip-start: 0;\n}\n.range-slider > input + output[data-v-7a006374] {\n  --flip: -1;\n  --x-offset: calc(var(--completed-b) * -1%);\n  --pos: calc(\n    ((var(--value) - var(--min)) / (var(--max) - var(--min))) * 100%\n  );\n  pointer-events: none;\n  position: absolute;\n  z-index: 5;\n  background: var(--value-background);\n  border-radius: 10px;\n  padding: 2px 4px;\n  left: var(--pos);\n  transform: translate(var(--x-offset), calc( 150% * var(--flip) - (var(--y-offset, 0px) + var(--value-offset-y)) * var(--flip) ));\n  transition: all 0.12s ease-out, left 0s;\n}\n.range-slider > input + output[data-v-7a006374]::after {\n  content: var(--prefix, \"\") var(--text-value-b) var(--suffix, \"\");\n  font: var(--value-font);\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".range-slider.grad[data-v-7a006374] {\n  width: 100%;\n  --progress-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2) inset;\n  --progress-flll-shadow: var(--progress-shadow);\n  --fill-color: linear-gradient(to right, LightCyan, var(--primary-color));\n}\n.range-slider.grad input[data-v-7a006374]:hover {\n  --thumb-transform: scale(1.2);\n}\n.range-slider.grad input[data-v-7a006374]:active {\n  --thumb-transform: scale(1);\n}\n.range-slider[data-v-7a006374] {\n  --primary-color: #328bf0;\n  --value-offset-y: var(--ticks-gap);\n  --value-active-color: white;\n  --value-background: transparent;\n  --value-background-hover: var(--primary-color);\n  --value-background-opacity: rgba(50,139,240, var(--output-transparency, 1));\n  --value-font: 700 12px/1 Arial;\n  --fill-color: var(--primary-color);\n  --progress-background: #eee;\n  --progress-radius: 20px;\n  --track-height: calc(var(--thumb-size) / 2);\n  --min-max-font: 12px Arial;\n  --min-max-opacity: 0.5;\n  --min-max-x-offset: 10%;\n  --thumb-size: 16px;\n  --thumb-color: white;\n  --thumb-shadow: 0 0 3px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.5) inset,\n    0 0 0 99px var(--thumb-color) inset;\n  --thumb-shadow-active: 0 0 0 calc(var(--thumb-size) / 4) inset\n      var(--thumb-color),\n    0 0 0 99px var(--primary-color) inset, 0 0 3px rgba(0, 0, 0, 0.4);\n  --thumb-shadow-hover: var(--thumb-shadow);\n  --ticks-thickness: 1px;\n  --ticks-height: 5px;\n  --ticks-gap: var(\n    --ticks-height,\n    0\n  );\n  --ticks-color: silver;\n  --step: 1;\n  --ticks-count: Calc(var(--max) - var(--min)) / var(--step);\n  --maxTicksAllowed: 30;\n  --too-many-ticks: Min(1, Max(var(--ticks-count) - var(--maxTicksAllowed), 0));\n  --x-step: Max(\n    var(--step),\n    var(--too-many-ticks) * (var(--max) - var(--min))\n  );\n  --tickInterval: 100/ ((var(--max) - var(--min)) / var(--step)) * var(--tickEvery, 1);\n  --tickIntervalPerc: calc(\n    (100% - var(--thumb-size)) / ((var(--max) - var(--min)) / var(--x-step)) *\n      var(--tickEvery, 1)\n  );\n  --value-a: Clamp(\n    var(--min),\n    var(--value, 0),\n    var(--max)\n  );\n  --value-b: var(--value, 0);\n  --text-value-a: var(--text-value, \"\");\n  --completed-a: calc(\n    (var(--value-a) - var(--min)) / (var(--max) - var(--min)) * 100\n  );\n  --completed-b: calc(\n    (var(--value-b) - var(--min)) / (var(--max) - var(--min)) * 100\n  );\n  --ca: Min(var(--completed-a), var(--completed-b));\n  --cb: Max(var(--completed-a), var(--completed-b));\n  --thumbs-too-close: Clamp(\n    -1,\n    1000 * (Min(1, Max(var(--cb) - var(--ca) - 5, -1)) + 0.001),\n    1\n  );\n  --thumb-close-to-min: Min(1, Max(var(--ca) - 2, 0));\n  --thumb-close-to-max: Min(1, Max(98 - var(--cb), 0));\n  display: inline-block;\n  height: max(var(--track-height), var(--thumb-size));\n  background: linear-gradient(to right, var(--ticks-color) var(--ticks-thickness), transparent 1px) repeat-x;\n  background-size: var(--tickIntervalPerc) var(--ticks-height);\n  background-position-x: calc( var(--thumb-size) / 2 - var(--ticks-thickness) / 2 );\n  background-position-y: var(--flip-y, bottom);\n  padding-bottom: var(--flip-y, var(--ticks-gap));\n  padding-top: calc(var(--flip-y) * var(--ticks-gap));\n  position: relative;\n  z-index: 1;\n}\n.range-slider[data-ticks-position=top][data-v-7a006374] {\n  --flip-y: 1;\n}\n.range-slider .min-tick[data-v-7a006374],\n.range-slider .max-tick[data-v-7a006374] {\n  --offset: calc(var(--thumb-size) / 2);\n  display: block;\n  font: var(--min-max-font);\n  position: absolute;\n  bottom: var(--flip-y, -2.5ch);\n  top: calc(-2.5ch * var(--flip-y));\n  opacity: var(--min-max-opacity);\n  transform: translateX(calc(var(--min-max-x-offset) * var(--before, -1) * -1)) scale(var(--at-edge));\n  pointer-events: none;\n}\n.range-slider .min-tick[data-v-7a006374] {\n  --before: 1;\n  content: calc(var(--min) + \" /\");\n  left: var(--offset);\n}\n.range-slider .max-tick[data-v-7a006374] {\n  content: var(--max);\n  right: var(--offset);\n}\n.range-slider__values[data-v-7a006374] {\n  position: relative;\n  top: 50%;\n  line-height: 0;\n  text-align: justify;\n  width: 100%;\n  pointer-events: none;\n  margin: 0 auto;\n  z-index: 5;\n}\n.range-slider__values[data-v-7a006374]::after {\n  content: \"\";\n  width: 100%;\n  display: inline-block;\n  height: 0;\n  background: red;\n}\n.range-slider__progress[data-v-7a006374] {\n  --start-end: calc(var(--thumb-size) / 2);\n  --clip-end: calc(100% - (var(--cb)) * 1%);\n  --clip-start: calc(var(--ca) * 1%);\n  --clip: inset(-2px var(--clip-end) -2px var(--clip-start));\n  position: absolute;\n  left: var(--start-end);\n  right: var(--start-end);\n  top: calc( var(--ticks-gap) * var(--flip-y, 0) + var(--thumb-size) / 2 - var(--track-height) / 2 );\n  height: calc(var(--track-height));\n  background: var(--progress-background, #eee);\n  pointer-events: none;\n  z-index: -1;\n  border-radius: var(--progress-radius);\n}\n.range-slider__progress .stopper[data-v-7a006374] {\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  height: 100%;\n  background-color: red;\n  z-index: 9999;\n  border-radius: 0px 20px 20px 0px;\n}\n.range-slider__progress[data-v-7a006374]::before {\n  content: \"\";\n  position: absolute;\n  left: 0;\n  right: 0;\n  -webkit-clip-path: var(--clip);\n          clip-path: var(--clip);\n  top: 0;\n  bottom: 0;\n  background: var(--fill-color, black);\n  box-shadow: var(--progress-flll-shadow);\n  z-index: 1;\n  border-radius: inherit;\n}\n.range-slider__progress[data-v-7a006374]::after {\n  content: \"\";\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  box-shadow: var(--progress-shadow);\n  pointer-events: none;\n  border-radius: inherit;\n}\n.range-slider > input[data-v-7a006374] {\n  -webkit-appearance: none;\n  width: 100% !important;\n  height: var(--thumb-size);\n  margin: 0;\n  position: absolute;\n  left: 0;\n  top: 0;\n  cursor: -webkit-grab;\n  cursor: grab;\n  outline: none;\n  background: none !important;\n}\n.range-slider > input[data-v-7a006374]:not(:only-of-type) {\n  pointer-events: none;\n}\n.range-slider > input[data-v-7a006374]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n          appearance: none;\n  height: var(--thumb-size);\n  width: var(--thumb-size);\n  transform: var(--thumb-transform);\n  border-radius: var(--thumb-radius, 50%);\n  background: var(--thumb-color);\n  box-shadow: var(--thumb-shadow);\n  border: none;\n  pointer-events: auto;\n  -webkit-transition: 0.1s;\n  transition: 0.1s;\n}\n.range-slider > input[data-v-7a006374]::-moz-range-thumb {\n  -moz-appearance: none;\n       appearance: none;\n  height: var(--thumb-size);\n  width: var(--thumb-size);\n  transform: var(--thumb-transform);\n  border-radius: var(--thumb-radius, 50%);\n  background: var(--thumb-color);\n  box-shadow: var(--thumb-shadow);\n  border: none;\n  pointer-events: auto;\n  -moz-transition: 0.1s;\n  transition: 0.1s;\n}\n.range-slider > input[data-v-7a006374]::-ms-thumb {\n  appearance: none;\n  height: var(--thumb-size);\n  width: var(--thumb-size);\n  transform: var(--thumb-transform);\n  border-radius: var(--thumb-radius, 50%);\n  background: var(--thumb-color);\n  box-shadow: var(--thumb-shadow);\n  border: none;\n  pointer-events: auto;\n  -ms-transition: 0.1s;\n  transition: 0.1s;\n}\n.range-slider > input[data-v-7a006374]:hover {\n  --thumb-shadow: var(--thumb-shadow-hover);\n}\n.range-slider > input:hover + output[data-v-7a006374] {\n  --value-background: var(--value-background-opacity);\n  --y-offset: -5px;\n  color: var(--value-active-color);\n  box-shadow: 0 0 0 3px var(--value-background);\n}\n.range-slider > input[data-v-7a006374]:active {\n  --thumb-shadow: var(--thumb-shadow-active);\n  cursor: -webkit-grabbing;\n  cursor: grabbing;\n  z-index: 2;\n}\n.range-slider > input:active + output[data-v-7a006374] {\n  transition: 0s;\n}\n.range-slider > input[data-v-7a006374]:nth-of-type(1) {\n  --is-left-most: Clamp(0, (var(--value-a) - var(--value-b)) * 99999, 1);\n}\n.range-slider > input:nth-of-type(1) + output[data-v-7a006374] {\n  --value: var(--value-a);\n  --x-offset: calc(var(--completed-a) * -1%);\n}\n.range-slider > input:nth-of-type(1) + output[data-v-7a006374]:not(:only-of-type) {\n  --flip: calc(var(--thumbs-too-close) * -1);\n}\n.range-slider > input:nth-of-type(1) + output[data-v-7a006374]::after {\n  content: var(--prefix, \"\") var(--text-value-a) var(--suffix, \"\");\n}\n.range-slider > input[data-v-7a006374]:nth-of-type(2) {\n  --is-left-most: Clamp(0, (var(--value-b) - var(--value-a)) * 99999, 1);\n}\n.range-slider > input:nth-of-type(2) + output[data-v-7a006374] {\n  --value: var(--value-b);\n}\n.range-slider > input:only-of-type ~ .range-slider__progress[data-v-7a006374] {\n  --clip-start: 0;\n}\n.range-slider > input + output[data-v-7a006374] {\n  --flip: -1;\n  --x-offset: calc(var(--completed-b) * -1%);\n  --pos: calc(\n    ((var(--value) - var(--min)) / (var(--max) - var(--min))) * 100%\n  );\n  pointer-events: none;\n  position: absolute;\n  z-index: 5;\n  background: var(--value-background);\n  border-radius: 10px;\n  padding: 2px 4px;\n  left: var(--pos);\n  transform: translate(var(--x-offset), calc( 150% * var(--flip) - (var(--y-offset, 0px) + var(--value-offset-y)) * var(--flip) ));\n  transition: all 0.12s ease-out, left 0s;\n}\n.range-slider > input + output[data-v-7a006374]::after {\n  content: var(--prefix, \"\") var(--text-value-b) var(--suffix, \"\");\n  font: var(--value-font);\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -27249,6 +29504,19 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   // Check for `exports` after `define` in case a build optimizer adds it.
   else {}
 }.call(this));
+
+
+/***/ }),
+
+/***/ "./resources/sass/dashboard.scss":
+/*!***************************************!*\
+  !*** ./resources/sass/dashboard.scss ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -49211,6 +51479,66 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css&":
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css& ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_style_index_0_id_6b700528_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!../../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_style_index_0_id_6b700528_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_style_index_0_id_6b700528_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_style_index_0_id_1be627a6_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!../../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_style_index_0_id_1be627a6_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_style_index_0_id_1be627a6_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=style&index=0&id=079c705e&scoped=true&lang=css&":
 /*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=style&index=0&id=079c705e&scoped=true&lang=css& ***!
@@ -49451,6 +51779,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_style_index_0_id_5b28d8dd_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_style_index_0_id_5b28d8dd_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_style_index_0_id_5b28d8dd_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/ModalClientInfoContent.vue?vue&type=style&index=0&id=bd41f6b2&lang=scss&scoped=true&":
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/ModalClientInfoContent.vue?vue&type=style&index=0&id=bd41f6b2&lang=scss&scoped=true& ***!
@@ -49571,36 +51929,6 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true&":
-/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true& ***!
-  \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
-/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_MonthMovingEvent_vue_vue_type_style_index_0_id_31f93180_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true&");
-
-            
-
-var options = {};
-
-options.insert = "head";
-options.singleton = false;
-
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_MonthMovingEvent_vue_vue_type_style_index_0_id_31f93180_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
-
-
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_MonthMovingEvent_vue_vue_type_style_index_0_id_31f93180_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
-
-/***/ }),
-
 /***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue?vue&type=style&index=0&id=7105ec48&lang=scss&scoped=true&":
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue?vue&type=style&index=0&id=7105ec48&lang=scss&scoped=true& ***!
@@ -49658,6 +51986,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_WeekCalendar_vue_vue_type_style_index_0_id_4f8ce786_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true&":
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_style_index_0_id_00078dda_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_style_index_0_id_00078dda_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default, options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_style_index_0_id_00078dda_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
 
 /***/ }),
 
@@ -50319,6 +52677,47 @@ component.options.__file = "resources/js/vue/dashboard/calendar/booking/componen
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue":
+/*!*********************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _LoaderAction_vue_vue_type_template_id_5b28d8dd_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true&");
+/* harmony import */ var _LoaderAction_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LoaderAction.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=script&lang=js&");
+/* harmony import */ var _LoaderAction_vue_vue_type_style_index_0_id_5b28d8dd_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _LoaderAction_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _LoaderAction_vue_vue_type_template_id_5b28d8dd_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _LoaderAction_vue_vue_type_template_id_5b28d8dd_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "5b28d8dd",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/calendar/booking/components/ModalAlert.vue":
 /*!*******************************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/components/ModalAlert.vue ***!
@@ -50658,17 +53057,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _MonthMovingEvent_vue_vue_type_template_id_31f93180_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MonthMovingEvent.vue?vue&type=template&id=31f93180&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=template&id=31f93180&scoped=true&");
 /* harmony import */ var _MonthMovingEvent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MonthMovingEvent.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=script&lang=js&");
-/* harmony import */ var _MonthMovingEvent_vue_vue_type_style_index_0_id_31f93180_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
-;
 
 
 /* normalize component */
-
-var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+;
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__.default)(
   _MonthMovingEvent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
   _MonthMovingEvent_vue_vue_type_template_id_31f93180_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
   _MonthMovingEvent_vue_vue_type_template_id_31f93180_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
@@ -50889,6 +53286,207 @@ var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__
 /* hot reload */
 if (false) { var api; }
 component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/WeekTimeCell.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue":
+/*!**********************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue ***!
+  \**********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Actions_vue_vue_type_template_id_49784604_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Actions.vue?vue&type=template&id=49784604&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=template&id=49784604&scoped=true&");
+/* harmony import */ var _Actions_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Actions.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=script&lang=js&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+;
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__.default)(
+  _Actions_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _Actions_vue_vue_type_template_id_49784604_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _Actions_vue_vue_type_template_id_49784604_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "49784604",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue":
+/*!***********************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue ***!
+  \***********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Duration_vue_vue_type_template_id_3507b9c6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Duration.vue?vue&type=template&id=3507b9c6&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=template&id=3507b9c6&scoped=true&");
+/* harmony import */ var _Duration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Duration.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=script&lang=js&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+;
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__.default)(
+  _Duration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _Duration_vue_vue_type_template_id_3507b9c6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _Duration_vue_vue_type_template_id_3507b9c6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "3507b9c6",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Edit_vue_vue_type_template_id_00078dda_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Edit.vue?vue&type=template&id=00078dda&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=template&id=00078dda&scoped=true&");
+/* harmony import */ var _Edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Edit.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=script&lang=js&");
+/* harmony import */ var _Edit_vue_vue_type_style_index_0_id_00078dda_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _Edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _Edit_vue_vue_type_template_id_00078dda_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _Edit_vue_vue_type_template_id_00078dda_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "00078dda",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue":
+/*!*****************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _ModalDuration_vue_vue_type_template_id_6b700528_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModalDuration.vue?vue&type=template&id=6b700528&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=template&id=6b700528&scoped=true&");
+/* harmony import */ var _ModalDuration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalDuration.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=script&lang=js&");
+/* harmony import */ var _ModalDuration_vue_vue_type_style_index_0_id_6b700528_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css& */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _ModalDuration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _ModalDuration_vue_vue_type_template_id_6b700528_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _ModalDuration_vue_vue_type_template_id_6b700528_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "6b700528",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue":
+/*!*******************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue ***!
+  \*******************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _ModalMoreEvents_vue_vue_type_template_id_1be627a6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true& */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true&");
+/* harmony import */ var _ModalMoreEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalMoreEvents.vue?vue&type=script&lang=js& */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=script&lang=js&");
+/* harmony import */ var _ModalMoreEvents_vue_vue_type_style_index_0_id_1be627a6_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css& */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__.default)(
+  _ModalMoreEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__.default,
+  _ModalMoreEvents_vue_vue_type_template_id_1be627a6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _ModalMoreEvents_vue_vue_type_template_id_1be627a6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "1be627a6",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue"
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
 
 /***/ }),
@@ -51251,6 +53849,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./LoaderAction.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/calendar/booking/components/ModalAlert.vue?vue&type=script&lang=js&":
 /*!********************************************************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/components/ModalAlert.vue?vue&type=script&lang=js& ***!
@@ -51472,6 +54086,86 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_WeekTimeCell_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./WeekTimeCell.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/WeekTimeCell.vue?vue&type=script&lang=js&");
  /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_WeekTimeCell_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Actions_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Actions.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Actions_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Duration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Duration.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Duration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Edit.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalDuration.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalMoreEvents.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__.default); 
 
 /***/ }),
 
@@ -51701,6 +54395,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css&":
+/*!**************************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css& ***!
+  \**************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_style_index_0_id_6b700528_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!../../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=style&index=0&id=6b700528&scoped=true&lang=css&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css&":
+/*!****************************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css& ***!
+  \****************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_10_0_rules_0_use_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_style_index_0_id_1be627a6_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!../../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-10[0].rules[0].use[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=style&index=0&id=1be627a6&scoped=true&lang=css&");
+
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=style&index=0&id=079c705e&scoped=true&lang=css&":
 /*!********************************************************************************************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=style&index=0&id=079c705e&scoped=true&lang=css& ***!
@@ -51805,6 +54525,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true&":
+/*!*******************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true& ***!
+  \*******************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_style_index_0_id_5b28d8dd_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=style&index=0&id=5b28d8dd&lang=scss&scoped=true&");
+
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/calendar/booking/components/ModalClientInfoContent.vue?vue&type=style&index=0&id=bd41f6b2&lang=scss&scoped=true&":
 /*!*****************************************************************************************************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/components/ModalClientInfoContent.vue?vue&type=style&index=0&id=bd41f6b2&lang=scss&scoped=true& ***!
@@ -51857,19 +54590,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true&":
-/*!***********************************************************************************************************************************************!*\
-  !*** ./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true& ***!
-  \***********************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_MonthMovingEvent_vue_vue_type_style_index_0_id_31f93180_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/MonthMovingEvent.vue?vue&type=style&index=0&id=31f93180&lang=scss&scoped=true&");
-
-
-/***/ }),
-
 /***/ "./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue?vue&type=style&index=0&id=7105ec48&lang=scss&scoped=true&":
 /*!*****************************************************************************************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/components/Navigation.vue?vue&type=style&index=0&id=7105ec48&lang=scss&scoped=true& ***!
@@ -51892,6 +54612,19 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_WeekCalendar_vue_vue_type_style_index_0_id_4f8ce786_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./WeekCalendar.vue?vue&type=style&index=0&id=4f8ce786&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/WeekCalendar.vue?vue&type=style&index=0&id=4f8ce786&lang=scss&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true&":
+/*!*****************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true& ***!
+  \*****************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_13_0_rules_0_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_style_index_0_id_00078dda_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!../../../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!../../../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13[0].rules[0].use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=style&index=0&id=00078dda&lang=scss&scoped=true&");
 
 
 /***/ }),
@@ -52050,6 +54783,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Loader_vue_vue_type_template_id_5e0928c7_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
 /* harmony export */ });
 /* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Loader_vue_vue_type_template_id_5e0928c7_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Loader.vue?vue&type=template&id=5e0928c7&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/Loader.vue?vue&type=template&id=5e0928c7&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true&":
+/*!****************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true& ***!
+  \****************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_template_id_5b28d8dd_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_template_id_5b28d8dd_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LoaderAction_vue_vue_type_template_id_5b28d8dd_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true&");
 
 
 /***/ }),
@@ -52292,6 +55042,91 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=template&id=49784604&scoped=true&":
+/*!*****************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=template&id=49784604&scoped=true& ***!
+  \*****************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Actions_vue_vue_type_template_id_49784604_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Actions_vue_vue_type_template_id_49784604_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Actions_vue_vue_type_template_id_49784604_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Actions.vue?vue&type=template&id=49784604&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=template&id=49784604&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=template&id=3507b9c6&scoped=true&":
+/*!******************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=template&id=3507b9c6&scoped=true& ***!
+  \******************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Duration_vue_vue_type_template_id_3507b9c6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Duration_vue_vue_type_template_id_3507b9c6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Duration_vue_vue_type_template_id_3507b9c6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Duration.vue?vue&type=template&id=3507b9c6&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=template&id=3507b9c6&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=template&id=00078dda&scoped=true&":
+/*!**************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=template&id=00078dda&scoped=true& ***!
+  \**************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_template_id_00078dda_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_template_id_00078dda_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Edit_vue_vue_type_template_id_00078dda_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Edit.vue?vue&type=template&id=00078dda&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=template&id=00078dda&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=template&id=6b700528&scoped=true&":
+/*!************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=template&id=6b700528&scoped=true& ***!
+  \************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_template_id_6b700528_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_template_id_6b700528_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalDuration_vue_vue_type_template_id_6b700528_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalDuration.vue?vue&type=template&id=6b700528&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=template&id=6b700528&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true&":
+/*!**************************************************************************************************************************************!*\
+  !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true& ***!
+  \**************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_template_id_1be627a6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_template_id_1be627a6_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalMoreEvents_vue_vue_type_template_id_1be627a6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true&");
+
+
+/***/ }),
+
 /***/ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=template&id=079c705e&scoped=true&":
 /*!******************************************************************************************************************************!*\
   !*** ./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=template&id=079c705e&scoped=true& ***!
@@ -52424,27 +55259,28 @@ var render = function() {
         [
           _vm.monthView
             ? _c("month-calendar", {
-                attrs: { "start-date": _vm.startDateMonth },
-                on: {
-                  showPickTimeModal: function($event) {
-                    return _vm.showPickTimeModal($event)
-                  }
-                }
+                ref: "month_calendar",
+                attrs: { "start-date": _vm.startDateMonth }
               })
             : _vm._e(),
           _vm._v(" "),
           _vm.weekView
             ? _c("week-calendar", {
+                ref: "week_calendar",
                 attrs: { "start-date": _vm.startDateWeek }
               })
             : _vm._e(),
           _vm._v(" "),
           _vm.dayView
-            ? _c("day-calendar", { attrs: { "start-date": _vm.startDateDay } })
+            ? _c("day-calendar", {
+                ref: "day_calendar",
+                attrs: { "start-date": _vm.startDateDay }
+              })
             : _vm._e(),
           _vm._v(" "),
           _vm.listView
             ? _c("list-calendar", {
+                ref: "list_calendar",
                 attrs: { "start-date": _vm.startDateWeek }
               })
             : _vm._e()
@@ -52454,6 +55290,10 @@ var render = function() {
       _vm._v(" "),
       _vm.currentEventFilter
         ? _c("time-picker-modal", { ref: "time_picker_modal" })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.currentEventFilter
+        ? _c("modal-duration", { ref: "modal_duration" })
         : _vm._e()
     ],
     1
@@ -53667,6 +56507,33 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true&":
+/*!*******************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/LoaderAction.vue?vue&type=template&id=5b28d8dd&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { ref: "loader", attrs: { id: "loader" } }, [
+    _c("div", { staticClass: "lds-dual-ring" })
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/ModalAlert.vue?vue&type=template&id=cf3d413a&scoped=true&":
 /*!*****************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/ModalAlert.vue?vue&type=template&id=cf3d413a&scoped=true& ***!
@@ -54835,7 +57702,7 @@ var render = function() {
                     staticClass: "modal-title",
                     attrs: { id: _vm.modalId + "Label" }
                   },
-                  [_vm._v("Event")]
+                  [_vm._v("Event edit")]
                 ),
                 _vm._v(" "),
                 _c(
@@ -55102,22 +57969,9 @@ var render = function() {
                   },
                   [
                     _vm._v(
-                      "\n                                Choose time\n                        "
+                      "\n                                Pick time\n                        "
                     )
                   ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-sm btn-success",
-                    attrs: {
-                      disabled:
-                        !_vm.isAllItemsPicked || !_vm.isPickedItemsChanged,
-                      type: "button"
-                    }
-                  },
-                  [_vm._v("Save")]
                 ),
                 _vm._v(" "),
                 _vm.isPickedItemsChanged
@@ -55174,43 +58028,18 @@ var render = function() {
   return _c(
     "div",
     [
-      _c(
-        "div",
-        { staticClass: "pb-3" },
-        [
-          _c("time-bar-new", {
-            attrs: { durationInMinutes: 20, stopper: 40 },
-            on: { change: function($event) {} }
-          })
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "pb-3" },
-        [
-          _c("time-bar-fill", {
-            attrs: { durationInMinutes: 42 },
-            on: { change: function($event) {} }
-          })
-        ],
-        1
-      ),
-      _vm._v(" "),
       _c("navigation", {
-        attrs: {
-          "can-go-to-previous": _vm.canGoToPrevious,
-          "calendar-title": _vm.calendarTitle
-        },
+        attrs: { "calendar-title": _vm.calendarTitle },
         on: { previous: _vm.previous, next: _vm.next, today: _vm.today }
       }),
+      _vm._v(" "),
+      _c("modal-more-events", { ref: "modal_more_events" }),
       _vm._v(" "),
       _c("modal-move-path-picker", {
         ref: "move_path_picker",
         on: {
           pick_time: function($event) {
-            return _vm.pickTime()
+            return _vm.getData()
           }
         }
       }),
@@ -55219,11 +58048,18 @@ var render = function() {
         "div",
         { staticClass: "month-calendar" },
         [
+          _vm._v(
+            "\n        " +
+              _vm._s(_vm.showMovingEvent ? "true" : "false") +
+              "\n        " +
+              _vm._s(_vm.showMovingEvent) +
+              "\n        "
+          ),
           _c(
             "transition",
             { attrs: { name: "fade" } },
             [
-              _vm.movedEvent
+              _vm.movedEvent && _vm.showMovingEvent
                 ? _c("moving-event", {
                     on: {
                       close: _vm.resetMovedEvent,
@@ -55279,7 +58115,7 @@ var render = function() {
                                       staticClass: "day",
                                       class: {
                                         "not-period":
-                                          _vm.currentCalendarMonth !=
+                                          _vm.monthTwoDigits !=
                                           _vm.getDate(i, k, "month")
                                       }
                                     },
@@ -55310,15 +58146,13 @@ var render = function() {
                                                 cancel: function($event) {
                                                   return _vm.cancelBook($event)
                                                 },
-                                                move: function($event) {
-                                                  return _vm.moveEvent($event)
-                                                },
-                                                showPickTimeModal: function(
-                                                  $event
-                                                ) {
-                                                  return _vm.showPickTimeModal(
+                                                clickMore: function($event) {
+                                                  return _vm.showModalMoreEvent(
                                                     $event
                                                   )
+                                                },
+                                                removed: function($event) {
+                                                  return _vm.onRemove($event)
                                                 }
                                               }
                                             })
@@ -55448,97 +58282,98 @@ var render = function() {
       ? _c("div", { staticClass: "events" }, [
           _c(
             "ul",
-            _vm._l(_vm.items, function(itm) {
-              return _vm.item.items
+            _vm._l(_vm.items, function(itm, index) {
+              return _vm.item.items && index < _vm.maxEventsPerDay
                 ? _c(
                     "li",
                     [
                       itm.type == "free"
                         ? [
-                            _c(
-                              "div",
-                              {
-                                staticClass: "free-slot",
-                                on: {
-                                  click: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.$emit("showPickTimeModal", itm)
-                                  }
-                                }
-                              },
-                              [
-                                _c("b", [_vm._v("Free time:")]),
-                                _c("br"),
-                                _vm._v(" "),
-                                _c("b", [
-                                  _vm._v(
-                                    _vm._s(itm.from) + " - " + _vm._s(itm.to)
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                itm.not_approved_bookings
-                                  ? _c(
-                                      "div",
-                                      { staticClass: "not-approved-bookings" },
-                                      _vm._l(
-                                        itm.not_approved_bookings,
-                                        function(itmm) {
-                                          return _c(
-                                            "div",
+                            _c("div", { staticClass: "free-slot" }, [
+                              _c("b", [_vm._v("Free time:")]),
+                              _c("br"),
+                              _vm._v(" "),
+                              _c("b", [
+                                _vm._v(
+                                  _vm._s(itm.from) + " - " + _vm._s(itm.to)
+                                )
+                              ]),
+                              _vm._v(" "),
+                              itm.not_approved_bookings
+                                ? _c(
+                                    "div",
+                                    { staticClass: "not-approved-bookings" },
+                                    _vm._l(itm.not_approved_bookings, function(
+                                      itmm
+                                    ) {
+                                      return _c(
+                                        "div",
+                                        {
+                                          staticClass:
+                                            "not-approved-bookings-itm"
+                                        },
+                                        [
+                                          _c("b", [_vm._v("In approving:")]),
+                                          _c("br"),
+                                          _vm._v(" "),
+                                          _c("b", [
+                                            _vm._v(
+                                              _vm._s(
+                                                itmm.booking
+                                                  .template_without_user_scope
+                                                  .title
+                                              )
+                                            ),
+                                            _c("br"),
+                                            _vm._v(
+                                              "\n                                " +
+                                                _vm._s(itmm.from) +
+                                                " - " +
+                                                _vm._s(itmm.to)
+                                            )
+                                          ]),
+                                          _vm._v(" "),
+                                          _c(
+                                            "button",
                                             {
                                               staticClass:
-                                                "not-approved-bookings-itm"
-                                            },
-                                            [
-                                              _c("b", [
-                                                _vm._v("In approving:")
-                                              ]),
-                                              _c("br"),
-                                              _vm._v(" "),
-                                              _c("b", [
-                                                _vm._v(
-                                                  _vm._s(
+                                                "btn btn-link btn-sm btn-block cancel",
+                                              attrs: { type: "button" },
+                                              on: {
+                                                click: function($event) {
+                                                  $event.preventDefault()
+                                                  return _vm.$emit(
+                                                    "cancel",
                                                     itmm.booking
-                                                      .template_without_user_scope
-                                                      .title
                                                   )
-                                                ),
-                                                _c("br"),
-                                                _vm._v(
-                                                  "\n                                " +
-                                                    _vm._s(itmm.from) +
-                                                    " - " +
-                                                    _vm._s(itmm.to)
-                                                )
-                                              ]),
-                                              _vm._v(" "),
-                                              _c(
-                                                "button",
-                                                {
-                                                  staticClass:
-                                                    "btn btn-link btn-sm btn-block cancel",
-                                                  attrs: { type: "button" },
-                                                  on: {
-                                                    click: function($event) {
-                                                      $event.preventDefault()
-                                                      return _vm.$emit(
-                                                        "cancel",
-                                                        itmm.booking
-                                                      )
-                                                    }
-                                                  }
-                                                },
-                                                [_c("span", [_vm._v("×")])]
-                                              )
-                                            ]
+                                                }
+                                              }
+                                            },
+                                            [_c("span", [_vm._v("×")])]
                                           )
-                                        }
-                                      ),
-                                      0
-                                    )
-                                  : _vm._e()
-                              ]
-                            )
+                                        ]
+                                      )
+                                    }),
+                                    0
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass:
+                                    "btn btn-link btn-sm btn-block book",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      return _vm.chooseFreeClick(itm)
+                                    }
+                                  }
+                                },
+                                [_vm._v("Choose")]
+                              )
+                            ])
                           ]
                         : [
                             _c(
@@ -55550,142 +58385,128 @@ var render = function() {
                                 }
                               },
                               [
-                                _c("div", { staticClass: "top-part" }, [
+                                itm.time_crossing
+                                  ? _c(
+                                      "div",
+                                      {
+                                        staticClass:
+                                          "time-crossing text-warning tooltip-active",
+                                        attrs: {
+                                          "data-placement": "auto",
+                                          title:
+                                            "<div class='small'>Event is crossing time one of events above</div>"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "svg",
+                                          {
+                                            staticClass:
+                                              "bi bi-exclamation-triangle-fill",
+                                            attrs: {
+                                              xmlns:
+                                                "http://www.w3.org/2000/svg",
+                                              width: "14",
+                                              height: "14",
+                                              fill: "currentColor",
+                                              viewBox: "0 0 16 16"
+                                            }
+                                          },
+                                          [
+                                            _c("path", {
+                                              attrs: {
+                                                d:
+                                                  "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                                              }
+                                            })
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "event-itemm text-warning" },
+                                  [
+                                    _c("span", [_vm._v("Client: ")]),
+                                    _c("b", [
+                                      _vm._v(
+                                        _vm._s(
+                                          itm.client_without_user_scope
+                                            .first_name
+                                        )
+                                      )
+                                    ])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Hall: ")]),
                                   _c("b", [
                                     _vm._v(
-                                      _vm._s(
-                                        itm.approved ? "Booked" : "Request"
-                                      )
+                                      _vm._s(itm.hall_without_user_scope.title)
                                     )
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("div", { staticClass: "actions" }, [
-                                    _c("ul", [
-                                      _c("li", [
-                                        _c(
-                                          "a",
-                                          {
-                                            attrs: { href: "#" },
-                                            on: {
-                                              click: function($event) {
-                                                $event.preventDefault()
-                                                return _vm.$emit("move", itm)
-                                              }
-                                            }
-                                          },
-                                          [
-                                            _c(
-                                              "svg",
-                                              {
-                                                staticClass:
-                                                  "bi bi-arrows-move",
-                                                attrs: {
-                                                  xmlns:
-                                                    "http://www.w3.org/2000/svg",
-                                                  width: "12",
-                                                  height: "12",
-                                                  fill: "currentColor",
-                                                  viewBox: "0 0 16 16"
-                                                }
-                                              },
-                                              [
-                                                _c("path", {
-                                                  attrs: {
-                                                    "fill-rule": "evenodd",
-                                                    d:
-                                                      "M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"
-                                                  }
-                                                })
-                                              ]
-                                            )
-                                          ]
-                                        )
-                                      ]),
-                                      _vm._v(" "),
-                                      _c("li", [
-                                        _c("a", { attrs: { href: "#" } }, [
-                                          _c(
-                                            "svg",
-                                            {
-                                              staticClass: "bi bi-check",
-                                              attrs: {
-                                                xmlns:
-                                                  "http://www.w3.org/2000/svg",
-                                                width: "18",
-                                                height: "18",
-                                                fill: "currentColor",
-                                                viewBox: "0 0 16 16"
-                                              }
-                                            },
-                                            [
-                                              _c("path", {
-                                                attrs: {
-                                                  d:
-                                                    "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
-                                                }
-                                              })
-                                            ]
-                                          )
-                                        ])
-                                      ]),
-                                      _vm._v(" "),
-                                      _c("li", [
-                                        _c(
-                                          "a",
-                                          {
-                                            attrs: { href: "#" },
-                                            on: {
-                                              click: function($event) {
-                                                $event.preventDefault()
-                                                return _vm.$emit("remove", itm)
-                                              }
-                                            }
-                                          },
-                                          [
-                                            _c(
-                                              "svg",
-                                              {
-                                                staticClass: "bi bi-x",
-                                                attrs: {
-                                                  xmlns:
-                                                    "http://www.w3.org/2000/svg",
-                                                  width: "16",
-                                                  height: "16",
-                                                  fill: "currentColor",
-                                                  viewBox: "0 0 16 16"
-                                                }
-                                              },
-                                              [
-                                                _c("path", {
-                                                  attrs: {
-                                                    d:
-                                                      "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
-                                                  }
-                                                })
-                                              ]
-                                            )
-                                          ]
-                                        )
-                                      ])
-                                    ])
                                   ])
                                 ]),
                                 _vm._v(" "),
-                                _c("b", [
-                                  _vm._v(
-                                    _vm._s(
-                                      itm.template_without_user_scope.title
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Temp: ")]),
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(
+                                        itm.template_without_user_scope.title
+                                      )
                                     )
-                                  ),
-                                  _c("br"),
-                                  _vm._v(
-                                    "\n                        " +
-                                      _vm._s(itm.time_from) +
-                                      " - " +
-                                      _vm._s(itm.time_to)
-                                  )
-                                ])
-                              ]
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Time: ")]),
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(itm.from) + " - " + _vm._s(itm.to)
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Worker: ")]),
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(
+                                        itm.worker_without_user_scope.first_name
+                                      )
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("actions", {
+                                  ref: "actions_" + itm.id,
+                                  refInFor: true,
+                                  attrs: { itm: itm },
+                                  on: {
+                                    clickActionMove: function($event) {
+                                      return _vm.clickActionMove(itm)
+                                    },
+                                    clickActionDuration: function($event) {
+                                      return _vm.clickActionDuration(itm)
+                                    },
+                                    clickActionDateTime: function($event) {
+                                      return _vm.clickActionDateTime(itm)
+                                    },
+                                    clickActionApprove: function($event) {
+                                      return _vm.clickActionApprove(itm)
+                                    },
+                                    clickActionRemove: function($event) {
+                                      return _vm.onActionRemove(itm)
+                                    }
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "clearfix" })
+                              ],
+                              1
                             )
                           ]
                     ],
@@ -55694,7 +58515,34 @@ var render = function() {
                 : _vm._e()
             }),
             0
-          )
+          ),
+          _vm._v(" "),
+          !_vm.showMovingEvent &&
+          _vm.item.items &&
+          _vm.item.items.length > _vm.maxEventsPerDay
+            ? _c("div", { staticClass: "for-show-more-events-btn" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-sm btn-info show-more-events-btn",
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.$emit("clickMore", _vm.item)
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                        More ...\n                "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "clearfix" })
+              ])
+            : _vm._e()
         ])
       : _vm._e()
   ])
@@ -55725,7 +58573,180 @@ var render = function() {
   return _c("div", [
     _c(
       "div",
-      { staticClass: "alert alert-info client-info", attrs: { role: "alert" } },
+      {
+        staticClass: "moving-event-box text-white",
+        class: {
+          "bg-approved": _vm.event.approved,
+          "bg-not-approved": !_vm.event.approved
+        }
+      },
+      [
+        _c("div", { staticClass: "badge badge-pill badge-warning" }, [
+          _vm._v(_vm._s(_vm.bookingTimeOneRow))
+        ]),
+        _vm._v("\n            " + _vm._s(_vm.templateTitle)),
+        _c("br"),
+        _vm._v(
+          "\n            " + _vm._s(_vm.fullName(_vm.client)) + "\n            "
+        ),
+        _c(
+          "ul",
+          {
+            staticClass: "itemms text-white",
+            class: {
+              "bg-approved": _vm.event.approved,
+              "bg-not-approved": !_vm.event.approved
+            }
+          },
+          [
+            _c(
+              "li",
+              {
+                staticClass: "itemm tooltip-active",
+                attrs: {
+                  "data-placement": "left",
+                  title:
+                    "<div class='small'>" + _vm.itemmInfoTooltipTitle + "</div>"
+                }
+              },
+              [
+                _c(
+                  "svg",
+                  {
+                    staticClass: "bi bi-info-circle",
+                    attrs: {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "16",
+                      height: "16",
+                      fill: "currentColor",
+                      viewBox: "0 0 16 16"
+                    }
+                  },
+                  [
+                    _c("path", {
+                      attrs: {
+                        d:
+                          "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("path", {
+                      attrs: {
+                        d:
+                          "m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+                      }
+                    })
+                  ]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "li",
+              {
+                staticClass: "itemm tooltip-active",
+                attrs: {
+                  "data-placement": "left",
+                  title: "<div class='small'>Edit</div>"
+                }
+              },
+              [
+                _c(
+                  "a",
+                  {
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.clickEdit($event)
+                      }
+                    }
+                  },
+                  [
+                    _c(
+                      "svg",
+                      {
+                        staticClass: "bi bi-pencil",
+                        attrs: {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: "16",
+                          height: "16",
+                          fill: "currentColor",
+                          viewBox: "0 0 16 16"
+                        }
+                      },
+                      [
+                        _c("path", {
+                          attrs: {
+                            d:
+                              "M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+                          }
+                        })
+                      ]
+                    )
+                  ]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "li",
+              {
+                staticClass: "itemm tooltip-active",
+                attrs: {
+                  "data-placement": "left",
+                  title: "<div class='small'>Close</div>"
+                }
+              },
+              [
+                _c(
+                  "a",
+                  {
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.clickClose($event)
+                      }
+                    }
+                  },
+                  [
+                    _c(
+                      "svg",
+                      {
+                        staticClass: "bi bi-x-lg",
+                        attrs: {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: "14",
+                          height: "14",
+                          fill: "currentColor",
+                          viewBox: "0 0 16 16"
+                        }
+                      },
+                      [
+                        _c("path", {
+                          attrs: {
+                            d:
+                              "M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
+                          }
+                        })
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "alert alert-info client-info d-none",
+        attrs: { role: "alert" }
+      },
       [
         _vm._m(0),
         _vm._v(" "),
@@ -55807,7 +58828,7 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "d-table-cell" }, [
-                  _c("b", [_vm._v(_vm._s(_vm.bookingTime))])
+                  _c("b", [_vm._v(_vm._s(_vm.bookingTimeOneRow))])
                 ])
               ])
             ])
@@ -56458,6 +59479,1464 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=template&id=49784604&scoped=true&":
+/*!********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue?vue&type=template&id=49784604&scoped=true& ***!
+  \********************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "div",
+      {
+        staticClass: "event-actions",
+        class: {
+          bigger: _vm.bigger,
+          "right-placed": _vm.rightPlaced
+        }
+      },
+      [
+        _c("ul", [
+          _c("li", { staticClass: "action-move" }, [
+            _c(
+              "a",
+              {
+                staticClass: "tooltip-active",
+                attrs: {
+                  href: "#",
+                  "data-placement": "bottom",
+                  title: "<div class='small'>Edit</div>"
+                },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.clickActionMove($event)
+                  }
+                }
+              },
+              [
+                _c(
+                  "svg",
+                  {
+                    staticClass: "bi bi-pencil",
+                    attrs: {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: _vm.pencilIcoSize,
+                      height: _vm.pencilIcoSize,
+                      fill: "currentColor",
+                      viewBox: "0 0 16 16"
+                    }
+                  },
+                  [
+                    _c("path", {
+                      attrs: {
+                        d:
+                          "M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+                      }
+                    })
+                  ]
+                )
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "action-date-time" }, [
+            _c("div", { staticClass: "action-drop dropup" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "tooltip-active drop-toggle",
+                  attrs: {
+                    href: "#",
+                    role: "button",
+                    id: "actionDateTimeDropdown_" + _vm.itm.id,
+                    "data-toggle": "dropdown",
+                    "aria-haspopup": "true",
+                    "aria-expanded": "false",
+                    "data-placement": "bottom",
+                    title: "<div class='small'>Time</div>"
+                  }
+                },
+                [
+                  _c(
+                    "svg",
+                    {
+                      staticClass: "bi bi-clock",
+                      attrs: {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: _vm.clockIcoSize,
+                        height: _vm.clockIcoSize,
+                        fill: "currentColor",
+                        viewBox: "0 0 16 16"
+                      }
+                    },
+                    [
+                      _c("path", {
+                        attrs: {
+                          d:
+                            "M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("path", {
+                        attrs: {
+                          d:
+                            "M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"
+                        }
+                      })
+                    ]
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "dropdown-menu",
+                  attrs: {
+                    "aria-labelledby": "actionDateTimeDropdown_" + _vm.itm.id
+                  },
+                  on: {
+                    mouseover: function($event) {
+                      return _vm.actionDropdownMenuHover($event)
+                    },
+                    click: function($event) {
+                      $event.stopPropagation()
+                    }
+                  }
+                },
+                [
+                  _c("div", { staticClass: "itemms" }, [
+                    _c("div", [
+                      _vm.itm.time_crossing
+                        ? _c(
+                            "a",
+                            {
+                              staticClass:
+                                "dropdown-item tooltip-active disable",
+                              attrs: {
+                                "data-placement": "auto",
+                                title:
+                                  "<div class='small'>Not available as event is crossing time one of other events of this day</div>",
+                                href: "#"
+                              },
+                              on: {
+                                click: function($event) {
+                                  $event.stopPropagation()
+                                  $event.preventDefault()
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                                        Duration\n                                        "
+                              ),
+                              _vm.itm.time_crossing
+                                ? _c(
+                                    "span",
+                                    { staticClass: "action-info text-warning" },
+                                    [
+                                      _c(
+                                        "svg",
+                                        {
+                                          staticClass:
+                                            "bi bi-exclamation-triangle-fill",
+                                          attrs: {
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            width: "14",
+                                            height: "14",
+                                            fill: "currentColor",
+                                            viewBox: "0 0 16 16"
+                                          }
+                                        },
+                                        [
+                                          _c("path", {
+                                            attrs: {
+                                              d:
+                                                "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                                            }
+                                          })
+                                        ]
+                                      )
+                                    ]
+                                  )
+                                : _vm._e()
+                            ]
+                          )
+                        : _c(
+                            "a",
+                            {
+                              staticClass: "dropdown-item",
+                              attrs: { href: "#" },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  return _vm.clickActionDuration(
+                                    $event,
+                                    _vm.itm
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Duration")]
+                          )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "dropdown-item",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.$emit("clickActionDateTime")
+                            }
+                          }
+                        },
+                        [_vm._v("Date&Time")]
+                      )
+                    ])
+                  ])
+                ]
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          !_vm.itm.approved
+            ? _c("li", { staticClass: "action-approve" }, [
+                _c(
+                  "a",
+                  {
+                    ref: "action_approve_loader_" + _vm.itm.id,
+                    staticClass: "tooltip-active action-loader d-none"
+                  },
+                  [_c("loader-action")],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    ref: "action_approve_btn_" + _vm.itm.id,
+                    staticClass: "tooltip-active",
+                    class: {
+                      disable: _vm.itm.time_crossing
+                    },
+                    attrs: {
+                      href: "#",
+                      "data-placement": "bottom",
+                      title: _vm.itm.time_crossing
+                        ? "<div class='small'>Approve<br>Not available, event`s time is crossing one of events of a day,<br>please set right time</div>"
+                        : "<div class='small'>Approve</div>"
+                    },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.clickActionApprove($event, _vm.itm)
+                      }
+                    }
+                  },
+                  [
+                    _c(
+                      "svg",
+                      {
+                        staticClass: "bi bi-check",
+                        attrs: {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: _vm.okIcoSize,
+                          height: _vm.okIcoSize,
+                          fill: "currentColor",
+                          viewBox: "0 0 16 16"
+                        }
+                      },
+                      [
+                        _c("path", {
+                          attrs: {
+                            d:
+                              "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"
+                          }
+                        })
+                      ]
+                    )
+                  ]
+                )
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          _c("li", { staticClass: "action-remove" }, [
+            _c(
+              "a",
+              {
+                ref: "action_remove_loader_" + _vm.itm.id,
+                staticClass: "tooltip-active action-loader d-none"
+              },
+              [_c("loader-action")],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                ref: "action_remove_drop_" + _vm.itm.id,
+                staticClass: "action-drop dropup"
+              },
+              [
+                _c(
+                  "a",
+                  {
+                    ref: "action_remove_drop_toggle_" + _vm.itm.id,
+                    staticClass: "tooltip-active drop-toggle",
+                    attrs: {
+                      href: "#",
+                      role: "button",
+                      id: "actionRemoveDropdown_" + _vm.itm.id,
+                      "data-toggle": "dropdown",
+                      "aria-haspopup": "true",
+                      "aria-expanded": "false",
+                      "data-placement": "bottom",
+                      title: "<div class='small'>Remove</div>"
+                    }
+                  },
+                  [
+                    _c(
+                      "svg",
+                      {
+                        staticClass: "bi bi-x",
+                        attrs: {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: _vm.removeIcoSize,
+                          height: _vm.removeIcoSize,
+                          fill: "currentColor",
+                          viewBox: "0 0 16 16"
+                        }
+                      },
+                      [
+                        _c("path", {
+                          attrs: {
+                            d:
+                              "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                          }
+                        })
+                      ]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "dropdown-menu",
+                    attrs: {
+                      "aria-labelledby": "actionRemoveDropdown_" + _vm.itm.id
+                    },
+                    on: {
+                      mouseover: function($event) {
+                        return _vm.actionDropdownMenuHover($event)
+                      },
+                      click: function($event) {
+                        $event.stopPropagation()
+                      }
+                    }
+                  },
+                  [
+                    _c("div", { staticClass: "small" }, [
+                      _vm._v(
+                        "\n                            Do you really want to delete this event?\n                        "
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "btnns" }, [
+                      _c(
+                        "a",
+                        {
+                          staticClass: "btnn text-primary btnn-yes",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.onActionRemove($event, _vm.itm)
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                                    Yes\n                            "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          staticClass: "btnn text-primary btnn-no",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              _vm.$refs[
+                                "action_remove_drop_toggle_" + _vm.itm.id
+                              ].click()
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                                    No\n                            "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "clearfix" })
+                    ])
+                  ]
+                )
+              ]
+            )
+          ])
+        ])
+      ]
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "clearfix" })
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=template&id=3507b9c6&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Duration.vue?vue&type=template&id=3507b9c6&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _vm.currentTemplateFilter.duration
+      ? _c("div", [
+          _vm._v("Duration: "),
+          _c("b", [_vm._v(_vm._s(_vm.durationStrHoursAndMinutes))])
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "for-time-bar-fill pb-3" },
+      [
+        _c("time-bar-fill", {
+          ref: "time_bar_duration",
+          attrs: { stopper: _vm.stopper, durationInMinutes: _vm.duration },
+          on: {
+            change: function($event) {
+              return _vm.timeBarDurationChange($event)
+            }
+          }
+        })
+      ],
+      1
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=template&id=00078dda&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue?vue&type=template&id=00078dda&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _vm.movingEventClient
+        ? _c(
+            "div",
+            {
+              staticClass: "alert alert-primary client-info small",
+              attrs: { role: "alert" }
+            },
+            [
+              _c(
+                "div",
+                [
+                  _vm._v("\n            Client: "),
+                  _c("b", [
+                    _vm._v(_vm._s(_vm.fullName(_vm.movingEventClient)))
+                  ]),
+                  _vm._v(" "),
+                  _vm.movingEventClient.email
+                    ? [
+                        _c("b", [
+                          _vm._v(" - " + _vm._s(_vm.movingEventClient.email))
+                        ])
+                      ]
+                    : _vm._e()
+                ],
+                2
+              ),
+              _vm._v(" "),
+              !_vm.isPickedItemsChanged
+                ? [
+                    _c("div", [
+                      _vm._v("Date: "),
+                      _c("b", [_vm._v(_vm._s(_vm.movingEventDate))])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", [
+                      _vm._v("Time: "),
+                      _c("b", [_vm._v(_vm._s(_vm.movingEvent.from))])
+                    ])
+                  ]
+                : _c(
+                    "b",
+                    { staticClass: "badge badge-warning text-left" },
+                    [
+                      _vm.isAllItemsPicked
+                        ? [
+                            _vm._v(
+                              "\n                Please choose a time\n            "
+                            )
+                          ]
+                        : [
+                            _vm._v(
+                              "\n                Please choose all fields and pick a time\n            "
+                            )
+                          ]
+                    ],
+                    2
+                  )
+            ],
+            2
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass: "dropdown dropdown-standart",
+          attrs: { id: "hallDropdown" }
+        },
+        [
+          _c("span", [_vm._v("Hall: ")]),
+          _c("br"),
+          _vm._v(" "),
+          _c(
+            "a",
+            {
+              staticClass: "btn btn-sm btn-info dropdown-toggle",
+              attrs: { href: "#", "data-toggle": "dropdown" }
+            },
+            [
+              _vm._v(
+                "\n            " +
+                  _vm._s(!_vm.isHallPicked ? "---" : _vm.pickedHall.title) +
+                  "\n        "
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "dropdown-menu" },
+            [
+              _vm.halls.length
+                ? _vm._l(_vm.halls, function(itm) {
+                    return !_vm.isHallPicked ||
+                      (_vm.isHallPicked && _vm.pickedHall.id !== itm.id)
+                      ? _c(
+                          "a",
+                          {
+                            staticClass: "dropdown-item",
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.change("hall", itm)
+                              }
+                            }
+                          },
+                          [_vm._v(_vm._s(itm.title))]
+                        )
+                      : _vm._e()
+                  })
+                : [
+                    _c("div", { staticClass: "small pl-1 pr-1" }, [
+                      _vm._v(
+                        "\n                    No items to choose ...\n                "
+                      )
+                    ])
+                  ]
+            ],
+            2
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _vm.templateSpecifics
+        ? _c("template-picker", {
+            attrs: {
+              templates: _vm.templates,
+              specifics: _vm.templateSpecifics,
+              "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
+              "picked-template-ids-trace": _vm.pickedTemplateIdsTrace
+            },
+            on: {
+              change: function($event) {
+                return _vm.change("template", $event)
+              }
+            }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass: "dropdown dropdown-standart",
+          attrs: { id: "workerDropdown" }
+        },
+        [
+          _c("span", [_vm._v("Worker:")]),
+          _c("br"),
+          _vm._v(" "),
+          _c(
+            "a",
+            {
+              staticClass: "btn btn-sm btn-info dropdown-toggle",
+              class: { disabled: !_vm.workers },
+              attrs: {
+                href: "#",
+                "data-toggle": "dropdown",
+                "aria-haspopup": "true",
+                "aria-expanded": "false"
+              }
+            },
+            [
+              _vm._v(
+                "\n            " +
+                  _vm._s(_vm.fullPickedWorkerName) +
+                  "\n        "
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "dropdown-menu" },
+            _vm._l(_vm.workers, function(itm) {
+              return _c(
+                "a",
+                {
+                  staticClass: "dropdown-item",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.change("worker", itm)
+                    }
+                  }
+                },
+                [
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(_vm.fullName(itm)) +
+                      "\n            "
+                  )
+                ]
+              )
+            }),
+            0
+          )
+        ]
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=template&id=6b700528&scoped=true&":
+/*!***************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalDuration.vue?vue&type=template&id=6b700528&scoped=true& ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    {
+      staticClass: "modal fade modal-custom-dark-header-footer",
+      attrs: { id: _vm.modalId }
+    },
+    [
+      _c("div", { staticClass: "modal-dialog" }, [
+        _c("div", { staticClass: "modal-content" }, [
+          _c("div", { staticClass: "modal-header" }, [
+            _c("h5", { staticClass: "modal-title" }, [
+              _vm._v("Day: "),
+              _c("b", [_vm._v(_vm._s(_vm.date))])
+            ]),
+            _vm._v(" "),
+            _vm._m(0)
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "modal-body" },
+            [
+              _c("loader", { ref: "loader" }),
+              _vm._v(" "),
+              _c("div", [
+                _c(
+                  "div",
+                  {
+                    staticClass: "alert alert-info alert-arrow",
+                    attrs: { role: "alert" }
+                  },
+                  [
+                    _c("div", { staticClass: "row" }, [
+                      _c("div", { staticClass: "col-sm-12 col" }, [
+                        _vm.currentTemplateFilter.title
+                          ? _c("div", [
+                              _vm._v("Title: "),
+                              _c("b", [
+                                _vm._v(_vm._s(_vm.currentTemplateFilter.title))
+                              ])
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.currentTemplateFilter.description
+                          ? _c("div", [
+                              _vm._v("Description: "),
+                              _c("b", [
+                                _vm._v(
+                                  _vm._s(_vm.currentTemplateFilter.description)
+                                )
+                              ])
+                            ])
+                          : _vm._e()
+                      ])
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _vm.currentTemplateFilter.duration
+                  ? _c("div", [
+                      _vm._v("Duration: "),
+                      _c("b", [_vm._v(_vm._s(_vm.durationStrHoursAndMinutes))])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "for-time-bar-fill pb-3" },
+                  [
+                    _c("time-bar-fill", {
+                      ref: "time_bar_duration",
+                      attrs: {
+                        stopper: _vm.stopper,
+                        durationInMinutes: _vm.duration
+                      },
+                      on: {
+                        change: function($event) {
+                          return _vm.timeBarDurationChange($event)
+                        }
+                      }
+                    })
+                  ],
+                  1
+                )
+              ])
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "modal-footer" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-secondary",
+                attrs: { type: "button", "data-dismiss": "modal" }
+              },
+              [_vm._v("Cancel")]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-success",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.book($event)
+                  }
+                }
+              },
+              [_vm._v("Ok")]
+            )
+          ])
+        ])
+      ])
+    ]
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/ModalMoreEvents.vue?vue&type=template&id=1be627a6&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    {
+      staticClass:
+        "modal fade modal-custom-dark-header-footer modal-more-events",
+      attrs: { id: _vm.modalId },
+      on: {
+        click: function($event) {
+          $event.preventDefault()
+        }
+      }
+    },
+    [
+      _c("div", { staticClass: "modal-dialog" }, [
+        _c("div", { staticClass: "modal-content" }, [
+          _c("div", { staticClass: "modal-header" }, [
+            _vm.showTab == "events"
+              ? _c("div", [
+                  _c("h5", { staticClass: "modal-title" }, [
+                    _c("b", [_vm._v(_vm._s(_vm.date))]),
+                    _c("br"),
+                    _vm._v(" "),
+                    _vm.e && _vm.e.count_total
+                      ? _c("div", { staticClass: "modal-counters" }, [
+                          _c("ul", [
+                            _c("li", [
+                              _c(
+                                "span",
+                                {
+                                  staticClass:
+                                    "badge badge-pill tooltip-active badge-counter-total",
+                                  attrs: {
+                                    "data-placement": "auto",
+                                    title: "<div class='small'>Total</div>"
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                                         " +
+                                      _vm._s(_vm.e.count_total) +
+                                      "\n                                     "
+                                  )
+                                ]
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _vm.e.count_approved
+                              ? _c("li", [
+                                  _c(
+                                    "span",
+                                    {
+                                      staticClass:
+                                        "badge badge-pill tooltip-active badge-counter-approved",
+                                      attrs: {
+                                        "data-placement": "auto",
+                                        title:
+                                          "<div class='small'>Approved</div>"
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                                         " +
+                                          _vm._s(_vm.e.count_approved) +
+                                          "\n                                     "
+                                      )
+                                    ]
+                                  )
+                                ])
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _vm.e.count_not_approved
+                              ? _c("li", [
+                                  _c(
+                                    "span",
+                                    {
+                                      staticClass:
+                                        "badge badge-pill tooltip-active badge-counter-not-approved",
+                                      attrs: {
+                                        "data-placement": "auto",
+                                        title:
+                                          "<div class='small'>Not approved yet</div>"
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                                         " +
+                                          _vm._s(_vm.e.count_not_approved) +
+                                          "\n                                     "
+                                      )
+                                    ]
+                                  )
+                                ])
+                              : _vm._e()
+                          ])
+                        ])
+                      : _vm._e()
+                  ])
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            ["edit", "duration"].includes(_vm.showTab)
+              ? _c("div", [
+                  _c("h5", { staticClass: "modal-title" }, [
+                    _vm._v(
+                      "\n                        Edit event\n                        "
+                    ),
+                    _vm.showTab == "duration"
+                      ? _c("span", { staticClass: "small" }, [
+                          _vm._v("(duration)")
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c("br"),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-sm btn-primary",
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.backToEvents($event)
+                          }
+                        }
+                      },
+                      [
+                        _c(
+                          "svg",
+                          {
+                            staticClass: "bi bi-arrow-left",
+                            attrs: {
+                              xmlns: "http://www.w3.org/2000/svg",
+                              width: "16",
+                              height: "16",
+                              fill: "currentColor",
+                              viewBox: "0 0 16 16"
+                            }
+                          },
+                          [
+                            _c("path", {
+                              attrs: {
+                                "fill-rule": "evenodd",
+                                d:
+                                  "M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
+                              }
+                            })
+                          ]
+                        ),
+                        _vm._v(
+                          "\n                            back to events\n                        "
+                        )
+                      ]
+                    )
+                  ])
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "close",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.hide(true)
+                  }
+                }
+              },
+              [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+            )
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "modal-body" },
+            [
+              _vm.showTab == "edit" && _vm.movingEvent
+                ? _c("edit", { ref: "edit", on: { change: _vm.onEditChange } })
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.showTab == "events"
+                ? _c("div", [
+                    _vm.events
+                      ? _c(
+                          "div",
+                          { staticClass: "modal-events" },
+                          _vm._l(_vm.events, function(itm, index) {
+                            return _c(
+                              "div",
+                              {
+                                staticClass: "modal-event",
+                                class: {
+                                  approved: itm.approved,
+                                  "not-approved": !itm.approved
+                                }
+                              },
+                              [
+                                _c(
+                                  "div",
+                                  {
+                                    staticClass: "badge-time badge badge-info"
+                                  },
+                                  [
+                                    _c("b", [
+                                      _vm._v(
+                                        _vm._s(itm.from) +
+                                          " - " +
+                                          _vm._s(itm.to)
+                                      )
+                                    ]),
+                                    _vm._v(
+                                      " |\n                                    "
+                                    ),
+                                    _c("span", [
+                                      _vm._v(
+                                        "Duration " +
+                                          _vm._s(
+                                            _vm.durationStrHoursAndMinutes(itm)
+                                          )
+                                      )
+                                    ])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "event-itemm text-warning" },
+                                  [
+                                    _c("span", [_vm._v("Client: ")]),
+                                    _c("b", [
+                                      _vm._v(
+                                        _vm._s(
+                                          itm.client_without_user_scope
+                                            .first_name
+                                        )
+                                      )
+                                    ])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Hall: ")]),
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(itm.hall_without_user_scope.title)
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Template: ")]),
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(
+                                        itm.template_without_user_scope.title
+                                      )
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "event-itemm" }, [
+                                  _c("span", [_vm._v("Worker: ")]),
+                                  _c("b", [
+                                    _vm._v(
+                                      _vm._s(
+                                        itm.worker_without_user_scope.first_name
+                                      )
+                                    )
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "for-actions" },
+                                  [
+                                    _c("actions", {
+                                      ref: "actions_" + itm.id,
+                                      refInFor: true,
+                                      attrs: { itm: itm, "right-placed": true },
+                                      on: {
+                                        clickActionMove: function($event) {
+                                          return _vm.clickActionMove(itm)
+                                        },
+                                        clickActionDuration: function($event) {
+                                          return _vm.clickActionDuration(itm)
+                                        },
+                                        clickActionDateTime: function($event) {
+                                          return _vm.$emit(
+                                            "clickActionDateTime",
+                                            itm
+                                          )
+                                        },
+                                        clickActionApprove: function($event) {
+                                          return _vm.clickActionApprove(itm)
+                                        }
+                                      }
+                                    })
+                                  ],
+                                  1
+                                )
+                              ]
+                            )
+                          }),
+                          0
+                        )
+                      : _vm._e()
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.showTab == "duration" && _vm.movingEvent
+                ? _c(
+                    "div",
+                    [
+                      _c(
+                        "div",
+                        {
+                          staticClass: "alert alert-primary small",
+                          attrs: { role: "alert" }
+                        },
+                        [
+                          _c(
+                            "div",
+                            { staticClass: "event-itemm" },
+                            [
+                              _c("span", [_vm._v("Client: ")]),
+                              _vm._v(" "),
+                              _c("b", [
+                                _vm._v(
+                                  _vm._s(
+                                    _vm.durationE.event
+                                      .client_without_user_scope.first_name
+                                  )
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _vm.durationE.event.client_without_user_scope
+                                .email
+                                ? [
+                                    _c("b", [
+                                      _vm._v(
+                                        " - " +
+                                          _vm._s(
+                                            _vm.durationE.event
+                                              .client_without_user_scope.email
+                                          )
+                                      )
+                                    ])
+                                  ]
+                                : _vm._e()
+                            ],
+                            2
+                          ),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "event-itemm" }, [
+                            _c("span", [_vm._v("Hall: ")]),
+                            _c("b", [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.durationE.event.hall_without_user_scope
+                                    .title
+                                )
+                              )
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "event-itemm" }, [
+                            _c("span", [_vm._v("Template: ")]),
+                            _c("b", [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.durationE.event
+                                    .template_without_user_scope.title
+                                )
+                              )
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "event-itemm" }, [
+                            _c("span", [_vm._v("Worker: ")]),
+                            _c("b", [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.durationE.event.worker_without_user_scope
+                                    .first_name
+                                )
+                              )
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "event-itemm" }, [
+                            _c("span", [_vm._v("Date: ")]),
+                            _c("b", [_vm._v(_vm._s(_vm.date))])
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "event-itemm" }, [
+                            _c("span", [_vm._v("Time: ")]),
+                            _c("b", [_vm._v(_vm._s(_vm.durationE.event.from))])
+                          ])
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("duration", {
+                        ref: "duration",
+                        attrs: { e: _vm.durationE },
+                        on: {
+                          change: function($event) {
+                            return _vm.durationChanged($event)
+                          }
+                        }
+                      })
+                    ],
+                    1
+                  )
+                : _vm._e()
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "modal-footer" }, [
+            _vm.showTab == "edit"
+              ? _c("div", [
+                  _vm.showEditResetBtn
+                    ? _c(
+                        "a",
+                        {
+                          staticClass: "btn btn-sm btn-warning btn-reset",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.$refs.edit.reset()
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                            Reset\n                    "
+                          )
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-sm btn-success btn-pick-time",
+                      class: {
+                        disabled: !_vm.showEditPickTimeBtn
+                      },
+                      attrs: { href: "#", disabled: !_vm.showEditPickTimeBtn },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.pickMovingEventTime()
+                        }
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            Pick time\n                    "
+                      )
+                    ]
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.showTab == "duration"
+              ? _c("div", [
+                  _vm.showDurationApplyBtn
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-sm btn-warning",
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.$refs.duration.reset()
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                            Reset\n                    "
+                          )
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-sm btn-primary",
+                      class: {
+                        disabled: !_vm.showDurationApplyBtn
+                      },
+                      attrs: { disabled: !_vm.showDurationApplyBtn },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.$refs.edit.reset()
+                        }
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            Apply, and back to events\n                    "
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-sm btn-success",
+                      class: {
+                        disabled: !_vm.showDurationApplyBtn
+                      },
+                      attrs: { disabled: !_vm.showDurationApplyBtn },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.$refs.edit.reset()
+                        }
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n                            Apply, and close\n                    "
+                      )
+                    ]
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-sm btn-secondary",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.hide(true)
+                  }
+                }
+              },
+              [_vm._v("\n                        Close\n                ")]
+            )
+          ])
+        ])
+      ])
+    ]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=template&id=079c705e&scoped=true&":
 /*!*********************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBar.vue?vue&type=template&id=079c705e&scoped=true& ***!
@@ -56629,7 +61108,6 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _vm._v("\n    " + _vm._s(_vm.stopperWidth) + "\n    "),
     _c(
       "div",
       {
@@ -56714,203 +61192,143 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "modal fade", attrs: { id: _vm.modalId } }, [
-    _c("div", { staticClass: "modal-dialog" }, [
-      _c("div", { staticClass: "modal-content" }, [
-        _c("div", { staticClass: "modal-header" }, [
-          _c("h5", { staticClass: "modal-title" }, [
-            _vm._v("Day: "),
-            _c("b", [_vm._v(_vm._s(_vm.currentEventFilter.date))])
+  return _c(
+    "div",
+    {
+      staticClass: "modal fade modal-custom-dark-header-footer",
+      attrs: { id: _vm.modalId }
+    },
+    [
+      _c("div", { staticClass: "modal-dialog" }, [
+        _c("div", { staticClass: "modal-content" }, [
+          _c("div", { staticClass: "modal-header" }, [
+            _c("h5", { staticClass: "modal-title" }, [
+              _vm._v("Day: "),
+              _c("b", [_vm._v(_vm._s(_vm.date))])
+            ]),
+            _vm._v(" "),
+            _vm._m(0)
           ]),
           _vm._v(" "),
-          _vm._m(0)
-        ]),
-        _vm._v(" "),
-        _c(
-          "div",
-          { staticClass: "modal-body" },
-          [
-            _vm._v(
-              "\n                " + _vm._s(_vm.duration) + "\n                "
-            ),
-            _c("loader", { ref: "loader" }),
-            _vm._v(" "),
-            _c(
-              "div",
-              [
-                _c(
-                  "div",
-                  {
-                    staticClass: "alert alert-info alert-arrow",
-                    attrs: { role: "alert" }
-                  },
-                  [
-                    _c("div", { staticClass: "row" }, [
-                      _c("div", { staticClass: "col-sm-12 col" }, [
-                        _vm.currentTemplateFilter.title
-                          ? _c("div", [
-                              _vm._v("Title: "),
-                              _c("b", [
-                                _vm._v(_vm._s(_vm.currentTemplateFilter.title))
-                              ])
-                            ])
-                          : _vm._e()
-                      ])
-                    ])
-                  ]
-                ),
-                _vm._v(" "),
-                _vm.currentTemplateFilter.duration
-                  ? _c("div", [
-                      _vm._v("Duration: "),
-                      _c("b", [_vm._v(_vm._s(_vm.templateDuration))])
-                    ])
-                  : _vm._e(),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "for-time-bar-fill pb-3" },
-                  [
-                    _c("time-bar-fill", {
-                      ref: "time_bar_duration",
-                      attrs: { durationInMinutes: _vm.duration },
-                      on: {
-                        change: function($event) {
-                          return _vm.timeBarDurationChange($event)
-                        }
-                      }
-                    })
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _vm.currentTemplateFilter.description
-                  ? _c("div", [
-                      _vm._v("Description: "),
-                      _c("b", [
-                        _vm._v(_vm._s(_vm.currentTemplateFilter.description))
-                      ])
-                    ])
-                  : _vm._e(),
-                _vm._v(" "),
-                _c("div", [
-                  _vm._v("Time: "),
-                  _c("b", [_vm._v(_vm._s(_vm.bookOn))])
-                ]),
-                _vm._v(" "),
-                _c("time-bar-new", {
-                  ref: "time_bar_book",
-                  attrs: {
-                    minInMinutes: _vm.startPeriodDatetime,
-                    maxInMinutes: _vm.endPeriodDatetime,
-                    stopper: _vm.duration,
-                    durationInMinutes: _vm.duration
-                  }
-                }),
-                _vm._v(" "),
-                !_vm.successfullyBooked && !_vm.errorResponse
-                  ? _c("time-bar", {
-                      ref: "time_bar",
-                      attrs: {
-                        "free-time-perc": _vm.freeTimePerc,
-                        start: _vm.barStart,
-                        end: _vm.barEnd,
-                        "pre-end": _vm.barPreEnd,
-                        "start-minutes": _vm.startPeriodDatetime,
-                        "end-minutes": _vm.endPeriodDatetime,
-                        "pre-end-minutes": _vm.preEndPeriodDatetime,
-                        duration: _vm.templateDuration,
-                        "duration-minutes": _vm.templateDurationMinutes
-                      },
-                      on: {
-                        change: function($event) {
-                          return _vm.timeBarChange($event)
-                        },
-                        slider_disabled: _vm.timeBarSliderDisabled,
-                        slider_enabled: _vm.timeBarSliderEnabled
-                      }
-                    })
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.successfullyBooked
-                  ? _c("div", [
-                      _vm._v(
-                        "\n                        Your successfully requested to book you on choosen time, we will contact you for approving your booking. \n                    "
-                      )
-                    ])
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.errorResponse
-                  ? _c("div", { staticClass: "small text-danger" }, [
-                      _vm._v(
-                        "\n                        " +
-                          _vm._s(_vm.errorResponse) +
-                          "\n                    "
-                      )
-                    ])
-                  : _vm._e(),
-                _vm._v(" "),
-                _c("div", { staticClass: "row" })
-              ],
-              1
-            )
-          ],
-          1
-        ),
-        _vm._v(" "),
-        _c(
-          "div",
-          { staticClass: "modal-footer" },
-          [
-            !_vm.successfullyBooked && !_vm.errorResponse
-              ? [
+          _c(
+            "div",
+            { staticClass: "modal-body" },
+            [
+              _c("loader", { ref: "loader" }),
+              _vm._v(" "),
+              _c(
+                "div",
+                [
                   _c(
-                    "button",
+                    "div",
                     {
-                      staticClass: "btn btn-secondary",
-                      attrs: { type: "button", "data-dismiss": "modal" }
+                      staticClass: "alert alert-info alert-arrow",
+                      attrs: { role: "alert" }
                     },
-                    [_vm._v("Cancel")]
+                    [
+                      _c("div", { staticClass: "row" }, [
+                        _c("div", { staticClass: "col-sm-12 col" }, [
+                          _c("div", [
+                            _vm._v("Title: "),
+                            _c("b", [
+                              _vm._v(_vm._s(_vm.currentTemplateFilter.title))
+                            ])
+                          ])
+                        ])
+                      ])
+                    ]
                   ),
                   _vm._v(" "),
+                  _vm.currentTemplateFilter.duration
+                    ? _c("div", [
+                        _vm._v("Duration: "),
+                        _c("b", [
+                          _vm._v(_vm._s(_vm.durationStrHoursAndMinutes))
+                        ])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
                   _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-success",
-                      attrs: {
-                        type: "button",
-                        disabled: _vm.bookButtonDisabled
-                      },
-                      on: {
-                        click: function($event) {
-                          $event.preventDefault()
-                          return _vm.book($event)
+                    "div",
+                    { staticClass: "for-time-bar-fill pb-3" },
+                    [
+                      _c("time-bar-fill", {
+                        ref: "time_bar_duration",
+                        attrs: { durationInMinutes: _vm.duration },
+                        on: {
+                          change: function($event) {
+                            return _vm.timeBarDurationChange($event)
+                          }
                         }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _vm.currentTemplateFilter.description
+                    ? _c("div", [
+                        _vm._v("Description: "),
+                        _c("b", [
+                          _vm._v(_vm._s(_vm.currentTemplateFilter.description))
+                        ])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c("div", [
+                    _vm._v("Time: "),
+                    _c("b", [_vm._v(_vm._s(_vm.choosenTime))])
+                  ]),
+                  _vm._v(" "),
+                  _c("time-bar-new", {
+                    ref: "time_bar_book",
+                    attrs: {
+                      minInMinutes: _vm.startPeriodDatetime,
+                      maxInMinutes: _vm.endPeriodDatetime,
+                      stopper: _vm.duration,
+                      durationInMinutes: _vm.duration
+                    },
+                    on: {
+                      change: function($event) {
+                        return _vm.timeBarBookChange($event)
                       }
-                    },
-                    [_vm._v("Ok")]
-                  )
-                ]
-              : _vm._e(),
+                    }
+                  })
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "modal-footer" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-secondary",
+                attrs: { type: "button", "data-dismiss": "modal" }
+              },
+              [_vm._v("Cancel")]
+            ),
             _vm._v(" "),
-            _vm.successfullyBooked || _vm.errorResponse
-              ? [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-success",
-                      attrs: { type: "button", "data-dismiss": "modal" }
-                    },
-                    [_vm._v("Ok")]
-                  )
-                ]
-              : _vm._e()
-          ],
-          2
-        )
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-success",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.book($event)
+                  }
+                }
+              },
+              [_vm._v("Ok")]
+            )
+          ])
+        ])
       ])
-    ])
-  ])
+    ]
+  )
 }
 var staticRenderFns = [
   function() {
@@ -77866,7 +82284,41 @@ var index = {
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					result = fn();
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -77928,304 +82380,66 @@ var index = {
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"/js/dashboard/calendar-booking-admin": 0,
+/******/ 			"css/dashboard": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			for(moduleId in moreModules) {
+/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 				}
+/******/ 			}
+/******/ 			if(runtime) runtime(__webpack_require__);
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkIds[i]] = 0;
+/******/ 			}
+/******/ 			__webpack_require__.O();
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-/*!************************************************************!*\
-  !*** ./resources/js/vue/dashboard/calendar/booking/app.js ***!
-  \************************************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store */ "./resources/js/vue/dashboard/calendar/booking/store/index.js");
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/dashboard/calendar/booking/components/App.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/dashboard/calendar/booking/bootstrap.js");
-
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
- // import Vuex from 'vuex';
-// 
-// Vue.use(Vuex);
-// 
-// 
-// const store = new Vuex.Store({
-//   state: {
-//     count: 0
-//   },
-//   mutations: {
-//     increment (state) {
-//       state.count++
-//     }
-//   }
-// });
-// 
-// 
-// console.log(store.state.count)
-
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-
-Vue.component('dropdown-template-specifics', __webpack_require__(/*! ./components/template/DropdownTemplateSpecifics.vue */ "./resources/js/vue/dashboard/calendar/booking/components/template/DropdownTemplateSpecifics.vue").default);
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-// const Helper = require("../../../ts/calendar_helper/app").Helper;
-// const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
-
-window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js"); // window.viewEnums = new ViewEnums();
-// window.helper = new Helper();
-// console.log(helper.my());
-
-
-Vue.mixin({
-  data: function data() {
-    return {
-      hoursList: [{
-        hour: '00',
-        minute: '00'
-      }, {
-        hour: '01',
-        minute: '00'
-      }, {
-        hour: '02',
-        minute: '00'
-      }, {
-        hour: '03',
-        minute: '00'
-      }, {
-        hour: '04',
-        minute: '00'
-      }, {
-        hour: '05',
-        minute: '00'
-      }, {
-        hour: '06',
-        minute: '00'
-      }, {
-        hour: '07',
-        minute: '00'
-      }, {
-        hour: '08',
-        minute: '00'
-      }, {
-        hour: '09',
-        minute: '00'
-      }, {
-        hour: '10',
-        minute: '00'
-      }, {
-        hour: '11',
-        minute: '00'
-      }, {
-        hour: '12',
-        minute: '00'
-      }, {
-        hour: '13',
-        minute: '00'
-      }, {
-        hour: '14',
-        minute: '00'
-      }, {
-        hour: '15',
-        minute: '00'
-      }, {
-        hour: '16',
-        minute: '00'
-      }, {
-        hour: '17',
-        minute: '00'
-      }, {
-        hour: '18',
-        minute: '00'
-      }, {
-        hour: '19',
-        minute: '00'
-      }, {
-        hour: '20',
-        minute: '00'
-      }, {
-        hour: '21',
-        minute: '00'
-      }, {
-        hour: '22',
-        minute: '00'
-      }, {
-        hour: '23',
-        minute: '00'
-      }],
-      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    };
-  },
-  computed: {
-    // Current filters
-    currentEventFilter: function currentEventFilter() {
-      if (this.movingEvent !== null) return this.movingEvent;
-      return null;
-    },
-    currentHallFilter: function currentHallFilter() {
-      if (this.movingEvent !== null) {
-        if (this.movingEventIsPickedFull) return this.movingEventPicked.hall;
-        return this.movingEvent.hall_without_user_scope;
-      }
-
-      return null;
-    },
-    currentWorkerFilter: function currentWorkerFilter() {
-      if (this.movingEvent !== null) {
-        if (this.movingEventIsPickedFull) return this.movingEventPicked.worker;
-        return this.movingEvent.worker_without_user_scope;
-      }
-
-      return null;
-    },
-    currentTemplateFilter: function currentTemplateFilter() {
-      if (this.movingEvent !== null) {
-        if (this.movingEventIsPickedFull) return this.movingEventPicked.template;
-        return this.movingEvent.template_without_user_scope;
-      }
-
-      return null;
-    },
-    // Moving event data of moving_event `$store` module
-    movingEventIsPickedFull: function movingEventIsPickedFull() {
-      return this.$store.getters['moving_event/isPickedFull'];
-    },
-    movingEventPicked: function movingEventPicked() {
-      return this.$store.getters['moving_event/picked'];
-    },
-    movingEvent: function movingEvent() {
-      return this.$store.getters['moving_event/event'];
-    },
-    isMovingEvent: function isMovingEvent() {
-      // return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
-      return this.movingEvent !== null;
-    },
-    movingEventClient: function movingEventClient() {
-      return this.$store.getters['moving_event/client'];
-    },
-    movingEventDateObj: function movingEventDateObj() {
-      if (this.movingEvent === null) return null;
-      return moment(this.movingEvent.time).toDate();
-    },
-    movingEventDateMoment: function movingEventDateMoment() {
-      if (this.movingEvent === null) return null;
-      return moment(this.movingEvent.time);
-    },
-    movingEventDate: function movingEventDate() {
-      if (this.movingEventDateMoment === null) return null;
-      return this.movingEventDateMoment.format('YYYY-MM-DD ddd HH:mm');
-    },
-    // Specifics
-    templateSpecifics: function templateSpecifics() {
-      return this.$store.getters['specifics/templateSpecifics'];
-    },
-    templateSpecificsAsIdKey: function templateSpecificsAsIdKey() {
-      return this.$store.getters['specifics/templateSpecificsAsIdKey'];
-    },
-    // All halls
-    halls: function halls() {
-      return this.$store.getters['halls/all'];
-    },
-    // Data updater
-    storeDataUpdater: function storeDataUpdater() {
-      return this.$store.getters['updater/counter'];
-    },
-    // Store filters
-    storeFilters: function storeFilters() {
-      return this.$store.getters['filters/all'];
-    }
-  },
-  methods: {
-    urlSearchParams: function urlSearchParams() {
-      var as_string = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] : this.$store.getters['filters/urlSearchParams'];
-      urlSearchParams = new URLSearchParams(urlSearchParams);
-      if (as_string) return urlSearchParams.toString();
-      return urlSearchParams;
-    },
-    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
-      var component = null;
-      if (_thisComponent.$options.name === componentName) return _thisComponent;
-      var parent = _thisComponent.$parent;
-
-      while (parent && !component) {
-        if (parent.$options.name === componentName) {
-          component = parent;
-        }
-
-        parent = parent.$parent;
-      }
-
-      return component;
-    },
-    isAuth: function isAuth() {
-      var componentApp = this.$root.$children[0];
-      return componentApp.clientAuthorized; // return false;
-      // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
-      // if(componentApp)
-      //     return componentApp.isAuth;
-      // return false;
-    },
-    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
-      // console.log(milliseconds);
-      var minutes = seconds / 60; // console.log('seconds:' + seconds);
-      // let minutes = seconds/60;
-      // console.log('minutes:' + minutes);
-
-      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
-      // console.log(hours + ':' + minutes);
-
-      if (hours > 0) {
-        minutes = minutes % 60;
-        hours = this.formatTimeItemToTwoDigitString(hours);
-        minutes = this.formatTimeItemToTwoDigitString(minutes);
-      } else {
-        hours = '00';
-        minutes = this.formatTimeItemToTwoDigitString(minutes);
-      } // console.log(hours + ':' + minutes);
-
-
-      return hours + ':' + minutes;
-    },
-    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
-      var timeItemInt = parseInt(timeItem);
-      if (timeItemInt < 10) return '0' + timeItemInt;
-      return '' + timeItemInt;
-    } // showChildren: function () {
-    //     // console.log(this.$root.$children[0].$options.name);
-    //     console.log(this.$root.$children[0].$options.name);
-    // }
-
-  }
-});
-window.app = new Vue({
-  // const businessHours = new Vue({
-  el: '#calendarBooking',
-  store: _store__WEBPACK_IMPORTED_MODULE_0__.default,
-  render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_1__.default, {
-      props: {
-        userId: document.querySelector("#calendarBooking").dataset.userId
-      }
-    });
-  }
-}); // alert(111);
-// console.log(document.querySelector("#calendarBooking").dataset.userId);
-})();
-
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	__webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/js/vue/dashboard/calendar/booking/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/sass/dashboard.scss")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
 /******/ })()
 ;

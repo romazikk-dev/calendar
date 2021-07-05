@@ -51,6 +51,12 @@ class Keys{
     
     /**
     *   Setting key
+    *   Main settings of admin booking calendar
+    */
+    const ADMINS_BOOKING_CALENDAR_MAIN = "admins_booking_calendar_main";
+    
+    /**
+    *   Setting key
     *   Specifics of template (for whom, what kind of service provides)
     */
     const TEMPLATE_SPECIFICS = "template_specifics";

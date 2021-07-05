@@ -1,136 +1,83 @@
 <template>
     <div>
         
-        <!-- Modal -->
-        <div class="modal fade modal-custom-dark-header-footer"
-            :id="modalId"
-            tabindex="-1"
-            role="dialog"
-            :aria-labelledby="modalId + 'Label'"
-            aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" :id="modalId + 'Label'">Event edit</h5>
-                            <button type="button"
-                                @click.prevent="close()"
-                                class="close">
-                                    <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div ref="modal_body" class="modal-body">
-                            <loader ref="loader" />
-                            <div class="card-body">
-                                
-                                <div v-if="movingEventClient" class="alert alert-info client-info" role="alert">
-                                    <span class="badge badge-info titt">Client:</span>
-                                    <b>{{fullName(movingEventClient)}}</b><br>
-                                    {{movingEventClient.email ? movingEventClient.email : ''}}<br>
-                                    <div class="small">
-                                        <b v-if="!isPickedItemsChanged">{{movingEventDate}}</b>
-                                        <b v-else class="badge badge-warning text-left">
-                                            <template v-if="isAllItemsPicked">
-                                                Please choose a time
-                                            </template>
-                                            <template v-else>
-                                                Please choose all fields and pick a time
-                                            </template>
-                                        </b>
-                                    </div>
-                                </div>
-                                
-                                <!-- <a v-if="isPickedItemsChanged"
-                                    @click.prevent="reset()"
-                                    href="#"
-                                    class="btn btn-sm btn-warning btn-reset">
-                                        Reset to initial values
-                                </a> -->
-                                
-                                <div id="hallDropdown" class="dropdown dropdown-standart">
-                                    <span>Hall: </span><br>
-                                    <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
-                                        {{!isHallPicked ? '---' : pickedHall.title}}
-                                    </a>
-                
-                                    <div class="dropdown-menu">
-                                        <template v-if="halls.length">
-                                            <a v-for="itm in halls"
-                                                v-if="!isHallPicked || (isHallPicked && pickedHall.id !== itm.id)"
-                                                @click.prevent="change('hall', itm)"
-                                                class="dropdown-item"
-                                                href="#">{{itm.title}}</a>
-                                        </template>
-                                        <template v-else>
-                                            <div class="small pl-1 pr-1">
-                                                No items to choose ...
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                                
-                                <template-picker :templates="templates"
-                                    :specifics="templateSpecifics"
-                                    :specifics-as-id-key="templateSpecificsAsIdKey"
-                                    :picked-template-ids-trace="pickedTemplateIdsTrace"
-                                    v-if="templateSpecifics"
-                                    @change="change('template', $event)" />
-                                    
-                                <div id="workerDropdown" class="dropdown dropdown-standart">
-                                    <span>Worker:</span><br>
-                                    <a :class="{disabled: !workers}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        {{fullPickedWorkerName}}
-                                    </a>
-                    
-                                    <div class="dropdown-menu">
-                                        <a @click.prevent="change('worker', itm)" v-for="itm in workers" class="dropdown-item" href="#">
-                                            {{fullName(itm)}}
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                            
-                        </div>
-                        <div class="modal-footer">
-                            <!-- <button type="button"
-                                @click.prevent="close()"
-                                class="btn btn-sm btn-secondary">
-                                    Close
-                            </button> -->
-                            <button :disabled="!isAllItemsPicked"
-                                @click.prevent="pickTime()"
-                                type="button"
-                                class="btn btn-sm btn-primary">
-                                    Pick time
-                            </button>
-                            <!-- <button :disabled="!isAllItemsPicked || !isPickedItemsChanged" type="button" class="btn btn-sm btn-success">Save</button> -->
-                            <a v-if="isPickedItemsChanged"
-                                @click.prevent="reset()"
-                                href="#"
-                                class="btn btn-sm btn-warning btn-reset">
-                                    Reset
-                            </a>
-                        </div>
+        <div v-if="movingEventClient" class="alert alert-primary client-info small" role="alert">
+            <div>
+                Client: <b>{{fullName(movingEventClient)}}</b>
+                <template v-if="movingEventClient.email">
+                    <b> - {{movingEventClient.email}}</b>
+                </template>
+            </div>
+            <template v-if="!isPickedItemsChanged">
+                <div>Date: <b>{{movingEventDate}}</b></div>
+                <div>Time: <b>{{movingEvent.from}}</b></div>
+            </template>
+            <b v-else class="badge badge-warning text-left">
+                <template v-if="isAllItemsPicked">
+                    Please choose a time
+                </template>
+                <template v-else>
+                    Please choose all fields and pick a time
+                </template>
+            </b>
+        </div>
+        
+        <div id="hallDropdown" class="dropdown dropdown-standart">
+            <span>Hall: </span><br>
+            <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
+                {{!isHallPicked ? '---' : pickedHall.title}}
+            </a>
+
+            <div class="dropdown-menu">
+                <template v-if="halls.length">
+                    <a v-for="itm in halls"
+                        v-if="!isHallPicked || (isHallPicked && pickedHall.id !== itm.id)"
+                        @click.prevent="change('hall', itm)"
+                        class="dropdown-item"
+                        href="#">{{itm.title}}</a>
+                </template>
+                <template v-else>
+                    <div class="small pl-1 pr-1">
+                        No items to choose ...
                     </div>
-                </div>
+                </template>
+            </div>
+        </div>
+        
+        <template-picker :templates="templates"
+            :specifics="templateSpecifics"
+            :specifics-as-id-key="templateSpecificsAsIdKey"
+            :picked-template-ids-trace="pickedTemplateIdsTrace"
+            v-if="templateSpecifics"
+            @change="change('template', $event)" />
+            
+        <div id="workerDropdown" class="dropdown dropdown-standart">
+            <span>Worker:</span><br>
+            <a :class="{disabled: !workers}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{fullPickedWorkerName}}
+            </a>
+
+            <div class="dropdown-menu">
+                <a @click.prevent="change('worker', itm)" v-for="itm in workers" class="dropdown-item" href="#">
+                    {{fullName(itm)}}
+                </a>
+            </div>
         </div>
         
     </div>
 </template>
 
 <script>
-    import ExtensiveTemplateFilterPicker from "./template/ExtensiveTemplateFilterPicker.vue";
-    import Loader from "./Loader.vue";
+    import ExtensiveTemplateFilterPicker from "../template/ExtensiveTemplateFilterPicker.vue";
     export default {
         name: 'ModalMovePathPicker',
         mounted() {
             // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
+            this.fillFields();
         },
         // props: ['movingEvent'],
         data: function(){
             return {
-                modalId: 'pathPickerModal',
-                
                 pickedHall: null,
                 pickedWorker: null,
                 pickedTemplate: null,
@@ -168,24 +115,24 @@
             },
         },
         methods: {
-            close: function(){
-                this.$store.commit('moving_event/reset');
-                this.hide();
-            },
+            // close: function(){
+            //     this.$store.commit('moving_event/reset');
+            //     // this.hide();
+            // },
             // Show free slots to pick time for moving_event
-            pickTime: function(){
+            // pickTime: function(){
+            setMovingEventPickedItems: function(){
                 if(this.isAllItemsPicked){
                     this.$store.dispatch('moving_event/setPicked', {
                         hall: this.pickedHall,
                         worker: this.pickedWorker,
                         template: this.pickedTemplate,
                     });
-                    this.hide();
-                    this.$emit('pick_time');
+                    // this.hide();
+                    // this.$emit('pick_time');
                 }
             },
             reset: function(){
-                this.showLoader();
                 this.$store.dispatch('moving_event/resetPicked');
                 this.resetPickedItems();
                 this.fillFields();
@@ -214,14 +161,13 @@
             fullName: function (obj){
                 return calendarHelper.person.fullName(obj);
             },
-            show: function (){
-                this.showLoader();
-                $('#' + this.modalId).modal('show');
-                this.fillFields();
-            },
-            hide: function (){
-                $('#' + this.modalId).modal('hide');
-            },
+            // show: function (){
+            //     // $('#' + this.modalId).modal('show');
+            //     this.fillFields();
+            // },
+            // hide: function (){
+            //     $('#' + this.modalId).modal('hide');
+            // },
             resetPickedItems: function(items = null){
                 if(items !== null && !Array.isArray(items))
                     return;
@@ -236,8 +182,14 @@
                 
                 if(items === null || items.includes("worker"))
                     this.pickedWorker = null;
+                    
+                if(items === null || items.includes("hall") ||
+                items.includes("template") || items.includes("worker"))
+                    this.$emit('change');
             },
             change: function(type, itm, callbackResolver = null){
+                let _this = this;
+                
                 itm = JSON.parse(JSON.stringify(itm));
                 let url, urlParams;
                 
@@ -277,6 +229,7 @@
                             })
                             .then(function () {
                                 // always executed
+                                _this.$emit('change');
                             });
                             
                         break;
@@ -309,11 +262,13 @@
                             })
                             .then(function () {
                                 // always executed
+                                _this.$emit('change');
                             });
                             
                         break;
                     case 'worker':
                         this.pickedWorker = (itm ? itm : null);
+                        _this.$emit('change');
                         break;
                 }
             },
@@ -327,28 +282,6 @@
                     }
                 }
                 return item;
-            },
-            showLoader: function(){
-                $(this.$refs.modal_body).css({'max-weight':'100px'});
-                $(this.$refs.modal_body).find('.card-body').css({'position': 'absolute', 'display': 'none'});
-                this.$refs.loader.show();
-            },
-            hideLoader: function(milliseconds = 0){
-                let _this = this;
-                
-                if(milliseconds > 0){
-                    setTimeout(function(){
-                     	hideLoader();
-                    }, milliseconds);
-                }else{
-                    hideLoader();
-                }
-                
-                function hideLoader(){
-                    $(_this.$refs.modal_body).css({'max-weight':'auto'});
-                    $(_this.$refs.modal_body).find('.card-body').css({'position':'relative', 'display': 'block'});
-                    _this.$refs.loader.fadeOut(300);
-                }
             },
             fillFields: function(){
                 // return;
@@ -390,7 +323,6 @@
                         console.log(JSON.parse(JSON.stringify(worker)));
                         
                         this.change('worker', worker);
-                        this.hideLoader(200);
                     });
                 }
                 
@@ -428,15 +360,8 @@
         },
         components: {
             TemplatePicker: ExtensiveTemplateFilterPicker,
-            Loader,
         },
         watch: {
-            // movingEvent: function(val){
-            //     // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
-            //     if(val !== null){
-            //         // this.fillFields();
-            //     }
-            // },
             pickedHall: function(val){
                 if(val === null){
                     this.templates = null;
@@ -453,45 +378,30 @@
 </script>
 
 <style lang="scss" scoped>
-    .modal-body{
-        min-height: 100px;
+    .btn-reset{
+        width: 100%;
     }
-    .card-body{
-        padding: 0px;
-        position: absolute;
-        .btn-reset{
+    .dropdown-standart{
+        .dropdown-toggle{
             width: 100%;
-        }
-        .client-info{
+            text-align: left;
             position: relative;
-            .titt{
+            &::after {
+                display: inline-block;
+                margin-left: .255em;
+                vertical-align: .255em;
+                content: "";
+                border-top: .3em solid;
+                border-right: .3em solid transparent;
+                border-bottom: 0;
+                border-left: .3em solid transparent;
                 position: absolute;
-                top: -10px;
-                left: 14px;
+                top: 12px;
+                right: 10px;
             }
         }
-        .dropdown-standart{
-            .dropdown-toggle{
-                width: 100%;
-                text-align: left;
-                position: relative;
-                &::after {
-                    display: inline-block;
-                    margin-left: .255em;
-                    vertical-align: .255em;
-                    content: "";
-                    border-top: .3em solid;
-                    border-right: .3em solid transparent;
-                    border-bottom: 0;
-                    border-left: .3em solid transparent;
-                    position: absolute;
-                    top: 12px;
-                    right: 10px;
-                }
-            }
-            .dropdown-menu{
-                width: 100%;
-            }
+        .dropdown-menu{
+            width: 100%;
         }
     }
 </style>

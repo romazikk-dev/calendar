@@ -203,6 +203,7 @@ class Specifics extends MainSpecifics{
                     }
                 }
             
+            $deep--;
             return $children;
         };
         

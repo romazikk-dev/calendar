@@ -27,11 +27,10 @@
         </div>
         <div v-if="items" class="events">
             <ul>
-                <li v-if="item.items" v-for="itm in items">
+                <li v-if="item.items && index < maxEventsPerDay" v-for="(itm, index) in items">
                     <template v-if="itm.type == 'free'">
                         
-                        <div class='free-slot'
-                            @click.prevent="$emit('showPickTimeModal', itm)">
+                        <div class='free-slot'>
                             <b>Free time:</b><br>
                             <b>{{itm.from}} - {{itm.to}}</b>
                             <div class="not-approved-bookings" v-if="itm.not_approved_bookings">
@@ -47,81 +46,60 @@
                                         class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                                 </div>
                             </div>
-                            <!-- <button @click.prevent="$emit('open-modal', itm)"
+                            <button @click.prevent="chooseFreeClick(itm)"
                                 type="button"
-                                class="btn btn-link btn-sm btn-block book">Book</button > -->
+                                class="btn btn-link btn-sm btn-block book">Choose</button >
                         </div>
-                        
-                        <!-- <div class='event' :class="{
-                            'approved': itm.approved
-                        }">
-                            <div class="top-part">
-                                <b>{{itm.approved ? 'Booked' : 'Request'}}</b>
-                                <div class="actions">
-                                    <ul>
-                                        <li>
-                                            <a href="#" @click.prevent="$emit('move', itm)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-arrows-move" viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
-                                                </svg>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                                                </svg>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" @click.prevent="$emit('remove', itm)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                                                </svg>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <b>{{itm.template_without_user_scope.title}}<br>
-                            {{itm.time_from}} - {{itm.time_to}}</b>
-                        </div> -->
                         
                     </template>
                     <template v-else>
                         <div class='event' :class="{
                             'approved': itm.approved
                         }">
-                            <div class="top-part">
-                                <b>{{itm.approved ? 'Booked' : 'Request'}}</b>
-                                <div class="actions">
-                                    <ul>
-                                        <li>
-                                            <a href="#" @click.prevent="$emit('move', itm)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-arrows-move" viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
-                                                </svg>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                                                </svg>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" @click.prevent="$emit('remove', itm)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                                                </svg>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+                            <div v-if="itm.time_crossing"
+                                class="time-crossing text-warning tooltip-active"
+                                data-placement="auto"
+                                title="<div class='small'>Event is crossing time one of events above</div>">
+                                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                                        <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                                        <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                                    </svg> -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                    </svg>
                             </div>
-                            <b>{{itm.template_without_user_scope.title}}<br>
-                            {{itm.time_from}} - {{itm.time_to}}</b>
+                            <!-- <div class="top-part">
+                                <b>{{itm.approved ? 'Booked' : 'Request'}}</b>
+                            </div> -->
+                            <div class="event-itemm text-warning">
+                                <span>Client: </span><b>{{itm.client_without_user_scope.first_name}}</b>
+                            </div>
+                            <div class="event-itemm">
+                                <span>Hall: </span><b>{{itm.hall_without_user_scope.title}}</b>
+                            </div>
+                            <div class="event-itemm">
+                                <span>Temp: </span><b>{{itm.template_without_user_scope.title}}</b>
+                            </div>
+                            <div class="event-itemm">
+                                <span>Time: </span><b>{{itm.from}} - {{itm.to}}</b>
+                            </div>
+                            <div class="event-itemm">
+                                <span>Worker: </span><b>{{itm.worker_without_user_scope.first_name}}</b>
+                            </div>
+                            <!-- <b>
+                                {{itm.template_without_user_scope.title}}<br>
+                                {{itm.from}} - {{itm.to}}<br>
+                            </b>
+                            {{itm.hall_without_user_scope.title}} -->
+                            
+                            <actions :itm="itm" :ref="'actions_' + itm.id"
+                                @clickActionMove="clickActionMove(itm)"
+                                @clickActionDuration="clickActionDuration(itm)"
+                                @clickActionDateTime="clickActionDateTime(itm)"
+                                @clickActionApprove="clickActionApprove(itm)"
+                                @clickActionRemove="onActionRemove(itm)"/>
+                            
+                            <div class="clearfix"></div>
                             <!-- <button @click.prevent="$emit('cancel', itm.booking)"
                                 type="button"
                                 class="btn btn-link btn-sm btn-block cancel"><span>×</span></button> -->
@@ -129,11 +107,22 @@
                     </template>
                 </li>
             </ul>
+            <div v-if="!showMovingEvent && item.items && item.items.length > maxEventsPerDay"
+                class="for-show-more-events-btn">
+                    <a href="#"
+                        @click.prevent="$emit('clickMore', item)"
+                        class="btn btn-sm btn-info show-more-events-btn">
+                            More ...
+                    </a>
+                    <div class="clearfix"></div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+    // import LoaderAction from "./LoaderAction.vue";
+    import Actions from "./event/Actions.vue";
     export default {
         name: 'monthCell',
         mounted() {
@@ -144,6 +133,7 @@
         data: function(){
             return {
                 // range: helper.range.range,
+                // app: null,
             };
         },
         computed: {
@@ -153,12 +143,114 @@
                     return null;
                 return this.item.items
             },
+            maxEventsPerDay: function () {
+                return this.calendarSettings.month_max_events_per_day_to_show;
+            },
         },
         methods: {
-            
+            getNextEvent: function (event) {
+                if(this.items === null)
+                    return null;
+                
+                let nextEvent = null;
+                let isNext = false;
+                for(let i = 0; i < this.items.length; i++){
+                    if(isNext && this.items[i].approved == 1){
+                        nextEvent = this.items[i];
+                        break;
+                    }
+                    if(event.id == this.items[i].id){
+                        isNext = true;
+                    }
+                }
+                
+                return nextEvent;
+            },
+            clickActionMove: function (event) {
+                this.app.setMovingEvent(event).then((data) => {
+                    this.calendar.$refs.move_path_picker.show();
+                });
+            },
+            clickActionDuration: function (event) {
+                if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
+                    return;
+                
+                this.app.setMovingEvent(event).then((data) => {
+                    this.app.showModalDuration({
+                        day: this.item,
+                        event: event,
+                        nextEvent: this.getNextEvent(event),
+                    });
+                });
+            },
+            clickActionDateTime: function (event) {
+                this.app.setMovingEvent(event).then((data) => {
+                    this.calendar.getData({exclude_ids: [this.movingEvent.id]});
+                });
+            },
+            clickActionApprove: function (event) {
+                if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
+                    return;
+                
+                this.$refs['actions_' + event.id][0].toggleActionLoader('action_approve_loader_' + event.id, 'action_approve_btn_' + event.id);
+                this.app.approveEvent(event.id).then((data) => {
+                    if(typeof data.status !== 'undefined' && data.status == 'success'){
+                        // alert('Successfuly approved!!!');
+                    }else{
+                        if(typeof data.msg !== 'undefined' && data.msg !== null)
+                            alert(data.msg);
+                    }
+                    this.$refs['actions_' + event.id][0].toggleActionLoader('action_approve_btn_' + event.id, 'action_approve_loader_' + event.id);
+                    this.calendar.getData();
+                });
+            },
+            onActionRemove: function (e, event) {
+                alert(111);
+            },
+            clickActionRemove: function (e, event) {
+                // let _this = this;
+                this.$refs['action_remove_drop_toggle_' + event.id][0].click();
+                // this.toggleActionLoader(true, 'action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+                
+                alert(222);
+                return;
+                
+                new Promise((resolve, reject) => {
+                    this.$refs['actions_' + event.id][0].toggleActionLoader('action_remove_loader_' + event.id, 'action_remove_drop_' + event.id);
+                    this.app.removeEvent(event.id, (data) => {
+                        resolve(data);
+                    });
+                }).then((data) => {
+                    if(typeof data.status !== 'undefined' && data.status == 'success'){
+                        // alert('Successfuly removed!!!');
+                    }else{
+                        if(typeof data.msg !== 'undefined' && data.msg !== null)
+                            alert(data.msg);
+                    }
+                    this.$refs['actions_' + event.id][0].toggleActionLoader('action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+                    this.$emit('removed');
+                });
+            },
+            toggleActionLoader: function (refShow, refHide) {
+                console.log(this.$refs);
+                // console.log(JSON.parse(JSON.stringify(this.$refs)));
+                // this.$refs.actions.toggleActionLoader(refShow, refHide)
+                // $(this.$refs.actions.$refs[refShow]).removeClass('d-none');
+                // $(this.$refs.actions.$refs[refHide]).addClass('d-none');
+            },
+            actionDropdownMenuHover: function (e) {
+                $(e.target).closest('.action-drop').find('.drop-toggle').tooltip('hide');
+            },
+            chooseFreeClick: function (itm) {
+                this.app.showPickTimeModal({
+                    day: this.item,
+                    item: itm,
+                });
+            },
         },
         components: {
-            
+            // LoaderAction,
+            Actions
         },
     }
 </script>

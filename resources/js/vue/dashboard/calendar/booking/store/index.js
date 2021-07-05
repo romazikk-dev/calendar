@@ -10,6 +10,7 @@ import specifics from './modules/specifics';
 import custom_titles from './modules/custom_titles';
 import moving_event from './modules/moving_event';
 import template from './modules/template';
+import dates from './modules/dates';
 
 
 Vue.use(Vuex);
@@ -28,6 +29,7 @@ export default new Vuex.Store({
         custom_titles,
         moving_event,
         template,
+        dates,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

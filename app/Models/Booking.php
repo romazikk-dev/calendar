@@ -13,7 +13,7 @@ class Booking extends Model
     protected $keyDateArray = null;
     
     protected $guarded = [];
-    protected $appends = ['from','to','date'];
+    protected $appends = ['from','to','date','right_duration'];
     
     // public function getFreeSlots($year, $month, $day){
     //     if(is_null($this->keyDateArray)){
@@ -38,10 +38,20 @@ class Booking extends Model
         return \Carbon\Carbon::parse($this->time)->format('H:i');
     }
     
+    public function getRightDurationAttribute()
+    {
+        return $this->custom_duration ?? $this->templateWithoutUserScope->duration;
+    }
+    
     public function getToAttribute()
     {
-        return \Carbon\Carbon::parse($this->time)->addSeconds(
-            $this->templateWithoutUserScope->duration
+        // var_dump(\Carbon\Carbon::parse($this->time, \Timezone::getCurrentTimezone())->addMinutes(
+        //     $this->custom_duration ?? $this->templateWithoutUserScope->duration
+        // )->format('H:i'));
+        // die();
+        
+        return \Carbon\Carbon::parse($this->time, \Timezone::getCurrentTimezone())->addMinutes(
+            $this->custom_duration ?? $this->templateWithoutUserScope->duration
         )->format('H:i');
     }
     

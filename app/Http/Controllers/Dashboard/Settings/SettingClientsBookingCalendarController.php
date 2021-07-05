@@ -22,6 +22,7 @@ class SettingClientsBookingCalendarController extends Controller
         if($request->isMethod('post')){
             $validated = $request->validate([
                 "max_future_booking_offset" => "required|integer|max:1000",
+                "time_between_events" => "required|integer|max:60",
             ]);
             
             // dd($validated);
@@ -32,6 +33,8 @@ class SettingClientsBookingCalendarController extends Controller
                 'success' => 'Data successfuly saved!'
             ]);
         }
+        
+        // dd($setting->getOrPlaceholder());
         
         return view('dashboard.settings.clients_booking_calendar.main', [
             'setting' => $setting->getOrPlaceholder(),

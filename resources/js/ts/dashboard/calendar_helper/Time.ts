@@ -1,8 +1,34 @@
+declare var moment: any;
+
 export class Time{
   
     // constructor() {
     //     // this.movingEvent = movingEvent;
     // } 
+    
+    // jsWeekdayToIsoWeekday(jsWeekday: number) {
+    //     if(jsWeekday == 0)
+    //         return 7;
+    //     return Number(jsWeekday);
+    // }
+    
+    getEventDate(event: any) {
+        if(event === null || typeof event.time === 'undefined' || event.time === null)
+            return null;
+        let momentDate = moment(event.date, 'YYYY-MM-DD');
+        return momentDate.format('D MMMM YYYY, ddd');
+        // return this.e.year + '-' + this.e.month + '-' + this.e.day;
+    }
+    
+    parseStringHourMinutesToMinutes(hourMinutesStr: string) {
+        let arr, elHours, elMinutes;
+        
+        arr = hourMinutesStr.split(':');
+        elHours = Number(arr[0]);
+        elMinutes = Number(arr[1]);
+        
+        return (elHours * 60) + elMinutes;
+    }
     
     composeHourMinuteTimeFromMinutes(mins: number) {
         // alert(mins);

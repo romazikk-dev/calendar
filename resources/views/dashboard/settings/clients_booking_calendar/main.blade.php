@@ -82,6 +82,35 @@
                     </div>
                 @endif
                 
+                @if(array_key_exists("time_between_events", $setting))
+                    <div class="col col-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <label for="timeBetweenEventsInput">Amount of minutes between events</label>
+                            <input type="number"
+                                name="time_between_events"
+                                class="form-control"
+                                id="timeBetweenEventsInput"
+                                placeholder="Amount of days ..."
+                                value="@php
+                                    if(old('time_between_events') !== null){
+                                        echo old('time_between_events');
+                                    }else{
+                                        if(old('_token')){
+                                            echo '';
+                                        }else{
+                                            echo $setting['time_between_events'];
+                                        }
+                                    }
+                                @endphp">
+                            @if($errors->has('time_between_events'))
+                            <div class="small text-danger">
+                                {{ $errors->first('time_between_events') }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+                
             </div>
         </div>
         @endif

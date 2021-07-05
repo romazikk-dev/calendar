@@ -24,4 +24,8 @@ class Params{
     const PAST_IGNORE = "past_ignore";
     const ONLY_APPROVED = "only_approved";
     const RESTRICT_TO_MAX_DATE = "restrict_to_max_date";
+    const EXCLUDE_IDS = "exclude_ids";
+    const FIRST_ITEMS = "first_items";
+    
+    const EXCLUDE_RANGE_START_AND_END_DATES = "exclude_range_start_and_end_dates";
 }

@@ -396,6 +396,7 @@
         height: 100%;
         background-color: red;
         z-index: 9999;
+        border-radius: 0px 20px 20px 0px;
     }
 
     // fill area

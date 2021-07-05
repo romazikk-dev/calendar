@@ -21,6 +21,10 @@ class BookingsController extends Controller
 {
     public function index(){
         
+        $admins_booking_calendar_main_settings = \Setting::of(SettingKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
+        // dd($admins_booking_calendar_main_settings);
+        
+        // \Time::my();
         // \Getter::of(GetterKeys::BOOKINGS)->my();
         // $range = new Range('01-06-2021', '01-07-2021', 'month');
         // // dd($range);
@@ -127,6 +131,7 @@ class BookingsController extends Controller
             'filters' => null,
             'moving_event' => null,
             'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
+            'calendar_settings' => $admins_booking_calendar_main_settings,
         ];
         
         if(!empty($moving_event)){
@@ -162,8 +167,10 @@ class BookingsController extends Controller
                 }
             }
             
-            if(!empty($output_moving_event))
+            if(!empty($output_moving_event)){
+                $output_moving_event['show'] = !empty($moving_event['show']) && $moving_event['show'] === true ? true : false;
                 $output['moving_event'] = $output_moving_event;
+            }
         }
         
         // dd($output);

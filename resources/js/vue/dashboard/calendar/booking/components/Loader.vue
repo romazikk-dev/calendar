@@ -26,7 +26,7 @@ export default {
         }
     },
     methods: {
-        showTranparent: function (){
+        showTransparent: function (){
             this.transparent = true;
             setTimeout(() => {
                 $(this.$refs['loader']).show();

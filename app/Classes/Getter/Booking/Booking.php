@@ -24,22 +24,27 @@ class Booking extends MainBooking{
     
     public function getValidationRules(array $params = [])
     {
+        $rules_for_all = [
+            'exclude_ids' => 'nullable|array',
+            'exclude_ids.*' => 'nullable|numeric|exists:bookings,id',
+        ];
+        
         if(!empty($params) && !empty($params['type']) && $params['type'] == 'free')
-            return [
+            return array_unique(array_merge($rules_for_all, [
                 'hall' => 'required|integer|exists:halls,id',
                 'worker' => 'required|integer|exists:workers,id',
                 'with' => 'nullable|array',
                 'with.*' => 'nullable|string|max:255',
-            ];
+            ]));
         
-        return [
+        return array_unique(array_merge($rules_for_all, [
             'hall' => 'nullable|integer|exists:halls,id',
             'worker' => 'nullable|integer|exists:workers,id',
             'template' => 'nullable|integer|exists:templates,id',
             'client' => 'nullable|integer|exists:clients,id',
             'with' => 'nullable|array',
             'with.*' => 'nullable|string|max:255',
-        ];
+        ]));
     }
     
     public function all(User $owner, Range $range, array $params = [])

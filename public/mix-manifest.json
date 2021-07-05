@@ -1,23 +1,5 @@
 {
-    "/js/dashboard/timezone-picker.js": "/js/dashboard/timezone-picker.js",
-    "/js/dashboard/time-picker.js": "/js/dashboard/time-picker.js",
-    "/js/dashboard/phone-picker.js": "/js/dashboard/phone-picker.js",
-    "/js/calendar-booking.js": "/js/calendar-booking.js",
-    "/js/calendar-booking-2.js": "/js/calendar-booking-2.js",
     "/js/dashboard/calendar-booking-admin.js": "/js/dashboard/calendar-booking-admin.js",
-    "/js/dashboard/halls/halls-list.js": "/js/dashboard/halls/halls-list.js",
-    "/js/dashboard/template/templates-list.js": "/js/dashboard/template/templates-list.js",
-    "/js/dashboard/client/clients-list.js": "/js/dashboard/client/clients-list.js",
-    "/js/dashboard/worker/workers-list.js": "/js/dashboard/worker/workers-list.js",
-    "/js/dashboard/business-hours.js": "/js/dashboard/business-hours.js",
-    "/js/dashboard/hall-assignment.js": "/js/dashboard/hall-assignment.js",
-    "/js/dashboard/suspension.js": "/js/dashboard/suspension.js",
-    "/js/dashboard/template-assignment.js": "/js/dashboard/template-assignment.js",
-    "/js/dashboard/worker-assignment.js": "/js/dashboard/worker-assignment.js",
-    "/js/dashboard/holidays.js": "/js/dashboard/holidays.js",
-    "/js/dashboard/setting/custom-fields.js": "/js/dashboard/setting/custom-fields.js",
-    "/js/dashboard/setting/specifics-index.js": "/js/dashboard/setting/specifics-index.js",
-    "/js/dashboard/specific-assignment.js": "/js/dashboard/specific-assignment.js",
     "/js/dashboard/ts/calendar-helper.js": "/js/dashboard/ts/calendar-helper.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

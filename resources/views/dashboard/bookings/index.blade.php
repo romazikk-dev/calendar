@@ -15,6 +15,7 @@
             
             // console.log(73737373);
             // console.log(token);
+            var calendarSettings = @json($calendar_settings);
             var owner = @json($owner);
             var halls = @json($halls);
             var templateSpecifics = @json($template_specifics);
@@ -39,6 +40,9 @@
                         booking: {
                             all: '{{ route("dashboard.ajax.booking.get", [":start", ":end"]) }}',
                             byType: '{{ route("dashboard.ajax.booking.get", [":start", ":end", ":type"]) }}',
+                            edit: '{{ route("dashboard.ajax.booking.edit", [":id"]) }}',
+                            approve: '{{ route("dashboard.ajax.booking.approve", [":id"]) }}',
+                            delete: '{{ route("dashboard.ajax.booking.delete", [":id"]) }}',
                         },
                         worker: {
                             get: '{{ route("dashboard.ajax.worker.get") }}',

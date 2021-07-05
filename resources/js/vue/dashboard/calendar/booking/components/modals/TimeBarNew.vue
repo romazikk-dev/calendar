@@ -5,7 +5,6 @@
 
 <template>
     <div>
-        {{stopperWidth}}
         <div class="range-slider grad"
             ref="range_slider"
             :style="{
@@ -48,11 +47,11 @@
             
             // console.log(this.min);
             // console.log(this.max);
-            this.setInputInitValue();
+            // this.setInputInitValue();
             
-            console.log('duration iii');
-            console.log(this.duration);
-            console.log(this.input);
+            // console.log('duration iii');
+            // console.log(this.duration);
+            // console.log(this.input);
         },
         // props: ['start','end','preEnd','startMinutes','endMinutes','preEndMinutes','duration','durationMinutes'],
         props: ['minInMinutes','maxInMinutes','durationInMinutes','durationInSeconds','stopper','showOutput','outputTransparency'],
@@ -107,6 +106,9 @@
             //     // console.log(this.sliderMax);
             //     // console.log(this.sliderThumbWidth);
             // },
+            // inputStrHoursAndMinutesFromBegginingOfDay: function () {
+            //     return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.min + this.input);
+            // },
             inputStrHoursAndMinutes: function () {
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.input);
             },
@@ -134,7 +136,11 @@
             },
         },
         methods: {
+            reset: function (){
+                this.setInputInitValue();
+            },
             setInputInitValue: function (e){
+                // alert('setInputInitValue');
                 if(this.duration === null){
                     this.input = this.min;
                 }else{
@@ -146,12 +152,19 @@
                         this.input = this.duration;
                     }
                 }
+                
+                console.log('duration iii');
+                console.log(this.duration);
+                console.log(this.input);
             },
         },
         components: {
             
         },
         watch: {
+            minInMinutes: function () {
+                this.setInputInitValue();
+            },
             stopper: function (val) {
                 let tillStopper = this.max - this.stopper;
                 if(parseInt(this.input) > parseInt(tillStopper))
@@ -165,8 +178,10 @@
                 }
                 this.$refs.range_slider.style.setProperty('--value', val);
                 this.$refs.range_slider.style.setProperty('--text-value', JSON.stringify((+val).toLocaleString()));
-                // console.log(this.inputStrHoursAndMinutes);
-                this.$emit('change', val);
+                this.$emit('change', {
+                    input: val,
+                    time: this.inputStrHoursAndMinutes,
+                });
             },
     	}
     }

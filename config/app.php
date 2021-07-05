@@ -190,6 +190,7 @@ return [
         App\Providers\TimezoneServiceProvider::class,
         App\Providers\StatisticServiceProvider::class,
         App\Providers\GetterServiceProvider::class,
+        App\Providers\TimeServiceProvider::class,
 
     ],
 
@@ -256,6 +257,7 @@ return [
         'Timezone'   =>  App\Classes\Timezone\TimezoneFacade::class,
         'Statistic'   =>  App\Classes\Statistic\StatisticFacade::class,
         'Getter'   =>  App\Classes\Getter\GetterFacade::class,
+        'Time'   =>  App\Classes\Time\TimeFacade::class,
 
     ],
 

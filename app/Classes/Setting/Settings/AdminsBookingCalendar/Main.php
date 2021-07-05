@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Classes\Setting\Settings;
+namespace App\Classes\Setting\Settings\AdminsBookingCalendar;
 
 // use App\Classes\Enums\Weekdays;
 use App\Classes\Setting\Enums\Keys;
 use App\Classes\Language\Enums\Abriviations;
+use App\Classes\Setting\Settings\Setting;
 
 class Main extends Setting{
     
@@ -69,8 +70,7 @@ class Main extends Setting{
     public function getPlaceholder(){
         return [
             // 'max_future_booking_offset' => (60 * 60 * 24) * 30,
-            'max_future_booking_offset' => 30,
-            'time_between_events' => 5,
+            'month_max_events_per_day_to_show' => 2,
         ];
     }
     

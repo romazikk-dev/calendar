@@ -152,18 +152,25 @@ class FreeSlots extends MainBookingGetter{
                 $start_carbon = \Carbon\Carbon::parse($hall_start_datetime);
                 $end_carbon = \Carbon\Carbon::parse($hall_end_datetime);
                 
+                // var_dump($this->exclude_ids);
+                // die();
+                
                 foreach($booking as $k=>$v){
                     $booking_carbon = \Carbon\Carbon::parse($v->time);
-                    $template_duration = $v->templateWithoutUserScope->duration + 900;
+                    $template_duration = !empty($v->custom_duration) ?
+                        $v->custom_duration : $v->templateWithoutUserScope->duration;
+                    // $template_duration = $v->templateWithoutUserScope->duration + 900;
                     
-                    if($v->approved && $start_carbon->lt($booking_carbon)){
-                        $items[] = [
-                            'type' => 'free',
-                            'from' => $start_carbon->format('H:i'),
-                            'to' => $booking_carbon->format('H:i'),
-                        ];
+                    if($v->approved && $start_carbon->lte($booking_carbon)){
+                        if($start_carbon->lt($booking_carbon)){
+                            $items[] = [
+                                'type' => 'free',
+                                'from' => $start_carbon->format('H:i'),
+                                'to' => $booking_carbon->format('H:i'),
+                            ];
+                        }
                         $start_carbon = clone $booking_carbon;
-                        $start_carbon->addSeconds($template_duration);
+                        $start_carbon->addMinutes($template_duration);
                     }
                 }
                 

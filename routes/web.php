@@ -20,6 +20,7 @@ use App\Http\Controllers\Dashboard\Settings\SettingHallController as DashboardSe
 use App\Http\Controllers\Dashboard\Settings\SettingTemplateController as DashboardSettingTemplateController;
 use App\Http\Controllers\Dashboard\Settings\SettingWorkerController as DashboardSettingWorkerController;
 use App\Http\Controllers\Dashboard\Settings\SettingClientsBookingCalendarController as DashboardSettingClientsBookingCalendarController;
+use App\Http\Controllers\Dashboard\Settings\SettingAdminsBookingCalendarController as DashboardSettingAdminsBookingCalendarController;
 use App\Http\Controllers\Dashboard\Settings\SettingTemporaryMessageController as DashboardSettingTemporaryMessageController;
 
 use App\Http\Controllers\Dashboard\BookingsController as DashboardBookingsController;
@@ -79,7 +80,9 @@ Route::group([
                 'type' => '^(all|free)$',
             ])->name('get');
             
-            Route::get('/edit/{id}', [AjaxBookingController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
+            Route::post('/edit/{booking}', [AjaxBookingController::class, 'edit'])->where('booking', '[0-9]+')->name('edit');
+            Route::post('/approve/{booking}', [AjaxBookingController::class, 'approve'])->where('booking', '[0-9]+')->name('approve');
+            Route::post('/delete/{booking}', [AjaxBookingController::class, 'delete'])->where('booking', '[0-9]+')->name('delete');
             
         });
         
@@ -278,6 +281,16 @@ Route::group([
             Route::match(['get', 'post'], '/languages', [DashboardSettingClientsBookingCalendarController::class, 'languages'])->name('languages');
             Route::match(['get', 'post'], '/custom_titles', [DashboardSettingClientsBookingCalendarController::class, 'customTitles'])->name('custom_titles');
             Route::match(['get', 'post'], '/main', [DashboardSettingClientsBookingCalendarController::class, 'main'])->name('main');
+            
+        });
+        
+        Route::group([
+            'prefix' => '/admins-booking-calendar',
+            'as' => 'admins_booking_calendar.'
+        ], function () {
+            
+            Route::get('/', [DashboardSettingAdminsBookingCalendarController::class, 'index'])->name('index');
+            Route::match(['get', 'post'], '/main', [DashboardSettingAdminsBookingCalendarController::class, 'main'])->name('main');
             
         });
         

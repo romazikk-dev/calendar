@@ -11,6 +11,8 @@ const state = () => ({
         template: calendarHelper.movingE.getItem('picked.template'),
     },
     pickedTime: null,
+    show: calendarHelper.movingE.getItem('show'),
+    // show: false,
     // time: calendarHelper.movingE.getItem('time'),
     // template: calendarBookingHelper.getFilter('template'),
     // worker: calendarBookingHelper.getFilter('worker'),
@@ -19,6 +21,9 @@ const state = () => ({
 
 // getters
 const getters = {
+    show: (state) => {
+        return state.show;
+    },
     all: (state) => {
         return state;
         // return {
@@ -95,10 +100,20 @@ const mutations = {
             template: null,
         }
         state.pickedTime = null;
+        state.show = false;
     },
     setPickedTime: (state, pickedTime) => {
         if(typeof pickedTime !== 'undefined' && pickedTime !== null)
             state.pickedTime = pickedTime;
+    },
+    setShow: (state, newValue) => {
+        if(typeof newValue === 'undefined')
+            return;
+        if(newValue === true){
+            state.show = true;
+        }else{
+            state.show = false;
+        }
     },
     setPicked: (state, picked) => {
         if(typeof picked === 'undefined')
@@ -140,10 +155,15 @@ const actions = {
         this.commit('moving_event/setPickedTime', pickedTime);
         this.dispatch('moving_event/set_cookie');
     },
+    setShow: function(context, value) {
+        this.commit('moving_event/setShow', value);
+        this.dispatch('moving_event/set_cookie');
+    },
     setItems: function(context, items) {
         this.commit('moving_event/setItems', items);
         this.dispatch('moving_event/set_cookie');
         // console.log(this);
+        // console.log(JSON.parse(JSON.stringify(3333333333)));
         // console.log(JSON.parse(JSON.stringify(context)));
     },
     set_cookie: ({state}) => {
@@ -156,6 +176,7 @@ const actions = {
                 template: null,
             },
             pickedTime: null,
+            show: false,
         }
         
         if(state.event !== null && typeof state.event.id !== 'undefined')
@@ -172,6 +193,8 @@ const actions = {
             
         if(state.pickedTime !== null)
             cookieData.pickedTime = state.pickedTime;
+        
+        cookieData.show = state.show === true ? true : false;
         
         if(cookieData.event === null && cookieData.client === null &&
         cookieData.picked.hall === null && cookieData.picked.worker === null && cookieData.picked.template === null){

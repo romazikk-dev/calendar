@@ -15,7 +15,8 @@
                         <div class="alert alert-info alert-arrow" role="alert">
                             <div class="row">
                                 <div class="col-sm-12 col">
-                                    <div>Title: <b>{{currentTemplateFilter.title}}</b></div>
+                                    <div v-if="currentTemplateFilter.title">Title: <b>{{currentTemplateFilter.title}}</b></div>
+                                    <div v-if="currentTemplateFilter.description">Description: <b>{{currentTemplateFilter.description}}</b></div>
                                 </div>
                                 <!-- <div class="col-sm-4 col">
                                     <div class="small" v-html="hintText"></div>
@@ -26,18 +27,11 @@
                         <div v-if="currentTemplateFilter.duration">Duration: <b>{{durationStrHoursAndMinutes}}</b></div>
                         <div class="for-time-bar-fill pb-3">
                             <time-bar-fill ref="time_bar_duration"
+                                :stopper="stopper"
                                 @change="timeBarDurationChange($event)"
                                 :durationInMinutes="duration" />
                         </div>
-                        <div v-if="currentTemplateFilter.description">Description: <b>{{currentTemplateFilter.description}}</b></div>
-                        <div>Time: <b>{{choosenTime}}</b></div>
                         
-                        <time-bar-new ref="time_bar_book"
-                            @change="timeBarBookChange($event)"
-                            :minInMinutes="startPeriodDatetime"
-                            :maxInMinutes="endPeriodDatetime"
-                            :stopper="duration"
-                            :durationInMinutes="duration" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -53,12 +47,12 @@
 </template>
 
 <script>
-    import TimeBar from "./TimeBar.vue";
+    // import TimeBar from "./TimeBar.vue";
     import TimeBarFill from "./TimeBarFill.vue";
-    import TimeBarNew from "./TimeBarNew.vue";
+    // import TimeBarNew from "./TimeBarNew.vue";
     import Loader from "../Loader.vue";
     export default {
-        name: 'modalBookContent',
+        name: 'modalDuration',
         mounted() {
             // if(this.app === null)
             //     this.app = this.getParentComponentByName(this, 'app');
@@ -71,7 +65,6 @@
             
             $("#" + this.modalId).on('show.bs.modal', () => {
                 this.setDuration();
-                this.setChoosenTime();
             });
             
             $("#" + this.modalId).on('shown.bs.modal', () => {
@@ -83,7 +76,6 @@
                 this.$refs['loader'].show();
                 
                 this.$refs.time_bar_duration.reset();
-                this.$refs.time_bar_book.reset();
             });
             
             
@@ -92,9 +84,7 @@
         props: ['bookDate'],
         data: function(){
             return {
-                // app: null,
-                
-                modalId: 'timePickerModal',
+                modalId: 'durationPickerModal',
                 
                 errorResponse: null,
                 
@@ -104,6 +94,21 @@
             };
         },
         computed: {
+            stopper: function () {
+                if(this.event === null || typeof this.event.event === 'undefined' || this.event.event === null ||
+                typeof this.event.nextEvent === 'undefined' || this.event.nextEvent === null)
+                    return null;
+                
+                let eventStartMinutes, nextEventStartMinutes;
+                
+                eventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.event.from);
+                nextEventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.nextEvent.from);
+                
+                // console.log(eventStartMinutes, nextEventStartMinutes);
+                // console.log(nextEventStartMinutes - nextEventStartMinutes);
+                
+                return nextEventStartMinutes - eventStartMinutes;
+            },
             date: function () {
                 if(this.event == null ||
                 typeof this.event.day === 'undefined' || this.event.day === null)
@@ -152,10 +157,10 @@
                     return null;
                     
                 let data = {
-                    hall: this.currentHallFilter.id,
-                    worker: this.currentWorkerFilter.id,
-                    template: this.currentTemplateFilter.id,
-                    time: this.date + ' ' + this.choosenTime + ':00',
+                    // hall: this.currentHallFilter.id,
+                    // worker: this.currentWorkerFilter.id,
+                    // template: this.currentTemplateFilter.id,
+                    // time: this.date + ' ' + this.choosenTime + ':00',
                     duration: this.durationStrHoursAndMinutes,
                 }
                 
@@ -179,6 +184,8 @@
             setDuration: function (e){
                 if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
                 typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
+                    console.log(JSON.parse(JSON.stringify(this.currentTemplateFilter)));
+                    console.log(JSON.parse(JSON.stringify(this.currentEventFilter)));
                     if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null){
                         this.duration = this.currentEventFilter.custom_duration;
                     }else{
@@ -274,9 +281,9 @@
             },
         },
         components: {
-            TimeBar,
+            // TimeBar,
             TimeBarFill,
-            TimeBarNew,
+            // TimeBarNew,
             Loader,
         },
         watch: {
@@ -289,7 +296,7 @@
 </script>
 
 <style scoped>
-    .vue__time-picker, .vue__time-picker input{
+    /* .vue__time-picker, .vue__time-picker input{
         width: 100%!important;
     }
     .modal-body{
@@ -336,5 +343,5 @@
     }
     .small{
         line-height: 1.2em!important;
-    }
+    } */
 </style>

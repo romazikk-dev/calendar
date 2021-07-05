@@ -52,7 +52,7 @@
             console.log(this.view);
             console.log(this.views);
         },
-        props: ['canGoToPrevious','calendarTitle'],
+        props: ['calendarTitle'],
         // props: ['userId','search', 'views','view','startDate','canGoToPrevious'],
         data: function(){
             return {

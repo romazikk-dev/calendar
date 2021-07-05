@@ -60,8 +60,15 @@ window.cookie = require('js-cookie');
 import App from './components/App.vue';
 
 Vue.mixin({
+    mounted: function(){
+        // this.setApp();
+        if(this.isMovingEvent)
+            this.$store.dispatch('moving_event/setShow', true);
+        //     this.showMovingEvent = true;
+    },
     data: function(){
         return {
+            // app: null,
             hoursList: [
                 {
                     hour: '00',
@@ -161,13 +168,63 @@ Vue.mixin({
                 },
             ],
             weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            calendarSettings: calendarSettings,
         };
     },
     computed: {
+        app: function(){
+            return this.$root.$children[0];
+        },
+        calendar: function(){
+            if(this.view.toLowerCase() === 'month' && typeof this.app.$refs.month_calendar !== 'undefined')
+                return this.app.$refs.month_calendar;
+            return null;
+        },
+        showMovingEvent: function () {
+            return this.$store.getters['moving_event/show'];
+        },
+        view: function () {
+            // return 'month';
+            return this.$store.getters['filters/view'];
+        },
+        canGoToPrevious: function(){
+            if(this.view.toLowerCase() == 'month'){
+                return this.$store.getters['dates/canGoToPreviousMonth'];
+            }
+            // alert(this.$store.dispatch('dates/canGoToPrevious'));
+            // return this.$store.dispatch('dates/canGoToPrevious');
+            // return this.$store.getters['dates/canGoToPrevious'];
+            return false;
+        },
+        // Current dates
+        currentDate: function(){
+            return new Date(this.$store.getters['dates/current'].date);
+        },
+        currentYear: function(){
+            return this.$store.getters['dates/current'].year;
+        },
+        currentMonth: function(){
+            return this.$store.getters['dates/current'].month;
+        },
+        currentDay: function(){
+            return this.$store.getters['dates/current'].day;
+        },
+        currentWeekday: function(){
+            return this.$store.getters['dates/current'].weekday;
+        },
+        currentIsoWeekday: function(){
+            return this.$store.getters['dates/current'].isoWeekday;
+        },
         // Current filters
         currentEventFilter: function(){
             if(this.movingEvent !== null)
                 return this.movingEvent;
+            return null;
+        },
+        currentEventFilterDuration: function(){
+            if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
+            typeof this.currentEventFilter.right_duration !== 'undefined' && this.currentEventFilter.right_duration !== null)
+                return this.currentEventFilter.right_duration;
             return null;
         },
         currentHallFilter: function(){
@@ -202,12 +259,21 @@ Vue.mixin({
         movingEventPicked: function(){
             return this.$store.getters['moving_event/picked'];
         },
+        movingEventDuration: function(){
+            if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
+            typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
+                if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null)
+                    return this.currentEventFilter.custom_duration;
+                return this.currentTemplateFilter.duration;
+            }
+            return null;
+        },
         movingEvent: function(){
             return this.$store.getters['moving_event/event'];
         },
         isMovingEvent: function(){
             // return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
-            return this.movingEvent !== null;
+            return typeof this.movingEvent !== 'undefined' && this.movingEvent !== null;
         },
         movingEventClient: function(){
             return this.$store.getters['moving_event/client'];
@@ -223,9 +289,9 @@ Vue.mixin({
             return moment(this.movingEvent.time);
         },
         movingEventDate: function(){
-            if(this.movingEventDateMoment === null)
+            if(this.movingEvent === null)
                 return null;
-            return this.movingEventDateMoment.format('YYYY-MM-DD ddd HH:mm');
+            return calendarHelper.time.getEventDate(this.movingEvent);
         },
         
         // Specifics
@@ -252,6 +318,25 @@ Vue.mixin({
         },
     },
     methods: {
+        getNextEventFromEvents: function (events, event) {
+            let nextEvent = null;
+            let isNext = false;
+            for(let i = 0; i < events.length; i++){
+                if(isNext && events[i].approved == 1){
+                    nextEvent = events[i];
+                    break;
+                }
+                if(event.id == events[i].id){
+                    isNext = true;
+                }
+            }
+            
+            return nextEvent;
+        },
+        setApp: function(){
+            if(this.app === null)
+                this.app = this.$root.$children[0];
+        },
         urlSearchParams: function(as_string = false){
             let urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] :
                 this.$store.getters['filters/urlSearchParams'];
