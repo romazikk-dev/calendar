@@ -12,32 +12,29 @@
                 <div class="modal-body">
                     <loader ref="loader"></loader>            
                     <div>
-                        <div class="alert alert-info alert-arrow" role="alert">
+                        <!-- <div class="alert alert-info alert-arrow" role="alert">
                             <div class="row">
                                 <div class="col-sm-12 col">
                                     <div>Title: <b>{{currentTemplateFilter.title}}</b></div>
                                 </div>
-                                <!-- <div class="col-sm-4 col">
-                                    <div class="small" v-html="hintText"></div>
-                                </div> -->
                             </div>
-                        </div>
+                        </div> -->
                         
-                        <div v-if="currentTemplateFilter.duration">Duration: <b>{{durationStrHoursAndMinutes}}</b></div>
+                        <div>Duration: <b>{{durationStrHoursAndMinutes}}</b></div>
                         <div class="for-time-bar-fill pb-3">
                             <time-bar-fill ref="time_bar_duration"
                                 @change="timeBarDurationChange($event)"
                                 :durationInMinutes="duration" />
                         </div>
-                        <div v-if="currentTemplateFilter.description">Description: <b>{{currentTemplateFilter.description}}</b></div>
+                        <!-- <div v-if="currentTemplateFilter.description">Description: <b>{{currentTemplateFilter.description}}</b></div> -->
                         <div>Time: <b>{{choosenTime}}</b></div>
-                        
                         <time-bar-new ref="time_bar_book"
                             @change="timeBarBookChange($event)"
                             :minInMinutes="startPeriodDatetime"
                             :maxInMinutes="endPeriodDatetime"
                             :stopper="duration"
                             :durationInMinutes="duration" />
+                            
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -176,23 +173,52 @@
                 // console.log(e);
                 this.duration = e;
             },
-            setDuration: function (e){
-                if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
-                typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
-                    if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null){
-                        this.duration = this.currentEventFilter.custom_duration;
+            setDuration: function (){
+                if(this.isNewEventMainFull){
+                    this.duration = this.newEventMain.template.duration
+                }else if(this.isMovingEvent === true){
+                    console.log('this.isMovingEvent === true');
+                    if(this.movingEventIsPickedFull === true && this.movingEventPicked.template.id != this.movingEvent.template_id){
+                        // console.log('this.movingEventIsPickedFull === true');
+                        this.duration = this.movingEventPicked.template.duration;
                     }else{
-                        this.duration = this.currentTemplateFilter.duration;
+                        // console.log('this.movingEventIsPickedFull !== true');
+                        // console.log(JSON.parse(JSON.stringify(this.movingEventPicked)));
+                        this.duration = this.movingEvent.right_duration;
                     }
                 }
+                
+                console.log('setDuration');
+                console.log(this.duration);
+                
+                // if(this.isNewEventMainFull){
+                //     this.duration = this.newEventMain.template.duration
+                // }else if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null){
+                //     this.duration = this.currentEventFilter.right_duration;
+                // }
+                // this.duration = this.event.duration;
+                // if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
+                // typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
+                //     if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null){
+                //         this.duration = this.currentEventFilter.custom_duration;
+                //     }else{
+                //         this.duration = this.currentTemplateFilter.duration;
+                //     }
+                // }
                 // alert(this.duration);
                 // this.$refs.time_bar_duration.reset();
                 // return this.$store.getters['filters/template'];
             },
             show: function (e){
+                // alert(111);
                 console.log(JSON.parse(JSON.stringify(e)));
                 this.event = e;
                 $('#' + this.modalId).modal('show');
+            },
+            hide: function (){
+                // console.log(JSON.parse(JSON.stringify(e)));
+                // this.event = e;
+                $('#' + this.modalId).modal('hide');
             },
             edit: function (){
                 if(this.currentEventFilter === null || this.eventData === null)
@@ -234,9 +260,43 @@
                 });
             },
             book: function (){
+                // if(this.isNewEventFull){
+                if(this.isNewEventMainFull){
+                    this.app.createEvent(this.date, this.choosenTime, this.durationStrHoursAndMinutes).then(() => {
+                        this.$store.dispatch('new_event/reset');
+                        return this.calendar.getData();
+                    }).then(() => {
+                        this.hide();
+                    });
+                }else if(this.isMovingEvent !== null){
+                    // if(this.currentHallFilter === null || this.currentWorkerFilter === null ||
+                    // this.currentTemplateFilter === null)
+                    //     return null;
+                        
+                    // let data = {
+                    //     hall: this.movingEventIsPickedFull ? this.currentHallFilter.id,
+                    //     worker: this.currentWorkerFilter.id,
+                    //     template: this.currentTemplateFilter.id,
+                    //     time: this.date + ' ' + this.choosenTime + ':00',
+                    //     duration: this.durationStrHoursAndMinutes,
+                    // }
+                    
+                    // return data;
+                    // this.app.editEvent(this.movingEvent.id);
+                    // // && this.movingEventIsPickedFull
+                    // console.log(JSON.parse(JSON.stringify(this.movingEventIsPickedFull)));
+                    // let urlSearchParams = this.$store.getters['moving_event/urlSearchParams'];
+                    alert('isMovingEvent');
+                }
+                
+                return;
+                
                 if(this.currentEventFilter === null || this.bookData === null)
                     return;
-                    
+                
+                // alert(111);
+                // return;
+                
                 // let componentApp = this.getParentComponentByName(this, 'app');
                 let data;
                 // this.bookButtonDisabled = true;

@@ -6,6 +6,9 @@
         <div class="pb-3">
             <time-bar-fill @change="" :durationInMinutes="42"/>
         </div> -->
+        
+        <navbar ref="navbar" />
+        
         <navigation :calendar-title="calendarTitle"
             @previous="previous"
             @next="next"
@@ -18,10 +21,14 @@
             ref="move_path_picker" />
         
         <div class="month-calendar">
-            {{showMovingEvent ? 'true' : 'false'}}
-            {{showMovingEvent}}
             <transition name="fade">
-                <moving-event v-if="movedEvent && showMovingEvent"
+                <moving-event-info-box v-if="movedEvent && showMovingEvent"
+                    @close="resetMovedEvent"
+                    @edit="openModalMovePathPicker" />
+            </transition>
+            
+            <transition name="fade">
+                <new-event-info-box v-if="isNewEventMainFull && newEventShow"
                     @close="resetMovedEvent"
                     @edit="openModalMovePathPicker" />
             </transition>
@@ -62,10 +69,12 @@
 </template>
 
 <script>
+    import Navbar from "./Navbar.vue";
     import Navigation from "./Navigation.vue";
     import MonthCell from "./MonthCell.vue";
     import ModalMovePathPicker from "./ModalMovePathPicker.vue";
-    import MonthMovingEvent from "./MonthMovingEvent.vue";
+    import MovingEventInfoBox from "./MovingEventInfoBox.vue";
+    import NewEventInfoBox from "./NewEventInfoBox.vue";
     import ModalMoreEvents from "./modals/ModalMoreEvents.vue";
     
     // import TimeBarFill from "./modals/TimeBarFill.vue";
@@ -83,7 +92,12 @@
         mounted() {
             this.$store.dispatch('dates/setMonthDates', this.startDate);
             
-            if(this.movedEvent !== null){
+            if(this.isNewEventMainFull){
+                this.getData({
+                    type: 'free',
+                    // exclude_ids: [this.movedEvent.id]
+                });
+            }else if(this.movedEvent !== null){
                 // this.getData({type: 'free_time'});
                 // console.log(this.movedEvent);
                 this.getData({exclude_ids: [this.movedEvent.id]});
@@ -205,6 +219,7 @@
                 return dateFirstItem.type == 'booked' ? true : false;
             },
             next: function(){
+                let params = {};
                 // console.log('next');
                 // var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M');
                 // console.log(dateOfNextMonth.toDate());
@@ -212,10 +227,14 @@
                 // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
                 
                 this.$store.dispatch('dates/goNext');
-                this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                this.getData();
+                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+                if(this.isNewEventMainFull === true && this.newEventShow){
+                    params.type = 'free';
+                }
+                this.getData(params);
             },
             previous: function(){
+                let params = {};
                 // if(!this.canGoToPrevious)
                 //     return;
                     
@@ -225,14 +244,20 @@
                 // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
                 
                 this.$store.dispatch('dates/goPrevious');
-                this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                this.getData();
+                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+                if(this.isNewEventMainFull === true && this.newEventShow){
+                    params.type = 'free';
+                }
+                this.getData(params);
             },
             today: function(){
-                
+                let params = {};
+                if(this.isNewEventMainFull === true && this.newEventShow){
+                    params.type = 'free';
+                }
                 this.$store.dispatch('dates/goToday');
-                this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                this.getData();
+                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
+                this.getData(params);
             },
             openModal: function(itm,i,k){
                 // console.log(itm);
@@ -273,38 +298,24 @@
                 return date;
             },
             getData: function(params = null){
-                // alert(this.firstCalendarDate);
-                // return;
-                this.app.getData(
-                    // moment(this.firstCalendarDate).format('DD-MM-YYYY'),
-                    // moment(this.lastCalendarDate).format('DD-MM-YYYY'),
-                    params,
-                    (response) => {
-                        // if(params !== null && typeof params.type !== 'undefined' && params.type == 'free'){
-                        //     this.datesByType = response.data.data;
-                        // }else{
-                        //     this.dates = response.data.data;
-                        // }
-                        
-                        // alert(333);
-                        this.dates = response.data.data;
-                        
-                        // console.log(JSON.parse(JSON.stringify(666666)));
-                        // console.log(JSON.parse(JSON.stringify(this.dates)));
-                    },
-                    () => {},
-                    () => {
-                        $('#cancelBookModal').modal('hide');
-                    },
-                );
+                let startDate = moment(this.$store.getters['dates/interval'].firstDate).format('YYYY-MM-DD');
+                let endDate = moment(this.$store.getters['dates/interval'].lastDate).format('YYYY-MM-DD');
+                
+                return this.app.getData(startDate, endDate, params).then((data) => {
+                    this.dates = data.data;
+                }).finally(() => {
+                    $('#cancelBookModal').modal('hide');
+                });
             },
         },
         components: {
             Navigation,
             MonthCell,
             ModalMovePathPicker,
-            movingEvent: MonthMovingEvent,
+            MovingEventInfoBox,
+            NewEventInfoBox,
             ModalMoreEvents,
+            Navbar
             // TimeBarFill,
             // TimeBarNew,
         },

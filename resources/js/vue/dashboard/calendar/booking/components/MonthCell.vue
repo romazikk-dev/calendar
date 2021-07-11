@@ -27,7 +27,7 @@
         </div>
         <div v-if="items" class="events">
             <ul>
-                <li v-if="item.items && index < maxEventsPerDay" v-for="(itm, index) in items">
+                <li v-if="conditionForItemsIteration(index)" v-for="(itm, index) in items">
                     <template v-if="itm.type == 'free'">
                         
                         <div class='free-slot'>
@@ -46,9 +46,9 @@
                                         class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                                 </div>
                             </div>
-                            <button @click.prevent="chooseFreeClick(itm)"
+                            <button @click.prevent="onClickPickFree(itm)"
                                 type="button"
-                                class="btn btn-link btn-sm btn-block book">Choose</button >
+                                class="btn btn-link btn-sm btn-block book">Pick</button >
                         </div>
                         
                     </template>
@@ -93,11 +93,11 @@
                             {{itm.hall_without_user_scope.title}} -->
                             
                             <actions :itm="itm" :ref="'actions_' + itm.id"
-                                @clickActionMove="clickActionMove(itm)"
-                                @clickActionDuration="clickActionDuration(itm)"
-                                @clickActionDateTime="clickActionDateTime(itm)"
-                                @clickActionApprove="clickActionApprove(itm)"
-                                @clickActionRemove="onActionRemove(itm)"/>
+                                @clickActionMove="onClickActionMove(itm)"
+                                @clickActionDuration="onClickActionDuration(itm)"
+                                @clickActionDateTime="onClickActionDateTime(itm)"
+                                @clickActionApprove="onClickActionApprove(itm)"
+                                @clickActionRemove="onClickActionRemove(itm)"/>
                             
                             <div class="clearfix"></div>
                             <!-- <button @click.prevent="$emit('cancel', itm.booking)"
@@ -107,7 +107,7 @@
                     </template>
                 </li>
             </ul>
-            <div v-if="!showMovingEvent && item.items && item.items.length > maxEventsPerDay"
+            <div v-if="showButtonMore"
                 class="for-show-more-events-btn">
                     <a href="#"
                         @click.prevent="$emit('clickMore', item)"
@@ -146,8 +146,21 @@
             maxEventsPerDay: function () {
                 return this.calendarSettings.month_max_events_per_day_to_show;
             },
+            showButtonMore: function () {
+                return typeof this.item.items !== 'undefined' && Array.isArray(this.item.items) &&
+                this.item.items.length > 0 && this.app.lastGetDataType === 'all' &&
+                this.item.items.length > this.maxEventsPerDay;
+            },
         },
         methods: {
+            conditionForItemsIteration: function (index) {
+                return typeof this.item.items !== 'undefined' && Array.isArray(this.item.items) &&
+                this.item.items.length > 0 &&
+                (
+                    this.app.lastGetDataType === 'free' ||
+                    (this.app.lastGetDataType === 'all' && index < this.maxEventsPerDay )
+                );
+            },
             getNextEvent: function (event) {
                 if(this.items === null)
                     return null;
@@ -166,12 +179,12 @@
                 
                 return nextEvent;
             },
-            clickActionMove: function (event) {
+            onClickActionMove: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
                     this.calendar.$refs.move_path_picker.show();
                 });
             },
-            clickActionDuration: function (event) {
+            onClickActionDuration: function (event) {
                 if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
                     return;
                 
@@ -183,12 +196,15 @@
                     });
                 });
             },
-            clickActionDateTime: function (event) {
+            onClickActionDateTime: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
-                    this.calendar.getData({exclude_ids: [this.movingEvent.id]});
+                    this.calendar.getData({
+                        type: 'free',
+                        exclude_ids: [this.movingEvent.id]
+                    });
                 });
             },
-            clickActionApprove: function (event) {
+            onClickActionApprove: function (event) {
                 if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
                     return;
                 
@@ -204,7 +220,7 @@
                     this.calendar.getData();
                 });
             },
-            onActionRemove: function (e, event) {
+            onClickActionRemove: function (e, event) {
                 alert(111);
             },
             clickActionRemove: function (e, event) {
@@ -241,7 +257,7 @@
             actionDropdownMenuHover: function (e) {
                 $(e.target).closest('.action-drop').find('.drop-toggle').tooltip('hide');
             },
-            chooseFreeClick: function (itm) {
+            onClickPickFree: function (itm) {
                 this.app.showPickTimeModal({
                     day: this.item,
                     item: itm,

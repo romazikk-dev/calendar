@@ -1,27 +1,6 @@
 <template>
     <div>
         
-        <div v-if="movingEventClient" class="alert alert-primary client-info small" role="alert">
-            <div>
-                Client: <b>{{fullName(movingEventClient)}}</b>
-                <template v-if="movingEventClient.email">
-                    <b> - {{movingEventClient.email}}</b>
-                </template>
-            </div>
-            <template v-if="!isPickedItemsChanged">
-                <div>Date: <b>{{movingEventDate}}</b></div>
-                <div>Time: <b>{{movingEvent.from}}</b></div>
-            </template>
-            <b v-else class="badge badge-warning text-left">
-                <template v-if="isAllItemsPicked">
-                    Please choose a time
-                </template>
-                <template v-else>
-                    Please choose all fields and pick a time
-                </template>
-            </b>
-        </div>
-        
         <div id="hallDropdown" class="dropdown dropdown-standart">
             <span>Hall: </span><br>
             <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
@@ -59,7 +38,7 @@
 
             <div class="dropdown-menu">
                 <a @click.prevent="change('worker', itm)" v-for="itm in workers" class="dropdown-item" href="#">
-                    {{fullName(itm)}}
+                    {{fullNameOfObj(itm)}}
                 </a>
             </div>
         </div>
@@ -73,11 +52,13 @@
         name: 'ModalMovePathPicker',
         mounted() {
             // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
-            this.fillFields();
+            // this.fillFields();
         },
         // props: ['movingEvent'],
         data: function(){
             return {
+                fillingData: null,
+                
                 pickedHall: null,
                 pickedWorker: null,
                 pickedTemplate: null,
@@ -89,7 +70,6 @@
             };
         },
         computed: {
-            // Data of picked items (`pickedHall`, `pickedWorker`, `pickedTemplate`)
             isAllItemsPicked: function(){
                 return this.pickedHall !== null && this.pickedWorker !== null &&
                 this.pickedTemplate !== null;
@@ -97,52 +77,33 @@
             isPickedItemsChanged: function(){
                 if(!this.isAllItemsPicked || this.movingEvent === null)
                     return true;
-                    
-                return this.pickedHall.id !== this.movingEvent.hall_id ||
-                this.pickedWorker.id !== this.movingEvent.worker_id ||
-                this.pickedTemplate.id !== this.movingEvent.template_id;
+                
+                return this.pickedHall.id !== this.fillingData.hall_id ||
+                this.pickedWorker.id !== this.fillingData.worker_id ||
+                this.pickedTemplate.id !== this.fillingData.template_id;
             },
             fullPickedWorkerName: function(){
-                let fullName = this.fullName(this.pickedWorker);
+                let fullName = this.fullNameOfObj(this.pickedWorker);
                 return fullName !== null ? fullName : '---';
             },
             isHallPicked: function(){
                 return this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined';
             },
-            // Status of this modal (Shown/Hidden)
-            isShown: function(){
-                return $('#' + this.modalId).hasClass('in');
-            },
         },
         methods: {
-            // close: function(){
-            //     this.$store.commit('moving_event/reset');
-            //     // this.hide();
-            // },
-            // Show free slots to pick time for moving_event
-            // pickTime: function(){
-            setMovingEventPickedItems: function(){
-                if(this.isAllItemsPicked){
-                    this.$store.dispatch('moving_event/setPicked', {
-                        hall: this.pickedHall,
-                        worker: this.pickedWorker,
-                        template: this.pickedTemplate,
-                    });
-                    // this.hide();
-                    // this.$emit('pick_time');
-                }
-            },
-            reset: function(){
+            reset: function(fillFields = true){
                 this.$store.dispatch('moving_event/resetPicked');
                 this.resetPickedItems();
-                this.fillFields();
+                if(fillFields === true)
+                    this.fillFields();
             },
-            setPickedTemplateIdsTrace: function(){
+            setPickedTemplateIdsTrace: function(template){
                 // if(this.movingEventTemplate === null)
-                if(this.pickedTemplate === null)
+                if(typeof template === 'undefined' || template === null)
                     return;
-            
-                let template = JSON.parse(JSON.stringify(this.pickedTemplate));
+                
+                // console.log(JSON.parse(JSON.stringify(template)));
+                // let template = JSON.parse(JSON.stringify(this.pickedTemplate));
                 
                 if(typeof template.specific === 'undefined' || template.specific === null)
                     return;
@@ -156,18 +117,9 @@
                 idsTrace.push(template.id);
             
                 this.pickedTemplateIdsTrace = idsTrace;
-                // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+                // console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace')));
+                // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
             },
-            fullName: function (obj){
-                return calendarHelper.person.fullName(obj);
-            },
-            // show: function (){
-            //     // $('#' + this.modalId).modal('show');
-            //     this.fillFields();
-            // },
-            // hide: function (){
-            //     $('#' + this.modalId).modal('hide');
-            // },
             resetPickedItems: function(items = null){
                 if(items !== null && !Array.isArray(items))
                     return;
@@ -218,7 +170,7 @@
                                 });
                                 this.templates = templates;
                                 // this.pickedHall = itm;
-                                console.log(JSON.parse(JSON.stringify(this.templates)));
+                                // console.log(JSON.parse(JSON.stringify(this.templates)));
                                 
                                 if(callbackResolver !== null)
                                     callbackResolver();
@@ -235,6 +187,7 @@
                         break;
                     case 'template':
                         this.resetPickedItems(['template','worker']);
+                        // this.resetPickedItems(['worker']);
                         if(itm === null)
                             return;
                         
@@ -283,79 +236,50 @@
                 }
                 return item;
             },
-            fillFields: function(){
-                // return;
+            fillFields: function(data = null){
+                if(data !== null)
+                    this.fillingData = data;
+                    
+                let hall, template, worker;
                 let _this = this;
                 
-                if(this.isMovingEvent){
-                    let hall, template, worker;
-                    
-                    this.resetPickedItems();
-                    hall = getItem('hall');
-                    
-                    console.log(JSON.parse(JSON.stringify('hall')));
-                    console.log(JSON.parse(JSON.stringify(hall)));
+                let {hall_id, template_id, worker_id} = this.fillingData;
+                
+                this.resetPickedItems();
+                
+                return new Promise((resolve, reject) => {
+                    if(typeof hall_id === 'undefined' || hall_id === null ||
+                    typeof template_id === 'undefined' || template_id === null ||
+                    typeof worker_id === 'undefined' || worker_id === null)
+                        reject('Not all parameters for filling!');
+                        
+                    hall = _this.getItemById(this.halls, hall_id);
                     
                     if(hall === null)
-                        return;
+                        reject('Hall(`hall_id`) parameter is wrong');
                     
-                    new Promise((resolve, reject) => {
+                    resolve(hall);
+                }).then((hall) => {
+                    return new Promise((resolve, reject) => {
                         this.change('hall', hall, () => resolve());
                     }).then((result) => {
-                        template = getItem('template');
-                        
-                        console.log(JSON.parse(JSON.stringify('template')));
-                        console.log(JSON.parse(JSON.stringify(template)));
+                        template = _this.getItemById(this.templates, template_id);
+                        if(template === null)
+                            reject('Template(`template_id`) parameter is wrong');
                         
                         return new Promise((resolve, reject) => {
                             this.change('template', template, () => {
-                                this.setPickedTemplateIdsTrace();
+                                this.setPickedTemplateIdsTrace(template);
                                 resolve();
                             });
-                            
-                            console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace')));
-                            // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
                         });
                     }).then((result) => {
-                        worker = getItem('worker');
-                        
-                        console.log(JSON.parse(JSON.stringify('worker')));
-                        console.log(JSON.parse(JSON.stringify(worker)));
-                        
+                        worker = _this.getItemById(this.workers, worker_id);
+                        if(worker === null)
+                            reject('Worker(`worker_id`) parameter is wrong');
                         this.change('worker', worker);
                     });
-                }
-                
-                // Returns item one of (`worker`,`hall`,`template`)
-                // depending on filled data in moving_event $store module
-                function getItem(type){
-                    if(!['hall','template','worker'].includes(type))
-                        return null;
-                        
-                    let item, itemId;
-                    
-                    let aliases = {
-                        hall: {
-                            thisItems: 'halls',
-                            movingEventId: 'hall_id'
-                        },
-                        template: {
-                            thisItems: 'templates',
-                            movingEventId: 'template_id'
-                        },
-                        worker: {
-                            thisItems: 'workers',
-                            movingEventId: 'worker_id'
-                        },
-                    }
-                    
-                    if(_this.movingEventIsPickedFull)
-                        item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEventPicked.[type].id);
-                    if(typeof item === 'undefined' || item === null)
-                        item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEvent[aliases[type].movingEventId]);
-                        
-                    return item
-                }
+                });
             },
         },
         components: {

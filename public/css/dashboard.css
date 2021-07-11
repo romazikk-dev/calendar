@@ -15,6 +15,8 @@
 :root {
   --background-opacity: 1;
   --background-color: rgba(0,0,0, var(--background-opacity, 0));
+  --bg-rgb-approved: 114, 51, 128;
+  --bg-rgb-not-approved: 207, 88, 44;
 }
 
 .bg-approved {
@@ -25,8 +27,31 @@
   background-color: #cf582c !important;
 }
 
+/* BUTTONS
+******************************************************************/
+
+.btn-approved {
+  background-color: rgba(var(--bg-rgb-approved), 1) !important;
+  border-color: rgba(var(--bg-rgb-approved), 1) !important;
+  color: white !important;
+}
+
+.btn-approved:focus {
+  box-shadow: 0 0 0 0.2rem rgba(var(--bg-rgb-approved), 0.5) !important;
+}
+
 /* TOOLTIPS
 ******************************************************************/
+
+.tooltip-moving-event-box-edit-btn,
+.tooltip-moving-event-box-close-btn {
+  z-index: 99999 !important;
+}
+
+.tooltip-moving-event-box-info-btn {
+  left: 15px !important;
+  z-index: 99999 !important;
+}
 
 .tooltip-moving-event-info {
   text-align: left;
@@ -503,7 +528,8 @@
   padding: 2px;
 }
 
-.calendar-all-bookings .moving-event-box {
+.calendar-all-bookings .moving-event-box,
+.calendar-all-bookings .new-event-box {
   position: fixed;
   z-index: 99999;
   top: 70%;
@@ -520,15 +546,18 @@
   white-space: nowrap;
 }
 
-.calendar-all-bookings .moving-event-box > .badge {
+.calendar-all-bookings .moving-event-box > .top-title,
+.calendar-all-bookings .new-event-box > .top-title {
   position: absolute;
   top: -10px;
   left: 10px;
   font-size: 11px;
   z-index: 99999;
+  text-align: left;
 }
 
-.calendar-all-bookings .moving-event-box .itemms {
+.calendar-all-bookings .moving-event-box .itemms,
+.calendar-all-bookings .new-event-box .itemms {
   transform: rotate(90deg) translate(0%, -100%);
   transform-origin: 0% 0%;
   position: absolute;
@@ -539,7 +568,8 @@
   border-radius: 6px 0px 0px 0px;
 }
 
-.calendar-all-bookings .moving-event-box .itemms .itemm {
+.calendar-all-bookings .moving-event-box .itemms .itemm,
+.calendar-all-bookings .new-event-box .itemms .itemm {
   list-style: none;
   display: block;
   height: 40px;
@@ -550,14 +580,16 @@
   border: none;
 }
 
-.calendar-all-bookings .moving-event-box .itemms .itemm a {
+.calendar-all-bookings .moving-event-box .itemms .itemm a,
+.calendar-all-bookings .new-event-box .itemms .itemm a {
   display: block;
   width: 100%;
   height: 100%;
   color: white;
 }
 
-.calendar-all-bookings .moving-event-box .itemms .itemm a:hover {
+.calendar-all-bookings .moving-event-box .itemms .itemm a:hover,
+.calendar-all-bookings .new-event-box .itemms .itemm a:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 

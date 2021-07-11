@@ -75,14 +75,21 @@ Route::group([
             
             // Route::get('/get', [AjaxBookingController::class, 'get'])->name('get');
             Route::get('/get/{start}/{end}/{type?}', [AjaxBookingController::class, 'get'])->where([
-                'start' => '\d{2}-\d{2}-\d{4}',
-                'end' => '\d{2}-\d{2}-\d{4}',
+                'start' => '\d{4}-\d{2}-\d{2}',
+                'end' => '\d{4}-\d{2}-\d{2}',
                 'type' => '^(all|free)$',
             ])->name('get');
             
             Route::post('/edit/{booking}', [AjaxBookingController::class, 'edit'])->where('booking', '[0-9]+')->name('edit');
             Route::post('/approve/{booking}', [AjaxBookingController::class, 'approve'])->where('booking', '[0-9]+')->name('approve');
             Route::post('/delete/{booking}', [AjaxBookingController::class, 'delete'])->where('booking', '[0-9]+')->name('delete');
+            
+            Route::post('/create/{client}/{hall}/{template}/{worker}', [AjaxBookingController::class, 'create'])->where([
+                'client' => '\d+',
+                'hall' => '\d+',
+                'template' => '\d+',
+                'worker' => '\d+'
+            ])->name('create');
             
         });
         

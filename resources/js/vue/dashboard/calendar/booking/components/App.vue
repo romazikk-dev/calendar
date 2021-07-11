@@ -3,8 +3,11 @@
         <!-- <filters ref="filters"
                  @change="filterChange($event)"></filters> -->
         
-        {{showCalendar ? 'showCalendar 1' : 'notShowCalendar'}}
-        
+        <!-- <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-sm btn-primary ac">All</button>
+            <button type="button" class="btn btn-sm btn-primary">Middle</button>
+        </div> -->
+         
         <div class="container-fluid">
             <month-calendar v-if="monthView"
                 ref="month_calendar"
@@ -20,7 +23,7 @@
                 :start-date="startDateWeek"></list-calendar>
         </div>
         
-        <time-picker-modal v-if="currentEventFilter" ref="time_picker_modal" />
+        <time-picker-modal ref="time_picker_modal" />
         <modal-duration v-if="currentEventFilter" ref="modal_duration" />
         
     </div>
@@ -68,6 +71,8 @@
                 startDateMonth: new Date(),
                 startDateWeek: new Date(),
                 startDateDay: new Date(),
+                
+                lastGetDataType: null,
             };
         },
         computed: {
@@ -104,24 +109,20 @@
             */
             setMovingEvent: function (event){
                 return new Promise((resolve, reject) => {
-                    this.getClientInfo(event.client_id, (data) => {
-                        if(data === null){
-                            alert('Can`t get client info');
-                            return;
-                        }
-                        resolve(data);
+                    this.getClients(event.client_id).then((clients) => {
+                        if(clients === null)
+                            reject('Can`t get client info');
+                        resolve(clients[0]);
                     });
                 }).then((client) => {
-                    return new Promise((resolve, reject) => {
-                        this.$store.dispatch('moving_event/setItems', {
-                            client: client,
-                            event: event,
-                        });
-                        resolve({
-                            client: client,
-                            event: event,
-                        });
+                    this.$store.dispatch('moving_event/setItems', {
+                        client: client,
+                        event: event,
                     });
+                    return {
+                        client: client,
+                        event: event,
+                    };
                 });
             },
             showModalDuration: function (e){
@@ -202,32 +203,82 @@
             //             // always executed
             //         });
             // },
-            removeEvent: function(id, successCallback = () => {
-                console.log('success');
-            }, errorCallback = () => {
-                console.log('error');
-            }, finalCallback = () => {
-                console.log('final');
-            },){
-                let url;
-                url = new URL(routes.calendar.booking.booking.delete.replace(':id', id));
+            removeEvent: function(id){
+                let url = new URL(routes.calendar.booking.booking.delete.replace(':id', id));
                 
-                axios.post(url.toString())
+                return new Promise((resolve, reject) => {
+                    axios.post(url.toString())
                     .then((response) => {
-                        // let client = null;
-                        // if(typeof response.data.status !== 'undefined' && Array.isArray(response.data.clients) &&
-                        // response.data.clients.length == 1)
-                        //     client = response.data.clients[0];
-                            
-                        successCallback(response.data);
+                        resolve(response.data);
+                    }).catch(function (error) {
+                        // handle error
+                        // console.log(error);
+                        reject(error);
+                    }).then(function () {
+                        // always executed
+                    });
+                });
+            },
+            // removeEvent: function(id, successCallback = () => {
+            //     console.log('success');
+            // }, errorCallback = () => {
+            //     console.log('error');
+            // }, finalCallback = () => {
+            //     console.log('final');
+            // },){
+            //     let url;
+            //     url = new URL(routes.calendar.booking.booking.delete.replace(':id', id));
+            // 
+            //     axios.post(url.toString())
+            //         .then((response) => {
+            //             // let client = null;
+            //             // if(typeof response.data.status !== 'undefined' && Array.isArray(response.data.clients) &&
+            //             // response.data.clients.length == 1)
+            //             //     client = response.data.clients[0];
+            // 
+            //             successCallback(response.data);
+            //         })
+            //         .catch(function (error) {
+            //             // handle error
+            //             // console.log(error);
+            //         })
+            //         .then(function () {
+            //             // always executed
+            //         });
+            // },
+            getClients: function(id = null){
+                let url, urlParams;
+                url = new URL(routes.calendar.booking.client.get);
+                
+                if(id !== null && isNaN(id) && id > 0){
+                    urlParams = new URLSearchParams();
+                    urlParams.append('id', id);
+                    url.search = urlParams;
+                }
+                
+                return new Promise((resolve, reject) => {
+                    axios.get(url.toString())
+                    .then((response) => {
+                        // if(id !== null){
+                        if(typeof response.data.clients !== 'undefined' && Array.isArray(response.data.clients) &&
+                        response.data.clients.length > 0){
+                            // if(response.data.clients.length == 1){
+                            //     resolve(response.data.clients[0]);
+                            // }else{
+                            //     resolve(response.data.clients);
+                            // }
+                            resolve(response.data.clients);
+                        }
                     })
                     .catch(function (error) {
                         // handle error
                         // console.log(error);
+                        reject('No clients');
                     })
                     .then(function () {
                         // always executed
                     });
+                });
             },
             getClientInfo: function(id, successCallback = () => {
                 console.log('success');
@@ -259,15 +310,9 @@
                         // always executed
                     });
             },
-            // getData: function(startDate, endDate, params = null, successCallback = () => {
-            getData: function(params = null, successCallback = () => {
-                console.log('success');
-            }, errorCallback = () => {
-                console.log('error');
-            }, finalCallback = () => {
-                console.log('final');
-            },){
+            getData: function(startDate, endDate, params = null){
                 let _this = this;
+                let lastGetDataType = 'all';
                 // console.log(JSON.parse(JSON.stringify('Params 8888')));
                 console.log(JSON.parse(JSON.stringify(getUrl())));
                 
@@ -278,28 +323,32 @@
                 
                 // this.$store.dispatch('dates/goNext');
                 
-                let startDate = moment(this.$store.getters['dates/interval'].firstDate).format('DD-MM-YYYY');
-                let endDate = moment(this.$store.getters['dates/interval'].lastDate).format('DD-MM-YYYY');
+                // let startDate = moment(this.$store.getters['dates/interval'].firstDate).format('DD-MM-YYYY');
+                // let endDate = moment(this.$store.getters['dates/interval'].lastDate).format('DD-MM-YYYY');
                 
-                axios.get(getUrl())
-                .then((response) => {
-                    // handle success
-                    successCallback(response);
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    // always executed
-                    finalCallback();
+                return new Promise((resolve, reject) => {
+                    axios.get(getUrl())
+                    .then((response) => {
+                        // handle success
+                        resolve(response.data);
+                    }).catch((error) => {
+                        // handle error
+                        reject(error);
+                    }).then(() => {
+                        // always executed
+                        this.lastGetDataType = lastGetDataType;
+                    });
                 });
                 
                 function getUrl(){
                     let url, urlSearchParams;
                     
-                    if(_this.isMovingEvent){
-                        url = routes.calendar.booking.booking.byType.replace(':type', 'free');
+                    // if(_this.isMovingEvent){
+                    if(isParam('type') && ['free','all'].includes(params.type)){
+                        // url = routes.calendar.booking.booking.byType.replace(':type', 'free');
+                        url = routes.calendar.booking.booking.byType.replace(':type', params.type);
+                        if(params.type === 'free')
+                            lastGetDataType = 'free';
                     }else{
                         url = routes.calendar.booking.booking.all;
                     }
@@ -310,7 +359,15 @@
                     url = new URL(url);
                     // console.log(JSON.parse(JSON.stringify('Params 8888')));
                     
-                    urlSearchParams = _this.urlSearchParams();
+                    if(isParam('urlSearchParams')){
+                        urlSearchParams = params.urlSearchParams;
+                    }else{
+                        urlSearchParams = _this.urlSearchParams();
+                    }
+                    
+                    console.log(JSON.parse(JSON.stringify('urlSearchParams')));
+                    console.log(JSON.parse(JSON.stringify(urlSearchParams)));
+                    
                     if(!_this.isMovingEvent){
                         urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
                         urlSearchParams.append("with[]", 'workerWithoutUserScope');
@@ -334,34 +391,157 @@
                     return params !== null && typeof params[param] !== 'undefined' && params[param] !== null;
                 }
             },
-            bookOn: function(bookOnDate, bookOnTime, successCallback = () => {
-                console.log('success');
-            }, errorCallback = () => {
-                console.log('error');
-            }, finalCallback = () => {
-                console.log('final');
-            }){
-                let url = routes.calendar.booking.book.create;
+            // getData: function(startDate, endDate, params = null, successCallback = () => {
+            // getData: function(params = null, successCallback = () => {
+            //     console.log('success');
+            // }, errorCallback = () => {
+            //     console.log('error');
+            // }, finalCallback = () => {
+            //     console.log('final');
+            // },){
+            //     let _this = this;
+            //     // console.log(JSON.parse(JSON.stringify('Params 8888')));
+            //     console.log(JSON.parse(JSON.stringify(getUrl())));
+            // 
+            //     // if(isParam('exceptIds') && Array.isArray(params.exceptIds) && params.exceptIds.length > 0)
+            //     //     for(let i = 0; i < params.exceptIds.length; i++){
+            //     //         urlSearchParams.append("except_ids[]", params.exceptIds[i]);
+            //     //     }
+            // 
+            //     // this.$store.dispatch('dates/goNext');
+            // 
+            //     let startDate = moment(this.$store.getters['dates/interval'].firstDate).format('DD-MM-YYYY');
+            //     let endDate = moment(this.$store.getters['dates/interval'].lastDate).format('DD-MM-YYYY');
+            // 
+            //     axios.get(getUrl())
+            //     .then((response) => {
+            //         // handle success
+            //         successCallback(response);
+            //     })
+            //     .catch(function (error) {
+            //         // handle error
+            //         console.log(error);
+            //     })
+            //     .then(() => {
+            //         // always executed
+            //         finalCallback();
+            //     });
+            // 
+            //     function getUrl(){
+            //         let url, urlSearchParams;
+            // 
+            //         if(_this.isMovingEvent){
+            //             url = routes.calendar.booking.booking.byType.replace(':type', 'free');
+            //         }else{
+            //             url = routes.calendar.booking.booking.all;
+            //         }
+            // 
+            //         url = url.replace(':start', startDate);
+            //         url = url.replace(':end', endDate);
+            // 
+            //         url = new URL(url);
+            //         // console.log(JSON.parse(JSON.stringify('Params 8888')));
+            // 
+            //         urlSearchParams = _this.urlSearchParams();
+            //         if(!_this.isMovingEvent){
+            //             urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
+            //             urlSearchParams.append("with[]", 'workerWithoutUserScope');
+            //             urlSearchParams.append("with[]", 'hallWithoutUserScope');
+            //             urlSearchParams.append("with[]", 'clientWithoutUserScope');
+            //         }else{
+            //             // console.log(params.exceptIds);
+            //             // console.log(isParam('exceptIds'));
+            //             if(isParam('exclude_ids') && Array.isArray(params.exclude_ids) && params.exclude_ids.length > 0)
+            //                 for(let i = 0; i < params.exclude_ids.length; i++){
+            //                     urlSearchParams.append("exclude_ids[]", params.exclude_ids[i]);
+            //                 }
+            //         }
+            // 
+            //         url.search = urlSearchParams;
+            // 
+            //         return url.toString();
+            //     }
+            // 
+            //     function isParam(param){
+            //         return params !== null && typeof params[param] !== 'undefined' && params[param] !== null;
+            //     }
+            // },
+            // bookOn: function(bookOnDate, bookOnTime, successCallback = () => {
+            //     console.log('success');
+            // }, errorCallback = () => {
+            //     console.log('error');
+            // }, finalCallback = () => {
+            //     console.log('final');
+            // }){
+            //     let url = routes.calendar.booking.book.create;
+            // 
+            //     url = url.replace(':hall_id', this.cookieFilters.hall.id);
+            //     url = url.replace(':template_id', this.cookieFilters.template.id);
+            //     url = url.replace(':worker_id', this.cookieFilters.worker.id);
+            // 
+            //     axios.post(url, {
+            //         book_on_date: bookOnDate,
+            //         book_on_time: bookOnTime,
+            //     })
+            //     .then((response) => {
+            //         successCallback(response);
+            // 
+            //         this.$store.commit('updater/increaseCounter');
+            //     })
+            //     .catch(function (error) {
+            //         // handle error
+            //         console.log(error);
+            //     })
+            //     .then(() => {
+            //         finalCallback();
+            //     });
+            // },
+            createEvent: function(date, time, duration){
+                if(!this.isNewEventMainFull || !this.isNewEventClientFull){
+                    console.error('isNewEventMainFull = false || isNewEventClientFull = false in App.createEvent');
+                    return;
+                }
+                // alert(111);
+                // return;
                 
-                url = url.replace(':hall_id', this.cookieFilters.hall.id);
-                url = url.replace(':template_id', this.cookieFilters.template.id);
-                url = url.replace(':worker_id', this.cookieFilters.worker.id);
+                let url = routes.calendar.booking.booking.create;
+                url = url.replace(':client', this.newEventClient.id);
+                url = url.replace(':hall', this.newEventMain.hall.id);
+                url = url.replace(':template', this.newEventMain.template.id);
+                url = url.replace(':worker', this.newEventMain.worker.id);
                 
-                axios.post(url, {
-                    book_on_date: bookOnDate,
-                    book_on_time: bookOnTime,
-                })
-                .then((response) => {
-                    successCallback(response);
-                    
-                    this.$store.commit('updater/increaseCounter');
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    finalCallback();
+                return new Promise((resolve, reject) => {
+                    axios.post(url, {
+                        date: date,
+                        time: time,
+                        duration: duration,
+                    })
+                    .then((response) => {
+                        resolve(response.data);
+                        // this.$store.commit('updater/increaseCounter');
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        reject(error);
+                    });
+                });
+            },
+            editEvent: function(id, data){
+                let url = routes.calendar.booking.booking.edit.replace(':id', id);
+                
+                return new Promise((resolve, reject) => {
+                    axios.post(url, data)
+                    .then((response) => {
+                        resolve(response.data);
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        // console.log(error);
+                        reject(error);
+                    })
+                    .then(() => {
+                        // finalCallback();
+                    });
                 });
             },
             bookEdit: function(bookId, data, successCallback = () => {
@@ -507,7 +687,7 @@
             Filters,
             Loader,
             TimePickerModal,
-            ModalDuration
+            ModalDuration,
         },
         watch: {
             showCalendar: function (val) {

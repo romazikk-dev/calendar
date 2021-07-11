@@ -31,6 +31,15 @@ class Template extends Model
         return $this->belongsTo('App\Models\TemplateSpecifics', 'specific_id', 'id');
     }
     
+    /**
+     * Reference to pivot table.
+     *
+     * @return Model
+     */
+    public function specificWithoutUserScope(){
+        return $this->belongsTo(TemplateSpecifics::class, 'specific_id', 'id')->withoutGlobalScope(UserScope::class);
+    }
+    
     protected $fillable = [
         'user_id',
         'title',

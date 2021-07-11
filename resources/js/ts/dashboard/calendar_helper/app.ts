@@ -2,6 +2,7 @@
 //     return "Hello world!";
 // }
 import { MovingE } from "./MovingE";
+import { NewE } from "./NewE";
 import { Person } from "./Person";
 import { Time } from "./Time";
 // import { View as EnumView } from "./enums/View";
@@ -10,13 +11,15 @@ declare var window: any;
 
 
 class Helper{
-    movingE?: MovingE;
+    movingE?: MovingE; 
+    newE?: NewE;
     person?: Person;
     time?: Time;
     // range: DateRange;
   
     constructor() {
         this.movingE = new MovingE();
+        this.newE = new NewE();
         this.person = new Person();
         this.time = new Time();
         // alert(1111); 

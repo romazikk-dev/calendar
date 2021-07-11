@@ -28,4 +28,7 @@ class Params{
     const FIRST_ITEMS = "first_items";
     
     const EXCLUDE_RANGE_START_AND_END_DATES = "exclude_range_start_and_end_dates";
+    // Includes events that don`t have start date in range
+    // but have duration that crosses a range
+    const ALL_IN_RANGE = "all_in_range";
 }

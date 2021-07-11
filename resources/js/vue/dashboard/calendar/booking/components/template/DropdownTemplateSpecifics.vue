@@ -118,7 +118,7 @@
         watch: {
             pickedTemplateIdsTrace: function(val){
                 if(val === null){
-                    this.pickedParsedTemplate = null;
+                    // this.pickedParsedTemplate = null;
                     this.pickedTemplateIdsTraceWithoutFirstElement = null
                 }else{
                     this.pickItemIfAlreadyPicked();

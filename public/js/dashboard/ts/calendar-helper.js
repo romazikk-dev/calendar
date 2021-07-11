@@ -52,6 +52,56 @@ exports.MovingE = MovingE;
 
 /***/ }),
 
+/***/ "./resources/js/ts/dashboard/calendar_helper/NewE.ts":
+/*!***********************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/NewE.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.NewE = void 0;
+
+var NewE =
+/** @class */
+function () {
+  // range: DateRange;
+  function NewE() {
+    this.newEvent = newEvent;
+  }
+
+  NewE.prototype.parse = function () {// console.log(movingEvent);
+    // console.log(JSON.parse(movingEvent));
+    // console.log(JSON.parse(JSON.stringify(this.movingEvent)));
+  };
+
+  NewE.prototype.getItem = function (item) {
+    if (item === void 0) {
+      item = null;
+    }
+
+    if (item === null || typeof this.newEvent === 'undefined' || this.newEvent === null) return null;
+    item = item.split('.');
+
+    if (item.length === 1) {
+      return typeof this.newEvent[item[0]] !== 'undefined' ? this.newEvent[item[0]] : null;
+    } else if (item.length === 2) {
+      return typeof this.newEvent[item[0]] !== 'undefined' && typeof this.newEvent[item[0]][item[1]] !== 'undefined' ? this.newEvent[item[0]][item[1]] : null;
+    }
+
+    return null;
+  };
+
+  return NewE;
+}();
+
+exports.NewE = NewE;
+
+/***/ }),
+
 /***/ "./resources/js/ts/dashboard/calendar_helper/Person.ts":
 /*!*************************************************************!*\
   !*** ./resources/js/ts/dashboard/calendar_helper/Person.ts ***!
@@ -208,6 +258,8 @@ Object.defineProperty(exports, "__esModule", ({
 
 var MovingE_1 = __webpack_require__(/*! ./MovingE */ "./resources/js/ts/dashboard/calendar_helper/MovingE.ts");
 
+var NewE_1 = __webpack_require__(/*! ./NewE */ "./resources/js/ts/dashboard/calendar_helper/NewE.ts");
+
 var Person_1 = __webpack_require__(/*! ./Person */ "./resources/js/ts/dashboard/calendar_helper/Person.ts");
 
 var Time_1 = __webpack_require__(/*! ./Time */ "./resources/js/ts/dashboard/calendar_helper/Time.ts");
@@ -218,6 +270,7 @@ function () {
   // range: DateRange;
   function Helper() {
     this.movingE = new MovingE_1.MovingE();
+    this.newE = new NewE_1.NewE();
     this.person = new Person_1.Person();
     this.time = new Time_1.Time(); // alert(1111); 
     // this.view = EnumView.MONTH;

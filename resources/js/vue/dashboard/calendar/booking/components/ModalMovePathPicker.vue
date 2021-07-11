@@ -20,76 +20,29 @@
                         </div>
                         <div ref="modal_body" class="modal-body">
                             <loader ref="loader" />
-                            <div class="card-body">
-                                
-                                <div v-if="movingEventClient" class="alert alert-info client-info" role="alert">
-                                    <span class="badge badge-info titt">Client:</span>
-                                    <b>{{fullName(movingEventClient)}}</b><br>
-                                    {{movingEventClient.email ? movingEventClient.email : ''}}<br>
-                                    <div class="small">
-                                        <b v-if="!isPickedItemsChanged">{{movingEventDate}}</b>
-                                        <b v-else class="badge badge-warning text-left">
-                                            <template v-if="isAllItemsPicked">
-                                                Please choose a time
-                                            </template>
-                                            <template v-else>
-                                                Please choose all fields and pick a time
-                                            </template>
-                                        </b>
-                                    </div>
+                            
+                            <div v-if="movingEventClient" class="alert alert-primary client-info small" role="alert">
+                                <div>
+                                    Client: <b>{{fullNameOfObj(movingEventClient)}}</b>
+                                    <template v-if="movingEventClient.email">
+                                        <b> - {{movingEventClient.email}}</b>
+                                    </template>
                                 </div>
-                                
-                                <!-- <a v-if="isPickedItemsChanged"
-                                    @click.prevent="reset()"
-                                    href="#"
-                                    class="btn btn-sm btn-warning btn-reset">
-                                        Reset to initial values
-                                </a> -->
-                                
-                                <div id="hallDropdown" class="dropdown dropdown-standart">
-                                    <span>Hall: </span><br>
-                                    <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
-                                        {{!isHallPicked ? '---' : pickedHall.title}}
-                                    </a>
-                
-                                    <div class="dropdown-menu">
-                                        <template v-if="halls.length">
-                                            <a v-for="itm in halls"
-                                                v-if="!isHallPicked || (isHallPicked && pickedHall.id !== itm.id)"
-                                                @click.prevent="change('hall', itm)"
-                                                class="dropdown-item"
-                                                href="#">{{itm.title}}</a>
-                                        </template>
-                                        <template v-else>
-                                            <div class="small pl-1 pr-1">
-                                                No items to choose ...
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                                
-                                <template-picker :templates="templates"
-                                    :specifics="templateSpecifics"
-                                    :specifics-as-id-key="templateSpecificsAsIdKey"
-                                    :picked-template-ids-trace="pickedTemplateIdsTrace"
-                                    v-if="templateSpecifics"
-                                    @change="change('template', $event)" />
-                                    
-                                <div id="workerDropdown" class="dropdown dropdown-standart">
-                                    <span>Worker:</span><br>
-                                    <a :class="{disabled: !workers}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        {{fullPickedWorkerName}}
-                                    </a>
-                    
-                                    <div class="dropdown-menu">
-                                        <a @click.prevent="change('worker', itm)" v-for="itm in workers" class="dropdown-item" href="#">
-                                            {{fullName(itm)}}
-                                        </a>
-                                    </div>
-                                </div>
-                                
+                                <template v-if="!isPickedItemsChanged">
+                                    <div>Date: <b>{{movingEventDate}}</b></div>
+                                    <div>Time: <b>{{movingEvent.from}}</b></div>
+                                </template>
+                                <b v-else class="badge badge-warning text-left">
+                                    <template v-if="isAllItemsPicked">
+                                        Please choose a time
+                                    </template>
+                                    <template v-else>
+                                        Please choose all fields and pick a time
+                                    </template>
+                                </b>
                             </div>
                             
+                            <edit @change="onChange" ref="edit" />
                         </div>
                         <div class="modal-footer">
                             <!-- <button type="button"
@@ -103,7 +56,6 @@
                                 class="btn btn-sm btn-primary">
                                     Pick time
                             </button>
-                            <!-- <button :disabled="!isAllItemsPicked || !isPickedItemsChanged" type="button" class="btn btn-sm btn-success">Save</button> -->
                             <a v-if="isPickedItemsChanged"
                                 @click.prevent="reset()"
                                 href="#"
@@ -121,53 +73,69 @@
 <script>
     import ExtensiveTemplateFilterPicker from "./template/ExtensiveTemplateFilterPicker.vue";
     import Loader from "./Loader.vue";
+    import Edit from "./event/Edit.vue";
     export default {
         name: 'ModalMovePathPicker',
         mounted() {
             // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
+            this.$nextTick(() => {
+                this.setIsAllItemsPicked();
+            });
         },
-        // props: ['movingEvent'],
+        // props: [],
         data: function(){
             return {
                 modalId: 'pathPickerModal',
                 
-                pickedHall: null,
-                pickedWorker: null,
-                pickedTemplate: null,
-                
-                pickedTemplateIdsTrace: null,
-                
-                workers: null,
-                templates: null,
+                isPickedItemsChanged: false,
+                isAllItemsPicked: false,
             };
         },
         computed: {
-            // Data of picked items (`pickedHall`, `pickedWorker`, `pickedTemplate`)
-            isAllItemsPicked: function(){
-                return this.pickedHall !== null && this.pickedWorker !== null &&
-                this.pickedTemplate !== null;
-            },
-            isPickedItemsChanged: function(){
-                if(!this.isAllItemsPicked || this.movingEvent === null)
-                    return true;
-                    
-                return this.pickedHall.id !== this.movingEvent.hall_id ||
-                this.pickedWorker.id !== this.movingEvent.worker_id ||
-                this.pickedTemplate.id !== this.movingEvent.template_id;
-            },
             fullPickedWorkerName: function(){
                 let fullName = this.fullName(this.pickedWorker);
                 return fullName !== null ? fullName : '---';
             },
-            isHallPicked: function(){
-                return this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined';
-            },
-            // Status of this modal (Shown/Hidden)
             isShown: function(){
                 return $('#' + this.modalId).hasClass('in');
             },
+            fillingData: function(){
+                if(this.movingEventIsPickedFull){
+                    return {
+                        hall_id: this.movingEventPicked.hall.id,
+                        template_id: this.movingEventPicked.template.id,
+                        worker_id: this.movingEventPicked.worker.id,
+                    }
+                }else{
+                    return {
+                        hall_id: this.movingEvent.hall_id,
+                        template_id: this.movingEvent.template_id,
+                        worker_id: this.movingEvent.worker_id,
+                    }
+                }
+            },
         },
         methods: {
+            onChange: function(){
+                this.setIsPickedItemsChanged();
+                this.setIsAllItemsPicked();
+            },
+            setIsPickedItemsChanged: function(){
+                if(typeof this.$refs.edit === 'undefined'){
+                    this.isPickedItemsChanged = false;
+                }else{
+                    this.isPickedItemsChanged = this.$refs.edit.isPickedItemsChanged;
+                }
+            },
+            setIsAllItemsPicked: function(){
+                console.log(JSON.parse(JSON.stringify('setIsAllItemsPicked')));
+                if(typeof this.$refs.edit === 'undefined'){
+                    this.isAllItemsPicked = false;
+                }else{
+                    this.isAllItemsPicked = this.$refs.edit.isAllItemsPicked;
+                }
+                console.log(JSON.parse(JSON.stringify(this.isAllItemsPicked)));
+            },
             close: function(){
                 this.$store.commit('moving_event/reset');
                 this.hide();
@@ -176,161 +144,76 @@
             pickTime: function(){
                 if(this.isAllItemsPicked){
                     this.$store.dispatch('moving_event/setPicked', {
-                        hall: this.pickedHall,
-                        worker: this.pickedWorker,
-                        template: this.pickedTemplate,
+                        hall: this.$refs.edit.pickedHall,
+                        worker: this.$refs.edit.pickedWorker,
+                        template: this.$refs.edit.pickedTemplate,
                     });
-                    this.hide();
-                    this.$emit('pick_time');
+                    
+                    this.calendar.getData({
+                        type: 'free',
+                        exclude_ids: [this.movingEvent.id]
+                    }).then(() => {
+                        this.hide();
+                    });
                 }
             },
             reset: function(){
                 this.showLoader();
-                this.$store.dispatch('moving_event/resetPicked');
-                this.resetPickedItems();
-                this.fillFields();
+                // this.$store.dispatch('moving_event/resetPicked');
+                this.fillFields().then(() => {
+                    this.hideLoader();
+                });
             },
-            setPickedTemplateIdsTrace: function(){
-                // if(this.movingEventTemplate === null)
-                if(this.pickedTemplate === null)
-                    return;
-            
-                let template = JSON.parse(JSON.stringify(this.pickedTemplate));
-                
-                if(typeof template.specific === 'undefined' || template.specific === null)
-                    return;
-            
-                if(typeof template.specific.ids_trace === 'undefined' || template.specific.ids_trace === null)
-                    return [template.specific.id];
-            
-                let idsTraceString = JSON.parse(JSON.stringify(template.specific.ids_trace));
-                let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
-                idsTrace.push(template.specific.id);
-                idsTrace.push(template.id);
-            
-                this.pickedTemplateIdsTrace = idsTrace;
-                // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
-            },
-            fullName: function (obj){
-                return calendarHelper.person.fullName(obj);
-            },
+            // setPickedTemplateIdsTrace: function(){
+            //     // if(this.movingEventTemplate === null)
+            //     if(this.pickedTemplate === null)
+            //         return;
+            // 
+            //     let template = JSON.parse(JSON.stringify(this.pickedTemplate));
+            // 
+            //     if(typeof template.specific === 'undefined' || template.specific === null)
+            //         return;
+            // 
+            //     if(typeof template.specific.ids_trace === 'undefined' || template.specific.ids_trace === null)
+            //         return [template.specific.id];
+            // 
+            //     let idsTraceString = JSON.parse(JSON.stringify(template.specific.ids_trace));
+            //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+            //     idsTrace.push(template.specific.id);
+            //     idsTrace.push(template.id);
+            // 
+            //     this.pickedTemplateIdsTrace = idsTrace;
+            //     // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+            // },
             show: function (){
+                if(!this.isMovingEvent || typeof this.$refs.edit === 'undefined')
+                    return;
+                
                 this.showLoader();
                 $('#' + this.modalId).modal('show');
-                this.fillFields();
+                this.fillFields(true).then(() => {
+                    this.hideLoader(200);
+                });
+            },
+            fillFields: function (useFillingData = false){
+                return new Promise((resolve, reject) => {
+                    if(!this.isMovingEvent)
+                        reject('Moving event not setted');
+                    if(typeof this.$refs.edit === 'undefined')
+                        reject('`edit` component is undefined');
+                    resolve();
+                }).then(() => {
+                    if(useFillingData)
+                        return this.$refs.edit.fillFields(this.fillingData);
+                    return this.$refs.edit.fillFields();
+                });
             },
             hide: function (){
                 $('#' + this.modalId).modal('hide');
             },
-            resetPickedItems: function(items = null){
-                if(items !== null && !Array.isArray(items))
-                    return;
-                
-                if(items === null || items.includes("hall"))
-                    this.pickedHall = null;
-                
-                if(items === null || items.includes("template")){
-                    this.pickedTemplate = null;
-                    this.pickedTemplateIdsTrace = null;
-                }
-                
-                if(items === null || items.includes("worker"))
-                    this.pickedWorker = null;
-            },
-            change: function(type, itm, callbackResolver = null){
-                itm = JSON.parse(JSON.stringify(itm));
-                let url, urlParams;
-                
-                switch(type) {
-                    case 'hall':
-                        if(this.pickedHall !== null && typeof this.pickedHall.id !== 'undefined' &&
-                        parseInt(this.pickedHall.id) ===  parseInt(itm.id))
-                            return;
-                        
-                        this.resetPickedItems();
-                        
-                        url = new URL(routes.calendar.booking.template.get);
-                        urlParams = new URLSearchParams();
-                        urlParams.append('hall_id', itm.id);
-                        url.search = urlParams;
-                        
-                        axios.get(url.toString())
-                            .then((response) => {
-                                this.pickedHall = itm;
-                                if(typeof response.data.templates === 'undefined' ||
-                                response.data.templates === null)
-                                    return;
-                                let templates = [];
-                                response.data.templates.forEach((item, i) => {
-                                    templates.push(item);
-                                });
-                                this.templates = templates;
-                                // this.pickedHall = itm;
-                                console.log(JSON.parse(JSON.stringify(this.templates)));
-                                
-                                if(callbackResolver !== null)
-                                    callbackResolver();
-                            })
-                            .catch(function (error) {
-                                // handle error
-                                console.log(error);
-                            })
-                            .then(function () {
-                                // always executed
-                            });
-                            
-                        break;
-                    case 'template':
-                        this.resetPickedItems(['template','worker']);
-                        if(itm === null)
-                            return;
-                        
-                        url = new URL(routes.calendar.booking.worker.get);
-                        urlParams = new URLSearchParams();
-                        urlParams.append('hall_id', this.pickedHall.id);
-                        urlParams.append('template_id', itm.id);
-                        url.search = urlParams;
-                        
-                        axios.get(url.toString())
-                            .then((response) => {
-                                let workers = [];
-                                response.data.workers.forEach((item, i) => {
-                                    workers.push(item);
-                                });
-                                this.workers = workers;
-                                this.pickedTemplate = itm;
-                                
-                                if(callbackResolver !== null)
-                                    callbackResolver();
-                            })
-                            .catch(function (error) {
-                                // handle error
-                                console.log(error);
-                            })
-                            .then(function () {
-                                // always executed
-                            });
-                            
-                        break;
-                    case 'worker':
-                        this.pickedWorker = (itm ? itm : null);
-                        break;
-                }
-            },
-            getItemById: function(items, id){
-                let item = null;
-                for(let i = 0; i < items.length; i++){
-                    if(typeof items[i].id !== 'undefined' &&
-                    items[i].id == id){
-                        item = items[i];
-                        break;
-                    }
-                }
-                return item;
-            },
             showLoader: function(){
                 $(this.$refs.modal_body).css({'max-weight':'100px'});
-                $(this.$refs.modal_body).find('.card-body').css({'position': 'absolute', 'display': 'none'});
+                // $(this.$refs.modal_body).find('.card-body').css({'position': 'absolute', 'display': 'none'});
                 this.$refs.loader.show();
             },
             hideLoader: function(milliseconds = 0){
@@ -346,152 +229,32 @@
                 
                 function hideLoader(){
                     $(_this.$refs.modal_body).css({'max-weight':'auto'});
-                    $(_this.$refs.modal_body).find('.card-body').css({'position':'relative', 'display': 'block'});
+                    // $(_this.$refs.modal_body).find('.card-body').css({'position':'relative', 'display': 'block'});
                     _this.$refs.loader.fadeOut(300);
-                }
-            },
-            fillFields: function(){
-                // return;
-                let _this = this;
-                
-                if(this.isMovingEvent){
-                    let hall, template, worker;
-                    
-                    this.resetPickedItems();
-                    hall = getItem('hall');
-                    
-                    console.log(JSON.parse(JSON.stringify('hall')));
-                    console.log(JSON.parse(JSON.stringify(hall)));
-                    
-                    if(hall === null)
-                        return;
-                    
-                    new Promise((resolve, reject) => {
-                        this.change('hall', hall, () => resolve());
-                    }).then((result) => {
-                        template = getItem('template');
-                        
-                        console.log(JSON.parse(JSON.stringify('template')));
-                        console.log(JSON.parse(JSON.stringify(template)));
-                        
-                        return new Promise((resolve, reject) => {
-                            this.change('template', template, () => {
-                                this.setPickedTemplateIdsTrace();
-                                resolve();
-                            });
-                            
-                            console.log(JSON.parse(JSON.stringify('pickedTemplateIdsTrace')));
-                            // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
-                        });
-                    }).then((result) => {
-                        worker = getItem('worker');
-                        
-                        console.log(JSON.parse(JSON.stringify('worker')));
-                        console.log(JSON.parse(JSON.stringify(worker)));
-                        
-                        this.change('worker', worker);
-                        this.hideLoader(200);
-                    });
-                }
-                
-                // Returns item one of (`worker`,`hall`,`template`)
-                // depending on filled data in moving_event $store module
-                function getItem(type){
-                    if(!['hall','template','worker'].includes(type))
-                        return null;
-                        
-                    let item, itemId;
-                    
-                    let aliases = {
-                        hall: {
-                            thisItems: 'halls',
-                            movingEventId: 'hall_id'
-                        },
-                        template: {
-                            thisItems: 'templates',
-                            movingEventId: 'template_id'
-                        },
-                        worker: {
-                            thisItems: 'workers',
-                            movingEventId: 'worker_id'
-                        },
-                    }
-                    
-                    if(_this.movingEventIsPickedFull)
-                        item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEventPicked.[type].id);
-                    if(typeof item === 'undefined' || item === null)
-                        item = _this.getItemById(_this[aliases[type].thisItems], _this.movingEvent[aliases[type].movingEventId]);
-                        
-                    return item
                 }
             },
         },
         components: {
             TemplatePicker: ExtensiveTemplateFilterPicker,
             Loader,
+            Edit
         },
         watch: {
-            // movingEvent: function(val){
-            //     // console.log(JSON.parse(JSON.stringify('movingEvent changed')));
-            //     if(val !== null){
-            //         // this.fillFields();
+            // pickedHall: function(val){
+            //     if(val === null){
+            //         this.templates = null;
+            //         this.workers = null;
             //     }
             // },
-            pickedHall: function(val){
-                if(val === null){
-                    this.templates = null;
-                    this.workers = null;
-                }
-            },
-            pickedTemplate: function(val){
-                if(val === null){
-                    this.workers = null;
-                }
-            },
+            // pickedTemplate: function(val){
+            //     if(val === null){
+            //         this.workers = null;
+            //     }
+            // },
         }
     }
 </script>
 
 <style lang="scss" scoped>
-    .modal-body{
-        min-height: 100px;
-    }
-    .card-body{
-        padding: 0px;
-        position: absolute;
-        .btn-reset{
-            width: 100%;
-        }
-        .client-info{
-            position: relative;
-            .titt{
-                position: absolute;
-                top: -10px;
-                left: 14px;
-            }
-        }
-        .dropdown-standart{
-            .dropdown-toggle{
-                width: 100%;
-                text-align: left;
-                position: relative;
-                &::after {
-                    display: inline-block;
-                    margin-left: .255em;
-                    vertical-align: .255em;
-                    content: "";
-                    border-top: .3em solid;
-                    border-right: .3em solid transparent;
-                    border-bottom: 0;
-                    border-left: .3em solid transparent;
-                    position: absolute;
-                    top: 12px;
-                    right: 10px;
-                }
-            }
-            .dropdown-menu{
-                width: 100%;
-            }
-        }
-    }
+    
 </style>

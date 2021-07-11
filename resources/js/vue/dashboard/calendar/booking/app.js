@@ -180,6 +180,11 @@ Vue.mixin({
                 return this.app.$refs.month_calendar;
             return null;
         },
+        navbar: function(){
+            if(this.calendar !== null && typeof this.calendar.$refs.navbar !== 'undefined')
+                return this.calendar.$refs.navbar;
+            return null;
+        },
         showMovingEvent: function () {
             return this.$store.getters['moving_event/show'];
         },
@@ -252,6 +257,35 @@ Vue.mixin({
             return null;
         },
         
+        // New event data of new_event `$store` module
+        isNewEventFull: function(){
+            return this.$store.getters['new_event/isFull'];
+        },
+        isNewEventMainFull: function(){
+            return this.$store.getters['new_event/isMainFull'];
+        },
+        isNewEventClientFull: function(){
+            return this.$store.getters['new_event/isClientFull'];
+        },
+        newEventAll: function(){
+            return this.$store.getters['new_event/all'];
+        },
+        newEventMain: function(){
+            return this.$store.getters['new_event/main'];
+        },
+        newEventMainHall: function(){
+            return this.$store.getters['new_event/main'];
+        },
+        newEventClient: function(){
+            return this.$store.getters['new_event/client'];
+        },
+        newEventShow: function(){
+            return this.$store.getters['new_event/show'];
+        },
+        newEventUrlSearchParamsMain: function(){
+            return this.$store.getters['new_event/urlSearchParamsMain'];
+        },
+        
         // Moving event data of moving_event `$store` module
         movingEventIsPickedFull: function(){
             return this.$store.getters['moving_event/isPickedFull'];
@@ -259,6 +293,9 @@ Vue.mixin({
         movingEventPicked: function(){
             return this.$store.getters['moving_event/picked'];
         },
+        // isMovingEventPickedItemsChanged: function(){
+        //     return this.$store.getters['moving_event/isPickedItemsChanged'];
+        // },
         movingEventDuration: function(){
             if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
             typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
@@ -338,15 +375,30 @@ Vue.mixin({
                 this.app = this.$root.$children[0];
         },
         urlSearchParams: function(as_string = false){
-            let urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] :
-                this.$store.getters['filters/urlSearchParams'];
+            let urlSearchParams;
+            
+            if(this.isNewEventMainFull){
+                urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
+            }else if(this.isMovingEvent){
+                urlSearchParams = this.$store.getters['moving_event/urlSearchParams'];
+            }
             
             urlSearchParams = new URLSearchParams(urlSearchParams);
-                
+            
             if(as_string)
                 return urlSearchParams.toString();
             return urlSearchParams;
         },
+        // urlSearchParams: function(as_string = false){
+        //     let urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] :
+        //         this.$store.getters['filters/urlSearchParams'];
+        // 
+        //     urlSearchParams = new URLSearchParams(urlSearchParams);
+        // 
+        //     if(as_string)
+        //         return urlSearchParams.toString();
+        //     return urlSearchParams;
+        // },
         getParentComponentByName: function (_thisComponent, componentName) {
             let component = null;
             if(_thisComponent.$options.name === componentName)
@@ -394,7 +446,12 @@ Vue.mixin({
             if(timeItemInt < 10)
                 return '0' + timeItemInt;
             return '' + timeItemInt;
-        }
+        },
+        
+        // Person helpers
+        fullNameOfObj: function (obj){
+            return calendarHelper.person.fullName(obj);
+        },
         // showChildren: function () {
         //     // console.log(this.$root.$children[0].$options.name);
         //     console.log(this.$root.$children[0].$options.name);

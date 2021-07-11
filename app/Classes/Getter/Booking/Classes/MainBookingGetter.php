@@ -170,43 +170,92 @@ class MainBookingGetter{
         
         // $exclude_range_start_and_end_dates
         
-        $time_comperison_sign_more = $this->exclude_range_start_and_end_dates === true ? '>' : '>=';
+        // $time_comperison_sign_more = $this->exclude_range_start_and_end_dates === true ? '>' : '>=';
         $time_comperison_sign_less = $this->exclude_range_start_and_end_dates === true ? '<' : '<=';
+        // $time_comperison_sign_more, $time_comperison_sign_less
             
         $booking_model = Booking::where(function($query) use (
-            $start_datetime_carbon, $end_datetime_carbon,
-            $time_comperison_sign_more, $time_comperison_sign_less
+            $start_datetime_carbon, $end_datetime_carbon, $time_comperison_sign_less
         ){
-            $query->where([
-                ['time', $time_comperison_sign_more, $start_datetime_carbon->format('Y-m-d H:i:s')],
-                ['time', $time_comperison_sign_less, $end_datetime_carbon->format('Y-m-d H:i:s')]
-            ])->orWhereHas('templateWithoutUserScope', function ($query) use (
-                $start_datetime_carbon, $end_datetime_carbon,
-                $time_comperison_sign_more, $time_comperison_sign_less
+            
+            $start_datetime = $start_datetime_carbon->format('Y-m-d H:i:s');
+            $end_datetime = $end_datetime_carbon->format('Y-m-d H:i:s');
+            
+            $query->whereHas('templateWithoutUserScope', function ($query) use (
+                $start_datetime, $end_datetime, $time_comperison_sign_less
             ){
                 // return $query->whereRaw(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'));
                 // return $query->select(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'))
-                    return $query->whereRaw(
-                        DB::raw('
-                            ADDTIME(
-                                bookings.time,
-                                SEC_TO_TIME(
-                                    IFNULL(bookings.custom_duration, templates.duration) * 60
-                                )
-                            ) ' . $time_comperison_sign_more . ' "' . $start_datetime_carbon->format('Y-m-d H:i:s') . '"'
-                        )
+                // $start_datetime = $start_datetime_carbon->format('Y-m-d H:i:s');
+                // $end_datetime = $end_datetime_carbon->format('Y-m-d H:i:s')
+                return $query->whereRaw(
+                    DB::raw('
+                        bookings.time <= "' . $start_datetime . '" AND
+                        "' . $start_datetime . '" ' . $time_comperison_sign_less . ' ' .
+                        'ADDTIME(
+                            bookings.time,
+                            SEC_TO_TIME(
+                                IFNULL(bookings.custom_duration, templates.duration) * 60
+                            )
+                        )'
                     )
-                    ->whereRaw(
-                        DB::raw('
-                            ADDTIME(
-                                bookings.time,
-                                SEC_TO_TIME(
-                                    IFNULL(bookings.custom_duration, templates.duration) * 60
-                                )
-                            ) ' . $time_comperison_sign_less . ' "' . $end_datetime_carbon->format('Y-m-d H:i:s') . '"'
-                        )
-                    );
+                )
+                ->orWhereRaw(
+                    DB::raw('
+                        bookings.time ' . $time_comperison_sign_less . ' "' . $end_datetime . '" AND
+                        "' . $end_datetime . '" <= ' .
+                        'ADDTIME(
+                            bookings.time,
+                            SEC_TO_TIME(
+                                IFNULL(bookings.custom_duration, templates.duration) * 60
+                            )
+                        )'
+                    )
+                )
+                ->orWhereRaw(
+                    DB::raw('
+                        "' . $start_datetime . '" < bookings.time AND
+                        "' . $end_datetime . '" > ' .
+                        'ADDTIME(
+                            bookings.time,
+                            SEC_TO_TIME(
+                                IFNULL(bookings.custom_duration, templates.duration) * 60
+                            )
+                        )'
+                    )
+                );
             });
+            
+            // $query->where([
+            //     ['time', $time_comperison_sign_more, $start_datetime_carbon->format('Y-m-d H:i:s')],
+            //     ['time', $time_comperison_sign_less, $end_datetime_carbon->format('Y-m-d H:i:s')]
+            // ])->orWhereHas('templateWithoutUserScope', function ($query) use (
+            //     $start_datetime_carbon, $end_datetime_carbon,
+            //     $time_comperison_sign_more, $time_comperison_sign_less
+            // ){
+            //     // return $query->whereRaw(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'));
+            //     // return $query->select(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'))
+            //         return $query->whereRaw(
+            //             DB::raw('
+            //                 ADDTIME(
+            //                     bookings.time,
+            //                     SEC_TO_TIME(
+            //                         IFNULL(bookings.custom_duration, templates.duration) * 60
+            //                     )
+            //                 ) ' . $time_comperison_sign_more . ' "' . $start_datetime_carbon->format('Y-m-d H:i:s') . '"'
+            //             )
+            //         )
+            //         ->whereRaw(
+            //             DB::raw('
+            //                 ADDTIME(
+            //                     bookings.time,
+            //                     SEC_TO_TIME(
+            //                         IFNULL(bookings.custom_duration, templates.duration) * 60
+            //                     )
+            //                 ) ' . $time_comperison_sign_less . ' "' . $end_datetime_carbon->format('Y-m-d H:i:s') . '"'
+            //             )
+            //         );
+            // });
         });
         
         // $booking_model->with(['templateWithoutUserScope' => function ($query) use ($start_datetime_carbon, $end_datetime_carbon) {
@@ -320,7 +369,10 @@ class MainBookingGetter{
     public function getBookingsAsDateTimeKeyArray(){
         $bookings = $this->composeBookingModel()->get();
         
-        // var_dump($bookings->toArray());
+        // $booking_model = $this->composeBookingModel();
+        // $sql = $booking_model->toSql();
+        // $sql = \Str::replaceArray('?', $booking_model->getBindings(), $booking_model->toSql());
+        // var_dump($sql);
         // die();
     
         if($bookings->isEmpty())

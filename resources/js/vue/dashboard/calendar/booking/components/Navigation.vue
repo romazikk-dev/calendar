@@ -3,12 +3,12 @@
         <div class="navigation">
             
             <div class="left-part float-left">
-                <button @click.prevent="$emit('previous')" type="button" class="btn btn-sm btn-primary float-left" :disabled="!canGoToPrevious">
+                <button @click.prevent="$emit('previous')" type="button" class="btn btn-sm btn-primary float-left go-previous" :disabled="!canGoToPrevious">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
                     </svg>
                 </button>
-                <button @click.prevent="$emit('next')" type="button" class="btn btn-sm btn-primary float-left">
+                <button @click.prevent="$emit('next')" type="button" class="btn btn-sm btn-primary float-left go-next">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
                     </svg>
@@ -104,10 +104,10 @@
         .left-part{
             button{
                 // display: none;
-                &:nth-child(1){
-                    border-radius: .2rem 0 0 .2rem;
+                &.go-previous{
+                    border-radius: .2rem 0 0 .2rem!important;
                 }
-                &:nth-child(2){
+                &.go-next{
                     border-radius: 0 .2rem .2rem 0;
                 }
                 &:nth-child(3){

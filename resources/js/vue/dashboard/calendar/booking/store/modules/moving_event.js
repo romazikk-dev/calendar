@@ -12,11 +12,6 @@ const state = () => ({
     },
     pickedTime: null,
     show: calendarHelper.movingE.getItem('show'),
-    // show: false,
-    // time: calendarHelper.movingE.getItem('time'),
-    // template: calendarBookingHelper.getFilter('template'),
-    // worker: calendarBookingHelper.getFilter('worker'),
-    // urlSearchPath: null,
 });
 
 // getters
@@ -50,6 +45,14 @@ const getters = {
         typeof state.picked.worker !== 'undefined' && state.picked.worker !== null &&
         typeof state.picked.template !== 'undefined' && state.picked.template !== null;
     },
+    // isPickedItemsChanged: (state, getters) => {
+    //     if(getters.pickedHall !== null && )
+    //     if(getters.pickedHall !== null && getters.pickedWorker !== null)
+    //     return getters.pickedHall !== null && getters.pickedHall !== null
+    //     typeof state.picked.hall !== 'undefined' && state.picked.hall !== null &&
+    //     typeof state.picked.worker !== 'undefined' && state.picked.worker !== null &&
+    //     typeof state.picked.template !== 'undefined' && state.picked.template !== null;
+    // },
     pickedHall: (state) => {
         return state.picked.hall;
     },

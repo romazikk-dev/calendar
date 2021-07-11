@@ -197,16 +197,17 @@
                 if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
                     return;
                 
-                // this.toggleActionLoader('action_approve_loader_' + event.id, 'action_approve_btn_' + event.id);
+                $(e.target).closest('.tooltip-active').tooltip('hide');
                 this.$emit('clickActionApprove');
             },
             onActionRemove: function (e, event) {
                 // let _this = this;
-                this.$refs['action_remove_drop_toggle_' + event.id].click(); 
+                this.$refs['action_remove_drop_toggle_' + event.id].click();
+                this.$emit('clickActionRemove', event);
                 // this.toggleActionLoader(true, 'action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
                 
                 // this.$emit.()
-                return;
+                // return;
                 // new Promise((resolve, reject) => {
                 //     this.toggleActionLoader('action_remove_loader_' + event.id, 'action_remove_drop_' + event.id);
                 //     this.app.removeEvent(event.id, (data) => {

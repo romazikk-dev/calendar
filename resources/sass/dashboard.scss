@@ -16,6 +16,9 @@
 :root{
     --background-opacity: 1;
     --background-color: rgba(0,0,0, var(--background-opacity, 0));
+    
+    --bg-rgb-approved: 114, 51, 128;
+    --bg-rgb-not-approved: 207, 88, 44;
 }
 
 .bg-approved{
@@ -25,8 +28,32 @@
     background-color: #cf582c!important;
 }
 
+
+/* BUTTONS
+******************************************************************/
+.btn-approved{
+    background-color: rgba(var(--bg-rgb-approved), 1)!important;
+    border-color: rgba(var(--bg-rgb-approved), 1)!important;
+    color: white!important;
+    &:focus{
+        // background-color: rgba(var(--bg-approved), 0)!important;
+        box-shadow: 0 0 0 0.2rem rgba(var(--bg-rgb-approved), .5)!important;
+    }
+}
+
+
 /* TOOLTIPS
 ******************************************************************/
+.tooltip-moving-event-box-edit-btn,
+.tooltip-moving-event-box-close-btn{
+    // display: none!important;
+    // margin-right: 10px!important;
+    z-index: 99999!important;
+}
+.tooltip-moving-event-box-info-btn{
+    left: 15px!important;
+    z-index: 99999!important;
+}
 .tooltip-moving-event-info{
     text-align: left;
     hr{
@@ -606,7 +633,7 @@
             }
         }
     }
-    .moving-event-box{
+    .moving-event-box, .new-event-box{
         position: fixed;
         z-index: 99999;
         top: 70%;
@@ -626,17 +653,13 @@
         padding-top: 6px;
         font-size: 14px;
         white-space: nowrap;
-        // overflow: hidden;
-        // > span{
-        //     font-size: 10px;
-        //     padding-left: 10px;
-        // }
-        > .badge{
+        > .top-title{
             position: absolute;
             top: -10px;
             left: 10px;
             font-size: 11px;
             z-index: 99999;
+            text-align: left;
         }
         .itemms{
             -webkit-transform: rotate(90deg);
@@ -649,6 +672,7 @@
             transform-origin: 0% 0%;
             // display: none;
             position: absolute;
+            // z-index: 999;
             top: 0px;
             right: 0px;
             margin: 0px!important;

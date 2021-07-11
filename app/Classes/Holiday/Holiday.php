@@ -49,7 +49,7 @@ class Holiday extends MainHoliday{
         $getHolidaysFromArray($hall->holidays, $hall_holidays);
         
         $null_holidays = HolidayModel::where([
-            'user_id' => array_key_exists('user_id', $params) && !empty($params['user_id']) ? $params['user_id'] : $this->user->id,
+            'user_id' => array_key_exists('user_id', $params) && !empty($params['user_id']) ? $params['user_id'] : auth()->user()->id,
             'holidayable_type' => null,
             'holidayable_id' => null,
         ])->get();

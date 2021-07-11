@@ -31,6 +31,7 @@
             // var templates = @@json($templates);
             var filters = @json($filters);
             var movingEvent = @json($moving_event);
+            var newEvent = @json($new_event);
             // console.log(333333333);
             // console.log(filters);
             
@@ -41,6 +42,7 @@
                             all: '{{ route("dashboard.ajax.booking.get", [":start", ":end"]) }}',
                             byType: '{{ route("dashboard.ajax.booking.get", [":start", ":end", ":type"]) }}',
                             edit: '{{ route("dashboard.ajax.booking.edit", [":id"]) }}',
+                            create: '{{ route("dashboard.ajax.booking.create", [":client", ":hall", ":template", ":worker"]) }}',
                             approve: '{{ route("dashboard.ajax.booking.approve", [":id"]) }}',
                             delete: '{{ route("dashboard.ajax.booking.delete", [":id"]) }}',
                         },

@@ -9,8 +9,10 @@ import updater from './modules/updater';
 import specifics from './modules/specifics';
 import custom_titles from './modules/custom_titles';
 import moving_event from './modules/moving_event';
+import new_event from './modules/new_event';
 import template from './modules/template';
 import dates from './modules/dates';
+import navbar from './modules/navbar';
 
 
 Vue.use(Vuex);
@@ -28,8 +30,10 @@ export default new Vuex.Store({
         specifics,
         custom_titles,
         moving_event,
+        new_event,
         template,
         dates,
+        navbar,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

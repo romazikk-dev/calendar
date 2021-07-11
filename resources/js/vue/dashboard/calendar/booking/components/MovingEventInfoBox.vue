@@ -5,7 +5,7 @@
             'bg-approved': event.approved,
             'bg-not-approved': !event.approved,
         }">
-                <div class="badge badge-pill badge-warning">{{bookingTimeOneRow}}</div>
+                <div class="top-title badge badge-pill badge-warning">Edit event: {{bookingTimeOneRow}}</div>
                 {{templateTitle}}<br>
                 {{fullName(client)}}
                 <ul class="itemms text-white" :class="{
@@ -14,6 +14,7 @@
                 }">
                     <li class="itemm tooltip-active"
                         data-placement="left"
+                        data-custom-class="tooltip-moving-event-box-info-btn"
                         :title="'<div class=\'small\'>' + itemmInfoTooltipTitle + '</div>'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -22,6 +23,7 @@
                     </li>
                     <li class="itemm tooltip-active"
                         data-placement="left"
+                        data-custom-class="tooltip-moving-event-box-edit-btn"
                         title="<div class='small'>Edit</div>">
                             <a href="#" @click.prevent="clickEdit($event)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
@@ -31,6 +33,7 @@
                     </li>
                     <li class="itemm tooltip-active"
                         data-placement="left"
+                        data-custom-class="tooltip-moving-event-box-close-btn"
                         title="<div class='small'>Close</div>">
                             <a href="#" @click.prevent="clickClose($event)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
@@ -39,81 +42,6 @@
                             </a>
                     </li>
                 </ul>
-        </div>
-        
-        <div class="alert alert-info client-info d-none" role="alert">
-            <div class="titt">
-                <!-- <span class="badge badge-info">Moving event:</span> -->
-                <b>Moving event</b>
-            </div>
-            <div class="btn-group actts" role="group" aria-label="Basic example">
-               <button @click="$emit('edit')" type="button" class="btn btn-sm btn-primary">Edit</button>
-               <button @click="$emit('close')" type="button" class="btn btn-sm btn-primary">Close</button>
-            </div>
-            <div class="clearfix"></div>
-            <hr />
-            <div class="row">
-                <div class="coll col col-sm-6">
-                    
-                    <div class="d-table info-list">
-                        <div class="d-table-row">
-                            <div class="d-table-cell">
-                                Client:
-                            </div>
-                            <div class="d-table-cell">
-                                <b>{{fullName(client)}}</b>
-                            </div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">
-                                Email:
-                            </div>
-                            <div class="d-table-cell">
-                                <b>{{client.email ? client.email : ''}}</b>
-                            </div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">
-                                Booked on:
-                            </div>
-                            <div class="d-table-cell">
-                                <b>{{bookingTimeOneRow}}</b>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-                <div class="coll col col-sm-6">
-                    
-                    <div class="d-table info-list">
-                        <div class="d-table-row">
-                            <div class="d-table-cell">
-                                Hall:
-                            </div>
-                            <div class="d-table-cell">
-                                <b>{{hallTitle}}</b>
-                            </div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">
-                                Template:
-                            </div>
-                            <div class="d-table-cell">
-                                <b>{{templateTitle}}</b>
-                            </div>
-                        </div>
-                        <div class="d-table-row">
-                            <div class="d-table-cell">
-                                Worker:
-                            </div>
-                            <div class="d-table-cell">
-                                <b>{{workerFullName}}</b>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
         </div>
         
     </div>
@@ -147,7 +75,7 @@
         data: function(){
             return {
                 // dateRange: helper.range.range,
-                componentApp: this.getParentComponentByName(this, 'app'),
+                // componentApp: this.getParentComponentByName(this, 'app'),
             };
         },
         computed: {

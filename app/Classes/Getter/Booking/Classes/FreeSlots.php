@@ -75,6 +75,9 @@ class FreeSlots extends MainBookingGetter{
     public function get(){
         $bookings = $this->getBookingsAsDateTimeKeyArray();
         
+        // var_dump($bookings);
+        // die();
+        
         $start_date_carbon = \Carbon\Carbon::parse($this->range->getStartDate());
         $end_date_carbon = \Carbon\Carbon::parse($this->range->getEndDate());
         
@@ -152,8 +155,10 @@ class FreeSlots extends MainBookingGetter{
                 $start_carbon = \Carbon\Carbon::parse($hall_start_datetime);
                 $end_carbon = \Carbon\Carbon::parse($hall_end_datetime);
                 
-                // var_dump($this->exclude_ids);
+                // var_dump($booking);
                 // die();
+                // $booking_carbon = \Carbon\Carbon::parse($booking[0]->time);
+                // if()
                 
                 foreach($booking as $k=>$v){
                     $booking_carbon = \Carbon\Carbon::parse($v->time);

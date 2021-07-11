@@ -36,7 +36,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button @click.prevent="book"
+                    <button @click.prevent="onClickOkBtn"
                         type="button"
                         class="btn btn-success">Ok</button>
                 </div>
@@ -64,6 +64,8 @@
             // this.setDuration();
             
             $("#" + this.modalId).on('show.bs.modal', () => {
+                // this.$refs.time_bar_duration.reset();
+                // this.$refs['loader'].show();
                 this.setDuration();
             });
             
@@ -72,10 +74,9 @@
             });
             
             $("#" + this.modalId).on('hidden.bs.modal', () => {
-                this.errorResponse = null;
-                this.$refs['loader'].show();
-                
-                this.$refs.time_bar_duration.reset();
+                // this.errorResponse = null;
+                // this.$refs['loader'].show();
+                // this.$refs.time_bar_duration.reset();
             });
             
             
@@ -151,21 +152,6 @@
                 // return '111';
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
             },
-            bookData: function () {
-                if(this.currentHallFilter === null || this.currentWorkerFilter === null ||
-                this.currentTemplateFilter === null)
-                    return null;
-                    
-                let data = {
-                    // hall: this.currentHallFilter.id,
-                    // worker: this.currentWorkerFilter.id,
-                    // template: this.currentTemplateFilter.id,
-                    // time: this.date + ' ' + this.choosenTime + ':00',
-                    duration: this.durationStrHoursAndMinutes,
-                }
-                
-                return data;
-            }
         },
         methods: {
             setChoosenTime: function () {
@@ -181,102 +167,35 @@
                 // console.log(e);
                 this.duration = e;
             },
-            setDuration: function (e){
-                if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
-                typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
-                    console.log(JSON.parse(JSON.stringify(this.currentTemplateFilter)));
-                    console.log(JSON.parse(JSON.stringify(this.currentEventFilter)));
-                    if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null){
-                        this.duration = this.currentEventFilter.custom_duration;
-                    }else{
-                        this.duration = this.currentTemplateFilter.duration;
-                    }
-                }
-                // alert(this.duration);
-                // this.$refs.time_bar_duration.reset();
-                // return this.$store.getters['filters/template'];
+            setDuration: function (){
+                if(this.isMovingEvent)
+                    this.duration = this.movingEvent.right_duration;
             },
             show: function (e){
                 console.log(JSON.parse(JSON.stringify(e)));
                 this.event = e;
                 $('#' + this.modalId).modal('show');
             },
-            edit: function (){
-                if(this.currentEventFilter === null || this.eventData === null)
-                    return;
-                    
-                // let componentApp = this.getParentComponentByName(this, 'app');
-                // let data;
-                // this.bookButtonDisabled = true;
-                this.$refs['loader'].showTransparent();
-                
-                // data = {
-                // 
-                // }
-                
-                this.app.bookEdit(this.currentEventFilter.id, this.bookData, (response) => {
-                    // this.onBooked(response);
-                    // alert(111);
-                    // errorResponse
-                    // let data = response.data;
-                    // if(typeof response.data.error === 'undefined'){
-                    //     setTimeout(() => {
-                    //         this.successfullyBooked = true;
-                    //     }, 300);
-                    // }else{
-                    //     setTimeout(() => {
-                    //         this.errorResponse = response.data.error;
-                    //     }, 300);
-                    // }
-                    console.log(response);
-                }, () => {}, () => {
-                
-                    // console.log('always');
-                    this.$refs['loader'].fadeOut(300);
-                    // setTimeout(() => {
-                    //     // this.successfullyBooked = true;
-                    //     this.bookButtonDisabled = false;
-                    // }, 300);
-                
-                });
+            hide: function (){
+                // console.log(JSON.parse(JSON.stringify(e)));
+                // this.event = e;
+                $('#' + this.modalId).modal('hide');
             },
-            book: function (){
-                if(this.currentEventFilter === null || this.bookData === null)
+            onClickOkBtn: function (){
+                if(!this.isMovingEvent){
+                    console.error('movingEvent not exists, in ModalDuration.edit');
                     return;
-                    
-                // let componentApp = this.getParentComponentByName(this, 'app');
-                let data;
-                // this.bookButtonDisabled = true;
+                }
+                
                 this.$refs['loader'].showTransparent();
                 
-                // data = {
-                // 
-                // }
-                
-                this.app.bookEdit(this.currentEventFilter.id, this.bookData, (response) => {
-                    // this.onBooked(response);
-                    // alert(111);
-                    // errorResponse
-                    // let data = response.data;
-                    // if(typeof response.data.error === 'undefined'){
-                    //     setTimeout(() => {
-                    //         this.successfullyBooked = true;
-                    //     }, 300);
-                    // }else{
-                    //     setTimeout(() => {
-                    //         this.errorResponse = response.data.error;
-                    //     }, 300);
-                    // }
-                    console.log(response);
-                }, () => {}, () => {
-                
-                    // console.log('always');
+                this.app.editEvent(this.movingEvent.id, {
+                    duration: this.durationStrHoursAndMinutes,
+                }).then(() => {
                     this.$refs['loader'].fadeOut(300);
-                    // setTimeout(() => {
-                    //     // this.successfullyBooked = true;
-                    //     this.bookButtonDisabled = false;
-                    // }, 300);
-                
+                    this.hide();
+                    this.$store.dispatch('moving_event/reset');
+                    this.calendar.getData();
                 });
             },
         },
@@ -289,59 +208,11 @@
         watch: {
             // initValue: (newOne, oldOne) => {
             //     console.log(helper.parse(newOne));
-        	// 	// console.log("Title changed from " + newOne + " to " + oldOne)
         	// },
     	}
     }
 </script>
 
 <style scoped>
-    /* .vue__time-picker, .vue__time-picker input{
-        width: 100%!important;
-    }
-    .modal-body{
-        position: relative;
-    }
-    .modal-header, .modal-footer{
-        background-color: #6c757d;
-        color: white;
-    }
-    .modal-header{
-        position: relative;
-    }
-    .close{
-        font-size: 60px;
-        color: #fff;
-        opacity: .7;
-        transition: opacity .3s ease;
-        line-height: .8em;
-        padding: 0px;
-        margin: 0px;
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        height: 60px;
-        width: 60px;
-    }
-    .close span{
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        height: 60px;
-        width: 60px;
-    }
-    .close:hover{
-        color: #fff;
-        opacity: 1!important;
-    }
-    .modal-title{
-        font-weight: normal;
-        color: #f4f4f4;
-    }
-    .modal-title b{
-        color: white;
-    }
-    .small{
-        line-height: 1.2em!important;
-    } */
+    
 </style>

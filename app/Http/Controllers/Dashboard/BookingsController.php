@@ -48,6 +48,7 @@ class BookingsController extends Controller
         
         
         $moving_event = !empty($_COOKIE['moving_event']) ? json_decode($_COOKIE['moving_event'], true) : null;
+        $new_event = !empty($_COOKIE['dashboard_calendar-new_event']) ? json_decode($_COOKIE['dashboard_calendar-new_event'], true) : null;
         
         // dd($moving_event);
         
@@ -130,10 +131,49 @@ class BookingsController extends Controller
             // 'templates' => $templates->toArray(),
             'filters' => null,
             'moving_event' => null,
+            'new_event' => null,
             'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
             'calendar_settings' => $admins_booking_calendar_main_settings,
         ];
         
+        // Set up variable `$new_event` from cookie
+        if(!empty($new_event)){
+            $output_new_event = [];
+            if(!empty($new_event['client']) && is_numeric($new_event['client'])){
+                $output_new_event['client'] = Client::where('id', (int)$new_event['client'])
+                    ->first()->toArray();
+            }
+        
+            if(!empty($new_event['main']) && is_array($new_event['main'])){
+                $main = $new_event['main'];
+                $output_new_event['main'] = [];
+                if(!empty($main['hall']) && is_numeric($main['hall'])){
+                    $output_new_event['main']['hall'] = Hall::where('id', (int)$main['hall'])
+                        ->first()->toArray();
+                }
+                if(!empty($main['worker']) && is_numeric($main['worker'])){
+                    $output_new_event['main']['worker'] = Worker::where('id', (int)$main['worker'])
+                        ->first()->toArray();
+                }
+                if(!empty($main['template']) && is_numeric($main['template'])){
+                    $output_new_event['main']['template'] = Template::where('id', (int)$main['template'])
+                        ->with([
+                            'specificWithoutUserScope',
+                        ])->first()->toArray();
+                }
+            }
+        
+            if(!empty($output_new_event)){
+                $output_new_event['show'] = !empty($new_event['show']) && $new_event['show'] === true ? true : false;
+                $output['new_event'] = $output_new_event;
+            }
+        }
+        
+        // dd($output_new_event);
+        // dd($output);
+        // dd($new_event);
+        
+        // Set up variable `$moving_event` from cookie
         if(!empty($moving_event)){
             $output_moving_event = [];
             if(!empty($moving_event['event']) && is_numeric($moving_event['event'])){
@@ -163,7 +203,9 @@ class BookingsController extends Controller
                 }
                 if(!empty($picked['template']) && is_numeric($picked['template'])){
                     $output_moving_event['picked']['template'] = Template::where('id', (int)$picked['template'])
-                        ->first()->toArray();
+                        ->with([
+                            'specificWithoutUserScope',
+                        ])->first()->toArray();
                 }
             }
             

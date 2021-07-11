@@ -109,10 +109,11 @@
                                     <div class="for-actions">
                                         <actions :itm="itm" :ref="'actions_' + itm.id"
                                             :right-placed="true"
-                                            @clickActionMove="clickActionMove(itm)"
+                                            @clickActionMove="onActionMove(itm)"
                                             @clickActionDuration="clickActionDuration(itm)"
                                             @clickActionDateTime="$emit('clickActionDateTime', itm)"
-                                            @clickActionApprove="clickActionApprove(itm)"/>
+                                            @clickActionApprove="clickActionApprove(itm)"
+                                            @clickActionRemove="onActionRemove(itm)"/>
                                     </div>
                                         
                             </div>
@@ -175,7 +176,8 @@
                             class="btn btn-sm btn-warning">
                                 Reset
                         </button>
-                        <button @click.prevent="$refs.edit.reset()"
+                        <button @click.prevent="applyDurationAndBackToEvents($event)"
+                            v-if="showDurationApplyBtn"
                             :disabled="!showDurationApplyBtn"
                             :class="{
                                 'disabled': !showDurationApplyBtn
@@ -183,7 +185,8 @@
                             class="btn btn-sm btn-primary">
                                 Apply, and back to events
                         </button>
-                        <button @click.prevent="$refs.edit.reset()"
+                        <button @click.prevent="applyDurationAndCloseModal($event)"
+                            v-if="showDurationApplyBtn"
                             :disabled="!showDurationApplyBtn"
                             :class="{
                                 'disabled': !showDurationApplyBtn
@@ -261,6 +264,7 @@
                 // errorResponse: null,
                 
                 e: null,
+                events: null,
                 // choosenTime: null,
                 
                 showEditResetBtn: false,
@@ -272,13 +276,13 @@
             };
         },
         computed: {
-            events: function () {
-                if(this.e === null ||
-                typeof this.e.items === 'undefined' || this.e.items === null ||
-                !Array.isArray(this.e.items) || this.e.items.length == 0)
-                    return null;
-                return this.e.items;
-            },
+            // events: function () {
+            //     if(this.e === null ||
+            //     typeof this.e.items === 'undefined' || this.e.items === null ||
+            //     !Array.isArray(this.e.items) || this.e.items.length == 0)
+            //         return null;
+            //     return this.e.items;
+            // },
             date: function () {
                 if(this.e == null ||
                 typeof this.e.day === 'undefined' || this.e.day === null ||
@@ -289,8 +293,42 @@
                 return momentDate.format('D MMMM YYYY, ddd');
                 // return this.e.year + '-' + this.e.month + '-' + this.e.day;
             },
+            isEDate: function () {
+                if(this.e !== null ||
+                typeof this.e.day !== 'undefined' || this.e.day !== null ||
+                typeof this.e.month !== 'undefined' || this.e.month !== null ||
+                typeof this.e.year !== 'undefined' || this.e.year !== null)
+                    return true;
+                return false;
+            },
         },
         methods: {
+            applyDurationAndBackToEvents: function (e) {
+                if(!this.isMovingEvent)
+                    return false;
+                
+                this.app.editEvent(this.movingEvent.id, {
+                    duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration),
+                }).then((data) => {
+                    this.$store.dispatch('moving_event/reset');
+                    return this.setEvents();
+                }).finally(() => {
+                    this.showTab = 'events';
+                    this.$store.commit('updater/increaseCounter');
+                });
+            },
+            applyDurationAndCloseModal: function (e) {
+                if(!this.isMovingEvent)
+                    return false;
+                
+                this.app.editEvent(this.movingEvent.id, {
+                    duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration),
+                }).then((data) => {
+                    this.$store.dispatch('moving_event/reset');
+                    this.hide(true);
+                    this.$store.commit('updater/increaseCounter');
+                });
+            },
             eventDate: function () {
                 if(this.e == null ||
                 typeof this.e.day === 'undefined' || this.e.day === null ||
@@ -331,12 +369,30 @@
             },
             backToEvents: function () {
                 this.$store.dispatch('moving_event/reset');
-                this.showTab = 'events';
+                // this.showTab = 'events';
+                this.setEvents().finally(() => {
+                    // $('#' + this.modalId).modal('show');
+                    this.showTab = 'events';
+                });
             },
-            clickActionMove: function (event) {
+            onActionMove: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
                     // console.log(JSON.parse(JSON.stringify(event)));
                     this.showTab = 'edit';
+                });
+            },
+            clickActionApprove: function (event) {
+                this.app.approveEvent(event.id).then((data) => {
+                    return this.setEvents();
+                }).finally(() => {
+                    this.$store.commit('updater/increaseCounter');
+                });
+            },
+            onActionRemove: function (event) {
+                this.app.removeEvent(event.id).then((data) => {
+                    return this.setEvents();
+                }).finally(() => {
+                    this.$store.commit('updater/increaseCounter');
                 });
             },
             clickActionDuration: function (event) {
@@ -354,10 +410,30 @@
             durationStrHoursAndMinutes: function (event) {
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(event.right_duration);
             },
+            setEvents: function (){
+                return new Promise((resolve, reject) => {
+                    if(this.isEDate){
+                        let date = this.e.year + '-' + this.e.month + '-' + this.e.day;
+                        this.app.getData(date, date, {
+                            type: 'all'
+                        }).then((data) => {
+                            // console.log(JSON.parse(JSON.stringify(data)));
+                            // console.log(JSON.parse(JSON.stringify(data.data[0].items)));
+                            this.events = data.data[0].items;
+                            resolve();
+                        });
+                    }else{
+                        this.events = null;
+                        reject();
+                    }
+                });
+            },
             show: function (e){
-                // console.log(JSON.parse(JSON.stringify(e)));
+                console.log(JSON.parse(JSON.stringify(e)));
                 this.e = e;
-                $('#' + this.modalId).modal('show');
+                this.setEvents().finally(() => {
+                    $('#' + this.modalId).modal('show');
+                });
             },
             hide: function (resetMovingEvent = true){
                 $('#' + this.modalId).modal('hide');
