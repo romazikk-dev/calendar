@@ -79,16 +79,16 @@ class Nav{
                 "includes" => true,
                 'route' => route('dashboard.settings.template.index'),
                 'items' => [
+                    // Keys::TEMPLATE_MAIN => [
+                    //     'title' => 'Main',
+                    //     'route' => route('dashboard.settings.template.main'),
+                    //     'route_name' => 'dashboard.settings.template.main',
+                    // ],
                     Keys::TEMPLATE_SPECIFICS => [
                         'title' => 'Specifics',
                         'route' => route('dashboard.settings.template.specifics'),
                         'route_name' => 'dashboard.settings.template.specifics',
                     ],
-                    // Keys::HALL_HOLIDAYS_FOR_ALL => [
-                    //     'title' => 'Holidays for all halls',
-                    //     'route' => route('dashboard.settings.hall.holidays'),
-                    //     'route_name' => 'dashboard.settings.hall.holidays',
-                    // ],
                 ]
             ],
             "clients_booking_calendar" => [

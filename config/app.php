@@ -191,6 +191,10 @@ return [
         App\Providers\StatisticServiceProvider::class,
         App\Providers\GetterServiceProvider::class,
         App\Providers\TimeServiceProvider::class,
+        App\Providers\DurationRangeServiceProvider::class,
+        App\Providers\FilterServiceProvider::class,
+        App\Providers\HelperServiceProvider::class,
+        App\Providers\CalendarServiceProvider::class,
 
     ],
 
@@ -258,6 +262,10 @@ return [
         'Statistic'   =>  App\Classes\Statistic\StatisticFacade::class,
         'Getter'   =>  App\Classes\Getter\GetterFacade::class,
         'Time'   =>  App\Classes\Time\TimeFacade::class,
+        'DurationRange'   =>  App\Classes\DurationRange\DurationRangeFacade::class,
+        'Filter'   =>  App\Classes\Filter\FilterFacade::class,
+        'Helper'   =>  App\Classes\Helper\HelperFacade::class,
+        'Calendar'   =>  App\Classes\Calendar\CalendarFacade::class,
 
     ],
 

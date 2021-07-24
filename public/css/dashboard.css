@@ -40,6 +40,46 @@
   box-shadow: 0 0 0 0.2rem rgba(var(--bg-rgb-approved), 0.5) !important;
 }
 
+.btn-secondary-custom {
+  background-color: rgba(108, 117, 125, 0.5) !important;
+  color: white !important;
+}
+
+.btn-secondary-custom:focus {
+  border-color: rgba(84, 91, 98, 0.3) !important;
+  box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.3) !important;
+}
+
+.btn-info-custom {
+  background-color: rgba(19, 132, 150, 0.8) !important;
+  color: white !important;
+}
+
+.btn-info-custom:focus {
+  border-color: rgba(17, 122, 139, 0.2) !important;
+  box-shadow: 0 0 0 0.2rem rgba(58, 176, 195, 0.3) !important;
+}
+
+.btn-success-custom {
+  background-color: rgba(40, 167, 69, 0.8) !important;
+  color: white !important;
+}
+
+.btn-success-custom:focus {
+  border-color: rgba(30, 126, 52, 0.2) !important;
+  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.3) !important;
+}
+
+.for-show-more-events-btn {
+  padding-right: 4px;
+  padding-bottom: 6px;
+}
+
+.for-show-more-events-btn .show-more-events-btn {
+  float: right;
+  font-size: 12px !important;
+}
+
 /* TOOLTIPS
 ******************************************************************/
 
@@ -85,7 +125,15 @@
 }
 
 @media all and (max-width: 1000px) {
-  .calendar-all-bookings {
+  .calendar-all-bookings .month-calendar,
+  .calendar-all-bookings .week-calendar {
+    --calendar-event-item-title-display: none;
+  }
+}
+
+@media all and (max-width: 350px) {
+  .calendar-all-bookings .day-calendar,
+  .calendar-all-bookings .list-calendar {
     --calendar-event-item-title-display: none;
   }
 }
@@ -129,6 +177,44 @@
 .modal-counters ul li span.badge-counter-not-approved {
   background-color: #cf582c;
   color: white;
+}
+
+/* MODAL FILTERS
+******************************************************************/
+
+.modal-filters .modal-header .btn-group .btn:first-child,
+.modal-filters .modal-body .btn-group .btn:first-child,
+.modal-filters .modal-footer .btn-group .btn:first-child {
+  border-radius: 3px 0px 0px 3px !important;
+}
+
+.modal-filters .modal-header .btn-group .btn:last-child,
+.modal-filters .modal-body .btn-group .btn:last-child,
+.modal-filters .modal-footer .btn-group .btn:last-child {
+  border-radius: 0px 3px 3px 0px !important;
+}
+
+.modal-filters .modal-header .btn-group .btn:only-child,
+.modal-filters .modal-body .btn-group .btn:only-child,
+.modal-filters .modal-footer .btn-group .btn:only-child {
+  border-radius: 3px 3px 3px 3px !important;
+}
+
+.modal-filters .modal-body .filter-block {
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s ease;
+}
+
+.modal-filters .modal-body .filter-block:hover {
+  box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.3);
+}
+
+.modal-filters .modal-body .filter-block:last-child {
+  margin-bottom: 0px;
+}
+
+.modal-filters .modal-body .filter-block:only-child {
+  margin-bottom: 16px;
 }
 
 /* MODAL MORE EVENTS
@@ -327,6 +413,17 @@
   top: -2px;
 }
 
+.event-actions .action-drop .dropdown-menu .action-date-time-current-day {
+  line-height: 14px !important;
+}
+
+.event-actions .action-drop .dropdown-menu .action-date-time-current-day .dropdown-item {
+  display: block !important;
+  padding-top: 5px !important;
+  padding-bottom: 3px !important;
+  line-height: 14px !important;
+}
+
 .calendar-all-bookings .for-closed-slot {
   padding-left: 30px;
   padding-right: 4px;
@@ -347,39 +444,65 @@
   margin-bottom: 6px;
 }
 
-.calendar-all-bookings .month-calendar {
-  padding-top: 10px !important;
+.calendar-all-bookings .cell-placeholder {
+  min-height: 85px !important;
+}
+
+.calendar-all-bookings .month-calendar,
+.calendar-all-bookings .week-calendar {
   min-width: 800px;
 }
 
-.calendar-all-bookings .month-calendar table {
+.calendar-all-bookings .month-calendar,
+.calendar-all-bookings .week-calendar,
+.calendar-all-bookings .day-calendar {
+  padding-top: 10px !important;
+}
+
+.calendar-all-bookings .month-calendar table,
+.calendar-all-bookings .week-calendar table,
+.calendar-all-bookings .day-calendar table {
   width: 100%;
 }
 
 .calendar-all-bookings .month-calendar table td,
-.calendar-all-bookings .month-calendar table th {
+.calendar-all-bookings .month-calendar table th,
+.calendar-all-bookings .week-calendar table td,
+.calendar-all-bookings .week-calendar table th,
+.calendar-all-bookings .day-calendar table td,
+.calendar-all-bookings .day-calendar table th {
   border: 1px solid #ccc;
 }
 
-.calendar-all-bookings .month-calendar table th {
+.calendar-all-bookings .month-calendar table th,
+.calendar-all-bookings .week-calendar table th,
+.calendar-all-bookings .day-calendar table th {
   text-align: center;
 }
 
-.calendar-all-bookings .month-calendar table td {
+.calendar-all-bookings .month-calendar table td,
+.calendar-all-bookings .week-calendar table td,
+.calendar-all-bookings .day-calendar table td {
   width: 14.25%;
   vertical-align: top;
 }
 
-.calendar-all-bookings .month-calendar table td:hover .counters {
+.calendar-all-bookings .month-calendar table td:hover .counters,
+.calendar-all-bookings .week-calendar table td:hover .counters,
+.calendar-all-bookings .day-calendar table td:hover .counters {
   opacity: 1;
 }
 
-.calendar-all-bookings .month-calendar table td .cell-content {
+.calendar-all-bookings .month-calendar table td .cell-content,
+.calendar-all-bookings .week-calendar table td .cell-content,
+.calendar-all-bookings .day-calendar table td .cell-content {
   min-height: 80px !important;
   position: relative;
 }
 
-.calendar-all-bookings .month-calendar table td .cell-content .day {
+.calendar-all-bookings .month-calendar table td .cell-content .day,
+.calendar-all-bookings .week-calendar table td .cell-content .day,
+.calendar-all-bookings .day-calendar table td .cell-content .day {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -390,94 +513,139 @@
   color: white;
 }
 
-.calendar-all-bookings .month-calendar table td .cell-content .day.not-period {
+.calendar-all-bookings .month-calendar table td .cell-content .day.not-period,
+.calendar-all-bookings .week-calendar table td .cell-content .day.not-period,
+.calendar-all-bookings .day-calendar table td .cell-content .day.not-period {
   opacity: 0.5;
 }
 
-.calendar-all-bookings .month-calendar table tr.divider td {
+.calendar-all-bookings .month-calendar table tr.divider td,
+.calendar-all-bookings .week-calendar table tr.divider td,
+.calendar-all-bookings .day-calendar table tr.divider td {
   height: 10px;
   background-color: #6c757d;
 }
 
-.calendar-all-bookings .month-calendar .day.not-period {
+.calendar-all-bookings .month-calendar .day.not-period,
+.calendar-all-bookings .week-calendar .day.not-period,
+.calendar-all-bookings .day-calendar .day.not-period {
   color: #999;
 }
 
-.calendar-all-bookings .month-calendar .current-day {
+.calendar-all-bookings .month-calendar .current-day,
+.calendar-all-bookings .week-calendar .current-day,
+.calendar-all-bookings .day-calendar .current-day {
   background-color: rgba(8, 232, 222, 0.3);
 }
 
-.calendar-all-bookings .month-calendar .booking {
+.calendar-all-bookings .month-calendar .booking,
+.calendar-all-bookings .week-calendar .booking,
+.calendar-all-bookings .day-calendar .booking {
   position: absolute;
   bottom: 0px;
   right: 0px;
 }
 
-.calendar-all-bookings .month-calendar .counters {
+.calendar-all-bookings .month-calendar .counters,
+.calendar-all-bookings .week-calendar .counters,
+.calendar-all-bookings .day-calendar .counters {
+  --counters-font-size: 12px;
+  --counters-padding-top: 26px;
+  --counters-padding-left: 4px;
+  --counters-line-height: 14px;
+  --counters-opacity: .4;
   width: 26px;
-  float: left;
-  font-size: 12px;
-  padding-top: 26px;
-  padding-left: 4px;
-  line-height: 14px;
-  opacity: 0.4;
+  position: absolute;
+  font-size: var(--counters-font-size, 12px);
+  padding-top: var(--counters-padding-top, 26px);
+  padding-left: var(--counters-padding-left, 4px);
+  line-height: var(--counters-line-height, 14px);
+  opacity: var(--counters-opacity, 0.4);
   transition: opacity 0.3s ease;
 }
 
-.calendar-all-bookings .month-calendar .counters ul {
+.calendar-all-bookings .month-calendar .counters.counters-to-top,
+.calendar-all-bookings .week-calendar .counters.counters-to-top,
+.calendar-all-bookings .day-calendar .counters.counters-to-top {
+  --counters-padding-top: 4px;
+}
+
+.calendar-all-bookings .month-calendar .counters.counters-dis-transparency,
+.calendar-all-bookings .week-calendar .counters.counters-dis-transparency,
+.calendar-all-bookings .day-calendar .counters.counters-dis-transparency {
+  --counters-opacity: 1;
+}
+
+.calendar-all-bookings .month-calendar .counters.counters-bigger,
+.calendar-all-bookings .week-calendar .counters.counters-bigger,
+.calendar-all-bookings .day-calendar .counters.counters-bigger {
+  --counters-font-size: 18px;
+  --counters-line-height: 20px;
+  --counters-padding-left: 2px;
+}
+
+.calendar-all-bookings .month-calendar .counters ul,
+.calendar-all-bookings .week-calendar .counters ul,
+.calendar-all-bookings .day-calendar .counters ul {
   padding: 0px;
   margin: 0px;
 }
 
-.calendar-all-bookings .month-calendar .counters ul li {
+.calendar-all-bookings .month-calendar .counters ul li,
+.calendar-all-bookings .week-calendar .counters ul li,
+.calendar-all-bookings .day-calendar .counters ul li {
   list-style: none;
   padding: 0px;
   margin: 0px;
 }
 
-.calendar-all-bookings .month-calendar .counters ul li span {
+.calendar-all-bookings .month-calendar .counters ul li span,
+.calendar-all-bookings .week-calendar .counters ul li span,
+.calendar-all-bookings .day-calendar .counters ul li span {
   cursor: pointer;
 }
 
-.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-total {
+.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-total,
+.calendar-all-bookings .week-calendar .counters ul li span.badge-counter-total,
+.calendar-all-bookings .day-calendar .counters ul li span.badge-counter-total {
   background-color: #17a2b8 !important;
   color: white;
 }
 
-.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-approved {
+.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-approved,
+.calendar-all-bookings .week-calendar .counters ul li span.badge-counter-approved,
+.calendar-all-bookings .day-calendar .counters ul li span.badge-counter-approved {
   background-color: #723380;
   color: white;
 }
 
-.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-not-approved {
+.calendar-all-bookings .month-calendar .counters ul li span.badge-counter-not-approved,
+.calendar-all-bookings .week-calendar .counters ul li span.badge-counter-not-approved,
+.calendar-all-bookings .day-calendar .counters ul li span.badge-counter-not-approved {
   background-color: #cf582c;
   color: white;
 }
 
-.calendar-all-bookings .month-calendar .events .for-show-more-events-btn {
-  padding-right: 4px;
-  padding-bottom: 6px;
-}
-
-.calendar-all-bookings .month-calendar .events .for-show-more-events-btn .show-more-events-btn {
-  float: right;
-  font-size: 12px !important;
-}
-
-.calendar-all-bookings .month-calendar .events ul {
-  padding: 0px;
-  margin: 0px;
-  width: 100%;
-  padding-left: 30px;
-  padding-right: 4px;
+.calendar-all-bookings .month-calendar .events,
+.calendar-all-bookings .week-calendar .events,
+.calendar-all-bookings .day-calendar .events {
+  padding-left: 40px;
+  padding-right: 14px;
   padding-top: 4px;
+  width: 100%;
 }
 
-.calendar-all-bookings .month-calendar .events ul li {
-  list-style: none;
+.calendar-all-bookings .month-calendar .events .for-events .if-events,
+.calendar-all-bookings .week-calendar .events .for-events .if-events,
+.calendar-all-bookings .day-calendar .events .for-events .if-events {
+  padding-top: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
-.calendar-all-bookings .month-calendar .events ul li .free-slot {
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot {
   background-color: red;
   display: block;
   width: 100%;
@@ -493,7 +661,9 @@
   cursor: pointer;
 }
 
-.calendar-all-bookings .month-calendar .events ul li .event {
+.calendar-all-bookings .month-calendar .events .for-events .if-events .event,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .event,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .event {
   background-color: red;
   display: block;
   width: 100%;
@@ -509,15 +679,21 @@
   margin-bottom: 6px;
 }
 
-.calendar-all-bookings .month-calendar .events ul li .event.approved {
+.calendar-all-bookings .month-calendar .events .for-events .if-events .event.approved,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .event.approved,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .event.approved {
   background-color: #723380;
 }
 
-.calendar-all-bookings .month-calendar .events ul li .event .event-itemm span {
+.calendar-all-bookings .month-calendar .events .for-events .if-events .event .event-itemm span,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .event .event-itemm span,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .event .event-itemm span {
   display: var(--calendar-event-item-title-display);
 }
 
-.calendar-all-bookings .month-calendar .events ul li .event .time-crossing {
+.calendar-all-bookings .month-calendar .events .for-events .if-events .event .time-crossing,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .event .time-crossing,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .event .time-crossing {
   position: absolute;
   display: block;
   height: 14px;
@@ -526,6 +702,14 @@
   right: 6px;
   border-radius: 0px 3px 0px 0px;
   padding: 2px;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .event .right-placed-actions,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .event .right-placed-actions,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .event .right-placed-actions {
+  position: absolute;
+  top: 2px;
+  right: 4px;
 }
 
 .calendar-all-bookings .moving-event-box,
@@ -984,6 +1168,120 @@ input,
 textarea,
 select {
   background-color: #f9f9f9 !important;
+}
+
+/* CALENDAR NAVBAR
+******************************************************************/
+
+.navbarr {
+  padding: 6px 6px;
+  position: relative;
+}
+
+.navbarr .disabled-cover {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  background: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  line-height: 30px;
+}
+
+.navbarr .applied-filters {
+  padding: 6px 0px;
+}
+
+.navbarr .applied-filters .titlee {
+  border-bottom: 1px solid #999;
+  position: relative;
+  height: 36px;
+  line-height: 36px;
+}
+
+.navbarr .applied-filters .titlee .applied-filter-close-all {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.navbarr .applied-filters .titlee .applied-filter-close-all .btn-remove-filter {
+  padding: 0px 3px 2px;
+}
+
+.navbarr .applied-filters .applied-filter {
+  position: relative;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row {
+  border-bottom: 1px dashed #999;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row:last-child {
+  border-bottom: none;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-close {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-close .btn-remove-filter {
+  padding: 0px 3px 2px;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-title {
+  float: left;
+  width: 90px;
+  padding-right: 10px;
+  text-align: right;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-title span {
+  display: block;
+  height: 30px;
+  line-height: 30px;
+  font-weight: bold;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-items {
+  padding-top: 2px;
+  padding-bottom: 0px;
+  float: left;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-items .applied-filter-item {
+  float: left;
+  margin: 0px;
+  margin-right: 4px;
+  margin-top: 4px;
+  position: relative;
+  padding-right: 34px;
+  overflow-x: hidden;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-items .applied-filter-item .checked-item-close {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: rgba(255, 255, 255, 0.3);
+  height: 100%;
+  width: 30px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.navbarr .applied-filters .applied-filter .applied-filter-row .applied-filter-items .applied-filter-item .checked-item-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* MAIN NAVBAR

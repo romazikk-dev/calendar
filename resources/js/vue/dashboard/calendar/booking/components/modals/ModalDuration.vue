@@ -1,44 +1,69 @@
 <template>
-    <div class="modal fade modal-custom-dark-header-footer" :id="modalId">
+    <div class="modal fade modal-custom-dark-header-footer modal-more-events"
+        @click.prevent
+        :id="modalId">
         <div class="modal-dialog">
     
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Day: <b>{{date}}</b></h5>
+                    <h5 class="modal-title"><b>{{date}}</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <loader ref="loader"></loader>            
-                    <div>
-                        <div class="alert alert-info alert-arrow" role="alert">
-                            <div class="row">
-                                <div class="col-sm-12 col">
-                                    <div v-if="currentTemplateFilter.title">Title: <b>{{currentTemplateFilter.title}}</b></div>
-                                    <div v-if="currentTemplateFilter.description">Description: <b>{{currentTemplateFilter.description}}</b></div>
-                                </div>
-                                <!-- <div class="col-sm-4 col">
-                                    <div class="small" v-html="hintText"></div>
-                                </div> -->
-                            </div>
+                <div class="modal-body" v-if="e">
+                    <!-- <loader ref="loader"></loader>   -->
+                    <div class="alert alert-primary small" role="alert">
+                        <div class="event-itemm">
+                            <span>Client: </span>
+                            <b>{{e.event.client_without_user_scope.first_name}}</b>
+                            <template v-if="e.event.client_without_user_scope.email">
+                                <b> - {{e.event.client_without_user_scope.email}}</b>
+                            </template>
                         </div>
-                        
-                        <div v-if="currentTemplateFilter.duration">Duration: <b>{{durationStrHoursAndMinutes}}</b></div>
-                        <div class="for-time-bar-fill pb-3">
-                            <time-bar-fill ref="time_bar_duration"
-                                :stopper="stopper"
-                                @change="timeBarDurationChange($event)"
-                                :durationInMinutes="duration" />
+                        <div class="event-itemm">
+                            <span>Hall: </span><b>{{e.event.hall_without_user_scope.title}}</b>
                         </div>
-                        
+                        <div class="event-itemm">
+                            <span>Template: </span><b>{{e.event.template_without_user_scope.title}}</b>
+                        </div>
+                        <div class="event-itemm">
+                            <span>Worker: </span><b>{{e.event.worker_without_user_scope.first_name}}</b>
+                        </div>
+                        <div class="event-itemm">
+                            <span>Date: </span><b>{{date}}</b>
+                        </div>
+                        <div class="event-itemm">
+                            <span>Time: </span><b>{{e.event.from}}</b>
+                        </div>
                     </div>
+                    <duration ref="duration"
+                        @change="durationChanged($event)"
+                        :e="e" />
+                            
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button @click.prevent="onClickOkBtn"
-                        type="button"
-                        class="btn btn-success">Ok</button>
+                    
+                    <button v-if="showDurationApplyBtn"
+                        @click.prevent="$refs.duration.reset()"
+                        class="btn btn-sm btn-warning">
+                            Reset
+                    </button>
+                    <button @click.prevent="onClickOkBtn($event)"
+                        v-if="showDurationApplyBtn"
+                        :disabled="!showDurationApplyBtn"
+                        :class="{
+                            'disabled': !showDurationApplyBtn
+                        }"
+                        class="btn btn-sm btn-primary">
+                            Ok
+                    </button>
+                    <button type="button"
+                        @click.prevent="hide(true)"
+                        class="btn btn-sm btn-secondary">
+                            Close
+                    </button>
+                    
                 </div>
             </div>
             
@@ -47,163 +72,84 @@
 </template>
 
 <script>
-    // import TimeBar from "./TimeBar.vue";
-    import TimeBarFill from "./TimeBarFill.vue";
-    // import TimeBarNew from "./TimeBarNew.vue";
     import Loader from "../Loader.vue";
+    import Duration from "../event/Duration.vue";
     export default {
-        name: 'modalDuration',
-        mounted() {
-            // if(this.app === null)
-            //     this.app = this.getParentComponentByName(this, 'app');
-                
-            // console.log(111);
-            // console.log(this.auth);
-            // this.$refs['loader'].fadeOut(300);
-            
-            // this.setDuration();
-            
-            $("#" + this.modalId).on('show.bs.modal', () => {
-                // this.$refs.time_bar_duration.reset();
-                // this.$refs['loader'].show();
-                this.setDuration();
+        name: 'modalMoreEvents',
+        updated() {
+            $('.tooltip-active').tooltip({
+                html: true,
+                // trigger: "click",
+                trigger: "hover",
             });
-            
-            $("#" + this.modalId).on('shown.bs.modal', () => {
-                this.$refs['loader'].fadeOut(300);
-            });
-            
-            $("#" + this.modalId).on('hidden.bs.modal', () => {
-                // this.errorResponse = null;
-                // this.$refs['loader'].show();
-                // this.$refs.time_bar_duration.reset();
-            });
-            
-            
-            
         },
-        props: ['bookDate'],
+        mounted() {
+            $("#" + this.modalId).on('show.bs.modal', () => {});
+            $("#" + this.modalId).on('shown.bs.modal', () => {});
+            $("#" + this.modalId).on('hidden.bs.modal', () => {
+                this.$store.dispatch('moving_event/reset');
+            });
+        },
+        // props: ['bookDate'],
         data: function(){
             return {
-                modalId: 'durationPickerModal',
-                
-                errorResponse: null,
-                
-                duration: 100,
-                event: null,
-                choosenTime: null,
+                modalId: 'durationModal',
+                e: null,
+                showDurationApplyBtn: false,
             };
         },
         computed: {
-            stopper: function () {
-                if(this.event === null || typeof this.event.event === 'undefined' || this.event.event === null ||
-                typeof this.event.nextEvent === 'undefined' || this.event.nextEvent === null)
-                    return null;
-                
-                let eventStartMinutes, nextEventStartMinutes;
-                
-                eventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.event.from);
-                nextEventStartMinutes = calendarHelper.time.parseStringHourMinutesToMinutes(this.event.nextEvent.from);
-                
-                // console.log(eventStartMinutes, nextEventStartMinutes);
-                // console.log(nextEventStartMinutes - nextEventStartMinutes);
-                
-                return nextEventStartMinutes - eventStartMinutes;
-            },
             date: function () {
-                if(this.event == null ||
-                typeof this.event.day === 'undefined' || this.event.day === null)
+                if(this.e == null ||
+                typeof this.e.day === 'undefined' || this.e.day === null ||
+                typeof this.e.day.day === 'undefined' || this.e.day.day === null ||
+                typeof this.e.day.month === 'undefined' || this.e.day.month === null ||
+                typeof this.e.day.year === 'undefined' || this.e.day.year === null)
                     return null;
-                return this.event.day.year + '-' + this.event.day.month + '-' + this.event.day.day;
-            },
-            startPeriodDatetime: function () {
-                if(this.event === null ||
-                typeof this.event.item === 'undefined' || this.event.item === null ||
-                typeof this.event.item.from === 'undefined' || this.event.item.from === null)
-                    return 0;
-                
-                let fromArr, fromHours, fromMinutes;
-                
-                fromArr = this.event.item.from.split(':');
-                if(fromArr.length != 2)
-                    return 0;
-                
-                fromHours = parseInt(fromArr[0]);
-                fromMinutes = parseInt(fromArr[1]);
-                return fromHours < 0 ? 0 : (fromHours * 60) + fromMinutes;
-            },
-            endPeriodDatetime: function () {
-                if(this.event === null ||
-                typeof this.event.item === 'undefined' || this.event.item === null ||
-                typeof this.event.item.to === 'undefined' || this.event.item.to === null)
-                    return 0;
-                
-                let toArr, toHours, toMinutes;
-                    
-                toArr = this.event.item.to.split(':');
-                if(toArr.length != 2)
-                    return 0;
-                    
-                toHours = parseInt(toArr[0]);
-                toMinutes = parseInt(toArr[1]);
-                return toHours > 23 ? ((23 * 60) + 59) : (toHours * 60) + toMinutes;
-            },
-            durationStrHoursAndMinutes: function () {
-                // return '111';
-                return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
+                let momentDate = moment(this.e.day.year + '-' + this.e.day.month + '-' + this.e.day.day);
+                return momentDate.format('D MMMM YYYY, ddd');
             },
         },
         methods: {
-            setChoosenTime: function () {
-                // console.log(JSON.parse(JSON.stringify(something)));
-                this.choosenTime = this.$refs.time_bar_book.inputStrHoursAndMinutes;
-                console.log(JSON.parse(JSON.stringify(this.choosenTime)));
-                // return this.$refs.time_bar_book.inputStrHoursAndMinutes;
+            onClickOkBtn: function (e) {
+                if(!this.isMovingEvent)
+                    return false;
+                
+                this.app.editEvent(this.movingEvent.id, {
+                    duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration),
+                }).then((data) => {
+                    this.$store.dispatch('moving_event/reset');
+                    this.hide(true);
+                    this.$store.commit('updater/increaseCounter');
+                });
             },
-            timeBarBookChange: function (e){
-                this.choosenTime = e.time;
-            },
-            timeBarDurationChange: function (e){
-                // console.log(e);
-                this.duration = e;
-            },
-            setDuration: function (){
-                if(this.isMovingEvent)
-                    this.duration = this.movingEvent.right_duration;
+            durationStrHoursAndMinutes: function (event) {
+                return calendarHelper.time.composeHourMinuteTimeFromMinutes(event.right_duration);
             },
             show: function (e){
                 console.log(JSON.parse(JSON.stringify(e)));
-                this.event = e;
+                this.e = e;
                 $('#' + this.modalId).modal('show');
             },
-            hide: function (){
-                // console.log(JSON.parse(JSON.stringify(e)));
-                // this.event = e;
+            hide: function (resetMovingEvent = true){
                 $('#' + this.modalId).modal('hide');
-            },
-            onClickOkBtn: function (){
-                if(!this.isMovingEvent){
-                    console.error('movingEvent not exists, in ModalDuration.edit');
-                    return;
+                // alert(resetMovingEvent);
+                if(resetMovingEvent === true){
+                    setTimeout(() => {
+                     	this.$store.dispatch('moving_event/reset');
+                    }, 400);
                 }
-                
-                this.$refs['loader'].showTransparent();
-                
-                this.app.editEvent(this.movingEvent.id, {
-                    duration: this.durationStrHoursAndMinutes,
-                }).then(() => {
-                    this.$refs['loader'].fadeOut(300);
-                    this.hide();
-                    this.$store.dispatch('moving_event/reset');
-                    this.calendar.getData();
-                });
+            },
+            durationChanged: function (e){
+                this.setShowDurationApplyBtn();
+            },
+            setShowDurationApplyBtn: function () {
+                this.showDurationApplyBtn = typeof this.$refs.duration !== 'undefined' && this.$refs.duration.isDurationChanged;
             },
         },
         components: {
-            // TimeBar,
-            TimeBarFill,
-            // TimeBarNew,
             Loader,
+            Duration,
         },
         watch: {
             // initValue: (newOne, oldOne) => {

@@ -4,6 +4,7 @@
         <div v-if="label">{{label}}:</div>
         <dropdown :items="items"
             ref="dropdown"
+            :small="small ? true : false"
             @change="$emit('change')"
             :max-dropdown-menu-height="maxDropdownMenuHeight"
             :picked-item-placeholder="pickedItemPlaceholder ? pickedItemPlaceholder : 'Pick a client'" />
@@ -19,7 +20,7 @@
             // this.checkIfRegionUtc();
             this.getClients();
         },
-        props: ['pickedItemPlaceholder','label', 'maxDropdownMenuHeight'],
+        props: ['pickedItemPlaceholder','label', 'maxDropdownMenuHeight', 'small'],
         data: function(){
             return {
                 clients: null,

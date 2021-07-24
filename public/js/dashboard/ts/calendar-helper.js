@@ -2,6 +2,54 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./resources/js/ts/dashboard/calendar_helper/Filter.ts":
+/*!*************************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/Filter.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.Filter = void 0;
+
+var Filter =
+/** @class */
+function () {
+  function Filter() {
+    this.filters = filters;
+  }
+
+  Filter.prototype.get = function (filter) {
+    if (filter === void 0) {
+      filter = null;
+    }
+
+    if (typeof this.filters === 'undefined' || this.filters === null) return null;
+    if (filter === null) return this.filters;
+    if (typeof this.filters[filter] !== 'undefined' && this.filters[filter] !== null) return this.filters[filter];
+    return null;
+  };
+
+  Filter.prototype.getOnlyIdsAsArrayFromFilterItem = function (item) {
+    var itemIds = [];
+
+    for (var idx in item) {
+      itemIds.push(item[idx].id);
+    }
+
+    return itemIds;
+  };
+
+  return Filter;
+}();
+
+exports.Filter = Filter;
+
+/***/ }),
+
 /***/ "./resources/js/ts/dashboard/calendar_helper/MovingE.ts":
 /*!**************************************************************!*\
   !*** ./resources/js/ts/dashboard/calendar_helper/MovingE.ts ***!
@@ -212,6 +260,41 @@ function () {
 
 exports.Time = Time;
 
+/***/ }),
+
+/***/ "./resources/js/ts/dashboard/calendar_helper/View.ts":
+/*!***********************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/View.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.View = void 0;
+
+var View =
+/** @class */
+function () {
+  function View() {
+    this.cookieView = typeof view !== 'undefined' && view !== null ? view : 'month';
+  }
+
+  View.prototype.get = function () {
+    return this.cookieView;
+  };
+
+  View.prototype.all = function () {
+    return ['month', 'week', 'day', 'list'];
+  };
+
+  return View;
+}();
+
+exports.View = View;
+
 /***/ })
 
 /******/ 	});
@@ -264,23 +347,21 @@ var Person_1 = __webpack_require__(/*! ./Person */ "./resources/js/ts/dashboard/
 
 var Time_1 = __webpack_require__(/*! ./Time */ "./resources/js/ts/dashboard/calendar_helper/Time.ts");
 
+var View_1 = __webpack_require__(/*! ./View */ "./resources/js/ts/dashboard/calendar_helper/View.ts");
+
+var Filter_1 = __webpack_require__(/*! ./Filter */ "./resources/js/ts/dashboard/calendar_helper/Filter.ts");
+
 var Helper =
 /** @class */
 function () {
-  // range: DateRange;
   function Helper() {
     this.movingE = new MovingE_1.MovingE();
     this.newE = new NewE_1.NewE();
     this.person = new Person_1.Person();
-    this.time = new Time_1.Time(); // alert(1111); 
-    // this.view = EnumView.MONTH;
-    // this.range = new DateRange(EnumView.MONTH);
+    this.time = new Time_1.Time();
+    this.view = new View_1.View();
+    this.filter = new Filter_1.Filter();
   }
-
-  Helper.prototype.parse = function () {
-    // return JSON.parse(JSON.stringify(value));
-    alert(2222);
-  };
 
   return Helper;
 }();

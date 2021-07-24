@@ -90,8 +90,8 @@
                                 }"
                                 class="modal-event">
                                     <div class="badge-time badge badge-info">
-                                        <b>{{itm.from}} - {{itm.to}}</b> |
-                                        <span>Duration {{durationStrHoursAndMinutes(itm)}}</span>
+                                        {{itm.from}} - {{itm.to}} |
+                                        <b>{{durationStrHoursAndMinutes(itm)}}</b>
                                     </div>
                                     <div class="event-itemm text-warning">
                                         <span>Client: </span><b>{{itm.client_without_user_scope.first_name}}</b>
@@ -109,11 +109,13 @@
                                     <div class="for-actions">
                                         <actions :itm="itm" :ref="'actions_' + itm.id"
                                             :right-placed="true"
+                                            :show-date-time-current-day="true"
                                             @clickActionMove="onActionMove(itm)"
-                                            @clickActionDuration="clickActionDuration(itm)"
-                                            @clickActionDateTime="$emit('clickActionDateTime', itm)"
-                                            @clickActionApprove="clickActionApprove(itm)"
-                                            @clickActionRemove="onActionRemove(itm)"/>
+                                            @clickActionDuration="onClickActionDuration(itm)"
+                                            @clickActionDateTime="onClickActionDateTime(itm)"
+                                            @clickActionApprove="onClickActionApprove(itm)"
+                                            @clickActionRemove="onСlickActionRemove(itm)"
+                                            @clickActionDateTimeCurrentDay="onClickActionDateTimeCurrentDay(itm)"/>
                                     </div>
                                         
                             </div>
@@ -159,7 +161,7 @@
                             class="btn btn-sm btn-warning btn-reset">
                                 Reset
                         </a>
-                        <a @click.prevent="pickMovingEventTime()"
+                        <a @click.prevent="onClickPickTime()"
                             href="#"
                             class="btn btn-sm btn-success btn-pick-time"
                             :class="{
@@ -201,9 +203,6 @@
                         class="btn btn-sm btn-secondary">
                             Close
                     </button>
-                    <!-- <button @click.prevent="book"
-                        type="button"
-                        class="btn btn-success">Ok</button> -->
                 </div>
             </div>
             
@@ -212,9 +211,6 @@
 </template>
 
 <script>
-    // import TimeBar from "./TimeBar.vue";
-    // import TimeBarFill from "./TimeBarFill.vue";
-    // import TimeBarNew from "./TimeBarNew.vue";
     import Loader from "../Loader.vue";
     import Actions from "../event/Actions.vue";
     import Edit from "../event/Edit.vue";
@@ -273,6 +269,8 @@
                 // For DURATION tab
                 durationE: null,
                 showDurationApplyBtn: false,
+                
+                dataFreeEvents: null,
             };
         },
         computed: {
@@ -283,6 +281,14 @@
             //         return null;
             //     return this.e.items;
             // },
+            getDataDate: function () {
+                if(this.e == null ||
+                typeof this.e.day === 'undefined' || this.e.day === null ||
+                typeof this.e.month === 'undefined' || this.e.month === null ||
+                typeof this.e.year === 'undefined' || this.e.year === null)
+                    return null;
+                return this.e.year + '-' + this.e.month + '-' + this.e.day;
+            },
             date: function () {
                 if(this.e == null ||
                 typeof this.e.day === 'undefined' || this.e.day === null ||
@@ -339,14 +345,33 @@
                 return momentDate.format('D MMMM YYYY, ddd');
                 // return this.e.year + '-' + this.e.month + '-' + this.e.day;
             },
-            pickMovingEventTime: function () {
-                this.$refs.edit.setMovingEventPickedItems();
+            onClickPickTime: function () {
+                if(this.$refs.edit.isAllItemsPicked){
+                    this.$store.dispatch('moving_event/setPicked', {
+                        hall: this.$refs.edit.pickedHall,
+                        worker: this.$refs.edit.pickedWorker,
+                        template: this.$refs.edit.pickedTemplate,
+                    });
+                    
+                    console.log(JSON.parse(JSON.stringify(this.movingEventPicked)));
+                    
+                    this.calendar.getData({
+                        type: 'free',
+                        exclude_ids: [this.movingEvent.id],
+                        // test: true
+                    }).then(() => {
+                        // this.hide();
+                        this.hide(false);
+                    });
+                }
+                
+                // this.$refs.edit.setMovingEventPickedItems();
                 // this.setShowMovingEvent(true);
                 // alert(this.showMovingEvent);
                 // this.$store.dispatch('moving_event/setShow', true);
-                this.$store.commit('updater/increaseCounter');
-                this.$store.dispatch('moving_event/setShow', true);
-                this.hide(false);
+                // this.$store.commit('updater/increaseCounter');
+                // this.$store.dispatch('moving_event/setShow', true);
+                // this.hide(false);
                 // alert(11111);
             },
             setShowEditResetBtn: function () {
@@ -377,25 +402,33 @@
             },
             onActionMove: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
-                    // console.log(JSON.parse(JSON.stringify(event)));
+                    // console.log(JSON.parse(JSON.stringify(this.$refs)));
+                    // console.log(this.$refs);
                     this.showTab = 'edit';
+                    this.$nextTick(() => {
+                        this.$refs.edit.fillFields({
+                            hall_id: data.event.hall_id,
+                            template_id: data.event.template_id,
+                            worker_id: data.event.worker_id,
+                        });
+                    });
                 });
             },
-            clickActionApprove: function (event) {
+            onClickActionApprove: function (event) {
                 this.app.approveEvent(event.id).then((data) => {
                     return this.setEvents();
                 }).finally(() => {
                     this.$store.commit('updater/increaseCounter');
                 });
             },
-            onActionRemove: function (event) {
+            onСlickActionRemove: function (event) {
                 this.app.removeEvent(event.id).then((data) => {
                     return this.setEvents();
                 }).finally(() => {
                     this.$store.commit('updater/increaseCounter');
                 });
             },
-            clickActionDuration: function (event) {
+            onClickActionDuration: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
                     // console.log(JSON.parse(JSON.stringify(event)));
                     this.durationE = {
@@ -405,6 +438,27 @@
                     this.showTab = 'duration';
                     // console.log(JSON.parse(JSON.stringify(event)));
                     console.log(JSON.parse(JSON.stringify(this.durationE)));
+                });
+            },
+            onClickActionDateTimeCurrentDay: function (event) {
+                this.app.setMovingEvent(event).then((data) => {
+                    this.app.getData(this.getDataDate, this.getDataDate, {
+                        type: 'free',
+                        exclude_ids: [this.movingEvent.id]
+                    }).then((data) => {
+                        this.dataFreeEvents = data.data;
+                        console.log(JSON.parse(JSON.stringify(this.dataFreeEvents)));
+                    });
+                });
+            },
+            onClickActionDateTime: function (event) {
+                this.app.setMovingEvent(event).then((data) => {
+                    this.calendar.getData({
+                        type: 'free',
+                        exclude_ids: [this.movingEvent.id]
+                    });
+                }).then((data) => {
+                    this.hide(false);
                 });
             },
             durationStrHoursAndMinutes: function (event) {
@@ -458,9 +512,6 @@
             },
         },
         components: {
-            // TimeBar,
-            // TimeBarFill,
-            // TimeBarNew,
             Loader,
             Actions,
             Edit,

@@ -151,7 +151,8 @@
                     
                     this.calendar.getData({
                         type: 'free',
-                        exclude_ids: [this.movingEvent.id]
+                        exclude_ids: [this.movingEvent.id],
+                        // test: true
                     }).then(() => {
                         this.hide();
                     });

@@ -102,6 +102,24 @@ class Worker extends Authenticatable
     }
     
     /**
+     * Reference to pivot table.
+     *
+     * @return Model
+     */
+    public function hallsWithoutUserGlobalScope() {
+        return $this->belongsToMany('App\Models\Hall')->withoutGlobalScope(UserScope::class);
+    }
+    
+    /**
+     * Reference to pivot table.
+     *
+     * @return Model
+     */
+    public function hallsWithoutUserScope() {
+        return $this->belongsToMany('App\Models\Hall')->withoutGlobalScope(UserScope::class);
+    }
+    
+    /**
      * Get the worker's suspension.
      */
     public function suspension(){
@@ -163,6 +181,18 @@ class Worker extends Authenticatable
     }
     
     /**
+     * Scope a query to only include workers of given users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_id
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUsers($query, $user_ids)
+    {
+        return $query->whereIn('user_id', $user_ids);
+    }
+    
+    /**
      * Scope a query to only include workers of given id.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -172,6 +202,18 @@ class Worker extends Authenticatable
     public function scopeById($query, $id)
     {
         return $query->where('id', $id);
+    }
+    
+    /**
+     * Scope a query to only include workers of given ids.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $ids
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByIds($query, $ids)
+    {
+        return $query->whereIn('id', $ids);
     }
         
 }

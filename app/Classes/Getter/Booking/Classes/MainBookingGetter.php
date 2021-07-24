@@ -2,39 +2,31 @@
 
 namespace App\Classes\Getter\Booking\Classes;
 
-// use App\Classes\Range\Range;
-// use App\Classes\Suspension\Enums\Types;
-// use App\Classes\Holiday\Enums\Fields;
-// use App\Models\Holiday as HolidayModel;
-
-// use App\Classes\Getter\Template\Template;
 use App\Models\Booking;
-// use App\Classes\Getter\Booking\Enums\GetParams;
 use App\Models\User;
 use App\Scopes\UserScope;
 use App\Classes\Range\Range;
-// use App\Classes\Setting\Enums\Keys as SettingsKeys;
 use App\Classes\Getter\Booking\Enums\Params;
 use Illuminate\Support\Facades\DB;
-
-// use App\Classes\Getter\Booking\Classes\MainBookingGetter;
+use App\Classes\Getter\Classes\ParameterChecker;
 
 class MainBookingGetter{
     
     protected $range, $owner, $id, $hall, $worker, $template, $client, $with;
+    protected $duration_start, $duration_end;
     protected $past_ignore = false;
     protected $only_approved = false;
     protected $exclude_ids = [];
     protected $first_items = false;
     protected $exclude_range_start_and_end_dates = false;
+    protected $parameter_checker = null;
     
     function __construct(
-        User $owner,
         Range $range,
         array $params = []
     ) {
+        $this->parameter_checker = new ParameterChecker();
         $this->range = $range;
-        $this->owner = $owner;
         $this->parseParams($params);
     }
     
@@ -49,20 +41,43 @@ class MainBookingGetter{
         $this->exclude_range_start_and_end_dates =
             !empty($params[Params::EXCLUDE_RANGE_START_AND_END_DATES]) && $params[Params::EXCLUDE_RANGE_START_AND_END_DATES] === true;
         
-        // var_dump($params);
-        // die();
-        
         $this->first_items = !empty($params[Params::FIRST_ITEMS]) && $params[Params::FIRST_ITEMS] === true;
         
-        $this->id = !empty($params[Params::ID]) && is_numeric($params[Params::ID]) ? (int)$params[Params::ID] : null;
-        $this->hall = !empty($params[Params::HALL]) && is_numeric($params[Params::HALL]) ? (int)$params[Params::HALL] : null;
-        $this->worker = !empty($params[Params::WORKER]) && is_numeric($params[Params::WORKER]) ? (int)$params[Params::WORKER] : null;
-        $this->template = !empty($params[Params::TEMPLATE]) && is_numeric($params[Params::TEMPLATE]) ? (int)$params[Params::TEMPLATE] : null;
-        $this->client = !empty($params[Params::CLIENT]) && is_numeric($params[Params::CLIENT]) ? (int)$params[Params::CLIENT] : null;
+        foreach([
+            ['key' => Params::OWNER, 'var' => 'owner'],
+            ['key' => Params::ID, 'var' => 'id'],
+            ['key' => Params::HALL, 'var' => 'hall'],
+            ['key' => Params::WORKER, 'var' => 'worker'],
+            ['key' => Params::TEMPLATE, 'var' => 'template'],
+            ['key' => Params::CLIENT, 'var' => 'client']
+        ] as $p){
+            if(!empty($params[$p['key']])){
+                if(is_numeric($params[$p['key']])){
+                    $this->{$p['var']} = [(int)$params[$p['key']]];
+                }elseif($this->parameter_checker->isArrayWithAllNumericValues($params[$p['key']])){
+                    $this->{$p['var']} = $params[$p['key']];
+                }else{
+                    $this->{$p['var']} = [];
+                }
+            }else{
+                $this->{$p['var']} = [];
+            }
+        }
+        
+        // Set duration `start` and `end`
+        $this->duration_start = !empty($params[Params::DURATION_START]) && is_numeric($params[Params::DURATION_START]) ?
+            (int)$params[Params::DURATION_START] : null;
+            
+        if(!empty($params[Params::DURATION_END]) && is_numeric($params[Params::DURATION_END])){
+            $duration_end = (int)$params[Params::DURATION_END];
+            if(empty($this->duration_start) ||
+            (!empty($this->duration_start) && $this->duration_start <= $duration_end))
+                $this->duration_end = $duration_end;
+        }
         
         $this->with = null;
         if(!empty($params[Params::WITH])){
-            if(is_array($params[Params::WITH])){
+            if($this->parameter_checker->isArrayWithAllStrValues($params[Params::WITH])){
                 $this->with = $params[Params::WITH];
             }elseif(is_string($params[Params::WITH])){
                 $this->with = [$params[Params::WITH]];
@@ -173,22 +188,26 @@ class MainBookingGetter{
         // $time_comperison_sign_more = $this->exclude_range_start_and_end_dates === true ? '>' : '>=';
         $time_comperison_sign_less = $this->exclude_range_start_and_end_dates === true ? '<' : '<=';
         // $time_comperison_sign_more, $time_comperison_sign_less
+        
+        $duration = [
+            'start' => $this->duration_start,
+            'end' => $this->duration_end,
+        ];
+        
+        // var_dump($duration);
+        // die();
             
         $booking_model = Booking::where(function($query) use (
-            $start_datetime_carbon, $end_datetime_carbon, $time_comperison_sign_less
+            $start_datetime_carbon, $end_datetime_carbon, $time_comperison_sign_less, $duration
         ){
             
             $start_datetime = $start_datetime_carbon->format('Y-m-d H:i:s');
             $end_datetime = $end_datetime_carbon->format('Y-m-d H:i:s');
             
             $query->whereHas('templateWithoutUserScope', function ($query) use (
-                $start_datetime, $end_datetime, $time_comperison_sign_less
+                $start_datetime, $end_datetime, $time_comperison_sign_less, $duration
             ){
-                // return $query->whereRaw(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'));
-                // return $query->select(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'))
-                // $start_datetime = $start_datetime_carbon->format('Y-m-d H:i:s');
-                // $end_datetime = $end_datetime_carbon->format('Y-m-d H:i:s')
-                return $query->whereRaw(
+                $query->whereRaw(
                     DB::raw('
                         bookings.time <= "' . $start_datetime . '" AND
                         "' . $start_datetime . '" ' . $time_comperison_sign_less . ' ' .
@@ -224,118 +243,35 @@ class MainBookingGetter{
                         )'
                     )
                 );
+                
+                if(!empty($duration['start']))
+                    $query->whereRaw(DB::raw(
+                        'IFNULL(bookings.custom_duration, templates.duration) >= ' . $duration['start']
+                    ));
+                
+                if(!empty($duration['end']))
+                    $query->whereRaw(DB::raw(
+                        'IFNULL(bookings.custom_duration, templates.duration) <= ' . $duration['end']
+                    ));
             });
-            
-            // $query->where([
-            //     ['time', $time_comperison_sign_more, $start_datetime_carbon->format('Y-m-d H:i:s')],
-            //     ['time', $time_comperison_sign_less, $end_datetime_carbon->format('Y-m-d H:i:s')]
-            // ])->orWhereHas('templateWithoutUserScope', function ($query) use (
-            //     $start_datetime_carbon, $end_datetime_carbon,
-            //     $time_comperison_sign_more, $time_comperison_sign_less
-            // ){
-            //     // return $query->whereRaw(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'));
-            //     // return $query->select(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'))
-            //         return $query->whereRaw(
-            //             DB::raw('
-            //                 ADDTIME(
-            //                     bookings.time,
-            //                     SEC_TO_TIME(
-            //                         IFNULL(bookings.custom_duration, templates.duration) * 60
-            //                     )
-            //                 ) ' . $time_comperison_sign_more . ' "' . $start_datetime_carbon->format('Y-m-d H:i:s') . '"'
-            //             )
-            //         )
-            //         ->whereRaw(
-            //             DB::raw('
-            //                 ADDTIME(
-            //                     bookings.time,
-            //                     SEC_TO_TIME(
-            //                         IFNULL(bookings.custom_duration, templates.duration) * 60
-            //                     )
-            //                 ) ' . $time_comperison_sign_less . ' "' . $end_datetime_carbon->format('Y-m-d H:i:s') . '"'
-            //             )
-            //         );
-            // });
         });
         
-        // $booking_model->with(['templateWithoutUserScope' => function ($query) use ($start_datetime_carbon, $end_datetime_carbon) {
-        //     // return $query->whereRaw(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'));
-        //     // return $query->select(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'))
-        //         return $query->whereRaw(
-        //             DB::raw('
-        //                 ADDTIME(
-        //                     bookings.time,
-        //                     SEC_TO_TIME(
-        //                         IFNULL(bookings.custom_duration, templates.duration) * 60
-        //                     )
-        //                 ) >= "' . $start_datetime_carbon->format('Y-m-d H:i:s') . '"'
-        //             )
-        //         )
-        //         ->whereRaw(
-        //             DB::raw('
-        //                 ADDTIME(
-        //                     bookings.time,
-        //                     SEC_TO_TIME(
-        //                         IFNULL(bookings.custom_duration, templates.duration) * 60
-        //                     )
-        //                 ) <= "' . $end_datetime_carbon->format('Y-m-d H:i:s') . '"'
-        //             )
-        //         );
-        // }]);
-            
-        // $booking_model->orWhereHas('templateWithoutUserScope', function ($query) use ($start_datetime_carbon, $end_datetime_carbon) {
-        //     // return $query->whereRaw(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'));
-        //     // return $query->select(DB::raw('IFNULL(bookings.custom_duration, templates.duration) as right_duration'))
-        //         return $query->whereRaw(
-        //             DB::raw('
-        //                 ADDTIME(
-        //                     bookings.time,
-        //                     SEC_TO_TIME(
-        //                         IFNULL(bookings.custom_duration, templates.duration) * 60
-        //                     )
-        //                 ) >= "' . $start_datetime_carbon->format('Y-m-d H:i:s') . '"'
-        //             )
-        //         )
-        //         ->whereRaw(
-        //             DB::raw('
-        //                 ADDTIME(
-        //                     bookings.time,
-        //                     SEC_TO_TIME(
-        //                         IFNULL(bookings.custom_duration, templates.duration) * 60
-        //                     )
-        //                 ) <= "' . $end_datetime_carbon->format('Y-m-d H:i:s') . '"'
-        //             )
-        //         );
-        // });
-        
-        // $booking_model->select('bookings.*');
-        // $booking_model->leftJoin('templates', 'bookings.template_id', '=', 'templates.id');
-        // $booking_model->select(DB::raw('
-        //     bookings.*,
-        //     IFNULL(bookings.custom_duration, templates.duration) as right_duration
-        // '));
-        // $booking_model->with(["templateWithoutUserScope", "template" => function($q){
-        //     // $q->select('template.IdUser', '=', 1);
-        //     // $q->where('template.IdUser', '=', 1);
-        //     $q->whereRaw(DB::raw('templateWithoutUserScope.duration > 0'));
-        //     //$q->where('some other field', $someId);
-        // }]);
-        
-        if(!empty($this->owner) && is_numeric($this->owner))
+        if(!empty($this->owner) && is_array($this->owner)){
             $booking_model->withoutGlobalScope(UserScope::class)
-                ->byUser($this->owner->id);
+                ->byUsers($this->owner);
+        }
         
-        if(!empty($this->hall) && is_numeric($this->hall))
-            $booking_model->where('hall_id', '=', $this->hall);
+        if(!empty($this->hall) && is_array($this->hall))
+            $booking_model->whereIn('hall_id', $this->hall);
         
-        if(!empty($this->worker) && is_numeric($this->worker))
-            $booking_model->where('worker_id', '=', $this->worker);
+        if(!empty($this->worker) && is_array($this->worker))
+            $booking_model->whereIn('worker_id', $this->worker);
         
-        if(!empty($this->template) && is_numeric($this->template))
-            $booking_model->where('template_id', '=', $this->template);
+        if(!empty($this->template) && is_array($this->template))
+            $booking_model->whereIn('template_id', $this->template);
         
-        if(!empty($this->client) && is_numeric($this->client))
-            $booking_model->where('client_id', '=', $this->client);
+        if(!empty($this->client) && is_array($this->client))
+            $booking_model->whereIn('client_id', $this->client);
         
         // var_dump($this->with);
         // die();

@@ -12,21 +12,12 @@
                 <div class="modal-body">
                     <loader ref="loader"></loader>            
                     <div>
-                        <!-- <div class="alert alert-info alert-arrow" role="alert">
-                            <div class="row">
-                                <div class="col-sm-12 col">
-                                    <div>Title: <b>{{currentTemplateFilter.title}}</b></div>
-                                </div>
-                            </div>
-                        </div> -->
-                        
                         <div>Duration: <b>{{durationStrHoursAndMinutes}}</b></div>
                         <div class="for-time-bar-fill pb-3">
                             <time-bar-fill ref="time_bar_duration"
                                 @change="timeBarDurationChange($event)"
                                 :durationInMinutes="duration" />
                         </div>
-                        <!-- <div v-if="currentTemplateFilter.description">Description: <b>{{currentTemplateFilter.description}}</b></div> -->
                         <div>Time: <b>{{choosenTime}}</b></div>
                         <time-bar-new ref="time_bar_book"
                             @change="timeBarBookChange($event)"
@@ -39,7 +30,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button @click.prevent="book"
+                    <button @click.prevent="onClickOkBtn"
                         type="button"
                         class="btn btn-success">Ok</button>
                 </div>
@@ -57,15 +48,6 @@
     export default {
         name: 'modalBookContent',
         mounted() {
-            // if(this.app === null)
-            //     this.app = this.getParentComponentByName(this, 'app');
-                
-            // console.log(111);
-            // console.log(this.auth);
-            // this.$refs['loader'].fadeOut(300);
-            
-            // this.setDuration();
-            
             $("#" + this.modalId).on('show.bs.modal', () => {
                 this.setDuration();
                 this.setChoosenTime();
@@ -82,9 +64,6 @@
                 this.$refs.time_bar_duration.reset();
                 this.$refs.time_bar_book.reset();
             });
-            
-            
-            
         },
         props: ['bookDate'],
         data: function(){
@@ -143,21 +122,6 @@
                 // return '111';
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
             },
-            bookData: function () {
-                if(this.currentHallFilter === null || this.currentWorkerFilter === null ||
-                this.currentTemplateFilter === null)
-                    return null;
-                    
-                let data = {
-                    hall: this.currentHallFilter.id,
-                    worker: this.currentWorkerFilter.id,
-                    template: this.currentTemplateFilter.id,
-                    time: this.date + ' ' + this.choosenTime + ':00',
-                    duration: this.durationStrHoursAndMinutes,
-                }
-                
-                return data;
-            }
         },
         methods: {
             setChoosenTime: function () {
@@ -190,28 +154,11 @@
                 
                 console.log('setDuration');
                 console.log(this.duration);
-                
-                // if(this.isNewEventMainFull){
-                //     this.duration = this.newEventMain.template.duration
-                // }else if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null){
-                //     this.duration = this.currentEventFilter.right_duration;
-                // }
-                // this.duration = this.event.duration;
-                // if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
-                // typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
-                //     if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null){
-                //         this.duration = this.currentEventFilter.custom_duration;
-                //     }else{
-                //         this.duration = this.currentTemplateFilter.duration;
-                //     }
-                // }
-                // alert(this.duration);
-                // this.$refs.time_bar_duration.reset();
-                // return this.$store.getters['filters/template'];
             },
             show: function (e){
                 // alert(111);
-                console.log(JSON.parse(JSON.stringify(e)));
+                // console.log(JSON.parse(JSON.stringify('')));
+                // console.log(JSON.parse(JSON.stringify(e)));
                 this.event = e;
                 $('#' + this.modalId).modal('show');
             },
@@ -220,47 +167,7 @@
                 // this.event = e;
                 $('#' + this.modalId).modal('hide');
             },
-            edit: function (){
-                if(this.currentEventFilter === null || this.eventData === null)
-                    return;
-                    
-                // let componentApp = this.getParentComponentByName(this, 'app');
-                // let data;
-                // this.bookButtonDisabled = true;
-                this.$refs['loader'].showTransparent();
-                
-                // data = {
-                // 
-                // }
-                
-                this.app.bookEdit(this.currentEventFilter.id, this.bookData, (response) => {
-                    // this.onBooked(response);
-                    // alert(111);
-                    // errorResponse
-                    // let data = response.data;
-                    // if(typeof response.data.error === 'undefined'){
-                    //     setTimeout(() => {
-                    //         this.successfullyBooked = true;
-                    //     }, 300);
-                    // }else{
-                    //     setTimeout(() => {
-                    //         this.errorResponse = response.data.error;
-                    //     }, 300);
-                    // }
-                    console.log(response);
-                }, () => {}, () => {
-                
-                    // console.log('always');
-                    this.$refs['loader'].fadeOut(300);
-                    // setTimeout(() => {
-                    //     // this.successfullyBooked = true;
-                    //     this.bookButtonDisabled = false;
-                    // }, 300);
-                
-                });
-            },
-            book: function (){
-                // if(this.isNewEventFull){
+            onClickOkBtn: function (){
                 if(this.isNewEventMainFull){
                     this.app.createEvent(this.date, this.choosenTime, this.durationStrHoursAndMinutes).then(() => {
                         this.$store.dispatch('new_event/reset');
@@ -269,68 +176,19 @@
                         this.hide();
                     });
                 }else if(this.isMovingEvent !== null){
-                    // if(this.currentHallFilter === null || this.currentWorkerFilter === null ||
-                    // this.currentTemplateFilter === null)
-                    //     return null;
-                        
-                    // let data = {
-                    //     hall: this.movingEventIsPickedFull ? this.currentHallFilter.id,
-                    //     worker: this.currentWorkerFilter.id,
-                    //     template: this.currentTemplateFilter.id,
-                    //     time: this.date + ' ' + this.choosenTime + ':00',
-                    //     duration: this.durationStrHoursAndMinutes,
-                    // }
-                    
-                    // return data;
-                    // this.app.editEvent(this.movingEvent.id);
-                    // // && this.movingEventIsPickedFull
-                    // console.log(JSON.parse(JSON.stringify(this.movingEventIsPickedFull)));
-                    // let urlSearchParams = this.$store.getters['moving_event/urlSearchParams'];
-                    alert('isMovingEvent');
+                    this.app.editEvent(this.movingEvent.id, {
+                        hall: this.movingEventIsPickedFull === true ? this.movingEventPicked.hall.id : this.movingEvent.hall_id,
+                        worker: this.movingEventIsPickedFull === true ? this.movingEventPicked.worker.id : this.movingEvent.worker_id,
+                        template: this.movingEventIsPickedFull === true ? this.movingEventPicked.template.id : this.movingEvent.template_id,
+                        time: this.date + ' ' + this.choosenTime + ':00',
+                        duration: this.durationStrHoursAndMinutes,
+                    }).then(() => {
+                        this.$store.dispatch('moving_event/reset');
+                        return this.calendar.getData();
+                    }).then(() => {
+                        this.hide();
+                    });
                 }
-                
-                return;
-                
-                if(this.currentEventFilter === null || this.bookData === null)
-                    return;
-                
-                // alert(111);
-                // return;
-                
-                // let componentApp = this.getParentComponentByName(this, 'app');
-                let data;
-                // this.bookButtonDisabled = true;
-                this.$refs['loader'].showTransparent();
-                
-                // data = {
-                // 
-                // }
-                
-                this.app.bookEdit(this.currentEventFilter.id, this.bookData, (response) => {
-                    // this.onBooked(response);
-                    // alert(111);
-                    // errorResponse
-                    // let data = response.data;
-                    // if(typeof response.data.error === 'undefined'){
-                    //     setTimeout(() => {
-                    //         this.successfullyBooked = true;
-                    //     }, 300);
-                    // }else{
-                    //     setTimeout(() => {
-                    //         this.errorResponse = response.data.error;
-                    //     }, 300);
-                    // }
-                    console.log(response);
-                }, () => {}, () => {
-                
-                    // console.log('always');
-                    this.$refs['loader'].fadeOut(300);
-                    // setTimeout(() => {
-                    //     // this.successfullyBooked = true;
-                    //     this.bookButtonDisabled = false;
-                    // }, 300);
-                
-                });
             },
         },
         components: {

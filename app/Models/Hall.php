@@ -136,6 +136,18 @@ class Hall extends Model
     }
     
     /**
+     * Scope a query to only include halls of given users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_ids
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUsers($query, $user_ids)
+    {
+        return $query->whereIn('user_id', $user_ids);
+    }
+    
+    /**
      * Scope a query to only include halls of given id.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -145,5 +157,17 @@ class Hall extends Model
     public function scopeById($query, $id)
     {
         return $query->where('id', $id);
+    }
+    
+    /**
+     * Scope a query to only include halls of given ids.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_id
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByIds($query, $ids)
+    {
+        return $query->whereIn('id', $ids);
     }
 }

@@ -13,6 +13,7 @@ import new_event from './modules/new_event';
 import template from './modules/template';
 import dates from './modules/dates';
 import navbar from './modules/navbar';
+import view from './modules/view';
 
 
 Vue.use(Vuex);
@@ -34,6 +35,7 @@ export default new Vuex.Store({
         template,
         dates,
         navbar,
+        view,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

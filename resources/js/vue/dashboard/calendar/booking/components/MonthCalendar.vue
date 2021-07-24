@@ -1,39 +1,8 @@
 <template>
     <div>
-        <!-- <div class="pb-3">
-            <time-bar-new @change="" :durationInMinutes="20" :stopper="40"/>
-        </div>
-        <div class="pb-3">
-            <time-bar-fill @change="" :durationInMinutes="42"/>
-        </div> -->
-        
-        <navbar ref="navbar" />
-        
-        <navigation :calendar-title="calendarTitle"
-            @previous="previous"
-            @next="next"
-            @today="today"></navigation>
-            
-        <modal-more-events ref="modal_more_events" />
-            
-        <modal-move-path-picker
-            @pick_time="getData()"
-            ref="move_path_picker" />
         
         <div class="month-calendar">
-            <transition name="fade">
-                <moving-event-info-box v-if="movedEvent && showMovingEvent"
-                    @close="resetMovedEvent"
-                    @edit="openModalMovePathPicker" />
-            </transition>
             
-            <transition name="fade">
-                <new-event-info-box v-if="isNewEventMainFull && newEventShow"
-                    @close="resetMovedEvent"
-                    @edit="openModalMovePathPicker" />
-            </transition>
-            
-            <!-- <moving-event /> -->
             <table>
                 <thead>
                     <tr>
@@ -51,9 +20,10 @@
                                     {{getDate(i,k,'day')}}
                                 </div>
                                 <template v-if="notPast(i,k)">
+                                    <!-- <div v-if="getDate(i,k,'items')">
+                                        dasdasda sda sdasd
+                                    </div> -->
                                     <month-cell v-if="getDate(i,k,'items')"
-                                        @open-modal="openModal($event,i,k)"
-                                        @cancel="cancelBook($event)"
                                         @clickMore="showModalMoreEvent($event)"
                                         @removed="onRemove($event)"
                                         :item="getDate(i,k)"></month-cell>
@@ -63,23 +33,14 @@
                     </tr>
                 </tbody>
             </table>
+            
         </div>
         
     </div>
 </template>
 
 <script>
-    import Navbar from "./Navbar.vue";
-    import Navigation from "./Navigation.vue";
     import MonthCell from "./MonthCell.vue";
-    import ModalMovePathPicker from "./ModalMovePathPicker.vue";
-    import MovingEventInfoBox from "./MovingEventInfoBox.vue";
-    import NewEventInfoBox from "./NewEventInfoBox.vue";
-    import ModalMoreEvents from "./modals/ModalMoreEvents.vue";
-    
-    // import TimeBarFill from "./modals/TimeBarFill.vue";
-    // import TimeBarNew from "./modals/TimeBarNew.vue";
-    // import MonthCellCounters from "./MonthCellCounters.vue";
     export default {
         name: 'monthCalendar',
         updated() {
@@ -95,179 +56,38 @@
             if(this.isNewEventMainFull){
                 this.getData({
                     type: 'free',
-                    // exclude_ids: [this.movedEvent.id]
                 });
-            }else if(this.movedEvent !== null){
-                // this.getData({type: 'free_time'});
-                // console.log(this.movedEvent);
-                this.getData({exclude_ids: [this.movedEvent.id]});
-                // this.app.getData({exclude_ids: [this.movedEvent.id]});
+            }else if(this.movingEvent !== null){
+                // alert(122);
+                this.getData({
+                    type: 'free',
+                    exclude_ids: [this.movingEvent.id]
+                });
             }else{
                 this.getData();
-                // this.app.getData();
             }
-            
-            // this.getData();
-            $("#bookModal").on('hidden.bs.modal', () => {
-                this.bookDate = null;
-                // console.log(this.bookDate);
-            });
         },
         props: ['startDate'],
         data: function(){
             return {
-                // dateRange: helper.range.range,
                 dates: null,
-                bookDate: null,
-                bookTimePeriod: null,
-                
-                cancelBookData: null,
             };
         },
         computed: {
-            firstMonthDate: function(){
-                return new Date(this.$store.getters['dates/month'].firstDate);
-            },
-            lastMonthDate: function(){
-                return new Date(this.$store.getters['dates/month'].lastDate);
-            },
             monthTwoDigits: function(){
                 return this.$store.getters['dates/month'].monthTwoDigits;
-            },
-            // movedEventClientName: function(){
-            //     return app.fullName(this.movedEventClient)
-            // },
-            // movedEventClientEmail: function(){
-            //     return movedEventClient.email ? movedEventClient.email : '---';
-            // },
-            movedEvent: function(){
-                return this.$store.getters['moving_event/event'];
-            },
-            movedEventClient: function(){
-                return this.$store.getters['moving_event/client'];
-            },
-            halls: function(){
-                return this.$store.getters['halls/all'];
             },
             dataUpdater: function () {
                 return this.$store.getters['updater/counter'];
             },
-            calendarTitle: function () {
-                return moment(this.firstMonthDate).format('MMMM YYYY');
-            },
-            // canGoToPrevious: function () {
-            //     let firstMonthDay = moment(this.firstMonthDate).startOf('month');
-            //     let currentDateFirstMonthDay = moment(this.currentDate).startOf('month');
-            //     return firstMonthDay.isAfter(currentDateFirstMonthDay);
-            // },
             search: function () {
                 return this.$store.getters['filters/urlSearchPath'];
             },
         },
         methods: {
             showModalMoreEvent: function(e){
-                console.log(JSON.parse(JSON.stringify(e)));
-                
-                this.$refs.modal_more_events.show(e);
-            },
-            onRemove: function(){
-                // this.$store.dispatch('moving_event/reset');
-                this.getData();
-            },
-            openModalMovePathPicker: function(){
-                // alert(111);
-                this.$refs.move_path_picker.show();
-            },
-            resetMovedEvent: function(){
-                this.$store.dispatch('moving_event/reset');
-                this.getData();
-            },
-            moveEvent: function(event){
-                // console.log('moveEvent');
-                // console.log(JSON.parse(JSON.stringify(event)));
-                
-                new Promise((resolve, reject) => {
-                    this.app.getClientInfo(event.client_id, (data) => {
-                        if(data === null){
-                            alert('Can`t get client info');
-                            return;
-                        }
-                        resolve(data);
-                    });
-                }).then((data) => {
-                    // this.$store.commit('moving_event/setItems', {
-                    //     client: data,
-                    //     event: event,
-                    // });
-                    
-                    // console.log(JSON.parse(JSON.stringify(event)));
-                    
-                    this.$store.dispatch('moving_event/setItems', {
-                        client: data,
-                        event: event,
-                    });
-                    this.$refs.move_path_picker.show();
-                });
-            },
-            cancelBook: function(event){
-                this.cancelBookData = event;
-                $('#cancelBookModal').modal('show');
-                // console.log(event);
-            },
-            isFirstItemOfTypeBooked: function(i,k){
-                let dateFirstItem = (this.getDate(i, k, 'items'))[0];
-                return dateFirstItem.type == 'booked' ? true : false;
-            },
-            next: function(){
-                let params = {};
-                // console.log('next');
-                // var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M');
-                // console.log(dateOfNextMonth.toDate());
-                // this.setDates(dateOfNextMonth.toDate());
-                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                
-                this.$store.dispatch('dates/goNext');
-                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                if(this.isNewEventMainFull === true && this.newEventShow){
-                    params.type = 'free';
-                }
-                this.getData(params);
-            },
-            previous: function(){
-                let params = {};
-                // if(!this.canGoToPrevious)
-                //     return;
-                    
-                // console.log('previous');
-                // var dateOfPreviousMonth = moment(this.firstMonthDate).subtract(1, 'M');
-                // this.setDates(dateOfPreviousMonth.toDate());
-                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                
-                this.$store.dispatch('dates/goPrevious');
-                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                if(this.isNewEventMainFull === true && this.newEventShow){
-                    params.type = 'free';
-                }
-                this.getData(params);
-            },
-            today: function(){
-                let params = {};
-                if(this.isNewEventMainFull === true && this.newEventShow){
-                    params.type = 'free';
-                }
-                this.$store.dispatch('dates/goToday');
-                // this.$parent.setStartDate('month', new Date(this.firstMonthDate));
-                this.getData(params);
-            },
-            openModal: function(itm,i,k){
-                // console.log(itm);
-                // $parent.isAuth();
-                // console.log(this.$parent.isAuth());
-                this.bookDate = this.getDate(i,k);
-                this.bookTimePeriod = itm;
-                console.log(111);
-                console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
-                $('#bookModal').modal('show');
+                // console.log(JSON.parse(JSON.stringify(e)));
+                this.app.$refs.modal_more_events.show(e);
             },
             notPast: function(i,k){
                 return true;
@@ -275,24 +95,16 @@
                 let date = this.getDate(i,k);
                 let dateMoment = moment(date.year+'-'+date.month+'-'+date.day, 'YYYY-MM-DD');
                 let currentDateMoment = moment(this.currentDate);
-                // console.log(dateMoment.format("YYYY MM DD") + ' - ' + currentDateMoment.format("YYYY MM DD") + ': ' + (dateMoment.diff(currentDateMoment) >= 0 || dateMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")));
-                // console.log(currentDateMoment.format("YYYY MM DD"));
+                
                 return dateMoment.diff(currentDateMoment, 'day') >= 0;
-                // console.log(dateMoment < currentDateMoment);
-                // console.log(moment(date).isAfter(moment('2014-03-24T01:14:000')));
-                // return this.currentDate.year == this.getDate(i,k,'year') &&
-                // this.currentDate.month == this.getDate(i,k,'month') &&
-                // this.currentDate.day == this.getDate(i,k,'day');
             },
             isCurrentDate: function(i,k){
-                // console.log(this.currentYear);
                 return this.currentYear == this.getDate(i,k,'year') &&
                 this.currentMonth == this.getDate(i,k,'month') &&
                 this.currentDay == this.getDate(i,k,'day');
             },
             getDate: function(i,k,type = null){
                 let date = this.dates[(((i*7) + k))-8];
-                // let month = this.dates[(((i*7) + k))-8].month;
                 if(type != null)
                     return date[type];
                 return date;
@@ -309,22 +121,13 @@
             },
         },
         components: {
-            Navigation,
             MonthCell,
-            ModalMovePathPicker,
-            MovingEventInfoBox,
-            NewEventInfoBox,
-            ModalMoreEvents,
-            Navbar
-            // TimeBarFill,
-            // TimeBarNew,
         },
         watch: {
             dates: function () {
                 
             },
             search: function () {
-                // console.log(this.search);
                 this.getData();
             },
             dataUpdater: function () {

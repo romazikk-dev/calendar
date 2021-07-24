@@ -11,46 +11,77 @@ namespace App\Classes\Getter\Worker;
 // use App\Models\Template as ModelTemplate;
 use App\Models\Worker as ModelWorker;
 use App\Classes\Getter\Worker\Enums\Params;
-use App\Models\User;
+// use App\Models\User;
 use App\Scopes\UserScope;
 
-class Worker{
+class Worker extends MainWorker{
     
     function get(array $params = []){
-        if(!empty($params[Params::OWNER_ID]) && is_numeric($params[Params::OWNER_ID])){
-            $model = ModelWorker::withoutGlobalScope(UserScope::class)
-                ->byUser($params[Params::OWNER_ID]);
+        if($this->isParam($params, Params::OWNER_ID)){
+            $model = ModelWorker::withoutGlobalScope(UserScope::class);
+            if(is_array($params[Params::OWNER_ID])){
+                $model->byUsers($params[Params::OWNER_ID]);
+            }else{
+                $model->byUser($params[Params::OWNER_ID]);
+            }
         }else{
             $model = ModelWorker::query();
         }
         
-        if(!empty($params[Params::ID]) && is_numeric($params[Params::ID]))
-            $model->where('id', (int)$params[Params::ID]);
+        // if(!empty($params[Params::OWNER_ID]) && is_numeric($params[Params::OWNER_ID])){
+        //     $model = ModelWorker::withoutGlobalScope(UserScope::class)
+        //         ->byUser($params[Params::OWNER_ID]);
+        // }else{
+        //     $model = ModelWorker::query();
+        // }
         
-        if(!empty($params[Params::TEMPLATE_ID])){
+        if($this->isParam($params, Params::ID)){
+            if(is_array($params[Params::ID])){
+                $model->byIds($params[Params::ID]);
+            }else{
+                $model->byId($params[Params::ID]);
+            }
+        }
+        
+        // if(!empty($params[Params::ID]) && is_numeric($params[Params::ID]))
+        //     $model->where('id', (int)$params[Params::ID]);
+        
+        if($this->isParam($params, Params::TEMPLATE_ID)){
+        // if(!empty($params[Params::TEMPLATE_ID])){
             $model->whereHas('templates', function($query) use ($params) {
-                $query->byId($params[Params::TEMPLATE_ID]);
+                if(is_array($params[Params::TEMPLATE_ID])){
+                    $query->byIds($params[Params::TEMPLATE_ID]);
+                }else{
+                    $query->byId($params[Params::TEMPLATE_ID]);
+                }
             });
         }
         
-        if(!empty($params[Params::HALL_ID])){
+        if($this->isParam($params, Params::HALL_ID)){
+        // if(!empty($params[Params::HALL_ID])){
             $model->whereHas('halls', function($query) use ($params) {
-                $query->byId($params[Params::HALL_ID]);
+                if(is_array($params[Params::HALL_ID])){
+                    $query->byIds($params[Params::HALL_ID]);
+                }else{
+                    $query->byId($params[Params::HALL_ID]);
+                }
             });
         }
         
         // var_dump($template_model->toSql());
         // die();
         
-        if(!empty($params[Params::WITH]) && is_array($params[Params::WITH])){
-            foreach($params[Params::WITH] as $k => $v){
-                $model->with($v);
+        if($this->isParam($params, Params::WITH)){
+            if(is_array($params[Params::WITH])){
+                foreach($params['with'] as $k => $v)
+                    $model->with($v);
+            }else{
+                $model->with($params[Params::WITH]);
             }
         }
         
-        $templates = $model->get();
-        
-        return $templates->isEmpty() || $templates === false ? null : $templates;
+        $result = $model->get();
+        return $result->isEmpty() || $result === false ? null : $result;
     }
     
 }

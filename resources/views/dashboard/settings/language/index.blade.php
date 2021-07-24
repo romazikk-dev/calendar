@@ -1,4 +1,4 @@
-@extends('dashboard.settings.template.main')
+@extends('dashboard.settings.view.main')
 
 @section('breadcrumbs')
     {{ Breadcrumbs::render('settings', [['language']]) }}

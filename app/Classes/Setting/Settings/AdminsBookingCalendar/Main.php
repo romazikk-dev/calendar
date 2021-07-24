@@ -22,8 +22,14 @@ class Main extends Setting{
             
         if(is_string($setting))
             $setting = json_decode($setting, true);
-            
-        $setting = array_unique(array_merge($this->getPlaceholder(), $setting));
+        
+        // dd($setting);
+        
+        // if()
+        // $setting = array_unique(array_merge($this->getPlaceholder(), $setting));
+        $setting = array_merge($this->getPlaceholder(), $setting);
+        
+        // dd($setting);
         
         return $setting;
     }
@@ -69,8 +75,10 @@ class Main extends Setting{
     
     public function getPlaceholder(){
         return [
-            // 'max_future_booking_offset' => (60 * 60 * 24) * 30,
             'month_max_events_per_day_to_show' => 2,
+            'week_max_events_per_day_to_show' => 10,
+            'day_max_events_per_day_to_show' => 20,
+            'list_max_events_per_day_to_show' => 50,
         ];
     }
     

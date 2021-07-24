@@ -10,6 +10,7 @@ use App\Rules\SpecificsMaxDeep;
 use App\Rules\SpecificNotInUse;
 use Illuminate\Support\Facades\Validator;
 use App\Classes\TemporaryMessages\Enums\Keys as TemporaryMessagesKeys;
+use App\Classes\Setting\Enums\Keys as SettingKeys;
 
 class SettingTemplateController extends Controller
 {
@@ -116,72 +117,30 @@ class SettingTemplateController extends Controller
         ]);
     }
     
-    /**
-     * Sets cpecifics.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    function __specifics(Request $request){
+    function main(Request $request){
+        $setting = \Setting::of(SettingKeys::TEMPLATE_MAIN);
+        // dd($setting->getOrPlaceholder());
+        // dd('main');
         
         if($request->isMethod('post')){
-            
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                // 'field.*.key' => 'required|string|regex:/^[\w]+$/|max:255|distinct',
-                'description' => 'nullable|string|max:255',
-                'parent_id' => 'nullable|integer|exists:template_specifics,id',
-                'id' => 'nullable|integer|exists:template_specifics,id',
+                "duration_range_start" => "required|integer|min:0|max:720",
+                "duration_range_end" => "required|integer|min:0|max:720",
             ]);
             
-            // \Specifics::my();
+            // dd($validated);
             
-            // $field = $request->field;
-            // $keys = array_keys($field);
-            // dd($request->all());
+            $setting->parseAndSet($validated);
             
-            dd('unique');
-            
-            if(\Specifics::isAllLevelsUniqueInRequest()){
-                dd('unique');
-            }else{
-                dd('not unique');
-            }
-            
-            $fields = \Specifics::getRulesDependOnRequest($request->field);
-            
-            // $fields = \Specifics::parseRequestToArray($request->field);
-            dd($fields);
-            
-            // dump($keys);
-            // dd($field);
-            
-            $validated = $request->validate([
-                'field' => 'array',
-                'field.*' => 'array',
-                'field.*.title' => 'required|string|max:255',
-                'field.*.key' => 'required|string|regex:/^[\w]+$/|max:255|distinct',
-                'field.*.description' => 'nullable|string|max:255'
+            return back()->with([
+                'success' => 'Data successfuly saved!'
             ]);
-            
-            
-            // Holiday::where([
-            //     'holidayable_type' => null,
-            //     'holidayable_id' => null
-            // ])->delete();
-            // 
-            // $holidays = \Holiday::getAllFromRequest();
-            // if(!empty($holidays))
-            //     foreach($holidays as $holiday)
-            //         Holiday::create($holiday);
-            // 
-            // return back()->with([
-            //     'success' => 'Data successfuly saved!'
-            // ]);
         }
         
-        return view('dashboard.settings.template.specifics', [
-            // 'nav' => \Setting::getNav('template')
-            'validation_messages' => \Lang::get('validation'),
+        // dd($setting->getOrPlaceholder());
+        
+        return view('dashboard.settings.template.main', [
+            'setting' => $setting->getOrPlaceholder(),
         ]);
     }
     

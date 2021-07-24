@@ -47,18 +47,14 @@ class Booking extends MainBooking{
         ]));
     }
     
-    public function all(User $owner, Range $range, array $params = [])
+    public function all(Range $range, array $params = [])
     {
-        return (new MainBookingGetter($owner, $range, $params))->get();
+        return (new MainBookingGetter($range, $params))->get();
     }
     
-    public function free(User $owner, Range $range, int $hall_id, int $worker_id, array $params = [])
+    public function free(Range $range, array $params = [])
     {
-        $hall = Hall::find($hall_id);
-        $worker = Worker::find($worker_id);
-        if(empty($hall) || empty($worker))
-            throw new BookingGetterBadParametersException('One of model(Hall|Worker) is empty in ' . self::class . '::' .  __FUNCTION__);
-        return (new FreeSlots($owner, $range, $hall, $worker, $params))->get();
+        return (new FreeSlots($range, $params))->get();
     }
     
     public function freeWithBookings(User $owner, Range $range, int $hall_id, int $worker_id, array $params = [])

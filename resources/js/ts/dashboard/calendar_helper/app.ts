@@ -5,6 +5,8 @@ import { MovingE } from "./MovingE";
 import { NewE } from "./NewE";
 import { Person } from "./Person";
 import { Time } from "./Time";
+import { View } from "./View";
+import { Filter } from "./Filter";
 // import { View as EnumView } from "./enums/View";
 
 declare var window: any;
@@ -15,21 +17,16 @@ class Helper{
     newE?: NewE;
     person?: Person;
     time?: Time;
-    // range: DateRange;
+    view?: View;
+    filter?: Filter;
   
     constructor() {
         this.movingE = new MovingE();
         this.newE = new NewE();
         this.person = new Person();
         this.time = new Time();
-        // alert(1111); 
-        // this.view = EnumView.MONTH;
-        // this.range = new DateRange(EnumView.MONTH);
-    }
-    
-    parse() { 
-        // return JSON.parse(JSON.stringify(value));
-        alert(2222);
+        this.view = new View();
+        this.filter = new Filter();
     }
 }
 

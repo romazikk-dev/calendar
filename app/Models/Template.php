@@ -106,6 +106,18 @@ class Template extends Model
     }
     
     /**
+     * Scope a query to only include templates of given users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_ids
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUsers($query, $user_ids)
+    {
+        return $query->whereIn('user_id', $user_ids);
+    }
+    
+    /**
      * Scope a query to only include templates of given id.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -115,5 +127,17 @@ class Template extends Model
     public function scopeById($query, $id)
     {
         return $query->where('id', $id);
+    }
+    
+    /**
+     * Scope a query to only include templates of given ids.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $ids
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByIds($query, $ids)
+    {
+        return $query->whereIn('id', $ids);
     }
 }

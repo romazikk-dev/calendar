@@ -116,6 +116,18 @@ class Booking extends Model
     }
     
     /**
+     * Scope a query to only include bookings of given users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $user_ids
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUsers($query, $user_ids)
+    {
+        return $query->whereIn('user_id', $user_ids);
+    }
+    
+    /**
      * Scope a query to only include bookings of given id.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query

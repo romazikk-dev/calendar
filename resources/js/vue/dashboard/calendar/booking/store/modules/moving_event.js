@@ -70,13 +70,26 @@ const getters = {
             typeof state.picked.hall !== 'undefined' && state.picked.hall !== null &&
             typeof state.picked.worker !== 'undefined' && state.picked.worker !== null &&
             typeof state.picked.template !== 'undefined' && state.picked.template !== null){
-                urlSearchParams.append("hall", state.picked.hall.id);
-                urlSearchParams.append("worker", state.picked.worker.id);
-                urlSearchParams.append("template", state.picked.template.id);
+                urlSearchParams.append("hall[]", state.picked.hall.id);
+                urlSearchParams.append("worker[]", state.picked.worker.id);
+                urlSearchParams.append("template[]", state.picked.template.id);
             }else{
-                urlSearchParams.append("hall", state.event.hall_id);
+                urlSearchParams.append("hall[]", state.event.hall_id);
+                urlSearchParams.append("worker[]", state.event.worker_id);
+                urlSearchParams.append("template[]", state.event.template_id);
+            }
+        }
+            
+        return urlSearchParams;
+    },
+    urlSearchParamsFree: (state, as_string = false) => {
+        let urlSearchParams = new URLSearchParams();
+        
+        if(state.event !== null){
+            if(typeof state.picked.worker !== 'undefined' && state.picked.worker !== null){
+                urlSearchParams.append("worker", state.picked.worker.id);
+            }else{
                 urlSearchParams.append("worker", state.event.worker_id);
-                urlSearchParams.append("template", state.event.template_id);
             }
         }
             

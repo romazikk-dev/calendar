@@ -68,6 +68,11 @@
                                         @click.prevent="$emit('clickActionDateTime')"
                                         href="#">Date&Time</a>
                                 </div>
+                                <!-- <div class="action-date-time-current-day" v-if="showDateTimeCurrentDay">
+                                    <a class="dropdown-item"
+                                        @click.prevent="$emit('clickActionDateTimeCurrentDay')"
+                                        href="#">Date&Time<br><span class='small'>(current day)</span></a>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -159,7 +164,7 @@
             // console.log(this.bigger);
             // alert(1111);
         },
-        props: ['itm','bigger','rightPlaced'],
+        props: ['itm','bigger','rightPlaced','showDateTimeCurrentDay'],
         data: function(){
             return {
                 // range: helper.range.range,

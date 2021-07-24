@@ -1,8 +1,9 @@
 <template>
     <div>
-            <span>{{templateCustomTitle}}:</span><br>
+            <span v-if="label">{{label}}:<br></span>
             <dropdown-template-specifics
                 @change="$emit('change', $event)"
+                :btn-class="btnClass"
                 :templates="templates"
                 :picked-template-ids-trace="pickedTemplateIdsTrace"
                 :parsed-templates="parsedTemplates"
@@ -20,16 +21,16 @@
             // console.log(JSON.parse(JSON.stringify(7777)));
             // console.log(JSON.parse(JSON.stringify(this.templates)));
         },
-        props: ['templates','specifics','specificsAsIdKey','pickedTemplateIdsTrace'],
+        props: ['templates','specifics','specificsAsIdKey','pickedTemplateIdsTrace','label','btnClass'],
         data: function(){
             return {
                 parsedTemplates: null,
             };
         },
         computed: {
-            templateCustomTitle: function(){
-                return this.$store.getters['custom_titles/title']('template');
-            },
+            // templateCustomTitle: function(){
+            //     return this.$store.getters['custom_titles/title']('template');
+            // },
         },
         methods: {
             parseTemplatesAccordingToSpecifics: function(){
@@ -59,7 +60,7 @@
                             if(template.specific.ids_trace !== null){
                                 let idsTraceArr = template.specific.ids_trace.split(',');
                                 
-                                console.log(JSON.parse(JSON.stringify('idsTraceArr')));
+                                // console.log(JSON.parse(JSON.stringify('idsTraceArr')));
                                 let currentSpecificsToWorkWith = _this.specifics;
                                 
                                 idsTracePath = '';

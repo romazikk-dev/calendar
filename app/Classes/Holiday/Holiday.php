@@ -6,8 +6,57 @@ namespace App\Classes\Holiday;
 // use App\Classes\Suspension\Enums\Types;
 use App\Classes\Holiday\Enums\Fields;
 use App\Models\Holiday as HolidayModel;
+use App\Models\Worker;
 
 class Holiday extends MainHoliday{
+    
+    public function ofWorker($worker_id, $separate_worker_from_hall = false){
+        if(!is_numeric($worker_id))
+            return null;
+        
+        $worker = Worker::find($worker_id);
+        if(empty($worker))
+            return null;
+            
+        $worker_holidays = [];
+        $hall_holidays = [];
+        
+        if(!$worker->holidays->isEmpty())
+            $worker_holidays = $this->mergeHolidaysAsUnique(
+                $worker_holidays,
+                $this->parseHolidaysIntoArrayKey($worker->holidays)
+            );
+        
+        if(!$worker->hallsWithoutUserScope->isEmpty())
+            foreach($worker->hallsWithoutUserScope as $hall){
+                // var_dump($hall->holidays->toArray());
+                if(!$hall->holidays->isEmpty()){
+                    // var_dump($hall->holidays->toArray());
+                    $hall_holidays = $this->mergeHolidaysAsUnique(
+                        $hall_holidays,
+                        $this->parseHolidaysIntoArrayKey($hall->holidays)
+                    );
+                }
+            }
+            
+        $null_holidays = $this->getNullHolidaysOfOwner($worker->user_id);
+        if(!$null_holidays->isEmpty())
+            $hall_holidays = $this->mergeHolidaysAsUnique(
+                $hall_holidays,
+                $this->parseHolidaysIntoArrayKey($null_holidays)
+            );
+        
+        if($separate_worker_from_hall === false)
+            return $this->mergeHolidaysAsUnique(
+                $worker_holidays,
+                $hall_holidays
+            );
+            
+        return [
+            'worker' => $worker_holidays,
+            'hall' => $hall_holidays,
+        ];
+    }
     
     public function getAllAsUniqueDateValue($hall, $worker, $params = []){
         $getKeyFromCarbon = function($carbon_instance){

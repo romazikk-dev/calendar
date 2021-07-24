@@ -1,12 +1,13 @@
 <template>
     <div>
-        
-        <div class="dropdown" ref="dropdown">
+        <div v-if="label">{{label}}:</div>
+        <div :class="{
+            'dropdown': !dropup,
+            'dropup': dropup,
+        }" ref="dropdown">
             <input :name="inputName" type="hidden" v-model="inputData">
-            <a class="btn btn-secondary dropdown-toggle"
-                :class="{
-                    'disabled': dropdownDisabled || disabled
-                }"
+            <a class="btn dropdown-toggle"
+                :class="dropdownToggleClass"
                 href="#"
                 role="button"
                 ref="dropdown_toggle"
@@ -27,8 +28,20 @@
                     '--max-dropdown-menu-height': maxDropdownMenuHeight,
                 }"
                 aria-labelledby="dropdownMenuLink">
-                    <search ref="search" @search="search = $event" />
+                    <search ref="search"
+                        :small="smallSearch === true ? true : false"
+                        @search="search = $event" />
+                    <div v-if="search" class="small search-info">
+                        Found {{countItems}} of {{items.length}}
+                    </div>
                     <div class="for-items">
+                        <a v-if="emptyable && !search && pickedItem !== null"
+                            class="dropdown-item"
+                            ref="item_empty"
+                            href="#"
+                            @click.prevent="change(null)">
+                                {{pickedItemPlaceholderComputed}}
+                        </a>
                         <a v-for="(item, index) in items"
                             v-if="isSearchApplyable(item.val)"
                             class="dropdown-item"
@@ -52,18 +65,46 @@
             // console.log(JSON.parse(JSON.stringify(this.items)));
             // this.checkIfRegionUtc();
             $(this.$refs.dropdown).on('hide.bs.dropdown', () => {
-                this.$refs.search.resetClick();
+                if(this.cabBeReseted)
+                    this.$refs.search.resetClick();
             });
         },
-        props: ['items','pickedItemPlaceholder','reseter','disabled','inputName','error','maxDropdownMenuHeight'],
+        props: [
+            'items','pickedItemPlaceholder','reseter','disabled','inputName','error',
+            'maxDropdownMenuHeight','small','label','smallSearch','btnClass','dropup',
+            'emptyable'
+        ],
         data: function(){
             return {
                 pickedItem: null,
                 dropdownDisabled: false,
                 search: null,
+                cabBeReseted: true,
             };
         },
         computed: {
+            countItems: function () {
+                let count = 0;
+                for(let idx in this.items){
+                    if(this.isSearchApplyable(this.items[idx].val))
+                        count++;
+                }
+                return count;
+            },
+            dropdownToggleClass: function () {
+                let classes = {
+                    'disabled': this.dropdownDisabled || this.disabled,
+                    'btn-sm': this.small === true,
+                }
+                
+                if(typeof this.btnClass !== 'undefined' && this.btnClass !== null){
+                    classes = Object.assign(classes, this.btnClass);
+                }else{
+                    classes['btn-secondary'] = true;
+                }
+                
+                return classes;
+            },
             isPicked: function () {
                 return this.pickedItem !== null;
             },
@@ -134,11 +175,25 @@
             items: function(val){
                 this.checkIfRegionUtc();
             },
+            countItems: function(val){
+                if(typeof this.dropup === 'undefined' || this.dropup === null)
+                    return;
+                this.cabBeReseted = false;
+                this.$refs.dropdown_toggle.click();
+                this.$refs.dropdown_toggle.click();
+                this.$refs.search.setFocusOnInput();
+                this.cabBeReseted = true;
+            },
         },
     }
 </script>
 
 <style lang="scss" scoped>
+    .search-info{
+        padding: 0px 6px;
+        margin-top: -14px;
+        color: rgba(0,0,0, .6);
+    }
     .dropdown-toggle{
         width: 100%;
         text-align: left;
@@ -155,6 +210,12 @@
             position: absolute;
             top: 16px;
             right: 14px;
+        }
+        &.btn-sm{
+            &::after {
+                top: 12px;
+                right: 10px;
+            }
         }
     }
     .dropdown-menu{

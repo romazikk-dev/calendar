@@ -1,6 +1,10 @@
 <template>
     <div>
-        <div v-if="item.count_total" class="counters">
+        <div v-if="item.count_total" class="counters" :class="{
+            'counters-to-top': countersToTop,
+            'counters-dis-transparency': countersDisTransparency,
+            'counters-bigger': countersBigger,
+        }">
             <ul>
                 <li>
                     <span class="badge badge-pill tooltip-active badge-counter-total"
@@ -26,8 +30,14 @@
             </ul>
         </div>
         <div v-if="items" class="events">
-            <ul>
-                <li v-if="conditionForItemsIteration(index)" v-for="(itm, index) in items">
+            <div class="row for-events">
+                <template>
+                <div v-if="conditionForItemsIteration(index)" v-for="(itm, index) in items"
+                class="if-events"
+                :class="{
+                    'col-12': !eventsInRow,
+                    'col-sm-6 col-md-4 col-lg-3 col-xl-2': eventsInRow,
+                }">
                     <template v-if="itm.type == 'free'">
                         
                         <div class='free-slot'>
@@ -92,12 +102,15 @@
                             </b>
                             {{itm.hall_without_user_scope.title}} -->
                             
-                            <actions :itm="itm" :ref="'actions_' + itm.id"
-                                @clickActionMove="onClickActionMove(itm)"
-                                @clickActionDuration="onClickActionDuration(itm)"
-                                @clickActionDateTime="onClickActionDateTime(itm)"
-                                @clickActionApprove="onClickActionApprove(itm)"
-                                @clickActionRemove="onClickActionRemove(itm)"/>
+                            <div :class="{'right-placed-actions': rightPlacedActions}">
+                                <actions :itm="itm" :ref="'actions_' + itm.id"
+                                    :rightPlaced="rightPlacedActions"
+                                    @clickActionMove="onClickActionMove(itm)"
+                                    @clickActionDuration="onClickActionDuration(itm)"
+                                    @clickActionDateTime="onClickActionDateTime(itm)"
+                                    @clickActionApprove="onClickActionApprove(itm)"
+                                    @clickActionRemove="onClickActionRemove($event, itm)"/>
+                            </div>
                             
                             <div class="clearfix"></div>
                             <!-- <button @click.prevent="$emit('cancel', itm.booking)"
@@ -105,18 +118,20 @@
                                 class="btn btn-link btn-sm btn-block cancel"><span>×</span></button> -->
                         </div>
                     </template>
-                </li>
-            </ul>
-            <div v-if="showButtonMore"
-                class="for-show-more-events-btn">
-                    <a href="#"
-                        @click.prevent="$emit('clickMore', item)"
-                        class="btn btn-sm btn-info show-more-events-btn">
-                            More ...
-                    </a>
-                    <div class="clearfix"></div>
+                </div>
+                </template>
             </div>
         </div>
+        <div v-if="showButtonMore"
+            class="for-show-more-events-btn">
+                <a href="#"
+                    @click.prevent="$emit('clickMore', item)"
+                    class="btn btn-sm btn-info show-more-events-btn">
+                        More ...
+                </a>
+                <div class="clearfix"></div>
+        </div>
+        <div v-if="!items" class="cell-placeholder"></div>
     </div>
 </template>
 
@@ -125,11 +140,21 @@
     import Actions from "./event/Actions.vue";
     export default {
         name: 'monthCell',
+        updated() {
+            $('.tooltip-active').tooltip({
+                html: true,
+                trigger: "hover",
+            });
+        },
         mounted() {
+            $('.tooltip-active').tooltip({
+                html: true,
+                trigger: "hover",
+            });
             // console.log(this.dateRange);
             // console.log(JSON.parse(JSON.stringify(this.item)));
         },
-        props: ['item'],
+        props: ['item','countersToTop','countersDisTransparency','countersBigger','rightPlacedActions','eventsInRow'],
         data: function(){
             return {
                 // range: helper.range.range,
@@ -144,7 +169,15 @@
                 return this.item.items
             },
             maxEventsPerDay: function () {
-                return this.calendarSettings.month_max_events_per_day_to_show;
+                if(this.view == 'month')
+                    return this.calendarSettings.month_max_events_per_day_to_show;
+                if(this.view == 'week')
+                    return this.calendarSettings.week_max_events_per_day_to_show;
+                if(this.view == 'day')
+                    return this.calendarSettings.day_max_events_per_day_to_show;
+                if(this.view == 'list')
+                    return this.calendarSettings.list_max_events_per_day_to_show;
+                return null;
             },
             showButtonMore: function () {
                 return typeof this.item.items !== 'undefined' && Array.isArray(this.item.items) &&
@@ -181,7 +214,8 @@
             },
             onClickActionMove: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
-                    this.calendar.$refs.move_path_picker.show();
+                    // this.calendar.$refs.move_path_picker.show();
+                    this.app.$refs.move_path_picker.show();
                 });
             },
             onClickActionDuration: function (event) {
@@ -220,31 +254,23 @@
                     this.calendar.getData();
                 });
             },
+            // onClickActionRemove: function (e, event) {
+            //     alert(111);
+            // },
             onClickActionRemove: function (e, event) {
-                alert(111);
-            },
-            clickActionRemove: function (e, event) {
-                // let _this = this;
-                this.$refs['action_remove_drop_toggle_' + event.id][0].click();
-                // this.toggleActionLoader(true, 'action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
-                
-                alert(222);
-                return;
-                
                 new Promise((resolve, reject) => {
                     this.$refs['actions_' + event.id][0].toggleActionLoader('action_remove_loader_' + event.id, 'action_remove_drop_' + event.id);
-                    this.app.removeEvent(event.id, (data) => {
+                    this.app.removeEvent(event.id).then((data) => {
                         resolve(data);
                     });
+                    // resolve({});
                 }).then((data) => {
-                    if(typeof data.status !== 'undefined' && data.status == 'success'){
-                        // alert('Successfuly removed!!!');
-                    }else{
+                    if(typeof data.status === 'undefined' || data.status != 'success'){
                         if(typeof data.msg !== 'undefined' && data.msg !== null)
                             alert(data.msg);
                     }
                     this.$refs['actions_' + event.id][0].toggleActionLoader('action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
-                    this.$emit('removed');
+                    this.calendar.getData();
                 });
             },
             toggleActionLoader: function (refShow, refHide) {

@@ -10,6 +10,7 @@ class MainGetter{
     private $getter = null;
     
     private $aliases = [
+        Keys::HALLS => \App\Classes\Getter\Hall\Hall::class,
         Keys::TEMPLATES => \App\Classes\Getter\Template\Template::class,
         Keys::WORKERS => \App\Classes\Getter\Worker\Worker::class,
         Keys::CLIENTS => \App\Classes\Getter\Client\Client::class,

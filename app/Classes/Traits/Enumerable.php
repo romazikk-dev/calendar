@@ -6,7 +6,7 @@ namespace App\Classes\Traits;
 trait Enumerable{
     private static $constCacheArray = NULL;
     
-    static function all(){
+    static function all($params = []){
         if (self::$constCacheArray != NULL) {
             return self::$constCacheArray;
         }else{
@@ -15,7 +15,12 @@ trait Enumerable{
         $reflection = new \ReflectionClass(get_class());
         $constants = $reflection->getConstants();
         foreach($constants as $k => $v){
-            self::$constCacheArray[strtolower($k)] = $v;
+            if(!empty($params['except']) && is_array($params['except'])){
+                if(!in_array(strtolower($k), $params['except']))
+                    self::$constCacheArray[strtolower($k)] = $v;
+            }else{
+                self::$constCacheArray[strtolower($k)] = $v;
+            }
         }
         return self::$constCacheArray;
     }

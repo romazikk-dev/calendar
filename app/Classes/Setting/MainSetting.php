@@ -33,6 +33,9 @@ class MainSetting{
         Keys::CLIENTS_BOOKING_CALENDAR_LANGUAGES => \App\Classes\Setting\Settings\LanguagePicker::class,
         Keys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES => \App\Classes\Setting\Settings\CustomFields\CustomFields::class,
         Keys::ADMINS_BOOKING_CALENDAR_MAIN => \App\Classes\Setting\Settings\AdminsBookingCalendar\Main::class,
+        
+        //Template
+        Keys::TEMPLATE_MAIN => \App\Classes\Setting\Settings\Template\Main::class,
     ];
     
     function __construct() {

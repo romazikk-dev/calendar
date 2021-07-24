@@ -9,6 +9,7 @@ class Keys{
     
     use Enumerable;
     
+    const HALLS = "halls";
     const TEMPLATES = "templates";
     const WORKERS = "workers";
     const CLIENTS = "clients";

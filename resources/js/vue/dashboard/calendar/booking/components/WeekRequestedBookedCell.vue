@@ -1,7 +1,8 @@
 <template>
     <div>
-        <template v-for="date in dates" v-if="date.bookable && date.weekday == weekdayIndex">
-            <template v-for="item in date.items">
+        <!-- dasddddd -->
+        <!-- <template v-for="date in items" v-if="items && date.bookable && date.weekday == weekdayIndex"> -->
+            <template v-for="item in items">
                 <template v-if="item.type == 'free'">
                     <div v-for="not_approved_booking in item.not_approved_bookings"
                         class="calendar-top-item requested-booking-calendar-item">
@@ -12,7 +13,7 @@
                             class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                     </div>
                 </template>
-                <div v-if="item.type == 'booked'"
+                <div v-else
                     class="calendar-top-item booked-calendar-item">
                         Booked on:<br>
                         <b>Men haircut<br>{{item.from}} - {{item.to}}</b>
@@ -21,7 +22,7 @@
                             class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                 </div>
             </template>
-        </template>
+        <!-- </template> -->
     </div>
 </template>
 
@@ -32,7 +33,7 @@
             // console.log(this.dateRange);
             // console.log(this.view);
             // this.getDataForCalendar();
-            // console.log(JSON.parse(JSON.stringify(this.items)));
+            console.log(JSON.parse(JSON.stringify(this.dates)));
         },
         props: ['dates','weekdayIndex'],
         data: function(){
@@ -42,6 +43,14 @@
         },
         methods: {
             
+        },
+        computed: {
+            items: function () {
+                if(typeof this.dates === 'undefined' || this.dates === null ||
+                typeof this.dates.items === 'undefined' || this.dates.items === null)
+                    return null;
+                return this.dates.items;
+            },
         },
         components: {
             

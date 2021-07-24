@@ -49,6 +49,17 @@ const getters = {
         return getters.isMainFull && getters.isClientFull;
     },
     // urlSearchParamsMain: (state, as_string = false) => {
+    urlSearchParamsFree: (state, getters) => {
+        let urlSearchParams = new URLSearchParams();
+        
+        if(getters.isMainFull === true){
+            // urlSearchParams.append("hall", state.main.hall.id);
+            urlSearchParams.append("worker", state.main.worker.id);
+            // urlSearchParams.append("template", state.main.template.id);
+        }
+            
+        return urlSearchParams;
+    },
     urlSearchParamsMain: (state, getters) => {
         let urlSearchParams = new URLSearchParams();
         

@@ -1,4 +1,4 @@
-@extends('dashboard.settings.template.main')
+@extends('dashboard.settings.view.main')
 
 @section('breadcrumbs')
     {{ Breadcrumbs::render('settings', [
@@ -47,40 +47,43 @@
             <div class="row">
                 
                 @if(array_key_exists("month_max_events_per_day_to_show", $setting))
-                    @php
-                        $setting_key = 'month_max_events_per_day_to_show';
-                    @endphp
-                    <div class="col col-12">
-                        <div class="form-group">
-                            <label for="maxFutureBookingOffset">
-                                Maximum events per day to show
-                                <span class="small">(month view)</span>
-                            </label>
-                            <input type="number"
-                                max="10"
-                                min="1"
-                                name="{{$setting_key}}"
-                                class="form-control"
-                                id="maxFutureBookingOffset"
-                                placeholder="Maximum events per day ..."
-                                value="@php
-                                    if(old($setting_key) !== null){
-                                        echo old($setting_key);
-                                    }else{
-                                        if(old('_token')){
-                                            echo '';
-                                        }else{
-                                            echo $setting[$setting_key];
-                                        }
-                                    }
-                                @endphp">
-                            @if($errors->has($setting_key))
-                            <div class="small text-danger">
-                                {{ $errors->first($setting_key) }}
-                            </div>
-                            @endif
-                        </div>
-                    </div>
+                    <x-setting.numeric_setting_item
+                        :setting="$setting"
+                        label="Maximum events per day to show"
+                        setting_key="month_max_events_per_day_to_show"
+                        input_id="monthMaxEventsPerDayToShow"
+                        input_placeholder="Maximum events per day ..."
+                        view="month" />
+                @endif
+                
+                @if(array_key_exists("week_max_events_per_day_to_show", $setting))
+                <x-setting.numeric_setting_item
+                    :setting="$setting"
+                    label="Maximum events per day to show"
+                    setting_key="week_max_events_per_day_to_show"
+                    input_id="weekMaxEventsPerDayToShow"
+                    input_placeholder="Maximum events per day ..."
+                    view="week" />
+                @endif
+                
+                @if(array_key_exists("day_max_events_per_day_to_show", $setting))
+                <x-setting.numeric_setting_item
+                    :setting="$setting"
+                    label="Maximum events per day to show"
+                    setting_key="day_max_events_per_day_to_show"
+                    input_id="dayMaxEventsPerDayToShow"
+                    input_placeholder="Maximum events per day ..."
+                    view="day" />
+                @endif
+                
+                @if(array_key_exists("list_max_events_per_day_to_show", $setting))
+                <x-setting.numeric_setting_item
+                    :setting="$setting"
+                    label="Maximum events per day to show"
+                    setting_key="list_max_events_per_day_to_show"
+                    input_id="listMaxEventsPerDayToShow"
+                    input_placeholder="Maximum events per day ..."
+                    view="list" />
                 @endif
                 
             </div>

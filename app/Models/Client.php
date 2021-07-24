@@ -103,4 +103,28 @@ class Client extends Authenticatable
     public function suspension(){
         return $this->morphOne(Suspension::class, 'suspensionable');
     }
+    
+    /**
+     * Scope a query to only include clients of given id.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $id
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeById($query, $id)
+    {
+        return $query->where('id', $id);
+    }
+    
+    /**
+     * Scope a query to only include clients of given ids.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $ids
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByIds($query, $ids)
+    {
+        return $query->whereIn('id', $ids);
+    }
 }

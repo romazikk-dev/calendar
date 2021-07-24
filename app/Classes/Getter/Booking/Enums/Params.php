@@ -9,12 +9,16 @@ class Params{
     
     use Enumerable;
     
+    const OWNER = "owner";
     const ID = "id";
     const HALL = "hall";
     const WORKER = "worker";
     const TEMPLATE = "template";
     const CLIENT = "client";
     const WITH = "with";
+    
+    const DURATION_START = "duration_start";
+    const DURATION_END = "duration_end";
     
     const HALL_MODEL = "hall_model";
     const WORKER_MODEL = "worker_model";

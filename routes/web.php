@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\HallController as DashboardHallController;
 use App\Http\Controllers\Dashboard\TemplateController as DashboardTemplateController;
 use App\Http\Controllers\Dashboard\ClientController as DashboardClientController;
 
+use App\Http\Controllers\Dashboard\Ajax\HallController as AjaxHallController;
 use App\Http\Controllers\Dashboard\Ajax\TemplateController as AjaxTemplateController;
 use App\Http\Controllers\Dashboard\Ajax\WorkerController as AjaxWorkerController;
 use App\Http\Controllers\Dashboard\Ajax\ClientController as AjaxClientController;
@@ -73,12 +74,15 @@ Route::group([
             'as' => 'booking.'
         ], function () {
             
-            // Route::get('/get', [AjaxBookingController::class, 'get'])->name('get');
-            Route::get('/get/{start}/{end}/{type?}', [AjaxBookingController::class, 'get'])->where([
+            Route::get('/get/{start}/{end}', [AjaxBookingController::class, 'get'])->where([
                 'start' => '\d{4}-\d{2}-\d{2}',
                 'end' => '\d{4}-\d{2}-\d{2}',
-                'type' => '^(all|free)$',
             ])->name('get');
+            
+            Route::get('/free/{start}/{end}', [AjaxBookingController::class, 'free'])->where([
+                'start' => '\d{4}-\d{2}-\d{2}',
+                'end' => '\d{4}-\d{2}-\d{2}'
+            ])->name('free');
             
             Route::post('/edit/{booking}', [AjaxBookingController::class, 'edit'])->where('booking', '[0-9]+')->name('edit');
             Route::post('/approve/{booking}', [AjaxBookingController::class, 'approve'])->where('booking', '[0-9]+')->name('approve');
@@ -94,15 +98,20 @@ Route::group([
         });
         
         Route::group([
+            'prefix' => '/hall',
+            'as' => 'hall.'
+        ], function () {
+            
+            Route::get('/get', [AjaxHallController::class, 'get'])->name('get');
+            
+        });
+        
+        Route::group([
             'prefix' => '/template',
             'as' => 'template.'
         ], function () {
             
             Route::get('/get', [AjaxTemplateController::class, 'get'])->name('get');
-                
-            // Route::post('/by_hall/{hall_id}', [AjaxTemplateController::class, 'byHall'])
-            //     ->where('id', '[0-9]+')
-            //     ->name('by_hall');
             
         });
         
@@ -265,6 +274,7 @@ Route::group([
             
             Route::get('/', [DashboardSettingTemplateController::class, 'index'])->name('index');
             Route::match(['get', 'post'], '/specifics', [DashboardSettingTemplateController::class, 'specifics'])->name('specifics');
+            Route::match(['get', 'post'], '/main', [DashboardSettingTemplateController::class, 'main'])->name('main');
             // Route::match(['get', 'post'], '/holidays', [DashboardSettingTemplateController::class, 'holidays'])->name('holidays');
             
         });

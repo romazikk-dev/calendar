@@ -172,14 +172,42 @@ Vue.mixin({
         };
     },
     computed: {
+        // durationRangeRestriction: function(){
+        //     if(typeof templateMainSettings === 'undefined' || typeof templateMainSettings.duration_range === 'undefined' ||
+        //     typeof templateMainSettings.duration_range.start === 'undefined' || typeof templateMainSettings.duration_range.end === 'undefined'){
+        //         return {
+        //             start: 10,
+        //             end: 180
+        //         }
+        //     }else{
+        //         return templateMainSettings.duration_range;
+        //     }
+        // },
+        durationRangeMinMax: function(){
+            if(typeof durationRange !== 'undefined')
+                return durationRange;
+            return {
+                start: 10,
+                end: 180,
+            }
+        },
         app: function(){
             return this.$root.$children[0];
         },
         calendar: function(){
             if(this.view.toLowerCase() === 'month' && typeof this.app.$refs.month_calendar !== 'undefined')
                 return this.app.$refs.month_calendar;
+            if(this.view.toLowerCase() === 'week' && typeof this.app.$refs.week_calendar !== 'undefined')
+                return this.app.$refs.week_calendar;
+            if(this.view.toLowerCase() === 'day' && typeof this.app.$refs.day_calendar !== 'undefined')
+                return this.app.$refs.day_calendar;
+            if(this.view.toLowerCase() === 'list' && typeof this.app.$refs.list_calendar !== 'undefined')
+                return this.app.$refs.list_calendar;
             return null;
         },
+        // calendarTitle: function(){
+        // 
+        // },
         navbar: function(){
             if(this.calendar !== null && typeof this.calendar.$refs.navbar !== 'undefined')
                 return this.calendar.$refs.navbar;
@@ -189,13 +217,19 @@ Vue.mixin({
             return this.$store.getters['moving_event/show'];
         },
         view: function () {
-            // return 'month';
-            return this.$store.getters['filters/view'];
+            return this.$store.getters['view/view'];
+        },
+        views: function () {
+            return this.$store.getters['view/views'];
         },
         canGoToPrevious: function(){
-            if(this.view.toLowerCase() == 'month'){
+            if(this.view.toLowerCase() == 'month')
                 return this.$store.getters['dates/canGoToPreviousMonth'];
-            }
+            if(this.view.toLowerCase() == 'week')
+                return this.$store.getters['dates/canGoToPreviousWeek'];
+            if(this.view.toLowerCase() == 'day')
+                return this.$store.getters['dates/canGoToPreviousDay'];
+                
             // alert(this.$store.dispatch('dates/canGoToPrevious'));
             // return this.$store.dispatch('dates/canGoToPrevious');
             // return this.$store.getters['dates/canGoToPrevious'];
@@ -220,42 +254,10 @@ Vue.mixin({
         currentIsoWeekday: function(){
             return this.$store.getters['dates/current'].isoWeekday;
         },
+        dateInterval: function(){
+            return this.$store.getters['dates/interval'];
+        },
         // Current filters
-        currentEventFilter: function(){
-            if(this.movingEvent !== null)
-                return this.movingEvent;
-            return null;
-        },
-        currentEventFilterDuration: function(){
-            if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
-            typeof this.currentEventFilter.right_duration !== 'undefined' && this.currentEventFilter.right_duration !== null)
-                return this.currentEventFilter.right_duration;
-            return null;
-        },
-        currentHallFilter: function(){
-            if(this.movingEvent !== null){
-                if(this.movingEventIsPickedFull)
-                    return this.movingEventPicked.hall;
-                return this.movingEvent.hall_without_user_scope;
-            }
-            return null;
-        },
-        currentWorkerFilter: function(){
-            if(this.movingEvent !== null){
-                if(this.movingEventIsPickedFull)
-                    return this.movingEventPicked.worker;
-                return this.movingEvent.worker_without_user_scope;
-            }
-            return null;
-        },
-        currentTemplateFilter: function(){
-            if(this.movingEvent !== null){
-                if(this.movingEventIsPickedFull)
-                    return this.movingEventPicked.template;
-                return this.movingEvent.template_without_user_scope;
-            }
-            return null;
-        },
         
         // New event data of new_event `$store` module
         isNewEventFull: function(){
@@ -292,18 +294,6 @@ Vue.mixin({
         },
         movingEventPicked: function(){
             return this.$store.getters['moving_event/picked'];
-        },
-        // isMovingEventPickedItemsChanged: function(){
-        //     return this.$store.getters['moving_event/isPickedItemsChanged'];
-        // },
-        movingEventDuration: function(){
-            if(typeof this.currentEventFilter !== 'undefined' && this.currentEventFilter !== null &&
-            typeof this.currentTemplateFilter !== 'undefined' && this.currentTemplateFilter !== null){
-                if(typeof this.currentEventFilter.custom_duration !== 'undefined' && this.currentEventFilter.custom_duration !== null)
-                    return this.currentEventFilter.custom_duration;
-                return this.currentTemplateFilter.duration;
-            }
-            return null;
         },
         movingEvent: function(){
             return this.$store.getters['moving_event/event'];
@@ -349,12 +339,115 @@ Vue.mixin({
             return this.$store.getters['updater/counter'];
         },
         
-        // Store filters
-        storeFilters: function () {
+        // Filters
+        filters: function () {
             return this.$store.getters['filters/all'];
+        },
+        countAppliedFilters: function () {
+            return this.$store.getters['filters/countNotNullFilters'];
+        },
+        hallFilter: function () {
+            return this.$store.getters['filters/hall'];
+        },
+        templateFilter: function () {
+            return this.$store.getters['filters/template'];
+        },
+        workerFilter: function () {
+            return this.$store.getters['filters/worker'];
+        },
+        clientFilter: function () {
+            return this.$store.getters['filters/client'];
+        },
+        durationFilter: function () {
+            return this.$store.getters['filters/duration'];
+        },
+        isFiltersEmpty: function () {
+            return this.$store.getters['filters/isAllEmpty'];
+        },
+        isFiltersAny: function () {
+            return this.$store.getters['filters/isAny'];
         },
     },
     methods: {
+        // Calendar actions
+        goNext: function(){
+            let params = {};
+            
+            this.$store.dispatch('dates/goNext');
+            if(this.isNewEventMainFull === true && this.newEventShow){
+                params.type = 'free';
+            }
+            
+            this.calendar.getData(params);
+        },
+        goPrevious: function(){
+            let params = {};
+            
+            this.$store.dispatch('dates/goPrevious');
+            if(this.isNewEventMainFull === true && this.newEventShow){
+                params.type = 'free';
+            }
+            
+            this.calendar.getData(params);
+        },
+        goToday: function(){
+            let params = {};
+            if(this.isNewEventMainFull === true && this.newEventShow){
+                params.type = 'free';
+            }
+            this.$store.dispatch('dates/goToday');
+            this.calendar.getData(params);
+        },
+        
+        resetMovingEvent: function(){
+            this.$store.dispatch('moving_event/reset');
+            this.calendar.getData();
+        },
+        closeTooltipOfEvent: function (e) {
+            if($(e.target).hasClass('tooltip-active')){
+                $(e.target).tooltip("hide");
+            }else{
+                $(e.target).closest('.tooltip-active').tooltip("hide");
+            }
+        },
+        // Filter methods
+        isFilter: function (filter) {
+            let listOfFilters = this.$store.getters['filters/listOfFilters'];
+            return listOfFilters.includes(filter) && typeof this.filters[filter] !== 'undefined' && this.filters[filter] !== null;
+        },
+        getFiltersSearchParams: function (urlSearchParams = null) {
+            if(urlSearchParams === null)
+                urlSearchParams = new URLSearchParams();
+            
+            if(this.isFilter('hall') && Array.isArray(this.filters.hall) && this.filters.hall.length > 0)
+                for(let idx in this.filters.hall)
+                    urlSearchParams.append("hall[]", this.filters.hall[idx].id);
+            
+            if(this.isFilter('template') && Array.isArray(this.filters.template) && this.filters.template.length > 0)
+                for(let idx in this.filters.template)
+                    urlSearchParams.append("template[]", this.filters.template[idx].id);
+            
+            if(this.isFilter('worker') && Array.isArray(this.filters.worker) && this.filters.worker.length > 0)
+                for(let idx in this.filters.worker)
+                    urlSearchParams.append("worker[]", this.filters.worker[idx].id);
+                    
+            if(this.isFilter('client') && Array.isArray(this.filters.client) && this.filters.client.length > 0)
+                for(let idx in this.filters.client)
+                    urlSearchParams.append("client[]", this.filters.client[idx].id);
+            
+            if(this.isFilter('duration') && typeof this.filters.duration.start !== 'undefined' && !isNaN(this.filters.duration.start))
+                urlSearchParams.append("duration_start", parseInt(this.filters.duration.start));
+            
+            if(this.isFilter('duration') && this.filters.duration.end !== 'undefined' && !isNaN(this.filters.duration.end))
+                urlSearchParams.append("duration_end", parseInt(this.filters.duration.end));
+            
+            // return JSON.parse(JSON.stringify(urlSearchParams));
+            return urlSearchParams;
+        },
+        
+        isDurationRangeFull: function (range) {
+            return range.start === this.durationRangeMinMax.start && range.end === this.durationRangeMinMax.end;
+        },
         getNextEventFromEvents: function (events, event) {
             let nextEvent = null;
             let isNext = false;
@@ -374,13 +467,22 @@ Vue.mixin({
             if(this.app === null)
                 this.app = this.$root.$children[0];
         },
-        urlSearchParams: function(as_string = false){
+        urlSearchParams: function(dataType = 'all', as_string = false){
             let urlSearchParams;
             
             if(this.isNewEventMainFull){
-                urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
+                if(dataType == 'free'){
+                    urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
+                }else{
+                    urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
+                }
             }else if(this.isMovingEvent){
-                urlSearchParams = this.$store.getters['moving_event/urlSearchParams'];
+                if(dataType == 'free'){
+                    // alert(111);
+                    urlSearchParams = this.$store.getters['moving_event/urlSearchParamsFree'];
+                }else{
+                    urlSearchParams = this.$store.getters['moving_event/urlSearchParams'];
+                }
             }
             
             urlSearchParams = new URLSearchParams(urlSearchParams);

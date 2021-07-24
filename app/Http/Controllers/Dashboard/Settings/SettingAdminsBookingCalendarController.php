@@ -21,7 +21,10 @@ class SettingAdminsBookingCalendarController extends Controller
         
         if($request->isMethod('post')){
             $validated = $request->validate([
-                "month_max_events_per_day_to_show" => "required|integer|max:10",
+                "month_max_events_per_day_to_show" => "required|integer|min:1|max:100",
+                "week_max_events_per_day_to_show" => "required|integer|min:1|max:100",
+                "day_max_events_per_day_to_show" => "required|integer|min:1|max:1000",
+                "list_max_events_per_day_to_show" => "required|integer|min:1|max:1000",
             ]);
             
             // dd($validated);

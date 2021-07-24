@@ -23,33 +23,138 @@ use App\Classes\Getter\Template\Enums\Params as TemplateParams;
 
 class BookingController extends Controller
 {
+    public function free(Request $request, $start, $end){
+        $validated = $request->validate([
+            'worker' => 'required|integer|exists:workers,id',
+            'exclude_ids' => 'nullable|array',
+            'exclude_ids.*' => 'nullable|integer|exists:bookings,id',
+        ]);
+        
+        // $getter = \Getter::of(GetterKeys::BOOKINGS);
+        // $range = new Range($start, $end, 'month');
+        
+        // $worker_getter = \Getter::of(GetterKeys::WORKERS)->get([
+        //     'id' => $params['worker'][0],
+        //     'with' => ['hallsWithoutUserGlobalScope'],
+        // ])->toArray();
+        // var_dump($worker_getter);
+        // var_dump($params);
+        // die();
+        
+        // var_dump($validated);
+        // die();
+        
+        $params = [];
+        foreach([
+            Params::WORKER, Params::EXCLUDE_IDS
+        ] as $getter_param){
+            if(!empty($validated[$getter_param]))
+                $params[$getter_param] = $validated[$getter_param];
+        }
+        
+        // $range = new Range($start, $end, 'month');
+        
+        // var_dump($params);
+        // die();
+        
+        return response()->json([
+            'data' => \Getter::of(GetterKeys::BOOKINGS)->free(
+                new Range($start, $end, 'month'),
+                $params
+            ),
+        ]);
+    }
     
     public function get(Request $request, $start, $end, $type = null){
-        // dd(11);
+        $validation_rules = [];
+        foreach([
+            ['key' => 'hall', 'table' => 'halls'],
+            ['key' => 'worker', 'table' => 'workers'],
+            ['key' => 'template', 'table' => 'templates'],
+            ['key' => 'client', 'table' => 'clients'],
+        ] as $r){
+            if($request->has($r['key'])){
+                $request_item = $request->get($r['key']);
+                if(is_array($request_item)){
+                    $validation_rules = [
+                        $r['key'] => 'nullable|array',
+                        $r['key'] . '.*' => 'nullable|integer|exists:' . $r['table'] . ',id',
+                    ];
+                }elseif(is_numeric($request_item)){
+                    $validation_rules = [
+                        $r['key'] => 'nullable|integer|exists:' . $r['table'] . ',id',
+                    ];
+                }
+            }
+        }
         
-        $getter = \Getter::of(GetterKeys::BOOKINGS);
-        $validation_rules = $getter->getValidationRules(["type" => $type]);
+        $validation_rules = array_merge($validation_rules, [
+            'with' => 'nullable|array',
+            'with.*' => 'nullable|string',
+            'exclude_ids' => 'nullable|array',
+            'exclude_ids.*' => 'nullable|integer|exists:bookings,id',
+        ]);
+        
+        // var_dump($validation_rules);
+        // die();
+        
+        $duration_range = \DurationRange::get();
+        if($request->has('duration_start')){
+            $duration_start = (int)$request->get('duration_start');
+            if($request->has('duration_end') &&
+            $duration_start <= (int)$request->get('duration_end')){
+                $duration_start_maximum = (int)$request->get('duration_end');
+            }
+            $validation_rules['duration_start'] =
+                'nullable|integer|min:' . $duration_range['start'] .
+                (!empty($duration_start_maximum) ? '|max:' . $duration_start_maximum : '');
+        }
+        
+        if($request->has('duration_end')){
+            $duration_end = (int)$request->get('duration_end');
+            if($request->has('duration_start') &&
+            $duration_end >= (int)$request->get('duration_start')){
+                $duration_start_minimum = (int)$request->get('duration_start');
+                $validation_rules['duration_end'] =
+                    'nullable|integer|min:' . $duration_range['start'] .
+                    (!empty($duration_start_maximum) ? '|max:' . $duration_start_maximum : '');
+            }
+            if(!$request->has('duration_start')){
+                $validation_rules['duration_end'] =
+                    'nullable|integer|min:0|max:' . $duration_end . '';
+            }
+        }
         
         $params = $request->validate($validation_rules);
-        // $params["with"] = 'templateWithoutUserScope.specific';
-        
-        // var_dump($start, $end);
-        // die();
+        $getter = \Getter::of(GetterKeys::BOOKINGS);
         
         $range = new Range($start, $end, 'month');
-        // var_dump($range);
+        // $owner = auth()->user();
+        
+        // var_dump($params);
         // die();
-        $owner = auth()->user();
         
         if(is_null($type) || $type == GetterTypes::ALL)
             return response()->json([
-                'data' => $getter->all($owner, $range, $params),
+                'data' => $getter->all($range, $params),
             ]);
         
-        if($type == GetterTypes::FREE)
+        if($type == GetterTypes::FREE){
+            // var_dump($params[Params::HALL]);
+            var_dump($params);
+            die();
+            $worker_getter = \Getter::of(GetterKeys::WORKERS)->get([
+                'id' => $params['worker'][0],
+                'with' => ['hallsWithoutUserGlobalScope'],
+            ])->toArray();
+            var_dump($worker_getter);
+            var_dump($params);
+            die();
+            unset($params['template'], $params['hall']);
             return response()->json([
-                'data' => $getter->free($owner, $range, (int)$params[Params::HALL], (int)$params[Params::WORKER], $params),
+                'data' => $getter->free($owner, $range, (int)$params[Params::HALL][0], (int)$params[Params::WORKER][0], $params),
             ]);
+        }
     }
     
     public function approve(Request $request, Booking $booking){
@@ -104,12 +209,6 @@ class BookingController extends Controller
     }
     
     public function create(Request $request, Client $client, Hall $hall, Template $template, Worker $worker){
-        
-        // var_dump([
-        //     $client->toArray(), $hall->toArray(), $template->toArray(), $worker->toArray()
-        // ]);
-        // die();
-        
         $validated = $request->validate([
             'date' => 'required|string|max:10|regex:/\d{4}-\d{2}-\d{2}/i',
             'time' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
@@ -118,53 +217,22 @@ class BookingController extends Controller
         
         $book_on_datetime = $validated['date'] . " " . $validated['time'] . ":00";
         
-        // $book_on_carbon = \Carbon\Carbon::parse($book_on_datetime);
-        // $current_date_carbon = \Carbon\Carbon::now('Europe/Kiev');
-        // 
-        // var_dump($book_on_carbon->format('Y-m-d H:i:s'));
-        // var_dump($current_date_carbon->format('Y-m-d H:i:s'));
-        // die();
-        
-        // $client = $request->user();
-        
-        //Check hall
-        // if(!($hall = Hall::byId($hall_id)->first()))
-        //     return response()->json([
-        //         'error' => 'Hall not exist with :id = '.$hall_id
-        //     ]);
-        
         if(\Suspension::isSuspendedOnDate($hall, $book_on_datetime))
             return response()->json([
                 'error' => 'Hall is suspended on ' . $book_on_datetime
             ]);
-        
-        //Check worker
-        // if(!($worker = Worker::byId($worker_id)->first()))
-        //     return response()->json([
-        //         'error' => 'Worker not exist with :id = ' . $worker_id
-        //     ]);
         
         if(\Suspension::isSuspendedOnDate($worker, $book_on_datetime))
             return response()->json([
                 'error' => 'Worker is suspended on ' . $book_on_datetime
             ]);
         
-        // $all_holidays = \Holiday::getAllAsUniqueDateValue($hall, $worker, [
-        //     'user_id' => $user->id
-        // ]);
         $all_holidays = \Holiday::getAllAsUniqueDateValue($hall, $worker);
         $for_holiday_check_val = str_replace('-', '_', $validated['date']);
         if(in_array($for_holiday_check_val, $all_holidays))
             return response()->json([
                 'error' => 'You trying book on date wich is holiday right now.'
             ]);
-            
-        // var_dump($validated['book_on_date']);
-        // var_dump($for_holiday_check_val);
-        // var_dump($all_holidays);
-        // var_dump($book_on_datetime);
-        // var_dump('success');
-        // die();
         
         $template = Template::byId($template->id)
             ->whereHas('workers', function($query) use ($hall, $worker) {
@@ -187,7 +255,6 @@ class BookingController extends Controller
         $end = $carbon_time->format('Y-m-d H:i:s');
             
         $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
-            auth()->user(),
             new Range($start, $end, 'month'),
             [
                 Params::ONLY_APPROVED => true,
@@ -200,9 +267,6 @@ class BookingController extends Controller
             return response()->json([
                 'error' => 'Wrong time, time is already taken!'
             ]);
-        
-        // var_dump('success');
-        // die();
             
         $booking = Booking::create([
             'user_id' => auth()->user()->id,
@@ -270,7 +334,6 @@ class BookingController extends Controller
             $end = $carbon_time->format('Y-m-d H:i:s');
             
             $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
-                auth()->user(),
                 new Range($start, $end, 'month'),
                 [
                     Params::ONLY_APPROVED => true,

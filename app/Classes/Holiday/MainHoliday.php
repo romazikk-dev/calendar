@@ -16,6 +16,8 @@ use App\Classes\Holiday\Enums\Fields;
 
 class MainHoliday{
     
+    protected $key_format = 'Y_m_d';
+    
     protected $validation_rules = [
         //Holiday rules
         'holiday_title.*' => 'required|max:255',
@@ -24,6 +26,48 @@ class MainHoliday{
         'holiday_to.*' => 'required|max:255|regex:/\d{2}-\d{2}-\d{4}/i',
         'holiday_timestamp.*' => 'required|numeric',
     ];
+    
+    protected function mergeHolidaysAsUnique(array $holidays_first, array $holidays_second){
+        return array_unique(array_merge($holidays_first, $holidays_second));
+    }
+    
+    public function getKeyOfCarbonInstance($carbon_instance){
+        return $carbon_instance->format($this->key_format);
+    }
+    
+    public function getNullHolidaysOfOwner(int $owner_id){
+        return Holiday::where([
+            'user_id' => $owner_id,
+            'holidayable_type' => null,
+            'holidayable_id' => null,
+        ])->get();
+    }
+    
+    public function parseHolidaysIntoArrayKey($holidays): array {
+        if(empty($holidays_arr = $holidays->toArray()))
+            return [];
+    
+        $output = [];
+        foreach($holidays_arr as $holiday){
+            $from_carbon = \Carbon\Carbon::parse($holiday['from']);
+            $to_carbon = \Carbon\Carbon::parse($holiday['to']);
+            $val = $this->getKeyOfCarbonInstance($from_carbon);
+            if(!in_array($val, $output))
+                $output[] = $val;
+    
+            for($i = 0; $i < 1000; $i++){
+                $from_carbon->addDays(1);
+                if($to_carbon->lt($from_carbon))
+                    break;
+    
+                $val = $this->getKeyOfCarbonInstance($from_carbon);
+                if(!in_array($val, $output))
+                    $output[] = $val;
+            }
+        }
+        
+        return $output;
+    }
     
     protected function getAllNulls(){
         return Holiday::where([

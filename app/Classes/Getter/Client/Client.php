@@ -13,25 +13,39 @@ use App\Classes\Getter\Client\Enums\Params;
 use App\Models\User;
 use App\Scopes\UserScope;
 
-class Client{
+class Client extends MainClient{
     
     function get(array $params = []){
-        if(!empty($params[Params::OWNER_ID]) && is_numeric($params[Params::OWNER_ID])){
-            $model = ModelClient::withoutGlobalScope(UserScope::class)
-                ->byUser($params[Params::OWNER_ID]);
+        if($this->isParam($params, Params::OWNER_ID)){
+            $model = ModelClient::withoutGlobalScope(UserScope::class);
+            if(is_array($params[Params::OWNER_ID])){
+                $model->byUsers($params[Params::OWNER_ID]);
+            }else{
+                $model->byUser($params[Params::OWNER_ID]);
+            }
         }else{
             $model = ModelClient::query();
         }
+    
+        if($this->isParam($params, Params::ID)){
+            if(is_array($params[Params::ID])){
+                $model->byIds($params[Params::ID]);
+            }else{
+                $model->byId($params[Params::ID]);
+            }
+        }
         
-        if(!empty($params[Params::ID]) && is_numeric($params[Params::ID]))
-            $model->where('id', (int)$params[Params::ID]);
-        
-        if(!empty($params[Params::WITH]))
-            $model->with($params[Params::WITH]);
-        
-        $templates = $model->get();
-        
-        return $templates->isEmpty() || $templates === false ? null : $templates;
+        if($this->isParam($params, Params::WITH)){
+            if(is_array($params[Params::WITH])){
+                foreach($params['with'] as $k => $v)
+                    $model->with($v);
+            }else{
+                $model->with($params[Params::WITH]);
+            }
+        }
+    
+        $clients = $model->get();
+        return $clients->isEmpty() || $clients === false ? null : $clients;
     }
     
 }

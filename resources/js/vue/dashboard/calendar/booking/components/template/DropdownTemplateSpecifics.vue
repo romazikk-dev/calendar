@@ -3,7 +3,7 @@
         
         <div>
             <div id="templateDropdownThroughSpecifics" class="dropdown">
-                <a :class="{disabled: (templates == null)}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a :class="dropdownToggleClass" class="btn btn-sm dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{pickedParsedTemplate ? pickedParsedTemplate.title : '---'}}
                 </a>
 
@@ -21,6 +21,7 @@
             
             <dropdown-template-specifics v-if="pickedParsedTemplateFields"
                 @change="$emit('change', $event)"
+                :btn-class="btnClass"
                 :templates="templates"
                 :picked-template-ids-trace="pickedTemplateIdsTraceWithoutFirstElement"
                 :parsed-templates="pickedParsedTemplateFields"
@@ -41,7 +42,7 @@
             // console.log(JSON.parse(JSON.stringify(this.pickedParsedTemplateFields)));
             this.pickItemIfAlreadyPicked();
         },
-        props: ['templates','parsedTemplates','specifics','specificsAsIdKey','pickedTemplateIdsTrace'],
+        props: ['templates','parsedTemplates','specifics','specificsAsIdKey','pickedTemplateIdsTrace','btnClass'],
         data: function(){
             return {
                 pickedParsedTemplate: null,
@@ -49,6 +50,24 @@
             };
         },
         computed: {
+            dropdownToggleClass: function () {
+                // let classes = {}
+                // let classes = {
+                //     'disabled': this.dropdownDisabled || this.disabled,
+                //     'btn-sm': this.small === true,
+                // }
+                let classes = {
+                    disabled: this.templates == null
+                }
+                
+                if(typeof this.btnClass !== 'undefined' && this.btnClass !== null){
+                    classes = Object.assign(classes, this.btnClass);
+                }else{
+                    classes['btn-info'] = true;
+                }
+                
+                return classes;
+            },
             IdTrace: function(){
                 
             },
