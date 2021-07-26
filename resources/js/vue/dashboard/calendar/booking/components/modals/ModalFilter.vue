@@ -179,15 +179,8 @@
             },
             setFilters: function() {
                 let filters = {
-                    // hall: this.isCheckedItem('checkedHalls') ?
-                    //     this.getCheckedItemIdsAsArray('checkedHalls') : null,
-                    // worker: this.isCheckedItem('checkedWorkers') ?
-                    //     this.getCheckedItemIdsAsArray('checkedWorkers') : null,
-                    // template: this.isCheckedItem('checkedTemplates') ?
-                    //     this.getCheckedItemIdsAsArray('checkedTemplates') : null,
-                    // client: this.isCheckedItem('checkedClients') ?
-                    //     this.getCheckedItemIdsAsArray('checkedClients') : null,
-                        
+                    status: this.isCheckedItem('checkedStatus') ?
+                        this.getCheckedItem('checkedStatus') : null,
                     hall: this.isCheckedItem('checkedHalls') ?
                         this.getCheckedItem('checkedHalls') : null,
                     worker: this.isCheckedItem('checkedWorkers') ?
@@ -207,10 +200,6 @@
                     filters.duration = null;
                 }
                 this.$store.dispatch('filters/setFilters', filters);
-                // console.log(JSON.parse(JSON.stringify('filters')));
-                // console.log('filters');
-                // console.log(JSON.parse(JSON.stringify(filters)));
-                // console.log(JSON.parse(JSON.stringify(this.filters)));
             },
             onClickApplyBtn: function(e) {
                 this.hide();
@@ -220,8 +209,13 @@
             getCheckedItem: function (item, asArray = true){
                 if(typeof this.$refs.edit_independent === 'undefined')
                     return null;
+                    
+                if(item == 'checkedStatus')
+                    return this.$refs.edit_independent[item];
+                    
                 if(asArray === true)
                     return Object.values(this.$refs.edit_independent[item]);
+                    
                 return this.$refs.edit_independent[item];
             },
             getCheckedItemIdsAsArray: function (item){
@@ -239,6 +233,12 @@
             isCheckedItem: function (item){
                 if(typeof this.$refs.edit_independent === 'undefined')
                     return false;
+                    
+                if(item == 'checkedStatus' && this.isProp(this.$refs.edit_independent[item])){
+                    let checkedItem = this.$refs.edit_independent[item];
+                    return Array.isArray(checkedItem) && checkedItem.length > 0;
+                }
+                
                 return typeof this.$refs.edit_independent[item] !== 'undefined' &&
                 Object.keys(this.$refs.edit_independent[item]).length > 0;
             },
@@ -250,12 +250,6 @@
             },
             hide: function (){
                 $('#' + this.modalId).modal('hide');
-                // alert(resetMovingEvent);
-                // if(resetMovingEvent === true){
-                //     setTimeout(() => {
-                //      	this.$store.dispatch('moving_event/reset');
-                //     }, 400);
-                // }
             },
         },
         components: {
@@ -265,9 +259,7 @@
             // Duration,
         },
         watch: {
-            // initValue: (newOne, oldOne) => {
-            //     console.log(helper.parse(newOne));
-        	// },
+            // initValue: (newOne, oldOne) => {},
     	}
     }
 </script>

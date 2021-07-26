@@ -15,6 +15,7 @@
             
             // console.log(73737373);
             // console.log(token);
+            var timezone = '{{$timezone}}';
             var view = @json($view);
             var durationRange = @json($duration_range);
             

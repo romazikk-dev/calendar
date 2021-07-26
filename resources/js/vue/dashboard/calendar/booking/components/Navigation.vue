@@ -43,63 +43,43 @@
 
 <script>
     // import ModalAuthContent from "./ModalAuthContent.vue";
-    // import ModalBookContent from "./ModalBookContent.vue";
-    // import ModalCancelBookContent from "./ModalCancelBookContent.vue";
-    // import DayRequestedBookedCell from "./DayRequestedBookedCell.vue";
     export default {
         name: 'navigation',
-        mounted() {
-            // console.log(this.view);
-            // console.log(this.views);
-        },
+        mounted() {},
         // props: ['calendarTitle'],
-        // props: ['userId','search', 'views','view','startDate','canGoToPrevious'],
         data: function(){
-            return {
-                // dateRange: helper.range.range,
-            };
+            return {};
         },
         computed: {
-            // currentDay: function () {},
             calendarTitle: function () {
                 if(this.view == 'month'){
                     return moment(this.$store.getters['dates/month'].firstDate).format('MMMM YYYY');
-                }else if(this.view == 'week'){
+                }else if(['week','list'].includes(this.view)){
                     let firstWeekdayMonth = new Date(this.dateInterval.firstDate).getMonth();
                     let lastWeekdayMonth = new Date(this.dateInterval.lastDate).getMonth();
                     if(firstWeekdayMonth == lastWeekdayMonth){
-                        let firstWeekdayDay = moment(this.dateInterval.firstDate).format('DD');
-                        let lastWeekdayDay = moment(this.dateInterval.lastDate).format('DD');
+                        let firstWeekdayDay = moment(this.dateInterval.firstDate).format('D');
+                        let lastWeekdayDay = moment(this.dateInterval.lastDate).format('D');
                         let monthTitle = moment(this.dateInterval.firstDate).format('MMMM');
                         return firstWeekdayDay + ' - ' + lastWeekdayDay + ' ' + monthTitle;
                     }else{
-                        let firstWeekdayMonthTitle = moment(this.dateInterval.firstDate).format('DD MMMM');
-                        let lastWeekdayMonthTitle = moment(this.dateInterval.lastDate).format('DD MMMM');
+                        let firstWeekdayMonthTitle = moment(this.dateInterval.firstDate).format('D MMMM');
+                        let lastWeekdayMonthTitle = moment(this.dateInterval.lastDate).format('D MMMM');
                         return firstWeekdayMonthTitle + ' - ' + lastWeekdayMonthTitle;
                     }
-                    return moment(this.firstMonthDate).format('MMMM YYYY');
                 }else if(this.view == 'day' || this.view == 'list'){
-                    return moment(this.dateInterval.firstDate).format('MMM DD, YYYY');
+                    return moment(this.dateInterval.firstDate).format('MMM D, YYYY');
                 }
             },
         },
         methods: {
             changeView: function(view){
-                // this.$store.commit('filters/changeView', view);
                 this.$store.commit('view/setView', view);
             },
         },
-        components: {
-            // ModalAuthContent,
-            // ModalBookContent,
-            // ModalCancelBookContent,
-            // DayRequestedBookedCell
-        },
+        components: {},
         watch: {
-            // search: function () {
-            //     // console.log(this.search);
-            //     // this.getData();
-            // }
+            // search: function () {}
         }
     }
 </script>

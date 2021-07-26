@@ -1,5 +1,6 @@
 const state = () => ({
     cookieName: 'dashboard_calendar-filters',
+    status: calendarHelper.filter.get('status'),
     hall: calendarHelper.filter.get('hall'),
     template: calendarHelper.filter.get('template'),
     worker: calendarHelper.filter.get('worker'),
@@ -16,6 +17,9 @@ const getters = {
     },
     all: (state) => {
         return state;
+    },
+    status: (state) => {
+        return state.status;
     },
     hall: (state) => {
         return state.hall;
@@ -40,8 +44,13 @@ const getters = {
         
     },
     isAllEmpty: (state, getters) => {
-        return state.hall === null && state.template === null && state.worker === null &&
-        state.client === null && state.duration === null;
+        let allFiltersKeys = Object.keys(getters.allFilters);
+        
+        for(let idx in allFiltersKeys)
+            if(typeof state[allFiltersKeys[idx]] !== 'undefined' && state[allFiltersKeys[idx]] !== null)
+                return false;
+                
+        return true;
     },
     isAny: (state, getters) => {
         return state.hall !== null || state.template !== null || state.worker !== null ||
@@ -70,17 +79,40 @@ const actions = {
         // console.log(JSON.parse(JSON.stringify(Object.keys(filters))));
     },
     removeEntireFilter: function(context, type) {
-        // let filters = this.getters['filters/allFilters'];
         let filtersKeys = Object.keys(this.getters['filters/allFilters']);
         if(!filtersKeys.includes(type))
             return;
             
         let dispatchName = {client: 'filters/setClient', hall: 'filters/setHall', template: 'filters/setTemplate',
-            worker: 'filters/setWorker', duration: 'filters/setDuration'}
+            worker: 'filters/setWorker', duration: 'filters/setDuration', status: 'filters/setStatus'}
         
         for(let idx in filtersKeys){
             if(type == filtersKeys[idx])
                 this.dispatch(dispatchName[type]);
+        }
+    },
+    removeItemFromFilterByValue: function(context, e) {
+        let dispatchName = {
+            status: 'filters/setStatus',
+        }
+        
+        if(typeof e === 'undefined' || e === null ||
+        typeof e.type === 'undefined' || e.type === null || 
+        typeof context.state[e.type] === 'undefined' || context.state[e.type] == null ||
+        typeof e.value === 'undefined' || e.value === null ||
+        !Array.isArray(context.state[e.type]) || context.state[e.type].length === 0)
+            return;
+        
+        let filter = JSON.parse(JSON.stringify(context.state[e.type]));
+        let index = filter.indexOf(e.value);
+        
+        if(index >= 0)
+            filter.splice(index, 1);
+        
+        if(filter.length === 0){
+            this.dispatch(dispatchName[e.type]);
+        }else{
+            this.dispatch(dispatchName[e.type], filter);
         }
     },
     removeItemFromFilterById: function(context, e) {
@@ -90,8 +122,6 @@ const actions = {
             template: 'filters/setTemplate',
             worker: 'filters/setWorker'
         }
-        
-        // alert(333);
         
         if(typeof e === 'undefined' || e === null ||
         typeof e.type === 'undefined' || e.type === null || !['client','hall','template','worker'].includes(e.type) ||
@@ -111,6 +141,12 @@ const actions = {
     setFilters: function(context, filters) {
         if(typeof filters === 'undefined')
             return;
+            
+        if(typeof filters.status !== 'undefined' && filters.status !== null){
+            this.commit('filters/setStatus', filters.status);
+        }else{
+            this.commit('filters/setStatus', null);
+        }
         
         if(typeof filters.hall !== 'undefined' && filters.hall !== null){
             this.commit('filters/setHall', filters.hall);
@@ -144,6 +180,10 @@ const actions = {
             
         this.dispatch('filters/setCookie');
     },
+    setStatus: function(context, status) {
+        this.commit('filters/setStatus', status);
+        this.dispatch('filters/setCookie');
+    },
     setHall: function(context, hall) {
         this.commit('filters/setHall', hall);
         this.dispatch('filters/setCookie');
@@ -164,8 +204,11 @@ const actions = {
         this.commit('filters/setDuration', duration);
         this.dispatch('filters/setCookie');
     },
-    setCookie: ({state}, hall) => {
+    setCookie: ({state}) => {
+        // alert('setCookie');
+        // console.log(JSON.parse(JSON.stringify(state)));
         cookie.set(state.cookieName, {
+            status: state.status,
             hall: calendarHelper.filter.getOnlyIdsAsArrayFromFilterItem(state.hall),
             worker: calendarHelper.filter.getOnlyIdsAsArrayFromFilterItem(state.worker),
             template: calendarHelper.filter.getOnlyIdsAsArrayFromFilterItem(state.template),
@@ -177,6 +220,10 @@ const actions = {
 
 // mutations
 const mutations = {
+    setStatus: (state, status) => {
+        state.status = typeof status !== 'undefined' && status !== null &&
+        Array.isArray(status) && status.length > 0 ? status : null;
+    },
     setHall: (state, hall) => {
         state.hall = typeof hall !== 'undefined' && hall !== null ? hall : null;
     },

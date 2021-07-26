@@ -172,7 +172,7 @@ class BookingController extends Controller
         $carbon_time->addMinutes($booking->right_duration);
         $end = $carbon_time->format('Y-m-d H:i:s');
         $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
-            auth()->user(),
+            // auth()->user(),
             new Range($start, $end, 'month'),
             [
                 Params::ONLY_APPROVED => true,

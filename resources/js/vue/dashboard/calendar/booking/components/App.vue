@@ -64,7 +64,11 @@
     export default {
         name: 'app',
         mounted() {
-            // alert(22222);
+            // console.log(JSON.parse(JSON.stringify('this.statusFilter')));
+            // console.log(JSON.parse(JSON.stringify(this.statusFilter)));
+            // alert(moment().tz());
+            // alert(new Date());
+            // alert(moment().toDate());
             // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
             
             // console.log(JSON.parse(JSON.stringify(777777777)));
@@ -72,6 +76,9 @@
             
             // if(this.cookieFilters !== null)
             //     this.showCalendar = true;
+            
+            // moment.tz.setDefault(timezone);
+            // moment.tz.setDefault(timezone)
         },
         // updated() {
         //     $('.tooltip-active').tooltip({
@@ -114,13 +121,6 @@
             },
         },
         methods: {
-            /*
-            *   param: event
-            *   return: Promise
-            */
-            // onMovingEventInfoBoxClose: function (){
-            //     this.resetMovingEvent();
-            // },
             onModalMovePathPickerPickTime: function (){
                 this.calendar.getData();
             },
@@ -143,37 +143,12 @@
                 });
             },
             showModalDuration: function (e){
-                // console.log(JSON.parse(JSON.stringify('showPickTimeModal')));
-                // console.log(e);
-                // console.log(JSON.parse(JSON.stringify(e)));
-                // this.$refs.modal_duration.show(e);
-                // alert(2222);
                 this.$nextTick(() => {
-                    // console.log(this.$refs);
                     this.$refs.modal_duration.show(e);
                 });
-                // console.log(JSON.parse(JSON.stringify(this.$refs)));
             },
             showPickTimeModal: function (e){
-                // console.log(JSON.parse(JSON.stringify('showPickTimeModal')));
-                // console.log(e);
-                // console.log(JSON.parse(JSON.stringify(e)));
                 this.$refs.time_picker_modal.show(e);
-                // alert(2222);
-            },
-            fullName: function (obj){
-                if(obj === null ||
-                typeof obj.first_name === 'undefined' ||
-                typeof obj.last_name === 'undefined')
-                    return null;
-                    
-                let fullName = obj.first_name;
-                
-                if(obj.last_name !== null && typeof obj.last_name === 'string' &&
-                obj.last_name.length > 0)
-                    fullName += ' ' + obj.last_name;
-                    
-                return fullName;
             },
             approveEvent: function(id){
                 let url, urlParams;
@@ -186,40 +161,10 @@
                     })
                     .catch(function (error) {
                         // handle error
-                        // console.log(error);
-                    })
-                    .then(function () {
-                        // always executed
+                        console.log(error);
                     });
                 });
             },
-            // approveEvent: function(id, successCallback = () => {
-            //     console.log('success');
-            // }, errorCallback = () => {
-            //     console.log('error');
-            // }, finalCallback = () => {
-            //     console.log('final');
-            // },){
-            //     let url, urlParams;
-            //     url = new URL(routes.calendar.booking.booking.approve.replace(':id', id));
-            // 
-            //     axios.post(url.toString())
-            //         .then((response) => {
-            //             // let client = null;
-            //             // if(typeof response.data.status !== 'undefined' && Array.isArray(response.data.clients) &&
-            //             // response.data.clients.length == 1)
-            //             //     client = response.data.clients[0];
-            // 
-            //             successCallback(response.data);
-            //         })
-            //         .catch(function (error) {
-            //             // handle error
-            //             // console.log(error);
-            //         })
-            //         .then(function () {
-            //             // always executed
-            //         });
-            // },
             removeEvent: function(id){
                 let url = new URL(routes.calendar.booking.booking.delete.replace(':id', id));
                 
@@ -229,40 +174,10 @@
                         resolve(response.data);
                     }).catch(function (error) {
                         // handle error
-                        // console.log(error);
                         reject(error);
-                    }).then(function () {
-                        // always executed
                     });
                 });
             },
-            // removeEvent: function(id, successCallback = () => {
-            //     console.log('success');
-            // }, errorCallback = () => {
-            //     console.log('error');
-            // }, finalCallback = () => {
-            //     console.log('final');
-            // },){
-            //     let url;
-            //     url = new URL(routes.calendar.booking.booking.delete.replace(':id', id));
-            // 
-            //     axios.post(url.toString())
-            //         .then((response) => {
-            //             // let client = null;
-            //             // if(typeof response.data.status !== 'undefined' && Array.isArray(response.data.clients) &&
-            //             // response.data.clients.length == 1)
-            //             //     client = response.data.clients[0];
-            // 
-            //             successCallback(response.data);
-            //         })
-            //         .catch(function (error) {
-            //             // handle error
-            //             // console.log(error);
-            //         })
-            //         .then(function () {
-            //             // always executed
-            //         });
-            // },
             getTemplates: function(params = null){
                 let url, urlParams;
                 url = new URL(routes.calendar.booking.template.get);
@@ -369,36 +284,6 @@
                     });
                 });
             },
-            // getClientInfo: function(id, successCallback = () => {
-            //     console.log('success');
-            // }, errorCallback = () => {
-            //     console.log('error');
-            // }, finalCallback = () => {
-            //     console.log('final');
-            // },){
-            //     let url, urlParams;
-            //     url = new URL(routes.calendar.booking.client.get);
-            //     urlParams = new URLSearchParams();
-            //     urlParams.append('id', id);
-            //     url.search = urlParams;
-            // 
-            //     axios.get(url.toString())
-            //         .then((response) => {
-            //             let client = null;
-            //             if(typeof response.data.clients !== 'undefined' && Array.isArray(response.data.clients) &&
-            //             response.data.clients.length == 1)
-            //                 client = response.data.clients[0];
-            // 
-            //             successCallback(client);
-            //         })
-            //         .catch(function (error) {
-            //             // handle error
-            //             // console.log(error);
-            //         })
-            //         .then(function () {
-            //             // always executed
-            //         });
-            // },
             getData: function(startDate, endDate, params = null){
                 let _this = this;
                 let lastGetDataType = 'all';
@@ -519,109 +404,51 @@
                     });
                 });
             },
-            bookEdit: function(bookId, data, successCallback = () => {
-                console.log('success');
-            }, errorCallback = () => {
-                console.log('error');
-            }, finalCallback = () => {
-                console.log('final');
-            }){
-                // if(this.currentEventFilter === null)
-                //     return;
-                    
-                // console.log(JSON.parse(JSON.stringify('bookEdit')));
-                // return;
-                    
-                let url = routes.calendar.booking.booking.edit;
-                url = url.replace(':id', bookId);
-                
-                // console.log(JSON.parse(JSON.stringify('bookEdit')));
-                // console.log(JSON.parse(JSON.stringify(url)));
-                // 
-                // return;
-                
-                axios.post(url, data)
-                .then((response) => {
-                    successCallback(response);
-                    
-                    // this.$store.commit('updater/increaseCounter');
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    finalCallback();
-                });
-            },
-            cancelBooking: function(booking, successCallback = () => {
-                console.log('success');
-            }){
-                let url = routes.calendar.booking.book.cancel;
-                
-                // url = url.replace(':hall_id', this.cookieFilters.hall.id);
-                // url = url.replace(':template_id', this.cookieFilters.template.id);
-                // url = url.replace(':worker_id', this.cookieFilters.worker.id);
-                url = url.replace(':booking_id', booking.id);
-                
-                axios.delete(url)
-                .then((response) => {
-                    successCallback(response);
-                    this.$store.commit('updater/increaseCounter');
-                })
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-                .then(() => {
-                    // always executed
-                });
-            },
-            setStartDate: function(fromView, date){
-                let dateMoment = moment(date);
-                let currentDateMoment = moment(new Date());
-                
-                if(dateMoment.diff(currentDateMoment) >= 0){
-                    if(fromView == 'month'){
-                        this.startDateMonth = date;
-                        this.startDateWeek = date;
-                        this.startDateDay = date;
-                    }
-                    if(fromView == 'week'){
-                        // console.log(date);
-                        this.startDateWeek = date;
-                        this.startDateDay = date;
-                        let dateMomentOfStartMonth = dateMoment.startOf('month').format('YYYYMMDD');
-                        let startDateMonthOfStartMonth = moment(this.startDateMonth).startOf('month').format('YYYYMMDD');
-                        if(dateMomentOfStartMonth != startDateMonthOfStartMonth){
-                            this.startDateMonth = date;
-                        }
-                    }
-                    if(fromView == 'day'){
-                        this.startDateDay = date;
-                        let dateMoment1 = dateMoment.clone();
-                        let dateMoment2 = dateMoment.clone();
-                        
-                        let dateMomentOfStartWeek = dateMoment1.subtract(1, 'days').startOf('week').format('YYYYMMDD');
-                        let startDateMonthOfStartWeek = moment(this.startDateWeek).startOf('week').format('YYYYMMDD');
-                        if(dateMomentOfStartWeek != startDateMonthOfStartWeek){
-                            this.startDateWeek = date;
-                        }
-                        
-                        let dateMomentOfStartMonth = dateMoment2.startOf('month').format('YYYYMMDD');
-                        let startDateMonthOfStartMonth = moment(this.startDateMonth).startOf('month').format('YYYYMMDD');
-                        if(dateMomentOfStartMonth != startDateMonthOfStartMonth){
-                            this.startDateMonth = date;
-                        }
-                    }
-                    this.startDate = date;
-                }else{
-                    this.startDateMonth = currentDateMoment.toDate();
-                    this.startDateWeek = currentDateMoment.toDate();
-                    this.startDateDay = currentDateMoment.toDate();
-                }
-                // console.log(this.startDate);
-            },
+            // setStartDate: function(fromView, date){
+            //     let dateMoment = moment(date);
+            //     let currentDateMoment = moment(new Date());
+            // 
+            //     if(dateMoment.diff(currentDateMoment) >= 0){
+            //         if(fromView == 'month'){
+            //             this.startDateMonth = date;
+            //             this.startDateWeek = date;
+            //             this.startDateDay = date;
+            //         }
+            //         if(fromView == 'week'){
+            //             // console.log(date);
+            //             this.startDateWeek = date;
+            //             this.startDateDay = date;
+            //             let dateMomentOfStartMonth = dateMoment.startOf('month').format('YYYYMMDD');
+            //             let startDateMonthOfStartMonth = moment(this.startDateMonth).startOf('month').format('YYYYMMDD');
+            //             if(dateMomentOfStartMonth != startDateMonthOfStartMonth){
+            //                 this.startDateMonth = date;
+            //             }
+            //         }
+            //         if(fromView == 'day'){
+            //             this.startDateDay = date;
+            //             let dateMoment1 = dateMoment.clone();
+            //             let dateMoment2 = dateMoment.clone();
+            // 
+            //             let dateMomentOfStartWeek = dateMoment1.subtract(1, 'days').startOf('week').format('YYYYMMDD');
+            //             let startDateMonthOfStartWeek = moment(this.startDateWeek).startOf('week').format('YYYYMMDD');
+            //             if(dateMomentOfStartWeek != startDateMonthOfStartWeek){
+            //                 this.startDateWeek = date;
+            //             }
+            // 
+            //             let dateMomentOfStartMonth = dateMoment2.startOf('month').format('YYYYMMDD');
+            //             let startDateMonthOfStartMonth = moment(this.startDateMonth).startOf('month').format('YYYYMMDD');
+            //             if(dateMomentOfStartMonth != startDateMonthOfStartMonth){
+            //                 this.startDateMonth = date;
+            //             }
+            //         }
+            //         this.startDate = date;
+            //     }else{
+            //         this.startDateMonth = currentDateMoment.toDate();
+            //         this.startDateWeek = currentDateMoment.toDate();
+            //         this.startDateDay = currentDateMoment.toDate();
+            //     }
+            //     // console.log(this.startDate);
+            // },
             setCurrentDate: function(){
                 this.currentDate = {
                     year: moment(this.currentDateObj).format('YYYY'),

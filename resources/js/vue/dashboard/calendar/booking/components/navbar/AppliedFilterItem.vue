@@ -60,6 +60,7 @@
         data: function(){
             return {
                 labels: {
+                    status: 'Status',
                     hall: 'Hall(s)',
                     template: 'Template(s)',
                     worker: 'Worker(s)',
@@ -83,7 +84,8 @@
                 return this.labels[this.type];
             },
             isTypeRight: function(){
-                return typeof this.type !== 'undefined' && ['client','hall','template','worker'].includes(this.type);
+                return typeof this.type !== 'undefined' &&
+                ['status','client','hall','template','worker'].includes(this.type);
             },
         },
         methods: {
@@ -95,6 +97,12 @@
                 this.calendar.getData();
             },
             onItemDeleteClick: function (item) {
+                if(this.type == 'status'){
+                    this.$store.dispatch('filters/removeItemFromFilterByValue', {
+                        type: this.type,
+                        value: item
+                    });
+                }
                 if(this.isTypeRight &&
                 typeof item !== 'undefined' && item !== null &&
                 typeof item.id !== 'undefined' && item.id !== null && !isNaN(item.id))
@@ -107,6 +115,8 @@
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(durationMinutes);
             },
             getItemTitle: function(item){
+                if(this.type == 'status')
+                    return this.statusData[item].label;
                 if(['hall','template'].includes(this.type))
                     return item.title;
                 if(['worker','client'].includes(this.type))

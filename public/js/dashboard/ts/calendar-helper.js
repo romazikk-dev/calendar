@@ -201,15 +201,9 @@ exports.Time = void 0;
 var Time =
 /** @class */
 function () {
-  function Time() {} // constructor() {
-  //     // this.movingEvent = movingEvent;
-  // } 
-  // jsWeekdayToIsoWeekday(jsWeekday: number) {
-  //     if(jsWeekday == 0)
-  //         return 7;
-  //     return Number(jsWeekday);
-  // }
-
+  function Time() {
+    this.timezone = timezone;
+  }
 
   Time.prototype.getEventDate = function (event) {
     if (event === null || typeof event.time === 'undefined' || event.time === null) return null;

@@ -107,15 +107,16 @@
                                     </div>
                                     
                                     <div class="for-actions">
-                                        <actions :itm="itm" :ref="'actions_' + itm.id"
+                                        <actions :event="itm" :ref="'actions_' + itm.id"
+                                            :dayData="e"
                                             :right-placed="true"
                                             :show-date-time-current-day="true"
+                                            :emit-events-on-btns-click="true"
                                             @clickActionMove="onActionMove(itm)"
                                             @clickActionDuration="onClickActionDuration(itm)"
                                             @clickActionDateTime="onClickActionDateTime(itm)"
                                             @clickActionApprove="onClickActionApprove(itm)"
-                                            @clickActionRemove="onСlickActionRemove(itm)"
-                                            @clickActionDateTimeCurrentDay="onClickActionDateTimeCurrentDay(itm)"/>
+                                            @clickActionRemove="onСlickActionRemove(itm)"/>
                                     </div>
                                         
                             </div>
@@ -440,17 +441,6 @@
                     console.log(JSON.parse(JSON.stringify(this.durationE)));
                 });
             },
-            onClickActionDateTimeCurrentDay: function (event) {
-                this.app.setMovingEvent(event).then((data) => {
-                    this.app.getData(this.getDataDate, this.getDataDate, {
-                        type: 'free',
-                        exclude_ids: [this.movingEvent.id]
-                    }).then((data) => {
-                        this.dataFreeEvents = data.data;
-                        console.log(JSON.parse(JSON.stringify(this.dataFreeEvents)));
-                    });
-                });
-            },
             onClickActionDateTime: function (event) {
                 this.app.setMovingEvent(event).then((data) => {
                     this.calendar.getData({
@@ -483,6 +473,7 @@
                 });
             },
             show: function (e){
+                console.log(JSON.parse(JSON.stringify('show show show')));
                 console.log(JSON.parse(JSON.stringify(e)));
                 this.e = e;
                 this.setEvents().finally(() => {

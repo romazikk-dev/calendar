@@ -56,6 +56,8 @@ class BookingsController extends Controller
         $db_specifics_arr_as_key_index = [];
         foreach($db_specifics as $k => $v)
             $db_specifics_arr_as_key_index[$v['id']] = $v;
+            
+        // dd(\Filter::getFromCookie());
         
         $output = [
             // 'token' => $token,
@@ -68,6 +70,7 @@ class BookingsController extends Controller
             // 'workers' => $workers->toArray(),
             // 'templates' => $templates->toArray(),
             'filters' => \Filter::getFromCookie(),
+            'timezone' => \Timezone::getCurrentTimezone(),
             // 'filters' => null,
             'view' => \Calendar::dashboard()->view()->getView(),
             'moving_event' => null,

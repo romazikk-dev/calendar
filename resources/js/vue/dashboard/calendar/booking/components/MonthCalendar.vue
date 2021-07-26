@@ -51,7 +51,7 @@
             });
         },
         mounted() {
-            this.$store.dispatch('dates/setMonthDates', this.startDate);
+            this.$store.dispatch('dates/setMonthDates', this.startDates.month);
             
             if(this.isNewEventMainFull){
                 this.getData({
@@ -67,7 +67,7 @@
                 this.getData();
             }
         },
-        props: ['startDate'],
+        // props: ['startDate'],
         data: function(){
             return {
                 dates: null,

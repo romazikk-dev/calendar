@@ -3,6 +3,13 @@
 // initial state
 // shape: [{ id, quantity }]
 const state = () => ({
+    timezone: calendarHelper.time.timezone,
+    startDates: {
+        month: new Date(),
+        week: new Date(),
+        day: new Date(),
+        list: new Date(),
+    },
     current: {
         date: null,
         year: null,
@@ -26,13 +33,10 @@ const state = () => ({
     week: {
         firstDate: null,
         lastDate: null,
-        // monthTwoDigits: null,
-        // totalDays: null,
-        // firstDateWeekday: null,
-        // firstDateIsoWeekday: null,
-        
-        // firstWeekday: null,
-        // lastWeekday: null,
+    },
+    list: {
+        firstDate: null,
+        lastDate: null,
     },
     day: {
         date: null,
@@ -43,6 +47,9 @@ const state = () => ({
 
 // getters
 const getters = {
+    startDates: (state) => {
+        return state.startDates;
+    },
     current: (state) => {
         return state.current;
     },
@@ -54,6 +61,9 @@ const getters = {
     },
     week: (state) => {
         return state.week;
+    },
+    list: (state) => {
+        return state.list;
     },
     day: (state) => {
         return state.day;
@@ -67,6 +77,12 @@ const getters = {
     canGoToPreviousWeek: function(state) {
             let firstWeekDay, firstDayOfCurrentWeek;
             firstWeekDay = moment(state.week.firstDate);
+            firstDayOfCurrentWeek = moment(state.current.date).startOf('week').add(1, 'days');
+            return firstWeekDay.isAfter(firstDayOfCurrentWeek);
+    },
+    canGoToPreviousList: function(state) {
+            let firstWeekDay, firstDayOfCurrentWeek;
+            firstWeekDay = moment(state.list.firstDate);
             firstDayOfCurrentWeek = moment(state.current.date).startOf('week').add(1, 'days');
             return firstWeekDay.isAfter(firstDayOfCurrentWeek);
     },
@@ -91,6 +107,7 @@ const actions = {
         if(view.toLowerCase() == 'list')
             this.dispatch('dates/goTodayList');
             
+        this.dispatch('dates/setStartDates');
         // console.log(JSON.parse(JSON.stringify(555566666)));
         console.log(JSON.parse(JSON.stringify(view)));
     },
@@ -102,7 +119,10 @@ const actions = {
             this.dispatch('dates/goNextWeek');
         if(view.toLowerCase() == 'day')
             this.dispatch('dates/goNextDay');
-            
+        if(view.toLowerCase() == 'list')
+            this.dispatch('dates/goNextList');
+        
+        this.dispatch('dates/setStartDates');
         // console.log(JSON.parse(JSON.stringify(555566666)));
         console.log(JSON.parse(JSON.stringify(view)));
     },
@@ -114,6 +134,10 @@ const actions = {
             this.dispatch('dates/goPreviousWeek');
         if(view.toLowerCase() == 'day' && this.getters['dates/canGoToPreviousDay'])
             this.dispatch('dates/goPreviousDay');
+        if(view.toLowerCase() == 'list' && this.getters['dates/canGoToPreviousList'])
+            this.dispatch('dates/goPreviousList');
+            
+        this.dispatch('dates/setStartDates');
     },
     setCurrentDateDates ({state}) {
         let currentDate = new Date();
@@ -140,6 +164,10 @@ const actions = {
         // alert(dateOfWeek);
         this.dispatch('dates/setWeekDates', dateOfWeek);
     },
+    goPreviousList ({state}){
+        let dateOfWeek = moment(state.list.firstDate).subtract(7, 'days').toDate();
+        this.dispatch('dates/setListDates', dateOfWeek);
+    },
     goPreviousDay ({state}){
         let dayDate = moment(state.day.date).subtract(1, 'days').toDate();
         this.dispatch('dates/setDayDates', dayDate);
@@ -156,6 +184,10 @@ const actions = {
         let dateOfWeek = moment(state.week.firstDate).add(7, 'days').toDate();
         this.dispatch('dates/setWeekDates', dateOfWeek);
     },
+    goNextList ({state}){
+        let dateOfWeek = moment(state.list.firstDate).add(7, 'days').toDate();
+        this.dispatch('dates/setListDates', dateOfWeek);
+    },
     goNextDay ({state}){
         let date = moment(state.day.date).add(1, 'days').toDate();
         this.dispatch('dates/setDayDates', date);
@@ -165,6 +197,9 @@ const actions = {
     },
     goTodayWeek ({state}){
         this.dispatch('dates/setWeekDates', state.current.date);
+    },
+    goTodayList ({state}){
+        this.dispatch('dates/setListDates', state.current.date);
     },
     goTodayDay ({state}){
         this.dispatch('dates/setDayDates', state.current.date);
@@ -199,16 +234,49 @@ const actions = {
     },
     setWeekDates ({state}, oneOfWeekDate) {
         this.dispatch('dates/setCurrentDateDates');
-        let momentOneOfWeekDate, firstDate, lastDate;
+        // console.log(JSON.parse(JSON.stringify('setWeekDates')));
+        
+        // console.log(JSON.parse(JSON.stringify(new Date)));
+        // console.log(JSON.parse(JSON.stringify(moment().tz('Europe/Kiev').format())));
+        // console.log(JSON.parse(JSON.stringify(moment(new Date()).toDate())));
+        // let dateee = moment().format();
+        // console.log(JSON.parse(JSON.stringify(new Date(dateee))));
+        // console.log(JSON.parse(JSON.stringify(moment(new Date()).format())));
+        // console.log(JSON.parse(JSON.stringify(moment().format())));
+        
+        // console.log(JSON.parse(JSON.stringify(state.current.date)));
+        // alert(state.current.date);
+        let momentOneOfWeekDate, firstDate, lastDate, momentStartOfWeek;
     	
         momentOneOfWeekDate = moment(oneOfWeekDate);
-    	state.week.firstDate = momentOneOfWeekDate.startOf('week').add(1, 'days').toDate();
+        if(momentOneOfWeekDate.day() == 0){
+            momentOneOfWeekDate = momentOneOfWeekDate.subtract(6, 'days');
+        }
+        
+        state.week.firstDate = momentOneOfWeekDate.startOf('week').add(1, 'days').toDate();
     	state.week.lastDate = moment(state.week.firstDate).add(6, 'days').toDate();
     	
     	state.interval.firstDate = state.week.firstDate;
         state.interval.lastDate = state.week.lastDate;
         
         console.log(JSON.parse(JSON.stringify(state)));
+    },
+    setListDates ({state}, oneOfWeekDate) {
+        this.dispatch('dates/setCurrentDateDates');
+        let momentOneOfWeekDate, firstDate, lastDate, momentStartOfWeek;
+    	
+        momentOneOfWeekDate = moment(oneOfWeekDate);
+        if(momentOneOfWeekDate.day() == 0){
+            momentOneOfWeekDate = momentOneOfWeekDate.subtract(6, 'days');
+        }
+        
+        state.list.firstDate = momentOneOfWeekDate.startOf('week').add(1, 'days').toDate();
+    	state.list.lastDate = moment(state.list.firstDate).add(6, 'days').toDate();
+    	
+    	state.interval.firstDate = state.list.firstDate;
+        state.interval.lastDate = state.list.lastDate;
+        
+        // console.log(JSON.parse(JSON.stringify(state)));
     },
     setDayDates ({state}, dayDate) {
         this.dispatch('dates/setCurrentDateDates');
@@ -222,6 +290,60 @@ const actions = {
         state.interval.lastDate = state.day.date;
         
         // console.log(JSON.parse(JSON.stringify(state)));
+    },
+    setStartDates ({state}){
+        let view, momentViewDate, momentCurrentDate, date;
+        view = this.getters['view/view'];
+        if(view == 'month')
+            momentViewDate = moment(state.month.firstDate);
+        if(view == 'week')
+            momentViewDate = moment(state.week.firstDate);
+        if(view == 'list')
+            momentViewDate = moment(state.list.firstDate);
+        if(view == 'day')
+            momentViewDate = moment(state.day.date);
+        
+        momentCurrentDate = moment(state.current.date);
+        date = momentViewDate.toDate();
+        
+        if(momentViewDate.diff(momentCurrentDate) >= 0){
+            if(view == 'month'){
+                state.startDates.month = date;
+                state.startDates.week = date;
+                state.startDates.list = date;
+                state.startDates.day = date;
+            }else if(view == 'week' || view == 'list'){
+                state.startDates.week = date;
+                state.startDates.list = date;
+                state.startDates.day = date;
+                let momentViewDateOfMonthStart = momentViewDate.startOf('month').format('YYYYMMDD');
+                let startDateMonthOfMonthStart = moment(state.startDates.month).startOf('month').format('YYYYMMDD');
+                if(momentViewDateOfMonthStart != startDateMonthOfMonthStart)
+                    state.startDates.month = date;
+            }else if(view == 'day'){
+                state.startDates.day = date;
+                let momentViewDateClone;
+                
+                momentViewDateClone = momentViewDate.clone();
+                let momentViewDateOfWeekStart = momentViewDateClone.subtract(1, 'days').startOf('week').format('YYYYMMDD');
+                let startDateMonthOfWeekStart = moment(state.startDates.week).startOf('week').format('YYYYMMDD');
+                if(momentViewDateOfWeekStart != startDateMonthOfWeekStart){
+                    state.startDates.week = date;
+                }
+                
+                momentViewDateClone = momentViewDate.clone();
+                let momentViewDateOfMonthStart = momentViewDateClone.startOf('month').format('YYYYMMDD');
+                let startDateMonthOfMonthStart = moment(state.startDates.month).startOf('month').format('YYYYMMDD');
+                if(momentViewDateOfMonthStart != startDateMonthOfMonthStart){
+                    state.startDates.month = date;
+                }
+            }
+        }else{
+            state.startDates.month = date;
+            state.startDates.week = date;
+            state.startDates.list = date;
+            state.startDates.day = date;
+        }
     },
 }
 

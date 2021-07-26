@@ -92,10 +92,6 @@
             };
         },
         computed: {
-            fullPickedWorkerName: function(){
-                let fullName = this.fullName(this.pickedWorker);
-                return fullName !== null ? fullName : '---';
-            },
             isShown: function(){
                 return $('#' + this.modalId).hasClass('in');
             },

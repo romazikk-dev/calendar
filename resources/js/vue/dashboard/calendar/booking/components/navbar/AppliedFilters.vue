@@ -15,6 +15,10 @@
             </div>
             <div class="applied-filter">
                 
+                <applied-filter-item v-if="statusFilter"
+                    type="status"
+                    :filter="statusFilter" />
+                
                 <applied-filter-item v-if="hallFilter"
                     type="hall"
                     :filter="hallFilter" />

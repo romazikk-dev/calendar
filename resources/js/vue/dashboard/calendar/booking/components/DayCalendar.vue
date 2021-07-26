@@ -47,9 +47,9 @@
 <script>
     import MonthCell from "./MonthCell.vue";
     export default {
-        name: 'weekCalendar',
+        name: 'dayCalendar',
         mounted() {
-            this.$store.dispatch('dates/setDayDates', this.startDate);
+            this.$store.dispatch('dates/setDayDates', this.startDates.day);
             
             // console.log(JSON.parse(JSON.stringify(2121212)));
             // console.log(JSON.parse(JSON.stringify(this.$store.getters['dates/day'])));
@@ -70,7 +70,7 @@
             }
         },
         updated: function () {},
-        props: ['startDate'],
+        // props: ['startDate'],
         data: function(){
             return {
                 date: null,

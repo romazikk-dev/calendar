@@ -2,15 +2,20 @@
     <div>
         
         <div class="event-actions"
+        :style="{
+            '--action-color': actionColor,
+        }"
         :class="{
             'bigger': bigger,
             'right-placed': rightPlaced,
+            'size-middle': size == 'middle',
+            'without-hover-bg': withoutHoverBg
         }">
             <ul>
                 <li class="action-move">
                     
                     <a href="#" data-placement="bottom"
-                        @click.prevent="clickActionMove($event)"
+                        @click.prevent="onClickActionMove($event)"
                         class="tooltip-active"
                         title="<div class='small'>Edit</div>">
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +32,7 @@
                     <div class="action-drop dropup">
                         <a class="tooltip-active drop-toggle" href="#"
                             role="button"
-                            :id="'actionDateTimeDropdown_' + itm.id"
+                            :id="'actionDateTimeDropdown_' + event.id"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
@@ -42,17 +47,21 @@
                                 </svg>
                         </a>
 
-                        <div @mouseover="actionDropdownMenuHover($event)" @click.stop class="dropdown-menu" :aria-labelledby="'actionDateTimeDropdown_' + itm.id">
+                        <div @mouseover="actionDropdownMenuHover($event)" @click.stop
+                        class="dropdown-menu"
+                        :class="{
+                            'dropdown-menu-right': dropdownToLeft || dropdownToLeftInDepenseOfWeekday,
+                        }" :aria-labelledby="'actionDateTimeDropdown_' + event.id">
                             <div class="itemms">
                                 <div>
-                                    <a v-if="itm.time_crossing"
+                                    <a v-if="event.time_crossing"
                                         class="dropdown-item tooltip-active disable"
                                         data-placement="auto"
                                         title="<div class='small'>Not available as event is crossing time one of other events of this day</div>"
                                         @click.stop.prevent
                                         href="#">
                                             Duration
-                                            <span v-if="itm.time_crossing" class="action-info text-warning">
+                                            <span v-if="event.time_crossing" class="action-info text-warning">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
                                                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                                                 </svg>
@@ -60,12 +69,12 @@
                                     </a>
                                     <a v-else
                                         class="dropdown-item"
-                                        @click.prevent="clickActionDuration($event, itm)"
+                                        @click.prevent="onClickActionDuration($event)"
                                         href="#">Duration</a>
                                 </div>
                                 <div>
                                     <a class="dropdown-item"
-                                        @click.prevent="$emit('clickActionDateTime')"
+                                        @click.prevent="onClickActionDateTime"
                                         href="#">Date&Time</a>
                                 </div>
                                 <!-- <div class="action-date-time-current-day" v-if="showDateTimeCurrentDay">
@@ -78,20 +87,20 @@
                     </div>
                     
                 </li>
-                <li v-if="!itm.approved" class="action-approve">
+                <li v-if="!event.approved" class="action-approve">
                     
-                    <a :ref="'action_approve_loader_' + itm.id" class="tooltip-active action-loader d-none">
+                    <a :ref="'action_approve_loader_' + event.id" class="tooltip-active action-loader d-none">
                         <loader-action />
                     </a>
-                    <a :ref="'action_approve_btn_' + itm.id" href="#"
+                    <a :ref="'action_approve_btn_' + event.id" href="#"
                         data-placement="bottom"
-                        @click.prevent="clickActionApprove($event, itm)"
+                        @click.prevent="onClickActionApprove($event)"
                         class="tooltip-active"
                         :class="{
-                            'disable': itm.time_crossing
+                            'disable': event.time_crossing
                         }"
                         :title="
-                            itm.time_crossing ?
+                            event.time_crossing ?
                             '<div class=\'small\'>Approve<br>Not available, event`s time is crossing one of events of a day,<br>please set right time</div>' :
                             '<div class=\'small\'>Approve</div>'
                         ">
@@ -106,14 +115,14 @@
                 </li>
                 <li class="action-remove">
                     
-                    <a :ref="'action_remove_loader_' + itm.id" class="tooltip-active action-loader d-none">
+                    <a :ref="'action_remove_loader_' + event.id" class="tooltip-active action-loader d-none">
                         <loader-action />
                     </a>
-                    <div class="action-drop dropup" :ref="'action_remove_drop_' + itm.id">
+                    <div class="action-drop dropup" :ref="'action_remove_drop_' + event.id">
                         <a class="tooltip-active drop-toggle" href="#"
-                            :ref="'action_remove_drop_toggle_' + itm.id"
+                            :ref="'action_remove_drop_toggle_' + event.id"
                             role="button"
-                            :id="'actionRemoveDropdown_' + itm.id"
+                            :id="'actionRemoveDropdown_' + event.id"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
@@ -127,18 +136,22 @@
                                 </svg>
                         </a>
 
-                        <div @mouseover="actionDropdownMenuHover($event)" @click.stop class="dropdown-menu" :aria-labelledby="'actionRemoveDropdown_' + itm.id">
+                        <div @mouseover="actionDropdownMenuHover($event)" @click.stop
+                        class="dropdown-menu"
+                        :class="{
+                            'dropdown-menu-right': dropdownToLeft || dropdownToLeftInDepenseOfWeekday,
+                        }" :aria-labelledby="'actionRemoveDropdown_' + event.id">
                             <div class="small">
                                 Do you really want to delete this event?
                             </div>
                             <div class="btnns">
                                 <a href="#"
-                                    @click.prevent="onActionRemove($event, itm)"
+                                    @click.prevent="onClickActionRemove($event, event)"
                                     class="btnn text-primary btnn-yes">
                                         Yes
                                 </a>
                                 <a href="#"
-                                    @click.prevent="$refs['action_remove_drop_toggle_' + itm.id].click()"
+                                    @click.prevent="$refs['action_remove_drop_toggle_' + event.id].click()"
                                     class="btnn text-primary btnn-no">
                                         No
                                 </a>
@@ -160,11 +173,18 @@
     export default {
         name: 'Actions',
         mounted() {
-            // console.log(JSON.parse(JSON.stringify(this.rightPlaced)));
+            // console.log(JSON.parse(JSON.stringify(this.dayItem)));
             // console.log(this.bigger);
             // alert(1111);
+            $('.tooltip-active').tooltip({
+                html: true,
+                trigger: "hover",
+            });
         },
-        props: ['itm','bigger','rightPlaced','showDateTimeCurrentDay'],
+        props: [
+            'event','dayData','bigger','rightPlaced','showDateTimeCurrentDay','actionColor',
+            'size','withoutHoverBg','dropdownToLeft','emitEventsOnBtnsClick'
+        ],
         data: function(){
             return {
                 // range: helper.range.range,
@@ -172,62 +192,147 @@
             };
         },
         computed: {
+            dropdownToLeftInDepenseOfWeekday: function () {
+                return this.isProp(this.dayData) && [6,7].includes(this.dayData.weekday);
+            },
+            isEvents: function () {
+                return this.isProp(this.events) &&
+                Array.isArray(this.events) && this.events.length > 0;
+            },
+            events: function () {
+                if(!this.isProp(this.dayData) || !this.isProp(this.dayData.items))
+                    return null;
+                return this.dayData.items;
+            },
             pencilIcoSize: function () {
-                return this.bigger === true ? 16 : 12;
+                if(this.isProp(this.size) && this.size == 'middle')
+                    return 14;
+                if(this.isProp(this.size) && this.size == 'large')
+                    return 16;
+                return 12;
             },
             clockIcoSize: function () {
-                return this.bigger === true ? 16 : 12;
+                if(this.isProp(this.size) && this.size == 'middle')
+                    return 14;
+                if(this.isProp(this.size) && this.size == 'large')
+                    return 16;
+                return 12;
             },
             okIcoSize: function () {
-                return this.bigger === true ? 26 : 18;
+                if(this.isProp(this.size) && this.size == 'middle')
+                    return 22;
+                if(this.isProp(this.size) && this.size == 'large')
+                    return 26;
+                return 18;
             },
             removeIcoSize: function () {
-                return this.bigger === true ? 26 : 16;
+                if(this.isProp(this.size) && this.size == 'middle')
+                    return 21;
+                if(this.isProp(this.size) && this.size == 'large')
+                    return 26;
+                return 16;
             },
         },
         methods: {
-            clickActionMove: function (e) {
-                // console.log(e.target);
-                $(e.target).closest('.action-move').find('.tooltip-active').tooltip("hide");
-                this.$emit('clickActionMove');
+            getNextEvent: function () {
+                if(!this.isProp(this.event) || !this.isEvents)
+                    return null;
+                
+                let nextEvent = null;
+                let isNext = false;
+                for(let i = 0; i < this.events.length; i++){
+                    if(isNext && this.events[i].approved == 1){
+                        nextEvent = this.events[i];
+                        break;
+                    }
+                    if(this.event.id == this.events[i].id){
+                        isNext = true;
+                    }
+                }
+                
+                return nextEvent;
             },
-            clickActionDuration: function (e, event) {
-                if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
+            onClickActionMove: function (e) {
+                $(e.target).closest('.action-move').find('.tooltip-active').tooltip("hide");
+                
+                if(this.isProp(this.emitEventsOnBtnsClick)){
+                    this.$emit('clickActionMove');
+                    return;
+                }
+                
+                this.app.setMovingEvent(this.event).then((data) => {
+                    this.app.$refs.move_path_picker.show();
+                });
+            },
+            onClickActionDuration: function (e) {
+                if(typeof this.event.time_crossing !== 'undefined' && this.event.time_crossing === true)
                     return;
                     
                 $(e.target).closest('.action-drop').find('.tooltip-active').click();
-                this.$emit('clickActionDuration');
+                
+                if(this.isProp(this.emitEventsOnBtnsClick)){
+                    this.$emit('clickActionDuration');
+                    return;
+                }
+                
+                this.app.setMovingEvent(this.event).then((data) => {
+                    this.app.showModalDuration({
+                        day: this.dayData,
+                        event: this.event,
+                        nextEvent: this.getNextEvent(),
+                    });
+                });
             },
-            clickActionApprove: function (e, event) {
-                if(typeof event.time_crossing !== 'undefined' && event.time_crossing === true)
+            onClickActionDateTime: function () {
+                if(this.isProp(this.emitEventsOnBtnsClick)){
+                    this.$emit('clickActionDateTime');
+                    return;
+                }
+                
+                this.app.setMovingEvent(this.event).then((data) => {
+                    this.calendar.getData({
+                        type: 'free',
+                        exclude_ids: [this.movingEvent.id]
+                    });
+                });
+            },
+            onClickActionApprove: function (e) {
+                if(typeof this.event.time_crossing !== 'undefined' && this.event.time_crossing === true)
                     return;
                 
-                $(e.target).closest('.tooltip-active').tooltip('hide');
-                this.$emit('clickActionApprove');
-            },
-            onActionRemove: function (e, event) {
-                // let _this = this;
-                this.$refs['action_remove_drop_toggle_' + event.id].click();
-                this.$emit('clickActionRemove', event);
-                // this.toggleActionLoader(true, 'action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
+                this.closeTooltipOfEvent(e);
                 
-                // this.$emit.()
-                // return;
-                // new Promise((resolve, reject) => {
-                //     this.toggleActionLoader('action_remove_loader_' + event.id, 'action_remove_drop_' + event.id);
-                //     this.app.removeEvent(event.id, (data) => {
-                //         resolve(data);
-                //     });
-                // }).then((data) => {
-                //     if(typeof data.status !== 'undefined' && data.status == 'success'){
-                //         // alert('Successfuly removed!!!');
-                //     }else{
-                //         if(typeof data.msg !== 'undefined' && data.msg !== null)
-                //             alert(data.msg);
-                //     }
-                //     this.toggleActionLoader('action_remove_drop_' + event.id, 'action_remove_loader_' + event.id);
-                //     this.$emit('removed');
-                // });
+                if(this.isProp(this.emitEventsOnBtnsClick)){
+                    this.$emit('clickActionApprove');
+                    return;
+                }
+                
+                this.toggleActionLoader('action_approve_loader_' + this.event.id, 'action_approve_btn_' + this.event.id);
+                this.app.approveEvent(this.event.id).then((data) => {
+                    if(typeof data.status == 'undefined' || data.status != 'success')
+                        if(typeof data.msg !== 'undefined' && data.msg !== null)
+                            alert(data.msg);
+                    
+                    this.toggleActionLoader('action_approve_btn_' + this.event.id, 'action_approve_loader_' + this.event.id);
+                    this.calendar.getData();
+                });
+            },
+            onClickActionRemove: function (e) {
+                this.$refs['action_remove_drop_toggle_' + this.event.id].click();
+                
+                new Promise((resolve, reject) => {
+                    this.toggleActionLoader('action_remove_loader_' + this.event.id, 'action_remove_drop_' + this.event.id);
+                    this.app.removeEvent(this.event.id).then((data) => {
+                        resolve(data);
+                    });
+                }).then((data) => {
+                    if(typeof data.status === 'undefined' || data.status != 'success')
+                        if(typeof data.msg !== 'undefined' && data.msg !== null)
+                            alert(data.msg);
+                            
+                    this.toggleActionLoader('action_remove_drop_' + this.event.id, 'action_remove_loader_' + this.event.id);
+                    this.calendar.getData();
+                });
             },
             toggleActionLoader: function (refShow, refHide) {
                 $(this.$refs[refShow]).removeClass('d-none');

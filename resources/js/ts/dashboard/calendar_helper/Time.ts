@@ -1,16 +1,12 @@
 declare var moment: any;
+declare var timezone: any;
 
 export class Time{
-  
-    // constructor() {
-    //     // this.movingEvent = movingEvent;
-    // } 
+    timezone: any;
     
-    // jsWeekdayToIsoWeekday(jsWeekday: number) {
-    //     if(jsWeekday == 0)
-    //         return 7;
-    //     return Number(jsWeekday);
-    // }
+    constructor() {
+        this.timezone = timezone;
+    }
     
     getEventDate(event: any) {
         if(event === null || typeof event.time === 'undefined' || event.time === null)

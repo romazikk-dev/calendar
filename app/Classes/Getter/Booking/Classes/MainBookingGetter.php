@@ -101,6 +101,7 @@ class MainBookingGetter{
                 'month' => $start_date_carbon->format("m"),
                 'day' => $start_date_carbon->format("d"),
                 'weekday' => $weekday,
+                'type' => 'events',
                 'count_total' => 0,
                 'count_approved' => 0,
                 'count_not_approved' => 0,

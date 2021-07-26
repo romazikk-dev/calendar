@@ -3,6 +3,8 @@
             
         <div class="for-table week-calendar">
             
+            {{dateInterval}}
+            
             <table cellspacing="0">
                 <thead>
                     <tr>
@@ -51,7 +53,8 @@
     export default {
         name: 'weekCalendar',
         mounted() {
-            this.$store.dispatch('dates/setWeekDates', this.startDate);
+            // alert(this.startDate);
+            this.$store.dispatch('dates/setWeekDates', this.startDates.week);
             
             if(this.isNewEventMainFull){
                 this.getData({
@@ -67,7 +70,7 @@
             }
         },
         updated: function () {},
-        props: ['startDate'],
+        // props: ['startDate'],
         data: function(){
             return {
                 dates: null,

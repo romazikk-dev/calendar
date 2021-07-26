@@ -1,431 +1,281 @@
 <template>
     <div>
-        <navigation :can-go-to-previous="canGoToPrevious"
-            :calendar-title="calendarTitle"
-            @previous="previous"
-            @next="next"
-            @today="today"></navigation>
         
-        <div class="for-table">
-            <table>
+        <div class="list-calendar">
+            
+            <table class="contt" cellspacing="0">
                 <tbody>
-                    <template v-for="date in dates" v-if="date.bookable && !date.is_weekend && notPast(date)">
-                    <!-- <template v-for="date in dates"> -->
-                        
-                        <tr class="day-title" :class="{'current-date': isCurrentDate(date)}">
-                            <td colspan="2">
-                                <span>{{getWeekdayTitleFromDateItem(date)}}</span>
-                                <span v-if="isCurrentDate(date)" class="badge badge-info">Today</span>
-                                <span class="item-date">{{getDayTitleFromDateItem(date)}}</span>
+                    
+                    <template v-for="(i, index) in 7" v-if="getDayItem(index) && getDayItem(index).type == 'free'">
+                        <tr class="title">
+                            <td colspan="4">
+                                <a href="#" @click.prevent
+                                    class="event-weekday">
+                                        {{weekdaysList[index]}}
+                                </a>
+                                <a href="#" @click.prevent
+                                    class="event-date">
+                                        {{datesPerWeekday[index]}}
+                                </a>
                             </td>
                         </tr>
-                        
-                        <tr class="hour-item" v-for="item in date.items" :class="'hour-item-' + item.type">
+                        <tr class="event free" v-for="item in getDayItem(i-1).items">
                             <td>
-                                <span>{{item.from + ' - ' + item.to}}</span>
+                                {{item.from}} - {{item.to}}
                             </td>
                             <td>
-                                <div v-if="item.type == 'free'" class="for-itm for-itm-free">
-                                    <span class="background-text">FREE TIME</span>
-                                    <span class="circle free"></span>
-                                    Free time
-                                    <a href="#" @click.prevent="openModal(date, item)" class="btn-book">Book</a>
-                                    <div v-if="item.not_approved_bookings" class="not-approved-bookings">
-                                        <div v-for="notApprovedItem in item.not_approved_bookings">
-                                            <span class="circle not-approved"></span>
-                                            {{notApprovedItem.booking.template_without_user_scope.title}}
-                                            <a href="#" @click.prevent="cancelBook(notApprovedItem.booking)" class="btn-book">Cancel</a>
-                                        </div>
+                                <div class="status"></div>
+                            </td>
+                            <td>
+                                <a href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Free time</a>
+                            </td>
+                            <td>
+                                <div class="float-right">
+                                    <a href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Pick</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    
+                    
+                    
+                    <template v-for="(i, index) in 7" v-if="isDayItem(index, 'events')">
+                        <tr class="title">
+                            <td colspan="4">
+                                <a href="#" @click.prevent
+                                    class="event-weekday">
+                                        {{weekdaysList[index]}}
+                                </a>
+                                <a href="#" @click.prevent
+                                    class="event-date">
+                                        {{datesPerWeekday[index]}}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr class="event" v-for="item in getDayItem(index).items"
+                        :class="{
+                            'approved': item.approved
+                        }">
+                            <td>
+                                {{item.from}} - {{item.to}}
+                            </td>
+                            <td>
+                                <div class="status"></div>
+                            </td>
+                            <td>
+                                <div class="infos">
+                                    <div class="info-item">
+                                        <span class="vall vall-client">{{fullNameOfObj(item.client_without_user_scope)}}</span>
+                                        <span class="small labell">(client)</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="vall vall-hall">{{item.hall_without_user_scope.title}}</span>
+                                        <span class="small labell">(hall)</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="vall vall-template">{{item.template_without_user_scope.title}}</span>
+                                        <span class="small labell">(template)</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="vall vall-worker">{{fullNameOfObj(item.worker_without_user_scope)}}</span>
+                                        <span class="small labell">(worker)</span>
                                     </div>
                                 </div>
-                                <div v-if="item.type == 'booked'" class="for-itm for-itm-booked">
-                                    <span class="background-text">YOUR BOOKED EVENT</span>
-                                    <span class="circle booked"></span>
-                                    <b>{{item.booking.template_without_user_scope.title}}</b>
-                                    <a href="#" @click.prevent="cancelBook(item.booking)" class="btn-book">Cancel</a>
+                            </td>
+                            <td>
+                                <div class="float-right">
+                                    <actions :event="item"
+                                        :day-data="getDayItem(i-1)"
+                                        :ref="'actions_' + item.id"
+                                        action-color="#549fb7"
+                                        size="middle"
+                                        :without-hover-bg="true"
+                                        :dropdown-to-left="true"/>
                                 </div>
                             </td>
                         </tr>
-                        
                     </template>
-                    <template v-if="empty">
-                        <tr>
-                            <td colspan="2" class="text-center">
-                                No free time available
-                            </td>
-                        </tr>
-                    </template>
+                    
                 </tbody>
             </table>
-        </div>
-        
-        <!-- Modal -->
-        <div class="modal fade" id="bookModal">
-            <div class="modal-dialog">
-                <!-- ModalAuthContent -->
-                <modal-book-content v-if="$parent.isAuth()"
-                    @booked="onBooked($event)"
-                    :book-date="bookDate"
-                    :book-time-period="bookTimePeriod"></modal-book-content>
-                <!-- ModalAuthContent -->
-                <modal-auth-content v-else></modal-auth-content>
-            </div>
-        </div>
-        
-        <!-- Modal -->
-        <div class="modal fade" id="cancelBookModal">
-            <div class="modal-dialog">
-                <modal-cancel-book-content @canceled="onCanceled($event)" :booking="cancelBookData"></modal-cancel-book-content>
-            </div>
+            
         </div>
         
     </div>
 </template>
 
 <script>
-    import Navigation from "./Navigation.vue";
-    import WeekTimeCell from "./WeekTimeCell.vue";
     import MonthCell from "./MonthCell.vue";
-    import ModalAuthContent from "./ModalAuthContent.vue";
-    import ModalBookContent from "./ModalBookContent.vue";
-    import ModalCancelBookContent from "./ModalCancelBookContent.vue";
-    // import ModalRequestedBookingsContent from "./ModalRequestedBookingsContent.vue";
-    import WeekRequestedBookedCell from "./WeekRequestedBookedCell.vue";
+    import Actions from "./event/Actions.vue";
     export default {
-        name: 'listCalendar',
+        name: 'weekCalendar',
         mounted() {
-            let initDate = moment(this.startDate).startOf('week').toDate();
-            this.setDates(initDate);
-            // console.log(moment(this.range.first_date).format('DD-MM-YYYY'));
+            this.$store.dispatch('dates/setListDates', this.startDates.list);
             
-            this.getData();
-            
-            // this.getData();
-            $("#bookModal").on('hidden.bs.modal', () => {
-                this.bookDate = null;
-                // console.log(this.bookDate);
-            });
+            if(this.isNewEventMainFull){
+                this.getData({
+                    type: 'free',
+                });
+            }else if(this.movingEvent !== null){
+                this.getData({
+                    type: 'free',
+                    exclude_ids: [this.movingEvent.id]
+                });
+            }else{
+                this.getData();
+            }
         },
-        props: ['startDate'],
+        updated: function () {},
+        // props: ['startDate'],
         data: function(){
             return {
-                empty: true,
-                
-                dates: null,
-                bookDate: null,
-                bookTimePeriod: null,
-                requestedBookings: null,
-                currentDate: new Date(),
-                // currentDateMoment: null,
-                yearOfCurrentDate: null,
-                monthOfCurrentDate: null,
-                dayOfCurrentDate: null,
-                weekdayOfCurrentDate: null,
-                firstWeekday: null,
-                lastWeekday: null,
-                
-                workHours: null,
-                bussinessHours: null,
-                
-                cancelBookData: null,
-                
-                componentApp: null,
+                data: null,
             };
         },
         computed: {
+            datesPerWeekday: function () {
+                let initDateMoment;
+                let weekDayFormat = 'MMMM D, YYYY';
+                
+                if(typeof this.dateInterval !== 'undefined' && this.dateInterval !== null &&
+                typeof this.dateInterval.firstDate !== 'undefined' && this.dateInterval.firstDate !== null){
+                    initDateMoment = moment(this.dateInterval.firstDate);
+                }else{
+                    initDateMoment = moment(this.currentDate).startOf('week').add(1, 'days');
+                }
+                
+                return [
+                    initDateMoment.format(weekDayFormat),
+                    initDateMoment.add(1,'days').format(weekDayFormat),
+                    initDateMoment.add(1,'days').format(weekDayFormat),
+                    initDateMoment.add(1,'days').format(weekDayFormat),
+                    initDateMoment.add(1,'days').format(weekDayFormat),
+                    initDateMoment.add(1,'days').format(weekDayFormat),
+                    initDateMoment.add(1,'days').format(weekDayFormat),
+                ];
+            },
             dataUpdater: function () {
                 return this.$store.getters['updater/counter'];
             },
             search: function () {
                 return this.$store.getters['filters/urlSearchPath'];
             },
-            calendarTitle: function () {
-                if(this.firstWeekday == null)
-                    return '';
-                
-                let firstWeekdayMoment = moment(this.firstWeekday);
-                let lastWeekdayMoment = moment(this.lastWeekday);
-                
-                let firstWeekdayMonth = this.firstWeekday.getMonth();
-                let lastWeekdayMonth = this.lastWeekday.getMonth();
-                
-                if(firstWeekdayMonth == lastWeekdayMonth){
-                    let firstWeekdayDay = firstWeekdayMoment.format('DD');
-                    let lastWeekdayDay = lastWeekdayMoment.format('DD');
-                    let monthTitle = firstWeekdayMoment.format('MMMM');
-                    return firstWeekdayDay + ' - ' + lastWeekdayDay + ' ' + monthTitle;
+            weekDayNotPast: function(){
+                return (i) => {
+                    if(this.firstWeekday == null)
+                        return false;
+                    let firstWeekdayMoment = moment(this.firstWeekday);
+                    let currentDateMoment = moment(this.currentDate);
+                    return i >= this.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
                 }
-                
-                let firstWeekdayMonthTitle = firstWeekdayMoment.format('DD MMMM');
-                let lastWeekdayMonthTitle = lastWeekdayMoment.format('DD MMMM');
-                return firstWeekdayMonthTitle + ' - ' + lastWeekdayMonthTitle;
             },
-            canGoToPrevious: function () {
-                if(this.firstWeekday == null)
-                    return '';
-                
-                let firstWeekDayOfCurrentDate = moment(this.currentDate).startOf('week').add(1, 'days');
-                let firstWeekdayMoment = moment(this.firstWeekday);
-                return firstWeekdayMoment.diff(firstWeekDayOfCurrentDate) > 0;
-            }
         },
         methods: {
-            notPast: function(date){
-                let dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + date.start + ':00');
+            isDayItem: function (index, type = 'events') {
+                let dayItem = this.getDayItem(index);
+                return ['events','free'].includes(type) && dayItem !== null &&
+                this.isProp(dayItem.items) && typeof dayItem.type !== 'undefined' &&
+                dayItem.type.toLowerCase() == type.toLowerCase();
+            },
+            onClickPickFree: function (dayData, event) {
+                this.app.showPickTimeModal({
+                    day: dayData,
+                    item: event,
+                });
+            },
+            getDayItem: function(index){
+                if(this.data === null || typeof this.data[index] === 'undefined')
+                    return null;
+                return this.data[index];
+            },
+            notPast: function(dateItemIndex, hourItemIndex){
+                // console.log(dayItemIndex, freeItemIndex);
+                let dateItem = this.data[dateItemIndex];
+                let hourItem = dateItem.items[hourItemIndex];
+                
+                let dateItemMoment = moment(dateItem.year+'-'+dateItem.month+'-'+dateItem.day);
                 let currentDateMoment = moment(this.currentDate);
                 
-                return dateMoment.diff(currentDateMoment) >= 0 ||
-                dateMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD");
+                return (
+                    dateItemMoment.diff(currentDateMoment) >= 0 ||
+                    dateItemMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")
+                ) && dateItem.bookable;
             },
-            getWeekdayTitleFromDateItem: function (date) {
-                let dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
-                return this.weekdaysList[dateMoment.isoWeekday() - 1];
-            },
-            getDayTitleFromDateItem: function (date) {
-                let dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
-                return dateMoment.format('MMMM DD, YYYY');
-            },
-            // getBussinessHourPerWeekday: function(i){
-            //     let bussinessHours = this.bussinessHours[i];
-            //     return bussinessHours.start + ' - ' + bussinessHours.end;
+            // isCurrentDate: function(k){
+            //     return this.currentIsoWeekday == k;
             // },
-            cancelBook: function(event){
-                this.cancelBookData = event;
-                $('#cancelBookModal').modal('show');
-                // console.log(event);
-            },
-            onBooked: function(){
-                this.getData();
-            },
-            onCanceled: function(){
-                this.getData('cancel_book');
-            },
-            next: function(){
-                let dateOfNextWeek = moment(this.firstWeekday).add(7, 'days').toDate();
-                this.setDates(dateOfNextWeek);
-                this.$parent.setStartDate('week', new Date(this.firstWeekday));
-                this.getData();
-            },
-            previous: function(){
-                if(!this.canGoToPrevious)
-                    return;
+            getData: function(params = null){
+                let startDate = moment(this.$store.getters['dates/interval'].firstDate).format('YYYY-MM-DD');
+                let endDate = moment(this.$store.getters['dates/interval'].lastDate).format('YYYY-MM-DD');
                 
-                let dateOfPreviousWeek = moment(this.firstWeekday).subtract(7, 'days').toDate();
-                this.setDates(dateOfPreviousWeek);
-                this.$parent.setStartDate('week', new Date(this.firstWeekday));
-                this.getData();
-            },
-            today: function(){
-                this.setDates(moment(new Date()).startOf('week').toDate());
-                this.$parent.setStartDate('week', new Date(this.firstWeekday));
-                this.getData();
-            },
-            openModal: function(dateItem, hourItem){
-                this.bookDate = dateItem;
-                this.bookTimePeriod = hourItem;
-                
-                $('#bookModal').modal('show');
-            },
-            isCurrentDate: function(date){
-                let currentDateMoment = moment(this.currentDate);
-                return currentDateMoment.format('YYYYMMDD') == date.year + date.month + date.day;
-            },
-            getData: function(from = null){
-                if(this.componentApp == null)
-                    this.componentApp = this.getParentComponentByName(this, 'app');
-                
-                this.componentApp.getData(
-                    moment(this.firstWeekday).format('DD-MM-YYYY'),
-                    moment(this.lastWeekday).format('DD-MM-YYYY'),
-                    (response) => {
-                        this.dates = response.data.data;
-                        this.bussinessHours = response.data.business_hours;
-                        // console.log(JSON.parse(JSON.stringify(this.dates)));
-                    },
-                    () => {},
-                    () => {
-                        $('#cancelBookModal').modal('hide');
-                    },
-                );
-            },
-            setDates: function(firstCalendarMonthDate){
-                if(this.yearOfCurrentDate == null || this.monthOfCurrentDate == null ||
-                this.dayOfCurrentDate == null || this.weekdayOfCurrentDate == null){
-                    let currentDateMoment = moment(this.currentDate);
-                    if(this.yearOfCurrentDate == null)
-                        this.yearOfCurrentDate = currentDateMoment.format('YYYY');
-                    if(this.monthOfCurrentDate == null)
-                        this.monthOfCurrentDate = currentDateMoment.format('MM');
-                    if(this.dayOfCurrentDate == null)
-                        this.dayOfCurrentDate = currentDateMoment.format('DD');
-                    if(this.weekdayOfCurrentDate == null)
-                        this.weekdayOfCurrentDate = currentDateMoment.day();
-                }
-                
-                // console.log(this.weekdayOfCurrentDate);
-                
-                this.firstWeekday = moment(firstCalendarMonthDate).startOf('week').add(1,'days').toDate();
-                this.lastWeekday = moment(firstCalendarMonthDate).endOf('week').add(1,'days').toDate();
+                return this.app.getData(startDate, endDate, params).then((data) => {
+                    this.data = data.data;
+                });
             },
         },
         components: {
-            Navigation,
             MonthCell,
-            ModalAuthContent,
-            ModalBookContent,
-            WeekTimeCell,
-            // ModalRequestedBookingsContent,
-            WeekRequestedBookedCell,
-            ModalCancelBookContent
+            Actions,
         },
         watch: {
             search: function () {
-                // console.log(this.search);
                 this.getData();
             },
             dataUpdater: function () {
                 this.getData();
-            },
-            dates: function () {
-                if(this.dates == null)
-                    return false;
-                let itemsCount = 0;
-                this.dates.forEach((date, i) => {
-                    if(date.bookable && !date.is_weekend && this.notPast(date))
-                        itemsCount++;
-                });
-                console.log(itemsCount);
-                // if(itemsCount > 0)
-                this.empty = itemsCount > 0 ? false : true;
             },
         }
     }
 </script>
 
 <style lang="scss" scoped>
-    .calendar-title{
-        text-align: center;
-    }
-    .for-table{
-        padding-top: 10px!important;
-        // font-size: 14px;
-        table{
-            width: 100%;
-            // min-width: 700px;
-            tr{
-                &.day-title{
-                    // background-color: #6c757d;
-                    background-color: #3b3f4b;
-                    // background-color: #999;
-                    // background-color: #6c757d;
-                    // color: white;
-                    color: #f9f9f9;
-                    // &.current-date{
-                    //     background-color: rgba(8,232,222, 0.3)!important;
-                    // }
-                    // background-color: hsla(0,0%,81.6%,.3);
-                    td{
-                        // padding-top: 10px;
-                        // padding-bottom: 5px;
-                        font-weight: bold;
-                        // border: 0px;
-                            span{
-                                // float: left;
-                                &.item-date{
-                                    float: right;
-                                    padding-right: 10px;
-                                }
-                            }
-                        // }
-                        // &:last-child{
-                        //     text-align: right;
-                        // }
-                    }
-                }
-                &.hour-item{
-                    .background-text{
-                        position: absolute;
-                        top: 5px;
-                        right: 10px;
-                        font-weight: bold;
-                        color: #ccc;
-                        cursor: default;
-                    }
-                    &.hour-item-booked{
-                        td{
-                            background-color: rgba(114,51,128, 0.05)!important;
-                            // color: white;
-                        }
-                    }
-                    &.hour-item-free{
-                        td{
-                            background-color: rgba(144,238,144, 0.05)!important;
-                        }
-                    }
-                    &:hover{
-                        td{
-                            background-color: #f1f1f1;
-                        }
-                    }
-                    .circle{
-                        width: 10px;
-                        height: 10px;
-                        display: inline-block;
-                        background-color: red;
-                        border-radius: 50%;
-                        margin-right: 5px;
-                        &.free{
-                            background-color: rgba(144,238,144, 1)!important;
-                        }
-                        &.booked{
-                            background-color: rgba(114,51,128, 1)!important;
-                        }
-                        &.not-approved{
-                            background-color: #cf582c!important;
-                        }
-                    }
-                    .btn-book{
-                        margin-left: 10px;
-                        display: inline-block;
-                    }
-                    .not-approved-bookings{
-                        padding-left: 40px;
-                    }
-                    td{
-                        &:first-child{
-                            // padding-top: 10px;
-                            font-weight: bold;
-                            color: #999;
-                            // font-size: 14px;
-                        }
-                    }
-                }
-                td{
-                    border: 1px solid #ccc;
-                    vertical-align: top;
-                    position: relative;
-                    transition: background-color 0.3s ease;
-                    // min-height: 40px!important;
-                    // padding-left: 10px;
-                    // .contt{
-                    //     min-height: 40px!important;
-                    // }
-                    padding: 6px 10px;
-                    &:first-child{
-                        width: 120px;
-                        border-right: 0px!important;
-                        padding-right: 0px;
-                    }
-                    &:last-child{
-                        border-left: 0px!important;
-                    }
-                    
-                }
-            }
-        }
+    
+</style>
+
+<style>
+    .calendar-item{
+        /* width: 96%;
+        position: absolute;
+        left: 2%;
+        background-color: rgba(144,238,144, 0.5);
+        border-radius: 4px;
+        z-index: 9;
+        cursor: pointer;
+        line-height: 1em;
+        padding: 2px; */
+        
+        position: absolute;
+        /* display: block; */
+        width: 96%;
+        left: 2%;
+        /* background-color: rgba(144,238,144, 0.5); */
+        /* background-color: #d4f4c9; */
+        margin-bottom: 3px;
+        border-radius: 3px;
+        font-size: 10px;
+        padding: 2px 6px;
+        color: black;
+        text-decoration: none;
+        transition: background .2s ease;
+        z-index: 10;
+        /* line-height: 1.2em; */
+        cursor: pointer;
+        font-weight: bold;
     }
     
-    .current-day{
-        background-color: rgba(8,232,222, 0.3)!important; 
+    .free-calendar-item{
+        /* background-color: #d4f4c9!important; */
+        background-color: rgba(144,238,144, 0.5);
+    }
+    .free-calendar-item:hover{
+        background-color: rgba(144,238,144, 0.8);
+    }
+    
+    /* .booked-calendar-item:hover{
+        background-color: rgba(114,51,128, 1)!important;
+    } */
+    .faded-time{
+        font-weight: bold;
+        color: #ccc;
     }
 </style>

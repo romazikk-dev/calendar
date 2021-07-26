@@ -96,6 +96,7 @@ class FreeSlots extends MainBookingGetter{
                 'year' => $start_date_carbon->format("Y"),
                 'month' => $start_date_carbon->format("m"),
                 'day' => $start_date_carbon->format("d"),
+                'type' => 'free',
                 'is_weekend' => $is_weekend,
                 'weekday' => $weekday,
                 'bookable' => $bookable,

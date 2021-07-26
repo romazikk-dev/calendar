@@ -17,6 +17,7 @@ class Filter extends MainFilter{
     
     public function getFromCookie(){
         $filters = !empty($_COOKIE[$this->cookie_name]) ? json_decode($_COOKIE[$this->cookie_name], true) : null;
+        // dd($filters);
         if(empty($filters))
             return null;
             
@@ -35,8 +36,11 @@ class Filter extends MainFilter{
         
         if($this->isFilter($filters, Items::DURATION))
             $parsed_filters['duration'] = $filters[Items::DURATION];
+            
+        if($this->isFilter($filters, Items::STATUS))
+            $parsed_filters['status'] = $filters[Items::STATUS];
         
-        // dd($parsed_filters);
+        // dd($this->isFilter($filters, Items::STATUS));
         
         return $parsed_filters;
     }

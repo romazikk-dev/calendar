@@ -3,6 +3,66 @@
         
         <div class="card bg-light filter-block">
             <div class="card-header">
+                Status:
+                <span class="badge badge-info">{{!isCheckedStatus ? 'all' : checkedStatus.length}}</span>
+                <div class="btn-group float-right" role="group">
+                    <button v-if="isCheckedStatus"
+                        @click="checkedStatus = []"
+                        class="btn btn-sm btn-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="bi bi-x">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                            </svg>
+                    </button>
+                    <button v-if="isCheckedStatusChanged"
+                        @click="setCheckedItems('status')"
+                        class="btn btn-sm btn-light">Reset</button>
+                    <button class="btn btn-sm btn-light" @click="toogleFilterBlock('clients')">
+                        <svg v-if="!collapseClients"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                        <svg v-if="collapseClients"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="checked-items" v-if="isCheckedStatus">
+                    <span v-for="(item, index) in parsedStatus"
+                        v-if="item.checked"
+                        class="badge badge-success checked-item">
+                            {{item.val}}
+                            <span @click="onStatusCheckedRemove(item)"
+                                class="checked-item-close">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </span>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body" v-if="!collapseClients">
+                
+                <dropdown-checkboxes :items="parsedStatus"
+                    v-show="!collapseClients"
+                    @change="onStatusDropdownChange"
+                    :btn-class="{
+                        'btn-secondary-custom': true,
+                    }"
+                    ref="dropdown_clients"
+                    :emptyable="true"
+                    :small="true"
+                    :small-search="true"
+                    max-dropdown-menu-height="200px"
+                    picked-item-placeholder="Pick a status ..." />
+                
+            </div>
+        </div>
+        
+        <div class="card bg-light filter-block">
+            <div class="card-header">
                 Clients: <span class="badge badge-info">{{!isCheckedClients ? 'all' : checkedClientsAsArr.length}}</span>
                 <div class="btn-group float-right" role="group">
                     <button v-if="isCheckedClients"
@@ -329,17 +389,20 @@
                 clients: null,
                 workers: null,
                 templates: null,
+                status: ['approved', 'not_approved'],
                 
                 checkedHalls: {},
                 checkedWorkers: {},
                 checkedTemplates: {},
                 checkedClients: {},
+                checkedStatus: [],
                 
                 collapseHalls: false,
                 collapseTemplates: false,
                 collapseWorkers: false,
                 collapseClients: false,
                 collapseDuration: false,
+                collapseStatus: false,
                 
                 durationRange: null,
                 
@@ -368,8 +431,33 @@
             //     return arr.length > 0 ? true : false;
             // },
             isAnyCheckedChanged: function(){
-                return this.isCheckedClientsChanged || this.isCheckedHallsChanged ||
-                this.isCheckedWorkersChanged || this.isCheckedTemplatesChanged || this.isCheckedDurationChanged;
+                return this.isCheckedClientsChanged || this.isCheckedHallsChanged || this.isCheckedWorkersChanged || this.isCheckedTemplatesChanged || this.isCheckedDurationChanged || this.isCheckedStatusChanged;
+            },
+            isCheckedStatusChanged: function(){
+                let statusFilter = !this.isProp(this.statusFilter) || !Array.isArray(this.statusFilter) ?
+                    [] : JSON.parse(JSON.stringify(this.statusFilter));
+                let checkedStatus = !this.isProp(this.checkedStatus) || !Array.isArray(this.checkedStatus) ?
+                    [] : JSON.parse(JSON.stringify(this.checkedStatus));
+                
+                if(statusFilter.length != checkedStatus.length)
+                    return true;
+                
+                let equal = true;
+                for(let idx in statusFilter){
+                    if(!equal)
+                        break;
+                    let itm = statusFilter[idx];
+                    let isExist = false;
+                    for(let idxx in checkedStatus){
+                        let itmm = statusFilter[idxx];
+                        if(itm.toLowerCase() == itmm.toLowerCase())
+                            isExist = true;
+                    }
+                    if(!isExist)
+                        equal = false;
+                }
+                
+                return !equal;
             },
             isCheckedClientsChanged: function(){
                 return this.isCheckedItemChanged(this.clientFilter, this.checkedClientsAsArr);
@@ -405,12 +493,16 @@
                 return Object.values(this.checkedClients);
             },
             isCheckedAll: function(){
-                return this.isCheckedHalls && this.isCheckedWorkers &&
-                this.isCheckedTemplates && this.isCheckedClients && this.isCheckedDuration;
+                return this.isCheckedHalls && this.isCheckedWorkers && this.isCheckedTemplates &&
+                this.isCheckedClients && this.isCheckedDuration && this.isCheckedStatus;
             },
             isCheckedAny: function(){
-                return this.isCheckedHalls || this.isCheckedWorkers ||
-                this.isCheckedTemplates || this.isCheckedClients || this.isCheckedDuration;
+                return this.isCheckedHalls || this.isCheckedWorkers || this.isCheckedTemplates ||
+                this.isCheckedClients || this.isCheckedDuration || this.isCheckedStatus;
+            },
+            isCheckedStatus: function(){
+                return this.isProp(this.checkedStatus) && Array.isArray(this.checkedStatus) &&
+                this.checkedStatus.length > 0;
             },
             isCheckedHalls: function(){
                 return this.checkedHallsAsArr.length > 0;
@@ -500,6 +592,26 @@
                 }
                 return parsed;
             },
+            parsedStatus: function(){
+                let parsed = {}
+                if(this.status !== null && this.status.length > 0){
+                    let status = JSON.parse(JSON.stringify(this.status));
+                    for(let idx in status){
+                        parsed[status[idx]] = {}
+                        parsed[status[idx]].key = status[idx];
+                        if(status[idx].toLowerCase() == 'approved')
+                            parsed[status[idx]].val = 'Approved';
+                        if(status[idx].toLowerCase() == 'not_approved')
+                            parsed[status[idx]].val = 'Not approved';
+                        if(this.checkedStatus.includes(status[idx])){
+                            parsed[status[idx]].checked = true;
+                        }else{
+                            delete parsed[status[idx]].checked;
+                        }
+                    }
+                }
+                return parsed;
+            },
             parsedClients: function(){
                 let parsed = {}
                 if(this.clients !== null && this.clients.length > 0){
@@ -559,6 +671,7 @@
                 this.checkedWorkers = {}
                 this.checkedTemplates = {}
                 this.checkedClients = {}
+                this.checkedStatus = []
                 this.$refs.duration_range.onClickFullRange();
             },
             setCheckedItems: function(checkedItemType = null) {
@@ -598,6 +711,10 @@
                             item.checked = true;
                             this.onWorkerDropdownChange(item);
                         }
+                }
+                if(checkedItemType === null || checkedItemType === 'status'){
+                    this.checkedStatus = this.isProp(this.statusFilter) && Array.isArray(this.statusFilter) ?
+                        this.statusFilter : [];
                 }
                 if(checkedItemType === null || checkedItemType === 'duration'){
                     // alert(1111);
@@ -676,25 +793,26 @@
                 // console.log(JSON.parse(JSON.stringify(item)));
             },
             onHallDropdownChange: function(item){
-                // return;
-                // JSON.parse(JSON.stringify(66666666));
-                // JSON.parse(JSON.stringify(item));
-                // console.log(JSON.parse(JSON.stringify(66666666)));
-                // console.log(JSON.parse(JSON.stringify(item)));
-                // return;
                 if(typeof item.checked !== 'undefined' && item.checked === true){
                     this.checkedHalls[item.id] = item;
                 }else{
                     delete this.checkedHalls[item.id];
                 }
                 this.checkedHalls = JSON.parse(JSON.stringify(this.checkedHalls));
-                console.log(JSON.parse(JSON.stringify(this.checkedHalls)));
+                // console.log(JSON.parse(JSON.stringify(this.checkedHalls)));
             },
             onClientCheckedRemove: function(item){
                 if(typeof this.checkedClients[item.id] !== 'undefined'){
                     delete this.checkedClients[item.id];
                     this.checkedClients = JSON.parse(JSON.stringify(this.checkedClients));
                 }
+            },
+            onStatusCheckedRemove: function(item){
+                let checkedStatus = JSON.parse(JSON.stringify(this.checkedStatus));
+                let index = checkedStatus.indexOf(item.key);
+                if(index >= 0)
+                    checkedStatus.splice(index, 1);
+                this.checkedStatus = JSON.parse(JSON.stringify(checkedStatus));
             },
             onClientDropdownChange: function(item){
                 if(typeof item.checked !== 'undefined' && item.checked === true){
@@ -703,6 +821,19 @@
                     delete this.checkedClients[item.id];
                 }
                 this.checkedClients = JSON.parse(JSON.stringify(this.checkedClients));
+            },
+            onStatusDropdownChange: function(item){
+                let checkedStatus = JSON.parse(JSON.stringify(this.checkedStatus));
+                if(typeof item.checked !== 'undefined' && item.checked === true){
+                    if(!checkedStatus.includes(item.key))
+                        checkedStatus.push(item.key);
+                }else{
+                    let index = checkedStatus.indexOf(item.key);
+                    if(index >= 0)
+                        checkedStatus.splice(index, 1);
+                }
+                this.checkedStatus = JSON.parse(JSON.stringify(checkedStatus));
+                // console.log(JSON.parse(JSON.stringify(this.checkedStatus)));
             },
             onWorkerCheckedRemove: function(item){
                 if(typeof this.checkedWorkers[item.id] !== 'undefined'){
@@ -866,6 +997,9 @@
             workerFilter: function(val){
                 this.setCheckedItems('worker');
                 // console.log(JSON.parse(JSON.stringify('watch')));
+            },
+            checkedStatus: function(val){
+                this.$emit('change');
             },
             checkedHalls: function(val){
                 this.$emit('change');

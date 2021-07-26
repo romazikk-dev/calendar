@@ -50,8 +50,17 @@ Vue.component('dropdown-template-specifics', require('./components/template/Drop
 // const Helper = require("../../../ts/calendar_helper/app").Helper;
 // const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
 
-window.moment = require('moment');
+window.moment = require('moment-timezone');
 window.cookie = require('js-cookie');
+
+// alert(timezone);
+// alert(new Date());
+
+// window.moment.tz.setDefault(timezone);
+// window.moment.tz.setDefault('Europe/Kiev');
+// window.moment.tz.setDefault('UTC');
+
+// alert(moment().toTime());
 
 // window.viewEnums = new ViewEnums();
 // window.helper = new Helper();
@@ -169,6 +178,16 @@ Vue.mixin({
             ],
             weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
             calendarSettings: calendarSettings,
+            statusData: {
+                approved: {
+                    key: 'approved',
+                    label: 'Approved',
+                },
+                not_approved: {
+                    key: 'not_approved',
+                    label: 'Not approved',
+                }
+            }
         };
     },
     computed: {
@@ -229,6 +248,8 @@ Vue.mixin({
                 return this.$store.getters['dates/canGoToPreviousWeek'];
             if(this.view.toLowerCase() == 'day')
                 return this.$store.getters['dates/canGoToPreviousDay'];
+            if(this.view.toLowerCase() == 'list')
+                return this.$store.getters['dates/canGoToPreviousList'];
                 
             // alert(this.$store.dispatch('dates/canGoToPrevious'));
             // return this.$store.dispatch('dates/canGoToPrevious');
@@ -257,7 +278,11 @@ Vue.mixin({
         dateInterval: function(){
             return this.$store.getters['dates/interval'];
         },
-        // Current filters
+        
+        // Start dates
+        startDates: function(){
+            return this.$store.getters['dates/startDates'];
+        },
         
         // New event data of new_event `$store` module
         isNewEventFull: function(){
@@ -346,6 +371,9 @@ Vue.mixin({
         countAppliedFilters: function () {
             return this.$store.getters['filters/countNotNullFilters'];
         },
+        statusFilter: function () {
+            return this.$store.getters['filters/status'];
+        },
         hallFilter: function () {
             return this.$store.getters['filters/hall'];
         },
@@ -369,13 +397,20 @@ Vue.mixin({
         },
     },
     methods: {
+        isProp: function (prop) {
+            return typeof prop !== 'undefined' && prop !== null;
+        },
         // Calendar actions
         goNext: function(){
             let params = {};
             
             this.$store.dispatch('dates/goNext');
-            if(this.isNewEventMainFull === true && this.newEventShow){
+            
+            if(this.isNewEventMainFull && this.newEventShow){
                 params.type = 'free';
+            }else if(this.movingEvent !== null){
+                params.type = 'free';
+                params.exclude_ids = [this.movingEvent.id];
             }
             
             this.calendar.getData(params);
@@ -384,18 +419,28 @@ Vue.mixin({
             let params = {};
             
             this.$store.dispatch('dates/goPrevious');
-            if(this.isNewEventMainFull === true && this.newEventShow){
+            
+            if(this.isNewEventMainFull && this.newEventShow){
                 params.type = 'free';
+            }else if(this.movingEvent !== null){
+                params.type = 'free';
+                params.exclude_ids = [this.movingEvent.id];
             }
             
             this.calendar.getData(params);
         },
         goToday: function(){
             let params = {};
-            if(this.isNewEventMainFull === true && this.newEventShow){
-                params.type = 'free';
-            }
+            
             this.$store.dispatch('dates/goToday');
+            
+            if(this.isNewEventMainFull && this.newEventShow){
+                params.type = 'free';
+            }else if(this.movingEvent !== null){
+                params.type = 'free';
+                params.exclude_ids = [this.movingEvent.id];
+            }
+            
             this.calendar.getData(params);
         },
         
