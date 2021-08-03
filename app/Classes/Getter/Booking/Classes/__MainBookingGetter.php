@@ -2,27 +2,17 @@
 
 namespace App\Classes\Getter\Booking\Classes;
 
-// use App\Classes\Range\Range;
-// use App\Classes\Suspension\Enums\Types;
-// use App\Classes\Holiday\Enums\Fields;
-// use App\Models\Holiday as HolidayModel;
-
-// use App\Classes\Getter\Template\Template;
 use App\Models\Booking;
-// use App\Classes\Getter\Booking\Enums\GetParams;
 use App\Models\User;
 use App\Scopes\UserScope;
 use App\Classes\Range\Range;
-// use App\Classes\Setting\Enums\Keys as SettingsKeys;
 use App\Classes\Getter\Booking\Enums\Params;
 use Illuminate\Support\Facades\DB;
 use App\Classes\Getter\Classes\ParameterChecker;
 
-// use App\Classes\Getter\Booking\Classes\MainBookingGetter;
-
 class MainBookingGetter{
     
-    protected $range, $owner, $id, $hall, $worker, $template, $client, $with;
+    protected $range, $owner, $id, $hall, $worker, $template, $client, $with, $status;
     protected $duration_start, $duration_end;
     protected $past_ignore = false;
     protected $only_approved = false;
@@ -32,13 +22,11 @@ class MainBookingGetter{
     protected $parameter_checker = null;
     
     function __construct(
-        User $owner,
         Range $range,
         array $params = []
     ) {
         $this->parameter_checker = new ParameterChecker();
         $this->range = $range;
-        $this->owner = $owner;
         $this->parseParams($params);
     }
     
@@ -56,6 +44,7 @@ class MainBookingGetter{
         $this->first_items = !empty($params[Params::FIRST_ITEMS]) && $params[Params::FIRST_ITEMS] === true;
         
         foreach([
+            ['key' => Params::OWNER, 'var' => 'owner'],
             ['key' => Params::ID, 'var' => 'id'],
             ['key' => Params::HALL, 'var' => 'hall'],
             ['key' => Params::WORKER, 'var' => 'worker'],
@@ -75,6 +64,9 @@ class MainBookingGetter{
             }
         }
         
+        // $this->status = !empty($params[Params::STATUS]) && is_numeric($params[Params::STATUS]) ?
+        //     (int)$params[Params::DURATION_START] : null;
+        
         // Set duration `start` and `end`
         $this->duration_start = !empty($params[Params::DURATION_START]) && is_numeric($params[Params::DURATION_START]) ?
             (int)$params[Params::DURATION_START] : null;
@@ -87,11 +79,16 @@ class MainBookingGetter{
         }
         
         $this->with = null;
-        if(!empty($params[Params::WITH])){
-            if($this->parameter_checker->isArrayWithAllStrValues($params[Params::WITH])){
-                $this->with = $params[Params::WITH];
-            }elseif(is_string($params[Params::WITH])){
-                $this->with = [$params[Params::WITH]];
+        foreach([
+            ["key" => Params::WITH, "property" => "with"],
+            ["key" => Params::STATUS, "property" => "status"]
+        ] as $itm){
+            if(!empty($params[$itm['key']])){
+                if($this->parameter_checker->isArrayWithAllStrValues($params[$itm['key']])){
+                    $this->{$itm['property']} = $params[$itm['key']];
+                }elseif(is_string($params[$itm['key']])){
+                    $this->{$itm['property']} = [$params[$itm['key']]];
+                }
             }
         }
     }
@@ -112,6 +109,7 @@ class MainBookingGetter{
                 'month' => $start_date_carbon->format("m"),
                 'day' => $start_date_carbon->format("d"),
                 'weekday' => $weekday,
+                'type' => 'events',
                 'count_total' => 0,
                 'count_approved' => 0,
                 'count_not_approved' => 0,
@@ -267,9 +265,10 @@ class MainBookingGetter{
             });
         });
         
-        if(!empty($this->owner) && is_numeric($this->owner))
+        if(!empty($this->owner) && is_array($this->owner)){
             $booking_model->withoutGlobalScope(UserScope::class)
-                ->byUser($this->owner->id);
+                ->byUsers($this->owner);
+        }
         
         if(!empty($this->hall) && is_array($this->hall))
             $booking_model->whereIn('hall_id', $this->hall);
@@ -291,6 +290,27 @@ class MainBookingGetter{
                 if(is_string($v))
                     $booking_model->with($v);
             }
+            
+        if(!empty($this->status) && is_array($this->status)){
+            if(count($this->status) > 1){
+                for($i = 0; $i < count($this->status); $i++){
+                    if($i == 0){
+                        $booking_model->where('approved', $this->status[$i] == 'approved' ? 1 : 0);
+                    }else{
+                        $booking_model->where('approved', $this->status[$i] == 'approved' ? 1 : 0);
+                    }
+                }
+            }else{
+                $booking_model->where('approved', $this->status[0] == 'approved' ? 1 : 0);
+            }
+            // if(in_array("approved", $this->status))
+            // foreach($this->status as $k => $v){
+            //     if($v == 'approved')
+            //         $booking_model->where('approved', 1);
+            //     if($v == 'approved')
+            //         $booking_model->where('approved', 1);
+            // }
+        }
             
         if(!empty($this->only_approved) && $this->only_approved === true)
             $booking_model->where('approved', '=', 1);

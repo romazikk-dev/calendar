@@ -10,11 +10,14 @@ use App\Models\Worker;
 
 class Holiday extends MainHoliday{
     
-    public function ofWorker($worker_id, $separate_worker_from_hall = false){
-        if(!is_numeric($worker_id))
+    public function ofWorker($worker, $separate_worker_from_hall = false){
+        if(!is_numeric($worker) && !is_a($worker, Worker::class))
             return null;
         
-        $worker = Worker::find($worker_id);
+        if(is_numeric($worker)){
+            $worker = Worker::find($worker);
+        }
+        
         if(empty($worker))
             return null;
             

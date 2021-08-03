@@ -53,62 +53,32 @@
         <div class="clients-booking-calendar-main-setting">
             <div class="row">
                 
+                @if(array_key_exists("calendar_alias", $setting))
+                    <x-setting.string_setting_item
+                        :setting="$setting"
+                        label="Alias of calendar"
+                        setting_key="calendar_alias"
+                        input_id="calendarAliasInput"
+                        input_placeholder="Alias ..."
+                        :info_badge_label="route('calendar.booking.alias', [$setting['calendar_alias']])" />
+                @endif
+                
                 @if(array_key_exists("max_future_booking_offset", $setting))
-                    <div class="col col-12 col-md-6 col-lg-4">
-                        <div class="form-group">
-                            <label for="maxFutureBookingOffset">Amount of days to maximum available booking date in future</label>
-                            <input type="number"
-                                name="max_future_booking_offset"
-                                class="form-control"
-                                id="maxFutureBookingOffset"
-                                placeholder="Amount of days ..."
-                                value="@php
-                                    if(old('max_future_booking_offset') !== null){
-                                        echo old('max_future_booking_offset');
-                                    }else{
-                                        if(old('_token')){
-                                            echo '';
-                                        }else{
-                                            echo $setting['max_future_booking_offset'];
-                                        }
-                                    }
-                                @endphp">
-                            @if($errors->has('max_future_booking_offset'))
-                            <div class="small text-danger">
-                                {{ $errors->first('max_future_booking_offset') }}
-                            </div>
-                            @endif
-                        </div>
-                    </div>
+                    <x-setting.numeric_setting_item
+                        :setting="$setting"
+                        label="Amount of days to maximum available booking date in future"
+                        setting_key="max_future_booking_offset"
+                        input_id="maxFutureBookingOffset"
+                        input_placeholder="Amount of days ..." />
                 @endif
                 
                 @if(array_key_exists("time_between_events", $setting))
-                    <div class="col col-12 col-md-6 col-lg-4">
-                        <div class="form-group">
-                            <label for="timeBetweenEventsInput">Amount of minutes between events</label>
-                            <input type="number"
-                                name="time_between_events"
-                                class="form-control"
-                                id="timeBetweenEventsInput"
-                                placeholder="Amount of days ..."
-                                value="@php
-                                    if(old('time_between_events') !== null){
-                                        echo old('time_between_events');
-                                    }else{
-                                        if(old('_token')){
-                                            echo '';
-                                        }else{
-                                            echo $setting['time_between_events'];
-                                        }
-                                    }
-                                @endphp">
-                            @if($errors->has('time_between_events'))
-                            <div class="small text-danger">
-                                {{ $errors->first('time_between_events') }}
-                            </div>
-                            @endif
-                        </div>
-                    </div>
+                    <x-setting.numeric_setting_item
+                        :setting="$setting"
+                        label="Amount of minutes between events"
+                        setting_key="time_between_events"
+                        input_id="timeBetweenEventsInput"
+                        input_placeholder="Amount of days ..." />
                 @endif
                 
             </div>

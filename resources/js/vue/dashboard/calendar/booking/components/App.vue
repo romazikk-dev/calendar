@@ -8,14 +8,17 @@
             <button type="button" class="btn btn-sm btn-primary">Middle</button>
         </div> -->
         
-        <navbar ref="navbar" />
+        <info-navbar v-if="isShowInfoNavbar" ref="info_navbar" />
+        <navbar v-else ref="navbar" />
+        
         <navigation ref="navigation" />
          
-        <div class="container-fluid">
+        <div>
             <month-calendar v-if="isMonthView"
                 ref="month_calendar"
                 :start-date="startDateMonth"></month-calendar>
             <week-calendar v-if="isWeekView"
+                :key="weekCalendarKey"
                 ref="week_calendar"
                 :start-date="startDateWeek"></week-calendar>
             <day-calendar v-if="isDayView"
@@ -34,6 +37,7 @@
             ref="move_path_picker" />
             
         <modal-more-events ref="modal_more_events" />
+        <modal-book ref="modal_book" />
             
         <transition name="fade">
             <moving-event-info-box v-if="movingEvent && showMovingEvent" />
@@ -47,8 +51,10 @@
 </template>
 
 <script>
+    import ModalBook from "./modals/ModalBook.vue";
     import Navigation from "./Navigation.vue";
     import Navbar from "./navbar/Navbar.vue";
+    import InfoNavbar from "./InfoNavbar.vue";
     import MonthCalendar from "./MonthCalendar.vue";
     import WeekCalendar from "./WeekCalendar.vue";
     import DayCalendar from "./DayCalendar.vue";
@@ -101,9 +107,17 @@
                 startDateDay: new Date(),
                 
                 lastGetDataType: null,
+                
+                key: null,
             };
         },
         computed: {
+            isShowInfoNavbar: function () {
+                return this.isProp(this.movingEvent) || this.isNewEventFull;
+            },
+            weekCalendarKey: function () {
+                return 'week_calendar_key_' + this.key;
+            },
             dataUpdater: function () {
                 return this.$store.getters['updater/counter'];
             },
@@ -288,20 +302,36 @@
                 let _this = this;
                 let lastGetDataType = 'all';
                 
-                if(params === null || (params !== null && typeof params.test === 'undefined'))
-                    return new Promise((resolve, reject) => {
-                        axios.get(getUrl())
-                        .then((response) => {
-                            // handle success
-                            resolve(response.data);
-                        }).catch((error) => {
-                            // handle error
-                            reject(error);
-                        }).then(() => {
-                            // always executed
-                            this.lastGetDataType = lastGetDataType;
+                if(this.isNewEventMainFull){
+                    if(params === null)
+                        params = {}
+                    params.type = 'free';
+                }else if(this.movingEvent !== null){
+                    if(params === null)
+                        params = {}
+                    params.type = 'free';
+                    params.exclude_ids = [this.movingEvent.id];
+                }
+                
+                // if(params === null || (params !== null && typeof params.test === 'undefined'))
+                
+                return new Promise((resolve, reject) => {
+                    axios.get(getUrl())
+                    .then((response) => {
+                        // handle success
+                        resolve(response.data);
+                        this.$nextTick(() => {
+                            this.$store.commit('keys/changeData');
                         });
+                    }).catch((error) => {
+                        // handle error
+                        reject(error);
+                    }).then(() => {
+                        // always executed
+                        this.lastGetDataType = lastGetDataType;
+                        // this.key = this.getRandomInt(1000);
                     });
+                });
                 
                 function getUrl(){
                     let url, urlSearchParams;
@@ -330,7 +360,8 @@
                         urlSearchParams = _this.urlSearchParams(lastGetDataType);
                     }
                     
-                    urlSearchParams = _this.getFiltersSearchParams(urlSearchParams);
+                    if(!_this.isProp(_this.movingEvent) && !_this.isNewEventMainFull)
+                        urlSearchParams = _this.getFiltersSearchParams(urlSearchParams);
                     
                     console.log(JSON.parse(JSON.stringify('urlSearchParams 3333')));
                     console.log(JSON.parse(JSON.stringify(urlSearchParams)));
@@ -486,6 +517,8 @@
             NewEventInfoBox,
             Navigation,
             ModalMoreEvents,
+            InfoNavbar,
+            ModalBook,
         },
         watch: {
             // showCalendar: function (val) {}

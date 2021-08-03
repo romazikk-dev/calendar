@@ -9,10 +9,13 @@ use App\Classes\Range\Range;
 use App\Classes\Getter\Booking\Enums\Params;
 use Illuminate\Support\Facades\DB;
 use App\Classes\Getter\Classes\ParameterChecker;
+use App\Classes\Traits\Carbonable;
 
 class MainBookingGetter{
     
-    protected $range, $owner, $id, $hall, $worker, $template, $client, $with;
+    use Carbonable;
+    
+    protected $range, $owner, $id, $hall, $worker, $template, $client, $with, $status;
     protected $duration_start, $duration_end;
     protected $past_ignore = false;
     protected $only_approved = false;
@@ -64,6 +67,9 @@ class MainBookingGetter{
             }
         }
         
+        // $this->status = !empty($params[Params::STATUS]) && is_numeric($params[Params::STATUS]) ?
+        //     (int)$params[Params::DURATION_START] : null;
+        
         // Set duration `start` and `end`
         $this->duration_start = !empty($params[Params::DURATION_START]) && is_numeric($params[Params::DURATION_START]) ?
             (int)$params[Params::DURATION_START] : null;
@@ -76,11 +82,16 @@ class MainBookingGetter{
         }
         
         $this->with = null;
-        if(!empty($params[Params::WITH])){
-            if($this->parameter_checker->isArrayWithAllStrValues($params[Params::WITH])){
-                $this->with = $params[Params::WITH];
-            }elseif(is_string($params[Params::WITH])){
-                $this->with = [$params[Params::WITH]];
+        foreach([
+            ["key" => Params::WITH, "property" => "with"],
+            ["key" => Params::STATUS, "property" => "status"]
+        ] as $itm){
+            if(!empty($params[$itm['key']])){
+                if($this->parameter_checker->isArrayWithAllStrValues($params[$itm['key']])){
+                    $this->{$itm['property']} = $params[$itm['key']];
+                }elseif(is_string($params[$itm['key']])){
+                    $this->{$itm['property']} = [$params[$itm['key']]];
+                }
             }
         }
     }
@@ -121,17 +132,45 @@ class MainBookingGetter{
                     // $v_carbon = \Carbon\Carbon::parse($v->time);
                     // $v_duration = $v->templateWithoutUserScope->duration;
                     $item = $v->toArray();
-                    $carbon_from = \Carbon\Carbon::parse($item['from'], \Timezone::getCurrentTimezone());
-                    $carbon_to = \Carbon\Carbon::parse($item['to'], \Timezone::getCurrentTimezone());
+                    // $carbon_from = \Carbon\Carbon::parse($item['from'], \Timezone::getCurrentTimezone());
+                    // $carbon_to = \Carbon\Carbon::parse($item['to'], \Timezone::getCurrentTimezone());
+                    $carbon_from = \Carbon\Carbon::parse($item['time'], \Timezone::getCurrentTimezone());
+                    // $carbon_to = \Carbon\Carbon::parse($item['to'], \Timezone::getCurrentTimezone());
                     $item['duration'] = !empty($v->custom_duration) ? $v->custom_duration : $v->templateWithoutUserScope->duration;
+                    $carbon_to = $carbon_from->copy()->add($item['duration'], 'minutes');
+                    
+                    // var_dump($carbon_from->timestamp);
+                    // var_dump($carbon_to->timestamp);
+                    // die();
+                    
                     // $from_time_carbon = \Carbon\Carbon::parse($item['time'], \Timezone::getCurrentTimezone());
                     // $item['time_from'] = $from_time_carbon->format('H:i');
                     // $item['time_to'] = $from_time_carbon->addSeconds($item['duration'])->format('H:i');
                     $item['time_crossing'] = false;
                     if(!empty($taken_times)){
                         foreach($taken_times as $taken_time){
-                            if($carbon_from->between($taken_time["start"], $taken_time["end"], false)){
-                                $item['time_crossing'] = true;
+                            if(
+                                // $carbon_from->between($taken_time["start"], $taken_time["end"], false) &&
+                                \Time::isPeriodInRangeByTimestamp(
+                                    ['start' => $carbon_from->timestamp, 'end' => $carbon_to->timestamp],
+                                    ['start' => $taken_time["start"]->timestamp, 'end' => $taken_time["end"]->timestamp],
+                                ) &&
+                                $taken_time["worker_id"] == $item['worker_id']
+                            ){
+                                if(
+                                    ($taken_time["approved"] == 1 && $item['approved'] == 1) ||
+                                    ($taken_time["approved"] == 0 && $item['approved'] == 0) ||
+                                    ($taken_time["approved"] == 0 && $item['approved'] == 1)
+                                )
+                                    $items[$taken_time["item_index"]]['time_crossing'] = true;
+                                
+                                if(
+                                    ($taken_time["approved"] == 1 && $item['approved'] == 1) ||
+                                    ($taken_time["approved"] == 0 && $item['approved'] == 0) ||
+                                    ($taken_time["approved"] == 1 && $item['approved'] == 0)
+                                )
+                                    $item['time_crossing'] = true;
+                                
                                 break;
                             }
                         }
@@ -141,6 +180,9 @@ class MainBookingGetter{
                     $taken_times[] = [
                         "start" => $carbon_from,
                         "end" => $carbon_to,
+                        "worker_id" => $item['worker_id'],
+                        "item_index" => count($items) - 1,
+                        "approved" => $item['approved'],
                     ];
                     $count_total_items++;
                     if(!empty($item['approved'])){
@@ -274,7 +316,8 @@ class MainBookingGetter{
         if(!empty($this->client) && is_array($this->client))
             $booking_model->whereIn('client_id', $this->client);
         
-        // var_dump($this->with);
+        // var_dump(111);
+        // var_dump($this->client);
         // die();
         
         if(!empty($this->with) && is_array($this->with))
@@ -282,6 +325,27 @@ class MainBookingGetter{
                 if(is_string($v))
                     $booking_model->with($v);
             }
+            
+        if(!empty($this->status) && is_array($this->status)){
+            if(count($this->status) > 1){
+                for($i = 0; $i < count($this->status); $i++){
+                    if($i == 0){
+                        $booking_model->where('approved', $this->status[$i] == 'approved' ? 1 : 0);
+                    }else{
+                        $booking_model->where('approved', $this->status[$i] == 'approved' ? 1 : 0);
+                    }
+                }
+            }else{
+                $booking_model->where('approved', $this->status[0] == 'approved' ? 1 : 0);
+            }
+            // if(in_array("approved", $this->status))
+            // foreach($this->status as $k => $v){
+            //     if($v == 'approved')
+            //         $booking_model->where('approved', 1);
+            //     if($v == 'approved')
+            //         $booking_model->where('approved', 1);
+            // }
+        }
             
         if(!empty($this->only_approved) && $this->only_approved === true)
             $booking_model->where('approved', '=', 1);
@@ -319,7 +383,10 @@ class MainBookingGetter{
         foreach($bookings as $booking){
             $booking_date_index = \Carbon\Carbon::parse($booking->time)->format('Y_m_d');
             $booking_hour_index = \Carbon\Carbon::parse($booking->time)->format('H_i');
+            $booking_hour_index .= '_' . $booking->worker_id;
+            $booking_hour_index .= '_' . $booking->id;
             $booked_itms[$booking_date_index][$booking_hour_index] = $booking;
+            // $booked_itms[$booking_date_index][$booking_hour_index] = $booking->toArray();
         }
         
         // var_dump($booked_itms);

@@ -31,6 +31,10 @@ class MainHoliday{
         return array_unique(array_merge($holidays_first, $holidays_second));
     }
     
+    public function getKeyFormat(){
+        return $this->key_format;
+    }
+    
     public function getKeyOfCarbonInstance($carbon_instance){
         return $carbon_instance->format($this->key_format);
     }

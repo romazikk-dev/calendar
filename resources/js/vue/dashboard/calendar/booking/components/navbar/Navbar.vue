@@ -50,14 +50,14 @@
             
         </div>
         
-        <modal-book ref="modal_book" />
+        <!-- <modal-book ref="modal_book" /> -->
         <modal-filter ref="modal_filter" />
         
     </div>
 </template>
 
 <script>
-    import ModalBook from "../modals/ModalBook.vue";
+    // import ModalBook from "../modals/ModalBook.vue";
     import ModalFilter from "../modals/ModalFilter.vue";
     import AppliedFilters from "./AppliedFilters.vue";
     export default {
@@ -87,7 +87,7 @@
         },
         methods: {
             onClickBook: function(){
-                this.$refs.modal_book.show();
+                this.app.$refs.modal_book.show();
                 // alert('clickBook');
             },
             onClickFilter: function(){
@@ -95,10 +95,11 @@
             },
             onClickRemoveAllFilters: function(){
                 this.$store.dispatch('filters/removeAllFilters');
+                this.calendar.getData();
             },
         },
         components: {
-            ModalBook,
+            // ModalBook,
             ModalFilter,
             AppliedFilters
         },

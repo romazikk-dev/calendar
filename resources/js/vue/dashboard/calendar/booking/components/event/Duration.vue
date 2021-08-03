@@ -1,7 +1,12 @@
 <template>
     <div>
         
-        <div>Duration: <b>{{durationStrHoursAndMinutes}}</b></div>
+        <div class="duration-display">
+            Duration: <b>{{durationStrHoursAndMinutes}}</b><br />
+            <span class="small">
+                <i>{{initDurationStrHoursAndMinutes}} (current duration)</i>
+            </span>
+        </div>
         <div class="for-time-bar-fill pb-3">
             <time-bar-fill ref="time_bar_duration"
                 :stopper="stopper"
@@ -41,6 +46,7 @@
         data: function(){
             return {
                 duration: 100,
+                initDuration: 100,
             };
         },
         computed: {
@@ -73,6 +79,9 @@
             durationStrHoursAndMinutes: function () {
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.duration);
             },
+            initDurationStrHoursAndMinutes: function () {
+                return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.initDuration);
+            },
         },
         methods: {
             reset: function (){
@@ -87,6 +96,7 @@
             setDuration: function (){
                 if(this.event !== null)
                     this.duration = this.event.right_duration;
+                this.initDuration = this.duration;
             },
         },
         components: {
@@ -101,5 +111,7 @@
 </script>
 
 <style scoped>
-    
+    .duration-display{
+        line-height: 16px;
+    }
 </style>

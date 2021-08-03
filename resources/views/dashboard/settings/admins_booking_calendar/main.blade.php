@@ -53,7 +53,7 @@
                         setting_key="month_max_events_per_day_to_show"
                         input_id="monthMaxEventsPerDayToShow"
                         input_placeholder="Maximum events per day ..."
-                        view="month" />
+                        info-badge-label="month view" />
                 @endif
                 
                 @if(array_key_exists("week_max_events_per_day_to_show", $setting))
@@ -63,7 +63,7 @@
                     setting_key="week_max_events_per_day_to_show"
                     input_id="weekMaxEventsPerDayToShow"
                     input_placeholder="Maximum events per day ..."
-                    view="week" />
+                    info-badge-label="week view" />
                 @endif
                 
                 @if(array_key_exists("day_max_events_per_day_to_show", $setting))
@@ -73,7 +73,7 @@
                     setting_key="day_max_events_per_day_to_show"
                     input_id="dayMaxEventsPerDayToShow"
                     input_placeholder="Maximum events per day ..."
-                    view="day" />
+                    info-badge-label="day view" />
                 @endif
                 
                 @if(array_key_exists("list_max_events_per_day_to_show", $setting))
@@ -83,7 +83,7 @@
                     setting_key="list_max_events_per_day_to_show"
                     input_id="listMaxEventsPerDayToShow"
                     input_placeholder="Maximum events per day ..."
-                    view="list" />
+                    info-badge-label="list view" />
                 @endif
                 
             </div>

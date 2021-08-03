@@ -4,8 +4,7 @@
 -->
 
 <template>
-    <div>        
-        
+    <div>
         <div class="range-slider grad"
             ref="range_slider"
             :style="{
@@ -59,10 +58,10 @@
         //     this.input = this.duration;
         // },
         // props: ['start','end','preEnd','startMinutes','endMinutes','preEndMinutes','duration','durationMinutes'],
-        props: ['durationInMinutes','durationInSeconds','showOutput','stopper','outputTransparency'],
+        props: ['durationInMinutes','durationInSeconds','showOutput','stopper','outputTransparency','realDuration'],
         data: function(){
             return {
-                input: 20, 
+                input: 20,
                 // stopper: 120,
             };
         },
@@ -73,7 +72,8 @@
                 let perc = 100 - (
                     (this.stopper - this.minDuration) / (this.maxDuration - this.minDuration) * 100
                 );
-                return Math.floor(perc) + "%";
+                perc = Math.abs(Math.floor(perc));
+                return perc > 100 ? '0%' : perc + "%";
             },
             inputStrHoursAndMinutes: function () {
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(this.input);
@@ -127,6 +127,12 @@
             
         },
         watch: {
+            // stopper: function (val){
+            //     if(val < this.)
+            //     // console.log(JSON.parse(JSON.stringify('Stopper changed')));
+            //     // console.log(JSON.parse(JSON.stringify(val)));
+            //     // this.setInputInitValue();
+            // },
             // durationInMinutes: function () {
             //     this.setInputInitValue();
             // },

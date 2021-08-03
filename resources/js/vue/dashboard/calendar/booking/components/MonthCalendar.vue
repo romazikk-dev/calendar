@@ -3,7 +3,7 @@
         
         <div class="month-calendar">
             
-            <table>
+            <table :key="dataKey">
                 <thead>
                     <tr>
                         <th v-for="weekday in weekdaysList">{{weekday}}</th>
@@ -16,8 +16,12 @@
                     <tr v-if="dates" v-for="i in 6">
                         <td v-for="k in 7" :class="{'current-day': isCurrentDate(i,k)}">
                             <div class="cell-content">
-                                <div class="day" :class="{'not-period': monthTwoDigits != getDate(i,k,'month')}">
-                                    {{getDate(i,k,'day')}}
+                                <div class="day"
+                                    @click.prevent="goToDayView(getDate(i,k))"
+                                    :class="{
+                                        'not-period': monthTwoDigits != getDate(i,k,'month')
+                                    }">
+                                        {{parseToInteger(getDate(i,k,'day'))}}
                                 </div>
                                 <template v-if="notPast(i,k)">
                                     <!-- <div v-if="getDate(i,k,'items')">
@@ -52,20 +56,7 @@
         },
         mounted() {
             this.$store.dispatch('dates/setMonthDates', this.startDates.month);
-            
-            if(this.isNewEventMainFull){
-                this.getData({
-                    type: 'free',
-                });
-            }else if(this.movingEvent !== null){
-                // alert(122);
-                this.getData({
-                    type: 'free',
-                    exclude_ids: [this.movingEvent.id]
-                });
-            }else{
-                this.getData();
-            }
+            this.getData();
         },
         // props: ['startDate'],
         data: function(){

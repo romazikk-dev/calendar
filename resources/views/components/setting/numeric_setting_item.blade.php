@@ -5,18 +5,20 @@
     'inputMin' => 1,
     'inputMax' => 1000,
     'inputPlaceholder',
-    'view',
+    'infoBadgeLabel',
     'label'
 ])
 
 <div class="col col-12">
     <div class="form-group">
+        @if(!empty($label))
         <label for="{{$inputId}}">
-            @if(!empty($label))
-                {{$label}}
+            {{$label}}
+            @if(!empty($infoBadgeLabel))
+                <span class="badge badge-pill badge-info">{{$infoBadgeLabel}}</span>
             @endif
-            <span class="badge badge-pill badge-info">{{$view}} view</span>
         </label>
+        @endif
         <input type="number"
             max="{{$inputMax}}"
             min="{{$inputMin}}"

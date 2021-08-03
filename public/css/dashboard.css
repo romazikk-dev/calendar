@@ -5,6 +5,10 @@
   padding-top: 20px;
 }
 
+.show {
+  transition: opacity 150ms !important;
+}
+
 /* HOME PAGE
 ******************************************************************/
 
@@ -18,6 +22,8 @@
   --bg-rgb-approved: 114, 51, 128;
   --bg-rgb-not-approved: 207, 88, 44;
   --bg-rgb-free: 89, 163, 75;
+  --bg-rgb-free-short: 238, 220, 151;
+  --rgb-warning: 255, 193, 7;
 }
 
 .bg-approved {
@@ -79,6 +85,48 @@
 .for-show-more-events-btn .show-more-events-btn {
   float: right;
   font-size: 12px !important;
+}
+
+/* INFO NAVBAR
+******************************************************************/
+
+.info-navbarr {
+  position: relative;
+  font-size: 14px;
+  color: white !important;
+}
+
+.info-navbarr .btn-actions {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 9;
+  height: 100%;
+  max-height: 64px;
+  width: 30px;
+  border-radius: 0px 3px 3px 0px;
+  overflow: hidden;
+}
+
+.info-navbarr .btn-actions .btn-action {
+  display: block;
+  height: 49.9%;
+  width: 100%;
+  text-align: center;
+  line-height: 28px;
+  color: white;
+}
+
+.info-navbarr .btn-actions .btn-action:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.info-navbarr .top-title {
+  position: absolute;
+  top: -13px;
+  left: 10px;
+  font-size: 12px;
+  padding: 4px 8px !important;
 }
 
 /* TOOLTIPS
@@ -235,7 +283,6 @@
 }
 
 .modal-events .free-slot {
-  background-color: red;
   display: block;
   width: 100%;
   background-color: rgba(144, 238, 144, 0.5);
@@ -298,7 +345,28 @@
   --dropdown-menu-text-align: left;
   --item-size: 20px;
   --item-float: left;
+  --item-disable-color: rgba(255,255,255, .2);
+  --disabled-drop-menu-items-text-decoration: none;
   height: 20px;
+}
+
+.event-actions.disabled-items-with-line-through {
+  --item-disable-color: var(--action-color, white);
+}
+
+.event-actions.disabled-drop-menu-items-with-line-through {
+  --disabled-drop-menu-items-text-decoration: line-through;
+}
+
+.event-actions .line-through {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background-color: black;
+  margin: auto !important;
+  background-color: var(--action-color, white);
 }
 
 .event-actions.bigger {
@@ -332,6 +400,7 @@
 }
 
 .event-actions ul li a {
+  position: relative;
   color: var(--action-color, white);
   display: block;
   height: var(--item-size);
@@ -355,7 +424,7 @@
 }
 
 .event-actions ul li a.disable {
-  color: rgba(255, 255, 255, 0.2) !important;
+  color: var(--item-disable-color) !important;
 }
 
 .event-actions ul li a.disable:hover {
@@ -413,10 +482,8 @@
 
 .event-actions .action-drop .dropdown-menu .itemms a.disable {
   color: #999 !important;
-}
-
-.event-actions .action-drop .dropdown-menu .itemms a.disable:hover {
-  text-decoration: none;
+  -webkit-text-decoration: var(--disabled-drop-menu-items-text-decoration, none) !important;
+          text-decoration: var(--disabled-drop-menu-items-text-decoration, none) !important;
 }
 
 .event-actions .action-drop .dropdown-menu .itemms a .action-info {
@@ -466,8 +533,13 @@
 
 .calendar-all-bookings .month-calendar,
 .calendar-all-bookings .week-calendar,
-.calendar-all-bookings .day-calendar {
+.calendar-all-bookings .day-calendar,
+.calendar-all-bookings .list-calendar {
   padding-top: 10px !important;
+}
+
+.calendar-all-bookings .week-calendar .weekday-title a {
+  color: #333;
 }
 
 .calendar-all-bookings .month-calendar table,
@@ -519,9 +591,16 @@
   left: 0px;
   font-weight: bold;
   padding: 0px 4px;
-  background-color: #444;
   border-radius: 50%;
-  color: white;
+  color: #333;
+  z-index: 9;
+  cursor: pointer;
+}
+
+.calendar-all-bookings .month-calendar table td .cell-content .day:hover,
+.calendar-all-bookings .week-calendar table td .cell-content .day:hover,
+.calendar-all-bookings .day-calendar table td .cell-content .day:hover {
+  text-decoration: underline;
 }
 
 .calendar-all-bookings .month-calendar table td .cell-content .day.not-period,
@@ -640,10 +719,24 @@
 .calendar-all-bookings .month-calendar .events,
 .calendar-all-bookings .week-calendar .events,
 .calendar-all-bookings .day-calendar .events {
-  padding-left: 40px;
+  --events-padding-left: 40px;
+  --min-height-cell: initial;
+  padding-left: var(--events-padding-left, 40px);
   padding-right: 14px;
   padding-top: 4px;
   width: 100%;
+}
+
+.calendar-all-bookings .month-calendar .events.min-height-cell,
+.calendar-all-bookings .week-calendar .events.min-height-cell,
+.calendar-all-bookings .day-calendar .events.min-height-cell {
+  --min-height-cell: 86px;
+}
+
+.calendar-all-bookings .month-calendar .events.remove-padding-left,
+.calendar-all-bookings .week-calendar .events.remove-padding-left,
+.calendar-all-bookings .day-calendar .events.remove-padding-left {
+  --events-padding-left: 14px;
 }
 
 .calendar-all-bookings .month-calendar .events .for-events .if-events,
@@ -657,8 +750,9 @@
 .calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot,
 .calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot,
 .calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot {
-  background-color: red;
+  --btn-pick-text-decoration: none;
   display: block;
+  position: relative;
   width: 100%;
   background-color: rgba(144, 238, 144, 0.5);
   margin-bottom: 3px;
@@ -672,12 +766,49 @@
   cursor: pointer;
 }
 
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot.min-slot-height,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot.min-slot-height,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot.min-slot-height {
+  min-height: 64px;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot:hover,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot:hover,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot:hover {
+  --btn-pick-text-decoration: underline;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot.too-short,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot.too-short,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot.too-short {
+  background-color: rgba(242, 195, 42, 0.5);
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot .cover-cell-btn,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot .cover-cell-btn,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot .cover-cell-btn {
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot .btn-pick,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot .btn-pick,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot .btn-pick {
+  -webkit-text-decoration: var(--btn-pick-text-decoration);
+          text-decoration: var(--btn-pick-text-decoration);
+}
+
 .calendar-all-bookings .month-calendar .events .for-events .if-events .event,
 .calendar-all-bookings .week-calendar .events .for-events .if-events .event,
 .calendar-all-bookings .day-calendar .events .for-events .if-events .event {
   background-color: red;
   display: block;
   width: 100%;
+  min-height: var(--min-height-cell, initial);
   background-color: #cf582c;
   /* margin-bottom: 3px; */
   border-radius: 3px;
@@ -702,9 +833,17 @@
   display: var(--calendar-event-item-title-display);
 }
 
-.calendar-all-bookings .month-calendar .events .for-events .if-events .event .time-crossing,
-.calendar-all-bookings .week-calendar .events .for-events .if-events .event .time-crossing,
-.calendar-all-bookings .day-calendar .events .for-events .if-events .event .time-crossing {
+.calendar-all-bookings .month-calendar .events .for-events .if-events .event .right-placed-actions,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .event .right-placed-actions,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .event .right-placed-actions {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .warning-sign,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .warning-sign,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .warning-sign {
   position: absolute;
   display: block;
   height: 14px;
@@ -713,14 +852,6 @@
   right: 6px;
   border-radius: 0px 3px 0px 0px;
   padding: 2px;
-}
-
-.calendar-all-bookings .month-calendar .events .for-events .if-events .event .right-placed-actions,
-.calendar-all-bookings .week-calendar .events .for-events .if-events .event .right-placed-actions,
-.calendar-all-bookings .day-calendar .events .for-events .if-events .event .right-placed-actions {
-  position: absolute;
-  top: 2px;
-  right: 4px;
 }
 
 .calendar-all-bookings .list-calendar {
@@ -779,13 +910,28 @@
   --title-bg: rgba(var(--bg-rgb-free), .3);
 }
 
+.calendar-all-bookings .list-calendar table.contt > tbody > tr.event.free.too-short {
+  --status-bg: rgba(var(--bg-rgb-free-short), 1);
+  --title-bg: rgba(var(--bg-rgb-free-short), .3);
+}
+
+.calendar-all-bookings .list-calendar table.contt > tbody > tr.event.free.too-short .free-time-btn {
+  text-decoration: none;
+  color: #999;
+  cursor: default;
+}
+
+.calendar-all-bookings .list-calendar table.contt > tbody > tr.event.free.too-short .pick-btn {
+  display: none;
+}
+
 .calendar-all-bookings .list-calendar table.contt > tbody > tr.event > td {
   vertical-align: top;
   padding: var(--td-padding, 5px 10px);
 }
 
 .calendar-all-bookings .list-calendar table.contt > tbody > tr.event > td:nth-child(1) {
-  width: 120px;
+  width: 130px;
 }
 
 .calendar-all-bookings .list-calendar table.contt > tbody > tr.event > td:nth-child(2) {
@@ -1279,11 +1425,26 @@ select {
   background-color: #f9f9f9 !important;
 }
 
+/* EVENT INFO ALERT
+******************************************************************/
+
+.event-info-alert {
+  padding: 12px 6px 6px !important;
+  position: relative;
+}
+
+.event-info-alert .badge-title {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 12px;
+}
+
 /* CALENDAR NAVBAR
 ******************************************************************/
 
 .navbarr {
-  padding: 6px 6px;
+  padding: 6px 6px !important;
   position: relative;
 }
 

@@ -103,6 +103,7 @@
                         value: item
                     });
                 }
+                
                 if(this.isTypeRight &&
                 typeof item !== 'undefined' && item !== null &&
                 typeof item.id !== 'undefined' && item.id !== null && !isNaN(item.id))
@@ -110,6 +111,8 @@
                         type: this.type,
                         itemId: item.id
                     });
+                    
+                this.calendar.getData();
             },
             getDurationStrHoursAndMinutes: function (durationMinutes) {
                 return calendarHelper.time.composeHourMinuteTimeFromMinutes(durationMinutes);

@@ -14,4 +14,5 @@ class Params{
     const HALL_ID = "hall_id";
     const OWNER_ID = "owner_id";
     const WITH = "with";
+    const ONLY_FIRST_ITEM = "only_first_items";
 }

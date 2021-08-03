@@ -17,6 +17,7 @@ use App\Scopes\UserScope;
 use App\Classes\Range\Range;
 use App\Classes\Getter\Booking\Classes\MainBookingGetter;
 use App\Classes\Getter\Booking\Classes\FreeSlots;
+// use App\Classes\Getter\Booking\Classes\ClientSlots;
 use App\Classes\Getter\Booking\Enums\Params;
 use App\Exceptions\BookingGetterBadParametersException;
 
@@ -56,6 +57,11 @@ class Booking extends MainBooking{
     {
         return (new FreeSlots($range, $params))->get();
     }
+    
+    // public function client(Range $range, array $params = [])
+    // {
+    //     return (new ClientSlots($range, $params))->get();
+    // }
     
     public function freeWithBookings(User $owner, Range $range, int $hall_id, int $worker_id, array $params = [])
     {

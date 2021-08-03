@@ -195,6 +195,7 @@ return [
         App\Providers\FilterServiceProvider::class,
         App\Providers\HelperServiceProvider::class,
         App\Providers\CalendarServiceProvider::class,
+        App\Providers\CalendarAliasServiceProvider::class,
 
     ],
 
@@ -266,6 +267,7 @@ return [
         'Filter'   =>  App\Classes\Filter\FilterFacade::class,
         'Helper'   =>  App\Classes\Helper\HelperFacade::class,
         'Calendar'   =>  App\Classes\Calendar\CalendarFacade::class,
+        'CalendarAlias'   =>  App\Classes\CalendarAlias\AliasFacade::class,
 
     ],
 

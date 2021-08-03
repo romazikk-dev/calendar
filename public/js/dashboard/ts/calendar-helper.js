@@ -289,6 +289,47 @@ function () {
 
 exports.View = View;
 
+/***/ }),
+
+/***/ "./resources/js/ts/dashboard/calendar_helper/helpers/NumericHelper.ts":
+/*!****************************************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/helpers/NumericHelper.ts ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+ // declare var movingEvent: any;
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.NumericHelper = void 0;
+
+var NumericHelper =
+/** @class */
+function () {
+  // movingEvent: any;
+  // range: DateRange;
+  function NumericHelper() {// this.movingEvent = movingEvent;
+  }
+
+  NumericHelper.prototype.parse = function () {// console.log(movingEvent);
+    // console.log(JSON.parse(movingEvent));
+    // console.log(JSON.parse(JSON.stringify(this.movingEvent)));
+  };
+
+  NumericHelper.prototype.getRandomInt = function (max) {
+    if (max === void 0) {
+      max = 1000;
+    }
+
+    return Math.floor(Math.random() * max);
+  };
+
+  return NumericHelper;
+}();
+
+exports.NumericHelper = NumericHelper;
+
 /***/ })
 
 /******/ 	});
@@ -345,6 +386,8 @@ var View_1 = __webpack_require__(/*! ./View */ "./resources/js/ts/dashboard/cale
 
 var Filter_1 = __webpack_require__(/*! ./Filter */ "./resources/js/ts/dashboard/calendar_helper/Filter.ts");
 
+var NumericHelper_1 = __webpack_require__(/*! ./helpers/NumericHelper */ "./resources/js/ts/dashboard/calendar_helper/helpers/NumericHelper.ts");
+
 var Helper =
 /** @class */
 function () {
@@ -355,6 +398,7 @@ function () {
     this.time = new Time_1.Time();
     this.view = new View_1.View();
     this.filter = new Filter_1.Filter();
+    this.numericHelper = new NumericHelper_1.NumericHelper();
   }
 
   return Helper;

@@ -81,7 +81,10 @@ class Worker extends MainWorker{
         }
         
         $result = $model->get();
-        return $result->isEmpty() || $result === false ? null : $result;
+        if($result->isEmpty() || $result === false)
+            return null;
+        
+        return !empty($params[Params::ONLY_FIRST_ITEM]) ? $result[0] : $result;
     }
     
 }

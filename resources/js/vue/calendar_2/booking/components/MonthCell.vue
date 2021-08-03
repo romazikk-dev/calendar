@@ -8,7 +8,7 @@
                     <div class="not-approved-bookings" v-if="itm.not_approved_bookings">
                         <div class="not-approved-bookings-itm" v-for="itmm in itm.not_approved_bookings">
                             <b>In approving:</b><br>
-                            <b>{{itmm.booking.template_without_user_scope.title}}<br>
+                            <b>{{itmm.template_without_user_scope.title}}<br>
                             {{itmm.from}} - {{itmm.to}}</b>
                             <!-- <button @click.prevent="$emit('cancel', itm)"
                                 type="button"
@@ -22,11 +22,11 @@
                         type="button"
                         class="btn btn-link btn-sm btn-block book">Book</button >
                 </div>
-                <div v-if="itm.type == 'booked'" class='booked-slot'>
+                <div v-if="itm.type == 'event'" class='booked-slot'>
                     <b>Booked on:</b><br>
-                    <b>{{itm.booking.template_without_user_scope.title}}<br>
+                    <b>{{itm.template_without_user_scope.title}}<br>
                     {{itm.from}} - {{itm.to}}</b>
-                    <button @click.prevent="$emit('cancel', itm.booking)"
+                    <button @click.prevent="$emit('cancel', itm)"
                         type="button"
                         class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                 </div>

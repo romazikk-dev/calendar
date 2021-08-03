@@ -13,8 +13,11 @@
                         <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
                     </svg>
                 </button>
-                <button @click.prevent="goToday" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
+                <button @click.prevent="goToday" type="button" class="btn btn-sm btn-secondary float-left go-today" :disabled="!canGoToPrevious">
                     today
+                </button>
+                <button :id="toDateCalendar.initId" type="button" class="btn btn-sm btn-light float-left go-to-date">
+                    to date
                 </button>
             </div>
             
@@ -42,13 +45,29 @@
 </template>
 
 <script>
-    // import ModalAuthContent from "./ModalAuthContent.vue";
     export default {
         name: 'navigation',
-        mounted() {},
+        mounted() {
+            this.regToDateCalendar();
+        },
         // props: ['calendarTitle'],
         data: function(){
-            return {};
+            return {
+                // toDateCalendar: null,
+                // toDateCalendarId: 'goToDateBtn',
+                // toDateCalendarDate: null,
+                // toDateCalendarMonth: null,
+                toDateCalendar: {
+                    instance: null,
+                    pickedDate: null,
+                    initId: 'goToDateBtn',
+                    initIdHash: '#goToDateBtn',
+                    day: null,
+                    month: null,
+                    bgClass: "to-date-calendar-background",
+                    format: "YYYY-MM-DD",
+                }
+            };
         },
         computed: {
             calendarTitle: function () {
@@ -73,16 +92,103 @@
             },
         },
         methods: {
+            regToDateCalendar: function(){
+                
+                // alert(this.currentDate);
+                let calendar;
+                let _this = this;
+                // alert(this.currentDay);
+                this.toDateCalendar.day = parseInt(moment().format('D'));
+                this.toDateCalendar.month = parseInt(moment().format('M'));
+                // let pickedDate = null;
+                // let toDateCalendarBgClass = "to-date-calendar-background";
+                this.toDateCalendar.instance = MCDatepicker.create({
+                    el: this.toDateCalendar.initIdHash,
+                    dateFormat: this.toDateCalendar.format,
+                    minDate: new Date(),
+                    // selectedDate: new Date(),
+                });
+                
+                // calendar = this.toDateCalendar.instance;
+                
+                this.toDateCalendar.instance.onOpen(() => {
+                    // alert(this.toDateCalendar.day);
+                    // setTimeout(() => {
+                    //     this.toDateCalendar.instance.setMonth(this.toDateCalendar.month);
+                    //     this.toDateCalendar.instance.setDate(this.toDateCalendar.day);
+                    // }, 1000);
+                    
+                    var backgroundElement = document.createElement("div");
+                    backgroundElement.className = this.toDateCalendar.bgClass;
+                    // backgroundElement.setAttribute("id", "toDateCalendarBackground");
+                    $("body").append(backgroundElement);
+                    $(this.toDateCalendar.initIdHash).blur();
+                });
+                
+                this.toDateCalendar.instance.onClose(() => {
+                    // this.toDateCalendar.instance.setMonth(this.toDateCalendar.month);
+                    // this.toDateCalendar.instance.setDate(this.toDateCalendar.day);
+                    onCloseToDateCalendarModal();
+                });
+                
+                $("body").on('click', '.' + this.toDateCalendar.bgClass, () => {
+                    // this.toDateCalendar.close();
+                    // this.toDateCalendar.setFullDate(null);
+                    // this.toDateCalendar.reset();
+                    // this.toDateCalendar.setDate(5);
+                    this.toDateCalendar.instance.close();
+                    onCloseToDateCalendarModal();
+                });
+                
+                this.toDateCalendar.instance.onSelect((date, formatedDate) => this.goToDate(date, formatedDate));
+                
+                function onCloseToDateCalendarModal(){
+                    $("body").find('.' + _this.toDateCalendar.bgClass).remove();
+                    // _this.toDateCalendar.destroy();
+                }
+            },
             changeView: function(view){
                 this.$store.commit('view/setView', view);
+            },
+            goToDate: function(date, formatedDate){
+                // console.log(JSON.parse(JSON.stringify(moment(formatedDate).toDate())));
+                this.$store.dispatch('dates/setDates', date);
+                // this.$store.dispatch('dates/setAllDatesToOneDate', date);
+                this.calendar.getData();
+                // this.app.$refs.modal_to_date.show();
             },
         },
         components: {},
         watch: {
-            // search: function () {}
+            // monthStartDate: function (val) {
+            //     // this.toDateCalendar.setDate(moment(val).format('D'));
+            //     let day = moment(val).format('D');
+            //     let month = moment(val).format('M');
+            //     console.log(JSON.parse(JSON.stringify(month)));
+            //     this.toDateCalendar.day = parseInt(day);
+            //     this.toDateCalendar.month = parseInt(month) - 1;
+            // 
+            //     // this.toDateCalendar.instance.setMonth(this.toDateCalendar.month);
+            //     // this.toDateCalendar.instance.setDate(this.toDateCalendar.day);
+            //     // this.toDateCalendar.setDate(parseInt(day));
+            //     // console.log(JSON.parse(JSON.stringify('monthStartDate')));
+            //     // console.log(parseInt(moment(val).format('D')));
+            // }
         }
     }
 </script>
+
+<style lang="scss">
+    .to-date-calendar-background{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0, 0.4);
+        z-index: 100;
+    }
+</style>
 
 <style lang="scss" scoped>
     #viewDropdown{
@@ -104,8 +210,9 @@
                 &.go-next{
                     border-radius: 0 .2rem .2rem 0;
                 }
-                &:nth-child(3){
-                    margin-left: 10px;
+                &.go-today{
+                    margin-left: 6px;
+                    margin-right: 6px;
                 }
             }
         }

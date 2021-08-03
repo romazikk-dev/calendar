@@ -9,12 +9,14 @@
             'bigger': bigger,
             'right-placed': rightPlaced,
             'size-middle': size == 'middle',
-            'without-hover-bg': withoutHoverBg
+            'without-hover-bg': withoutHoverBg,
+            'disabled-items-with-line-through': disabledItemsWithLineThrough,
+            'disabled-drop-menu-items-with-line-through': disabledDropMenuItemsWithLineThrough,
         }">
             <ul>
                 <li class="action-move">
                     
-                    <a href="#" data-placement="bottom"
+                    <a href="#" :data-placement="tooltipPlacement ? tooltipPlacement : 'bottom'"
                         @click.prevent="onClickActionMove($event)"
                         class="tooltip-active"
                         title="<div class='small'>Edit</div>">
@@ -36,7 +38,7 @@
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                            data-placement="bottom"
+                            :data-placement="tooltipPlacement ? tooltipPlacement : 'bottom'"
                             title="<div class='small'>Time</div>">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     :width="clockIcoSize"
@@ -93,7 +95,7 @@
                         <loader-action />
                     </a>
                     <a :ref="'action_approve_btn_' + event.id" href="#"
-                        data-placement="bottom"
+                        :data-placement="tooltipPlacement ? tooltipPlacement : 'bottom'"
                         @click.prevent="onClickActionApprove($event)"
                         class="tooltip-active"
                         :class="{
@@ -104,6 +106,7 @@
                             '<div class=\'small\'>Approve<br>Not available, event`s time is crossing one of events of a day,<br>please set right time</div>' :
                             '<div class=\'small\'>Approve</div>'
                         ">
+                            <div v-if="event.time_crossing && disabledItemsWithLineThrough" class="line-through"></div>
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 :width="okIcoSize"
                                 :height="okIcoSize"
@@ -126,7 +129,7 @@
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                            data-placement="bottom"
+                            :data-placement="tooltipPlacement ? tooltipPlacement : 'bottom'"
                             title="<div class='small'>Remove</div>">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     :width="removeIcoSize"
@@ -183,7 +186,8 @@
         },
         props: [
             'event','dayData','bigger','rightPlaced','showDateTimeCurrentDay','actionColor',
-            'size','withoutHoverBg','dropdownToLeft','emitEventsOnBtnsClick'
+            'size','withoutHoverBg','dropdownToLeft','emitEventsOnBtnsClick','tooltipPlacement',
+            'disabledItemsWithLineThrough', 'disabledDropMenuItemsWithLineThrough',
         ],
         data: function(){
             return {

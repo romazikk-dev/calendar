@@ -16,13 +16,13 @@
                     <button v-if="isCheckedStatusChanged"
                         @click="setCheckedItems('status')"
                         class="btn btn-sm btn-light">Reset</button>
-                    <button class="btn btn-sm btn-light" @click="toogleFilterBlock('clients')">
-                        <svg v-if="!collapseClients"
+                    <button class="btn btn-sm btn-light" @click="toogleFilterBlock('status')">
+                        <svg v-if="!collapseStatus"
                         xmlns="http://www.w3.org/2000/svg"
                         width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
                             <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
                         </svg>
-                        <svg v-if="collapseClients"
+                        <svg v-if="collapseStatus"
                         xmlns="http://www.w3.org/2000/svg"
                         width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -43,10 +43,10 @@
                     </span>
                 </div>
             </div>
-            <div class="card-body" v-if="!collapseClients">
+            <div class="card-body" v-if="!collapseStatus">
                 
                 <dropdown-checkboxes :items="parsedStatus"
-                    v-show="!collapseClients"
+                    v-show="!collapseStatus"
                     @change="onStatusDropdownChange"
                     :btn-class="{
                         'btn-secondary-custom': true,
@@ -416,10 +416,12 @@
             },
             isAllFilterBlocksCollapsed: function(status) {
                 if(this.collapseHalls === true && this.collapseTemplates === true &&
-                this.collapseWorkers === true && this.collapseClients === true && this.collapseDuration === true)
+                this.collapseWorkers === true && this.collapseClients === true &&
+                this.collapseDuration === true && this.collapseStatus === true)
                     return 1;
                 if(this.collapseHalls === false && this.collapseTemplates === false &&
-                this.collapseWorkers === false && this.collapseClients === false && this.collapseDuration === false)
+                this.collapseWorkers === false && this.collapseClients === false &&
+                this.collapseDuration === false && this.collapseStatus === false)
                     return -1;
                 return 0;
             },
@@ -672,7 +674,7 @@
                 this.checkedTemplates = {}
                 this.checkedClients = {}
                 this.checkedStatus = []
-                this.$refs.duration_range.onClickFullRange();
+                // this.$refs.duration_range.onClickFullRange();
             },
             setCheckedItems: function(checkedItemType = null) {
                 // alert(2233);
@@ -742,6 +744,8 @@
                 }
             },
             toogleFilterBlock: function(type) {
+                if(type == 'status')
+                    this.collapseStatus = !this.collapseStatus;
                 if(type == 'halls')
                     this.collapseHalls = !this.collapseHalls;
                 if(type == 'clients')
@@ -756,11 +760,12 @@
                 this.$emit('toogle_filter_block');
             },
             toogleAllFilterBlocks: function(status) {
-                status = status === true ? true : false;
+                status = status === true;
                 this.collapseHalls = status;
                 this.collapseTemplates = status;
                 this.collapseWorkers = status;
                 this.collapseClients = status;
+                this.collapseStatus = status;
                 if(typeof this.$refs.duration_range !== 'undefined' &&
                 typeof this.$refs.duration_range.collapsed !== 'undefined'){
                     this.$refs.duration_range.collapsed = status;

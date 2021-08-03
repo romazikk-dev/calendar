@@ -8,6 +8,7 @@
     </x-slot>
     
     <x-slot name="scripts">
+        <script src="{{asset('/dists/mc-calendar/mc-calendar.min.js?11')}}"></script>
         <script type="text/javascript">
             
             // alert(111);
@@ -74,6 +75,7 @@
     </x-slot>
     
     <x-slot name="styles">
+        <link rel="stylesheet" href="{{asset('/dists/mc-calendar/mc-calendar.min.css?11')}}">
         <style>
             html{
                 min-height: 100%;

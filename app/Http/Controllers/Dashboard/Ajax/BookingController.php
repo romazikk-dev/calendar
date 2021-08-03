@@ -20,6 +20,7 @@ use App\Classes\Getter\Booking\Enums\GetterTypes;
 use App\Classes\Getter\Booking\Enums\Params;
 use App\Models\Booking;
 use App\Classes\Getter\Template\Enums\Params as TemplateParams;
+use App\Rules\DurationRange;
 
 class BookingController extends Controller
 {
@@ -89,6 +90,8 @@ class BookingController extends Controller
         }
         
         $validation_rules = array_merge($validation_rules, [
+            'status' => 'nullable|array',
+            'status.*' => 'nullable|string',
             'with' => 'nullable|array',
             'with.*' => 'nullable|string',
             'exclude_ids' => 'nullable|array',
@@ -126,7 +129,8 @@ class BookingController extends Controller
         }
         
         $params = $request->validate($validation_rules);
-        $getter = \Getter::of(GetterKeys::BOOKINGS);
+        // $getter = \Getter::of(GetterKeys::BOOKINGS);
+        $getter = \Getter::bookings();
         
         $range = new Range($start, $end, 'month');
         // $owner = auth()->user();
@@ -212,7 +216,10 @@ class BookingController extends Controller
         $validated = $request->validate([
             'date' => 'required|string|max:10|regex:/\d{4}-\d{2}-\d{2}/i',
             'time' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
-            'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
+            // 'duration' => 'required|string|max:10|regex:/\d{2}:\d{2}/i',
+            'duration' => [
+                'required', 'string', 'max:10', 'regex:/\d{2}:\d{2}/i', new DurationRange
+            ],
         ]);
         
         $book_on_datetime = $validated['date'] . " " . $validated['time'] . ":00";
@@ -284,6 +291,92 @@ class BookingController extends Controller
         ]);
     }
     
+    // public function edit(Request $request, Booking $booking){
+    //     // return response()->json([
+    //     //     'msg' => 'test'
+    //     // ]);
+    // 
+    //     $has_item = $request->has('hall') || $request->has('worker') || $request->has('template') ? true : false;
+    //     $item_required = $has_item ? 'required' : 'nullable';
+    //     $validated = $request->validate([
+    //         'hall' => "{$item_required}|integer|exists:halls,id",
+    //         'worker' => "{$item_required}|integer|exists:workers,id",
+    //         'template' => "{$item_required}|integer|exists:templates,id",
+    //         'time' => "{$item_required}|string|date_format:Y-m-d H:i:s",
+    //         'duration' => 'nullable|string|max:10|regex:/\d{2}:\d{2}/i',
+    //     ]);
+    // 
+    //     // To be shure that all parameters connected between each other
+    //     if($has_item){
+    //         $template = \Getter::templates()->get([
+    //             TemplateParams::ID => $validated['template'],
+    //             TemplateParams::WORKER_ID => $validated['worker'],
+    //             TemplateParams::HALL_ID => $validated['hall'],
+    //         ]);
+    // 
+    //         // var_dump($template->toArray());
+    //         // die();
+    // 
+    //         if($template->isEmpty())
+    //             return response()->json([
+    //                 'msg' => 'wrong parameters'
+    //             ]);
+    //     }
+    // 
+    //     // die();
+    // 
+    //     if($has_item){
+    //         $booking->hall_id = $validated['hall'];
+    //         $booking->worker_id = $validated['worker'];
+    //         $booking->template_id = $validated['template'];
+    //     }
+    // 
+    //     if(!empty($validated['time']))
+    //         $booking->time = $validated['time'];
+    // 
+    //     if(!empty($validated['duration'])){
+    //         $duration_in_minutes = \Time::parseStringHourMinutesToMinutes($validated['duration']);
+    //         $start = $booking->time;
+    //         $carbon_time = \Carbon\Carbon::parse($booking->time);
+    //         $carbon_time->addMinutes($duration_in_minutes);
+    //         $end = $carbon_time->format('Y-m-d H:i:s');
+    // 
+    //         $bookings_getter_params = [
+    //             Params::ONLY_APPROVED => true,
+    //             Params::EXCLUDE_IDS => [$booking->id],
+    //             Params::FIRST_ITEMS => true,
+    //             Params::EXCLUDE_RANGE_START_AND_END_DATES => true,
+    //         ];
+    // 
+    //         if(!empty($validated['worker']) && is_numeric($validated['worker']))
+    //             $bookings_getter_params[Params::WORKER] = (int)$validated['worker'];
+    // 
+    //         $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
+    //             new Range($start, $end, 'month'), $bookings_getter_params
+    //         );
+    // 
+    //         // var_dump($bookings);
+    //         // die();
+    // 
+    //         if(!empty($bookings))
+    //             return response()->json([
+    //                 'msg' => 'wrong parameters'
+    //             ]);
+    // 
+    //         $booking->custom_duration = $duration_in_minutes;
+    //     }
+    // 
+    //     if($booking->approved != 1)
+    //         $booking->approved = 1;
+    // 
+    //     $booking->save();
+    // 
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'booking' => $booking,
+    //     ]);
+    // }
+    
     public function edit(Request $request, Booking $booking){
         // return response()->json([
         //     'msg' => 'test'
@@ -299,67 +392,82 @@ class BookingController extends Controller
             'duration' => 'nullable|string|max:10|regex:/\d{2}:\d{2}/i',
         ]);
         
-        if($has_item){
-            $template = \Getter::of(GetterKeys::TEMPLATES)->get([
-                TemplateParams::ID => $validated['template'],
-                TemplateParams::WORKER_ID => $validated['worker'],
-                TemplateParams::HALL_ID => $validated['hall'],
-            ]);
-            
-            // var_dump($template->toArray());
-            // die();
-            
-            if($template->isEmpty())
+        if(!$has_item){
+            if(empty($validated['duration']))
                 return response()->json([
-                    'msg' => 'wrong parameters'
+                    'msg' => 'No parameters. There is nothing to do.'
                 ]);
+            $booking->custom_duration = \Time::parseStringHourMinutesToMinutes($validated['duration']);
+            if($booking->isFitsInTime() && $booking->save())
+                return response()->json([
+                    'status' => 'success',
+                    'booking' => $booking,
+                ]);
+            return response()->json([
+                'msg' => 'Wrong duration'
+            ]);
         }
         
+        // To be shure that all parameters connected between each other
+        $template = \Getter::templates()->get([
+            TemplateParams::ID => $validated['template'],
+            TemplateParams::WORKER_ID => $validated['worker'],
+            TemplateParams::HALL_ID => $validated['hall'],
+        ]);
+        
+        // var_dump($template->toArray());
         // die();
         
-        if($has_item){
-            $booking->hall_id = $validated['hall'];
-            $booking->worker_id = $validated['worker'];
-            $booking->template_id = $validated['template'];
-        }
+        if($template->isEmpty())
+            return response()->json([
+                'msg' => 'Wrong parameters'
+            ]);
+        
+        $booking->hall_id = $validated['hall'];
+        $booking->worker_id = $validated['worker'];
+        $booking->template_id = $validated['template'];
         
         if(!empty($validated['time']))
             $booking->time = $validated['time'];
             
-        if(!empty($validated['duration'])){
-            $duration_in_minutes = \Time::parseStringHourMinutesToMinutes($validated['duration']);
-            $start = $booking->time;
-            $carbon_time = \Carbon\Carbon::parse($booking->time);
-            $carbon_time->addMinutes($duration_in_minutes);
-            $end = $carbon_time->format('Y-m-d H:i:s');
+        if(!empty($validated['duration']))
+            $booking->custom_duration = \Time::parseStringHourMinutesToMinutes($validated['duration']);
             
-            $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
-                new Range($start, $end, 'month'),
-                [
-                    Params::ONLY_APPROVED => true,
-                    Params::EXCLUDE_IDS => [$booking->id],
-                    Params::FIRST_ITEMS => true,
-                    Params::EXCLUDE_RANGE_START_AND_END_DATES => true,
-                ]
-            );
-            
-            if(!empty($bookings))
-                return response()->json([
-                    'msg' => 'wrong parameters'
-                ]);
-                
-            $booking->custom_duration = $duration_in_minutes;
-        }
-        
-        if($booking->approved != 1)
-            $booking->approved = 1;
-        
-        $booking->save();
-        
+        if($booking->isFitsInTime() && $booking->saveAsApproved())
+            return response()->json([
+                'status' => 'success',
+                'booking' => $booking,
+            ]);
         return response()->json([
-            'status' => 'success',
-            'booking' => $booking,
+            'msg' => 'Wrong parameters'
         ]);
+    }
+    
+    // protected function isBookingModelFits(Booking $booking){
+    //     $duration = empty($booking->custom_duration) ? $booking->custom_duration : $booking->right_duration;
+    //     // $duration_in_minutes = \Time::parseStringHourMinutesToMinutes($validated['duration']);
+    //     $start = $booking->time;
+    //     $carbon_time = \Carbon\Carbon::parse($booking->time);
+    //     $carbon_time->addMinutes($duration);
+    //     $end = $carbon_time->format('Y-m-d H:i:s');
+    // 
+    //     $bookings_getter_params = [
+    //         Params::ONLY_APPROVED => true,
+    //         Params::EXCLUDE_IDS => [$booking->id],
+    //         Params::FIRST_ITEMS => true,
+    //         Params::EXCLUDE_RANGE_START_AND_END_DATES => true,
+    //         Params::WORKER => $booking->worker_id
+    //     ];
+    // 
+    //     $bookings = \Getter::bookings()->all(
+    //         new Range($start, $end, 'month'), $bookings_getter_params
+    //     );
+    // 
+    //     return !empty($bookings);
+    // }
+    
+    protected function isDateBookable(string $date, int $hall_id, int $worker_id){
+        
     }
     
 }

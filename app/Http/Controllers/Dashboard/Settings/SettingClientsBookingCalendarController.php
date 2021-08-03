@@ -16,16 +16,16 @@ class SettingClientsBookingCalendarController extends Controller
     
     function main(Request $request){
         $setting = \Setting::of(Keys::CLIENTS_BOOKING_CALENDAR_MAIN);
-        // dd($setting->getOrPlaceholder());
-        // dd('main');
         
         if($request->isMethod('post')){
             $validated = $request->validate([
                 "max_future_booking_offset" => "required|integer|max:1000",
                 "time_between_events" => "required|integer|max:60",
+                "calendar_alias" => "required|string|max:100|regex:" . \CalendarAlias::getAliasRegexp(),
             ]);
             
-            // dd($validated);
+            if(!empty($validated["calendar_alias"]))
+                \CalendarAlias::setByUser($validated["calendar_alias"]);
             
             $setting->parseAndSet($validated);
             
@@ -35,9 +35,11 @@ class SettingClientsBookingCalendarController extends Controller
         }
         
         // dd($setting->getOrPlaceholder());
+        $setting_data = $setting->getOrPlaceholder();
+        $setting_data['calendar_alias'] = \CalendarAlias::getByUser();
         
         return view('dashboard.settings.clients_booking_calendar.main', [
-            'setting' => $setting->getOrPlaceholder(),
+            'setting' => $setting_data,
         ]);
     }
     

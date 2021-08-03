@@ -21,7 +21,7 @@
                 </tbody>
             </table>
             
-            <table cellspacing="0">
+            <table cellspacing="0" :key="dataKey">
                 <tbody>
                     <tr>
                         <td :class="{'current-day': isCurrentDate}">
@@ -50,24 +50,7 @@
         name: 'dayCalendar',
         mounted() {
             this.$store.dispatch('dates/setDayDates', this.startDates.day);
-            
-            // console.log(JSON.parse(JSON.stringify(2121212)));
-            // console.log(JSON.parse(JSON.stringify(this.$store.getters['dates/day'])));
-            // console.log(this.$store.getters['dates/day']);
-            // return;
-            
-            if(this.isNewEventMainFull){
-                this.getData({
-                    type: 'free',
-                });
-            }else if(this.movingEvent !== null){
-                this.getData({
-                    type: 'free',
-                    exclude_ids: [this.movingEvent.id]
-                });
-            }else{
-                this.getData();
-            }
+            this.getData();
         },
         updated: function () {},
         // props: ['startDate'],

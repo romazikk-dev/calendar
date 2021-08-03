@@ -9,17 +9,20 @@
                     <template v-for="(i, index) in 7" v-if="getDayItem(index) && getDayItem(index).type == 'free'">
                         <tr class="title">
                             <td colspan="4">
-                                <a href="#" @click.prevent
+                                <a href="#" @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-weekday">
                                         {{weekdaysList[index]}}
                                 </a>
-                                <a href="#" @click.prevent
+                                <a href="#" @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-date">
                                         {{datesPerWeekday[index]}}
                                 </a>
                             </td>
                         </tr>
-                        <tr class="event free" v-for="item in getDayItem(i-1).items">
+                        <tr class="event free"
+                        :class="{
+                            'too-short': item.too_short,
+                        }" v-for="item in getDayItem(i-1).items">
                             <td>
                                 {{item.from}} - {{item.to}}
                             </td>
@@ -27,12 +30,15 @@
                                 <div class="status"></div>
                             </td>
                             <td>
-                                <a href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Free time</a>
+                                <a class="free-time-btn" href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Free time</a>
                             </td>
                             <td>
                                 <div class="float-right">
-                                    <a href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Pick</a>
+                                    <a class="pick-btn" href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Pick</a>
                                 </div>
+                                <span v-if="item.too_short" class="small float-right">
+                                    Too short!
+                                </span>
                             </td>
                         </tr>
                     </template>
@@ -42,11 +48,13 @@
                     <template v-for="(i, index) in 7" v-if="isDayItem(index, 'events')">
                         <tr class="title">
                             <td colspan="4">
-                                <a href="#" @click.prevent
+                                <a href="#"
+                                    @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-weekday">
                                         {{weekdaysList[index]}}
                                 </a>
-                                <a href="#" @click.prevent
+                                <a href="#"
+                                    @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-date">
                                         {{datesPerWeekday[index]}}
                                 </a>
@@ -54,15 +62,34 @@
                         </tr>
                         <tr class="event" v-for="item in getDayItem(index).items"
                         :class="{
-                            'approved': item.approved
+                            'approved': item.approved,
+                            'time-crossing': item.time_crossing,
                         }">
                             <td>
                                 {{item.from}} - {{item.to}}
+                                <div v-if="item.time_crossing"
+                                    class="warning-sign text-warning tooltip-active float-right"
+                                    data-placement="auto"
+                                    title="<div class='small'>Event is crossing time one of other event</div>">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </svg>
+                                </div>
                             </td>
                             <td>
-                                <div class="status"></div>
+                                <div class="status tooltip-active"
+                                    data-placement="auto"
+                                    :title="getStatusTooltipTitle(item)"></div>
                             </td>
                             <td>
+                                <!-- <div v-if="item.time_crossing"
+                                    class="warning-sign text-warning tooltip-active float-left"
+                                    data-placement="auto"
+                                    title="<div class='small'>Event is crossing time one of other event</div>">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </svg>
+                                </div> -->
                                 <div class="infos">
                                     <div class="info-item">
                                         <span class="vall vall-client">{{fullNameOfObj(item.client_without_user_scope)}}</span>
@@ -80,6 +107,10 @@
                                         <span class="vall vall-worker">{{fullNameOfObj(item.worker_without_user_scope)}}</span>
                                         <span class="small labell">(worker)</span>
                                     </div>
+                                    <div class="info-item">
+                                        <span class="vall vall-worker">{{getDurationStrHoursAndMinutes(item.right_duration)}}</span>
+                                        <span class="small labell">(duration)</span>
+                                    </div>
                                 </div>
                             </td>
                             <td>
@@ -90,7 +121,10 @@
                                         action-color="#549fb7"
                                         size="middle"
                                         :without-hover-bg="true"
-                                        :dropdown-to-left="true"/>
+                                        :dropdown-to-left="true"
+                                        tooltip-placement="top"
+                                        :disabled-items-with-line-through="true"
+                                        :disabled-drop-menu-items-with-line-through="true"/>
                                 </div>
                             </td>
                         </tr>
@@ -111,19 +145,7 @@
         name: 'weekCalendar',
         mounted() {
             this.$store.dispatch('dates/setListDates', this.startDates.list);
-            
-            if(this.isNewEventMainFull){
-                this.getData({
-                    type: 'free',
-                });
-            }else if(this.movingEvent !== null){
-                this.getData({
-                    type: 'free',
-                    exclude_ids: [this.movingEvent.id]
-                });
-            }else{
-                this.getData();
-            }
+            this.getData();
         },
         updated: function () {},
         // props: ['startDate'],
@@ -171,6 +193,14 @@
             },
         },
         methods: {
+            getStatusTooltipTitle: function (item) {
+                if(item.approved)
+                    return "<div class='small'>Approved</div>";
+                return "<div class='small'>Not approved</div>";
+            },
+            getDurationStrHoursAndMinutes: function (duration) {
+                return calendarHelper.time.composeHourMinuteTimeFromMinutes(duration);
+            },
             isDayItem: function (index, type = 'events') {
                 let dayItem = this.getDayItem(index);
                 return ['events','free'].includes(type) && dayItem !== null &&
@@ -178,6 +208,8 @@
                 dayItem.type.toLowerCase() == type.toLowerCase();
             },
             onClickPickFree: function (dayData, event) {
+                if(event.too_short)
+                    return;
                 this.app.showPickTimeModal({
                     day: dayData,
                     item: event,

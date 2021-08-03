@@ -7,6 +7,7 @@ import { Person } from "./Person";
 import { Time } from "./Time";
 import { View } from "./View";
 import { Filter } from "./Filter";
+import { NumericHelper } from "./helpers/NumericHelper";
 // import { View as EnumView } from "./enums/View";
 
 declare var window: any;
@@ -19,6 +20,7 @@ class Helper{
     time?: Time;
     view?: View;
     filter?: Filter;
+    numericHelper?: NumericHelper;
   
     constructor() {
         this.movingE = new MovingE();
@@ -27,6 +29,7 @@ class Helper{
         this.time = new Time();
         this.view = new View();
         this.filter = new Filter();
+        this.numericHelper = new NumericHelper();
     }
 }
 

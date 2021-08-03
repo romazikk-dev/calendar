@@ -204,6 +204,24 @@ const actions = {
     goTodayDay ({state}){
         this.dispatch('dates/setDayDates', state.current.date);
     },
+    // setAllDatesToOneDate ({state}, date) {
+    //     this.dispatch('dates/setMonthDates', date);
+    //     // this.dispatch('dates/setWeekDates', date);
+    //     // this.dispatch('dates/setListDates', date);
+    //     this.dispatch('dates/setDayDates', date);
+    // },
+    setDates ({state}, date) {
+        let view = this.getters['view/view'];
+        let aliases = {
+            month: 'dates/setMonthDates', week: 'dates/setWeekDates',
+            list: 'dates/setListDates', day: 'dates/setDayDates',
+        }
+        this.dispatch(aliases[view], date);
+        state.startDates.month = date;
+        state.startDates.week = date;
+        state.startDates.list = date;
+        state.startDates.day = date;
+    },
     setMonthDates ({state}, oneOfMonthDate) {
         this.dispatch('dates/setCurrentDateDates');
         let momentOneOfMonthDate, firstDate, lastDate;

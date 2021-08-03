@@ -191,6 +191,14 @@ Vue.mixin({
         };
     },
     computed: {
+        // Keys
+        allKeys: function () {
+            return this.$store.getters['keys/all'];
+        },
+        dataKey: function () {
+            return this.$store.getters['keys/data'];
+        },
+        
         // durationRangeRestriction: function(){
         //     if(typeof templateMainSettings === 'undefined' || typeof templateMainSettings.duration_range === 'undefined' ||
         //     typeof templateMainSettings.duration_range.start === 'undefined' || typeof templateMainSettings.duration_range.end === 'undefined'){
@@ -282,6 +290,18 @@ Vue.mixin({
         // Start dates
         startDates: function(){
             return this.$store.getters['dates/startDates'];
+        },
+        monthStartDate: function () {
+            return this.startDates.month;
+        },
+        weekStartDate: function () {
+            return this.startDates.week;
+        },
+        listStartDate: function () {
+            return this.startDates.list;
+        },
+        dayStartDate: function () {
+            return this.startDates.day;
         },
         
         // New event data of new_event `$store` module
@@ -397,9 +417,28 @@ Vue.mixin({
         },
     },
     methods: {
+        // Switch to day view
+        goToDayView: function (dayItem) {
+            let date = moment(dayItem.year + '-' + dayItem.month + '-' + dayItem.day, 'YYYY-MM-DD').toDate();
+            this.$store.dispatch('dates/setDates', date);
+            this.$store.commit('view/setView', 'day');
+        },
+        
+        getRandomInt: function (max) {
+            return Math.floor(Math.random() * max);
+        },
+        parseToInteger: function (int) {
+            return parseInt(int);
+        },
         isProp: function (prop) {
             return typeof prop !== 'undefined' && prop !== null;
         },
+        getHumanReadableDate: function (dateObj) {
+            if(!this.isProp(dateObj))
+                return null;
+            return moment(dateObj).format('D MMMM YYYY, ddd');
+        },
+        
         // Calendar actions
         goNext: function(){
             let params = {};
@@ -448,6 +487,10 @@ Vue.mixin({
             this.$store.dispatch('moving_event/reset');
             this.calendar.getData();
         },
+        resetNewEvent: function(){
+            this.$store.dispatch('new_event/reset');
+            this.calendar.getData();
+        },
         closeTooltipOfEvent: function (e) {
             if($(e.target).hasClass('tooltip-active')){
                 $(e.target).tooltip("hide");
@@ -458,12 +501,16 @@ Vue.mixin({
         // Filter methods
         isFilter: function (filter) {
             let listOfFilters = this.$store.getters['filters/listOfFilters'];
-            return listOfFilters.includes(filter) && typeof this.filters[filter] !== 'undefined' && this.filters[filter] !== null;
+            return listOfFilters.includes(filter) && this.isProp(this.filters[filter]);
         },
         getFiltersSearchParams: function (urlSearchParams = null) {
             if(urlSearchParams === null)
                 urlSearchParams = new URLSearchParams();
             
+            if(this.isFilter('status') && Array.isArray(this.filters.status) && this.filters.status.length > 0)
+                for(let idx in this.filters.status)
+                    urlSearchParams.append("status[]", this.filters.status[idx]);
+                        
             if(this.isFilter('hall') && Array.isArray(this.filters.hall) && this.filters.hall.length > 0)
                 for(let idx in this.filters.hall)
                     urlSearchParams.append("hall[]", this.filters.hall[idx].id);
@@ -536,16 +583,6 @@ Vue.mixin({
                 return urlSearchParams.toString();
             return urlSearchParams;
         },
-        // urlSearchParams: function(as_string = false){
-        //     let urlSearchParams = this.isMovingEvent ? this.$store.getters['moving_event/urlSearchParams'] :
-        //         this.$store.getters['filters/urlSearchParams'];
-        // 
-        //     urlSearchParams = new URLSearchParams(urlSearchParams);
-        // 
-        //     if(as_string)
-        //         return urlSearchParams.toString();
-        //     return urlSearchParams;
-        // },
         getParentComponentByName: function (_thisComponent, componentName) {
             let component = null;
             if(_thisComponent.$options.name === componentName)
@@ -568,32 +605,32 @@ Vue.mixin({
             //     return componentApp.isAuth;
             // return false;
         },
-        parseSecondsToHourMinuteString: function (seconds) {
-            // console.log(milliseconds);
-            let minutes = seconds/60;
-            // console.log('seconds:' + seconds);
-            // let minutes = seconds/60;
-            // console.log('minutes:' + minutes);
-            let hours = parseInt(minutes/60);
-            // console.log('hours:' + hours);
-            // console.log(hours + ':' + minutes);
-            if(hours > 0){
-                minutes = minutes%60;
-                hours = this.formatTimeItemToTwoDigitString(hours);
-                minutes = this.formatTimeItemToTwoDigitString(minutes);
-            }else{
-                hours = '00';
-                minutes = this.formatTimeItemToTwoDigitString(minutes);
-            }
-            // console.log(hours + ':' + minutes);
-            return hours + ':' + minutes;
-        },
-        formatTimeItemToTwoDigitString: function (timeItem) {
-            let timeItemInt = parseInt(timeItem);
-            if(timeItemInt < 10)
-                return '0' + timeItemInt;
-            return '' + timeItemInt;
-        },
+        // parseSecondsToHourMinuteString: function (seconds) {
+        //     // console.log(milliseconds);
+        //     let minutes = seconds/60;
+        //     // console.log('seconds:' + seconds);
+        //     // let minutes = seconds/60;
+        //     // console.log('minutes:' + minutes);
+        //     let hours = parseInt(minutes/60);
+        //     // console.log('hours:' + hours);
+        //     // console.log(hours + ':' + minutes);
+        //     if(hours > 0){
+        //         minutes = minutes%60;
+        //         hours = this.formatTimeItemToTwoDigitString(hours);
+        //         minutes = this.formatTimeItemToTwoDigitString(minutes);
+        //     }else{
+        //         hours = '00';
+        //         minutes = this.formatTimeItemToTwoDigitString(minutes);
+        //     }
+        //     // console.log(hours + ':' + minutes);
+        //     return hours + ':' + minutes;
+        // },
+        // formatTimeItemToTwoDigitString: function (timeItem) {
+        //     let timeItemInt = parseInt(timeItem);
+        //     if(timeItemInt < 10)
+        //         return '0' + timeItemInt;
+        //     return '' + timeItemInt;
+        // },
         
         // Person helpers
         fullNameOfObj: function (obj){

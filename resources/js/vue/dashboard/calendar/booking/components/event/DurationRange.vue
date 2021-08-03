@@ -60,6 +60,9 @@
         name: 'durationRange',
         beforeMount() {
             this.setInitRange();
+            
+            // console.log(JSON.parse(JSON.stringify('beforeMount')));
+            // console.log(JSON.parse(JSON.stringify(this.initRange)));
         },
         /*
         *   e = {event, nextEvent}
@@ -97,12 +100,23 @@
         },
         methods: {
             onClickFullRange: function(){
+                // alert(111);
                 // alert(this.durationRangeMinMax.start);
                 // this.setInitRange(null);
-                this.$refs.time_bar_duration.setInputInitValue(this.durationRangeMinMax);
+                if(typeof this.$refs.time_bar_duration !== 'undefined'){
+                    this.$refs.time_bar_duration.setInputInitValue(this.durationRangeMinMax);
+                }else{
+                    this.range = this.durationRangeMinMax;
+                }
             },
             onClickReset: function(){
-                this.$refs.time_bar_duration.setInputInitValue(this.initRange);
+                // alert();
+                // console.log(this.$refs);
+                console.log(JSON.parse(JSON.stringify(this.initRange)));
+                if(typeof this.$refs.time_bar_duration !== 'undefined')
+                    this.$refs.time_bar_duration.setInputInitValue(
+                        this.initRange !== null ? this.initRange : this.durationRangeMinMax
+                    );
             },
             toogleColapsed: function(){
                 this.collapsed = !this.collapsed;

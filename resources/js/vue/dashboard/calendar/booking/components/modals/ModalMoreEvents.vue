@@ -124,7 +124,9 @@
                     </div>
                     
                     <div v-if="showTab == 'duration' && movingEvent">
-                        <div class="alert alert-primary small" role="alert">
+                        <info-alert :event="durationE.event"
+                            :date-obj="dateObj" />
+                        <!-- <div class="alert alert-primary small" role="alert">
                             <div class="event-itemm">
                                 <span>Client: </span>
                                 <b>{{durationE.event.client_without_user_scope.first_name}}</b>
@@ -147,7 +149,7 @@
                             <div class="event-itemm">
                                 <span>Time: </span><b>{{durationE.event.from}}</b>
                             </div>
-                        </div>
+                        </div> -->
                         <duration ref="duration"
                             @change="durationChanged($event)"
                             :e="durationE" />
@@ -216,6 +218,7 @@
     import Actions from "../event/Actions.vue";
     import Edit from "../event/Edit.vue";
     import Duration from "../event/Duration.vue";
+    import InfoAlert from "../event/InfoAlert.vue";
     export default {
         name: 'modalMoreEvents',
         updated() {
@@ -289,6 +292,16 @@
                 typeof this.e.year === 'undefined' || this.e.year === null)
                     return null;
                 return this.e.year + '-' + this.e.month + '-' + this.e.day;
+            },
+            dateObj: function () {
+                if(this.e == null ||
+                typeof this.e.day === 'undefined' || this.e.day === null ||
+                typeof this.e.month === 'undefined' || this.e.month === null ||
+                typeof this.e.year === 'undefined' || this.e.year === null)
+                    return null;
+                let momentDate = moment(this.e.year + '-' + this.e.month + '-' + this.e.day);
+                return momentDate.toDate();
+                // return this.e.year + '-' + this.e.month + '-' + this.e.day;
             },
             date: function () {
                 if(this.e == null ||
@@ -507,6 +520,7 @@
             Actions,
             Edit,
             Duration,
+            InfoAlert,
         },
         watch: {
             // initValue: (newOne, oldOne) => {

@@ -16,6 +16,7 @@ class Params{
     const TEMPLATE = "template";
     const CLIENT = "client";
     const WITH = "with";
+    const STATUS = "status";
     
     const DURATION_START = "duration_start";
     const DURATION_END = "duration_end";
@@ -35,4 +36,7 @@ class Params{
     // Includes events that don`t have start date in range
     // but have duration that crosses a range
     const ALL_IN_RANGE = "all_in_range";
+    
+    // client id
+    const WITH_EVENTS_PER_CLIENT = "with_events_per_client";
 }

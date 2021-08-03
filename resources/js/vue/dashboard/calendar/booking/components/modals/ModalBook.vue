@@ -22,6 +22,7 @@
                     <client-picker @change="onChange"
                         label="Client"
                         ref="client"
+                        :small="true"
                         picked-item-placeholder="---"
                         max-dropdown-menu-height="100px" />
                     <edit @change="onChange"
@@ -90,7 +91,7 @@
                 if(!this.showPickTimeBtn || !this.isEditComp)
                     return;
                     
-                    // this.$refs.edit.pickedHall.id
+                // this.$refs.edit.pickedHall.id
                     
                 // let urlSearchParams = new URLSearchParams();
                 // urlSearchParams.append("hall", this.$refs.edit.pickedHall.id);
@@ -105,10 +106,7 @@
                 this.$store.dispatch('new_event/setClient', this.$refs.client.pickedClient);
                 this.$store.dispatch('new_event/setShow', true);
                 
-                this.calendar.getData({
-                    type: 'free',
-                    // urlSearchParams: urlSearchParams,
-                }).then(() => {
+                this.calendar.getData().then(() => {
                     this.hide();
                 });
             },

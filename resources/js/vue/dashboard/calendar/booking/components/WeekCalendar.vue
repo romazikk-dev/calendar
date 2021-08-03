@@ -3,15 +3,16 @@
             
         <div class="for-table week-calendar">
             
-            {{dateInterval}}
-            
             <table cellspacing="0">
                 <thead>
                     <tr>
-                        <th v-for="item in 7"
-                            :class="{'current-day': isCurrentDate(item)}">
-                                {{weekdaysList[item - 1]}}
-                                <span>{{datesPerWeekday[item - 1]}}</span>
+                        <th v-for="(item, index) in 7"
+                            :class="{'current-day': isCurrentDate(item)}"
+                            class="weekday-title">
+                                <a href="#" @click.prevent="goToDayView(getDayItem(index))">
+                                    {{weekdaysList[index]}}
+                                    <span>{{datesPerWeekday[index]}}</span>
+                                </a>
                         </th>
                     </tr>
                 </thead>
@@ -29,15 +30,15 @@
                 </tbody>
             </table>
             
-            <table cellspacing="0">
+            <table cellspacing="0" :key="dataKey">
                 <tbody>
                     <tr>
-                        <td v-for="i in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(i)}">
-                            <month-cell v-if="getDateItem(i-1)"
+                        <td v-for="(i, index) in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(i)}">
+                            <month-cell v-if="getDayItem(index)"
                                 :counters-to-top="true"
                                 @clickMore="showModalMoreEvent($event)"
                                 @cancel="cancelBook($event)"
-                                :item="getDateItem(i-1)"></month-cell>
+                                :item="getDayItem(index)"></month-cell>
                         </td>
                     </tr>
                 </tbody>
@@ -55,25 +56,14 @@
         mounted() {
             // alert(this.startDate);
             this.$store.dispatch('dates/setWeekDates', this.startDates.week);
-            
-            if(this.isNewEventMainFull){
-                this.getData({
-                    type: 'free',
-                });
-            }else if(this.movingEvent !== null){
-                this.getData({
-                    type: 'free',
-                    exclude_ids: [this.movingEvent.id]
-                });
-            }else{
-                this.getData();
-            }
+            this.getData();
         },
         updated: function () {},
         // props: ['startDate'],
         data: function(){
             return {
                 dates: null,
+                // key: null,
             };
         },
         computed: {
@@ -118,7 +108,7 @@
             showModalMoreEvent: function(e){
                 this.app.$refs.modal_more_events.show(e);
             },
-            getDateItem: function(index){
+            getDayItem: function(index){
                 if(this.dates === null || typeof this.dates[index] === 'undefined')
                     return null;
                 return this.dates[index];
@@ -159,6 +149,12 @@
                 
                 return this.app.getData(startDate, endDate, params).then((data) => {
                     this.dates = data.data;
+                    // this.$store.commit('keys/changeData');
+                    // this.key = this.getRandomInt(1000);
+                    // this.$nextTick(() => {
+                    //     this.app.key = this.getRandomInt(1000);
+                    // });
+                    // this.app.key = this.getRandomInt(1000);
                     // console.log(JSON.parse(JSON.stringify(this.dates)));
                 });
             },

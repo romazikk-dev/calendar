@@ -14,6 +14,7 @@ import template from './modules/template';
 import dates from './modules/dates';
 import navbar from './modules/navbar';
 import view from './modules/view';
+import keys from './modules/keys';
 
 
 Vue.use(Vuex);
@@ -36,6 +37,7 @@ export default new Vuex.Store({
         dates,
         navbar,
         view,
+        keys,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

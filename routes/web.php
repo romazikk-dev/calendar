@@ -349,6 +349,14 @@ Route::group([
         // 'hairdresser_identifier' => '[A-Za-z0-9]+',
     ])->name('owner_booking');
     
+    Route::get('/booking/{alias}', [CalendarBookingController::class, 'indexAlias'])->where([
+        'alias' => '^[A-z0-9_-]+$',
+    ])->name('booking.alias');
+    
+    // Route::get('/booking/{alias}', function(){
+    //     dd(111111);
+    // })->where(['identifier','[A-Za-z0-9]+'])->name('owner_booking');
+    
     // Route::get('/booking/{identifier}', function(){
     //     dd(111111);
     // })->where(['identifier','[A-Za-z0-9]+'])->name('owner_booking');

@@ -36,8 +36,8 @@ const getters = {
     duration: (state) => {
         return state.duration;
     },
-    listOfFilters: (state) => {
-        return Object.keys(state);
+    listOfFilters: (state, getters) => {
+        return Object.keys(getters.allFilters);
         // return state.listOfFilters;
     },
     urlSearchParams: (state, getters) => {
@@ -91,6 +91,7 @@ const actions = {
                 this.dispatch(dispatchName[type]);
         }
     },
+    //For array filters
     removeItemFromFilterByValue: function(context, e) {
         let dispatchName = {
             status: 'filters/setStatus',
@@ -115,6 +116,7 @@ const actions = {
             this.dispatch(dispatchName[e.type], filter);
         }
     },
+    //For object filters
     removeItemFromFilterById: function(context, e) {
         let dispatchName = {
             client: 'filters/setClient',

@@ -6539,6 +6539,219 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/vue/calendar_2/booking/app.js":
+/*!****************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/app.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store */ "./resources/js/vue/calendar_2/booking/store/index.js");
+/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/calendar_2/booking/components/App.vue");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/calendar_2/booking/bootstrap.js");
+
+window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
+ // import Vuex from 'vuex';
+// 
+// Vue.use(Vuex);
+// 
+// 
+// const store = new Vuex.Store({
+//   state: {
+//     count: 0
+//   },
+//   mutations: {
+//     increment (state) {
+//       state.count++
+//     }
+//   }
+// });
+// 
+// 
+// console.log(store.state.count)
+
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// const files = require.context('./', true, /\.vue$/i)
+// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+
+Vue.component('dropdown-template-specifics', __webpack_require__(/*! ./components/template/DropdownTemplateSpecifics.vue */ "./resources/js/vue/calendar_2/booking/components/template/DropdownTemplateSpecifics.vue").default);
+/**
+ * Next, we will create a fresh Vue application instance and attach it to
+ * the page. Then, you may begin adding components to this application
+ * or customize the JavaScript scaffolding to fit your unique needs.
+ */
+// const Helper = require("../../../ts/calendar_helper/app").Helper;
+// const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
+
+window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js"); // window.viewEnums = new ViewEnums();
+// window.helper = new Helper();
+// console.log(helper.my());
+
+
+Vue.mixin({
+  data: function data() {
+    return {
+      hoursList: [{
+        hour: '00',
+        minute: '00'
+      }, {
+        hour: '01',
+        minute: '00'
+      }, {
+        hour: '02',
+        minute: '00'
+      }, {
+        hour: '03',
+        minute: '00'
+      }, {
+        hour: '04',
+        minute: '00'
+      }, {
+        hour: '05',
+        minute: '00'
+      }, {
+        hour: '06',
+        minute: '00'
+      }, {
+        hour: '07',
+        minute: '00'
+      }, {
+        hour: '08',
+        minute: '00'
+      }, {
+        hour: '09',
+        minute: '00'
+      }, {
+        hour: '10',
+        minute: '00'
+      }, {
+        hour: '11',
+        minute: '00'
+      }, {
+        hour: '12',
+        minute: '00'
+      }, {
+        hour: '13',
+        minute: '00'
+      }, {
+        hour: '14',
+        minute: '00'
+      }, {
+        hour: '15',
+        minute: '00'
+      }, {
+        hour: '16',
+        minute: '00'
+      }, {
+        hour: '17',
+        minute: '00'
+      }, {
+        hour: '18',
+        minute: '00'
+      }, {
+        hour: '19',
+        minute: '00'
+      }, {
+        hour: '20',
+        minute: '00'
+      }, {
+        hour: '21',
+        minute: '00'
+      }, {
+        hour: '22',
+        minute: '00'
+      }, {
+        hour: '23',
+        minute: '00'
+      }],
+      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    };
+  },
+  methods: {
+    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
+      var component = null;
+      if (_thisComponent.$options.name === componentName) return _thisComponent;
+      var parent = _thisComponent.$parent;
+
+      while (parent && !component) {
+        if (parent.$options.name === componentName) {
+          component = parent;
+        }
+
+        parent = parent.$parent;
+      }
+
+      return component;
+    },
+    isAuth: function isAuth() {
+      var componentApp = this.$root.$children[0];
+      return componentApp.clientAuthorized; // return false;
+      // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
+      // if(componentApp)
+      //     return componentApp.isAuth;
+      // return false;
+    },
+    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
+      // console.log(milliseconds);
+      var minutes = seconds / 60; // console.log('seconds:' + seconds);
+      // let minutes = seconds/60;
+      // console.log('minutes:' + minutes);
+
+      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
+      // console.log(hours + ':' + minutes);
+
+      if (hours > 0) {
+        minutes = minutes % 60;
+        hours = this.formatTimeItemToTwoDigitString(hours);
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } else {
+        hours = '00';
+        minutes = this.formatTimeItemToTwoDigitString(minutes);
+      } // console.log(hours + ':' + minutes);
+
+
+      return hours + ':' + minutes;
+    },
+    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
+      var timeItemInt = parseInt(timeItem);
+      if (timeItemInt < 10) return '0' + timeItemInt;
+      return '' + timeItemInt;
+    } // showChildren: function () {
+    //     // console.log(this.$root.$children[0].$options.name);
+    //     console.log(this.$root.$children[0].$options.name);
+    // }
+
+  }
+});
+window.app = new Vue({
+  // const businessHours = new Vue({
+  el: '#calendarBooking',
+  store: _store__WEBPACK_IMPORTED_MODULE_0__.default,
+  render: function render(h) {
+    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_1__.default, {
+      props: {
+        userId: document.querySelector("#calendarBooking").dataset.userId
+      }
+    });
+  }
+}); // alert(111);
+// console.log(document.querySelector("#calendarBooking").dataset.userId);
+
+/***/ }),
+
 /***/ "./resources/js/vue/calendar_2/booking/bootstrap.js":
 /*!**********************************************************!*\
   !*** ./resources/js/vue/calendar_2/booking/bootstrap.js ***!
@@ -25099,6 +25312,19 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   // Check for `exports` after `define` in case a build optimizer adds it.
   else {}
 }.call(this));
+
+
+/***/ }),
+
+/***/ "./resources/sass/dashboard.scss":
+/*!***************************************!*\
+  !*** ./resources/sass/dashboard.scss ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -52146,9 +52372,7 @@ var render = function() {
                             _vm._v(" "),
                             _c("b", [
                               _vm._v(
-                                _vm._s(
-                                  itmm.booking.template_without_user_scope.title
-                                )
+                                _vm._s(itmm.template_without_user_scope.title)
                               ),
                               _c("br"),
                               _vm._v(
@@ -52198,13 +52422,13 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          itm.type == "booked"
+          itm.type == "event"
             ? _c("div", { staticClass: "booked-slot" }, [
                 _c("b", [_vm._v("Booked on:")]),
                 _c("br"),
                 _vm._v(" "),
                 _c("b", [
-                  _vm._v(_vm._s(itm.booking.template_without_user_scope.title)),
+                  _vm._v(_vm._s(itm.template_without_user_scope.title)),
                   _c("br"),
                   _vm._v(
                     "\n                " +
@@ -52222,7 +52446,7 @@ var render = function() {
                     on: {
                       click: function($event) {
                         $event.preventDefault()
-                        return _vm.$emit("cancel", itm.booking)
+                        return _vm.$emit("cancel", itm)
                       }
                     }
                   },
@@ -73757,7 +73981,41 @@ var index = {
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					result = fn();
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -73819,218 +74077,66 @@ var index = {
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"/js/calendar-booking-2": 0,
+/******/ 			"css/dashboard": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			for(moduleId in moreModules) {
+/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 				}
+/******/ 			}
+/******/ 			if(runtime) runtime(__webpack_require__);
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkIds[i]] = 0;
+/******/ 			}
+/******/ 			__webpack_require__.O();
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunk"] = self["webpackChunk"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-/*!****************************************************!*\
-  !*** ./resources/js/vue/calendar_2/booking/app.js ***!
-  \****************************************************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store */ "./resources/js/vue/calendar_2/booking/store/index.js");
-/* harmony import */ var _components_App_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/App.vue */ "./resources/js/vue/calendar_2/booking/components/App.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/vue/calendar_2/booking/bootstrap.js");
-
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js").default;
- // import Vuex from 'vuex';
-// 
-// Vue.use(Vuex);
-// 
-// 
-// const store = new Vuex.Store({
-//   state: {
-//     count: 0
-//   },
-//   mutations: {
-//     increment (state) {
-//       state.count++
-//     }
-//   }
-// });
-// 
-// 
-// console.log(store.state.count)
-
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-
-Vue.component('dropdown-template-specifics', __webpack_require__(/*! ./components/template/DropdownTemplateSpecifics.vue */ "./resources/js/vue/calendar_2/booking/components/template/DropdownTemplateSpecifics.vue").default);
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-// const Helper = require("../../../ts/calendar_helper/app").Helper;
-// const ViewEnums = require("../../../ts/calendar_helper/enums/View").Helper;
-
-window.moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-window.cookie = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js"); // window.viewEnums = new ViewEnums();
-// window.helper = new Helper();
-// console.log(helper.my());
-
-
-Vue.mixin({
-  data: function data() {
-    return {
-      hoursList: [{
-        hour: '00',
-        minute: '00'
-      }, {
-        hour: '01',
-        minute: '00'
-      }, {
-        hour: '02',
-        minute: '00'
-      }, {
-        hour: '03',
-        minute: '00'
-      }, {
-        hour: '04',
-        minute: '00'
-      }, {
-        hour: '05',
-        minute: '00'
-      }, {
-        hour: '06',
-        minute: '00'
-      }, {
-        hour: '07',
-        minute: '00'
-      }, {
-        hour: '08',
-        minute: '00'
-      }, {
-        hour: '09',
-        minute: '00'
-      }, {
-        hour: '10',
-        minute: '00'
-      }, {
-        hour: '11',
-        minute: '00'
-      }, {
-        hour: '12',
-        minute: '00'
-      }, {
-        hour: '13',
-        minute: '00'
-      }, {
-        hour: '14',
-        minute: '00'
-      }, {
-        hour: '15',
-        minute: '00'
-      }, {
-        hour: '16',
-        minute: '00'
-      }, {
-        hour: '17',
-        minute: '00'
-      }, {
-        hour: '18',
-        minute: '00'
-      }, {
-        hour: '19',
-        minute: '00'
-      }, {
-        hour: '20',
-        minute: '00'
-      }, {
-        hour: '21',
-        minute: '00'
-      }, {
-        hour: '22',
-        minute: '00'
-      }, {
-        hour: '23',
-        minute: '00'
-      }],
-      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    };
-  },
-  methods: {
-    getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
-      var component = null;
-      if (_thisComponent.$options.name === componentName) return _thisComponent;
-      var parent = _thisComponent.$parent;
-
-      while (parent && !component) {
-        if (parent.$options.name === componentName) {
-          component = parent;
-        }
-
-        parent = parent.$parent;
-      }
-
-      return component;
-    },
-    isAuth: function isAuth() {
-      var componentApp = this.$root.$children[0];
-      return componentApp.clientAuthorized; // return false;
-      // let componentApp = this.getParentComponentByName(_thisComponent, 'app');
-      // if(componentApp)
-      //     return componentApp.isAuth;
-      // return false;
-    },
-    parseSecondsToHourMinuteString: function parseSecondsToHourMinuteString(seconds) {
-      // console.log(milliseconds);
-      var minutes = seconds / 60; // console.log('seconds:' + seconds);
-      // let minutes = seconds/60;
-      // console.log('minutes:' + minutes);
-
-      var hours = parseInt(minutes / 60); // console.log('hours:' + hours);
-      // console.log(hours + ':' + minutes);
-
-      if (hours > 0) {
-        minutes = minutes % 60;
-        hours = this.formatTimeItemToTwoDigitString(hours);
-        minutes = this.formatTimeItemToTwoDigitString(minutes);
-      } else {
-        hours = '00';
-        minutes = this.formatTimeItemToTwoDigitString(minutes);
-      } // console.log(hours + ':' + minutes);
-
-
-      return hours + ':' + minutes;
-    },
-    formatTimeItemToTwoDigitString: function formatTimeItemToTwoDigitString(timeItem) {
-      var timeItemInt = parseInt(timeItem);
-      if (timeItemInt < 10) return '0' + timeItemInt;
-      return '' + timeItemInt;
-    } // showChildren: function () {
-    //     // console.log(this.$root.$children[0].$options.name);
-    //     console.log(this.$root.$children[0].$options.name);
-    // }
-
-  }
-});
-window.app = new Vue({
-  // const businessHours = new Vue({
-  el: '#calendarBooking',
-  store: _store__WEBPACK_IMPORTED_MODULE_0__.default,
-  render: function render(h) {
-    return h(_components_App_vue__WEBPACK_IMPORTED_MODULE_1__.default, {
-      props: {
-        userId: document.querySelector("#calendarBooking").dataset.userId
-      }
-    });
-  }
-}); // alert(111);
-// console.log(document.querySelector("#calendarBooking").dataset.userId);
-})();
-
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	__webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/js/vue/calendar_2/booking/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/dashboard"], () => (__webpack_require__("./resources/sass/dashboard.scss")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
 /******/ })()
 ;

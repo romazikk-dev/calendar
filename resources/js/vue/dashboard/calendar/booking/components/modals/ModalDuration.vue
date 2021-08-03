@@ -6,37 +6,14 @@
     
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><b>{{date}}</b></h5>
+                    <h5 class="modal-title"><b>Edit duration:</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" v-if="e">
                     <!-- <loader ref="loader"></loader>   -->
-                    <div class="alert alert-primary small" role="alert">
-                        <div class="event-itemm">
-                            <span>Client: </span>
-                            <b>{{e.event.client_without_user_scope.first_name}}</b>
-                            <template v-if="e.event.client_without_user_scope.email">
-                                <b> - {{e.event.client_without_user_scope.email}}</b>
-                            </template>
-                        </div>
-                        <div class="event-itemm">
-                            <span>Hall: </span><b>{{e.event.hall_without_user_scope.title}}</b>
-                        </div>
-                        <div class="event-itemm">
-                            <span>Template: </span><b>{{e.event.template_without_user_scope.title}}</b>
-                        </div>
-                        <div class="event-itemm">
-                            <span>Worker: </span><b>{{e.event.worker_without_user_scope.first_name}}</b>
-                        </div>
-                        <div class="event-itemm">
-                            <span>Date: </span><b>{{date}}</b>
-                        </div>
-                        <div class="event-itemm">
-                            <span>Time: </span><b>{{e.event.from}}</b>
-                        </div>
-                    </div>
+                    <info-alert :event="e.event" />
                     <duration ref="duration"
                         @change="durationChanged($event)"
                         :e="e" />
@@ -74,6 +51,7 @@
 <script>
     import Loader from "../Loader.vue";
     import Duration from "../event/Duration.vue";
+    import InfoAlert from "../event/InfoAlert.vue";
     export default {
         name: 'modalMoreEvents',
         updated() {
@@ -99,6 +77,16 @@
             };
         },
         computed: {
+            dateObj: function () {
+                if(this.e == null ||
+                typeof this.e.day === 'undefined' || this.e.day === null ||
+                typeof this.e.day.day === 'undefined' || this.e.day.day === null ||
+                typeof this.e.day.month === 'undefined' || this.e.day.month === null ||
+                typeof this.e.day.year === 'undefined' || this.e.day.year === null)
+                    return null;
+                return moment(this.e.day.year + '-' + this.e.day.month + '-' + this.e.day.day).toDate();
+                // return momentDate.format('D MMMM YYYY, ddd');
+            },
             date: function () {
                 if(this.e == null ||
                 typeof this.e.day === 'undefined' || this.e.day === null ||
@@ -150,6 +138,7 @@
         components: {
             Loader,
             Duration,
+            InfoAlert,
         },
         watch: {
             // initValue: (newOne, oldOne) => {
