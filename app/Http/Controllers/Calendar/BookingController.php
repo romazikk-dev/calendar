@@ -15,6 +15,7 @@ use App\Classes\Setting\Enums\Keys as SettingKeys;
 class BookingController extends Controller{
     
     function index(Request $request, $owner_id){
+        // dd(\Timezone::getCurrentTimezone($owner_id));
         // dd(33);
         $filters = !empty($_COOKIE['filters']) ? json_decode($_COOKIE['filters']) : null;
         $token = !empty($_COOKIE['token']) ? $_COOKIE['token'] : null;
@@ -82,7 +83,10 @@ class BookingController extends Controller{
                 // 'templates' => $templates->toArray(),
                 'filters' => null,
                 'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
+                'timezone' => \Timezone::getCurrentTimezone($owner_id),
             ];
+            
+            // dd($output);
             
             if(!empty($filtered_hall) || !empty($filtered_worker) || !empty($filtered_template)){
                 $output['filters'] = [
@@ -115,8 +119,13 @@ class BookingController extends Controller{
     
     function indexAlias(Request $request, $alias){
         
+        // dd($alias);
+        
+        // dd(\Timezone::getCurrentTimezone($owner_id));
+        
         $owner_id = \CalendarAlias::getByAlias($alias, 'user_id');
-        // dd($res);
+        // dd(\Timezone::getCurrentTimezone($owner_id));
+        // dd($owner_id);s
         
         // $link = route('calendar.booking.alias', ['ddddd']);
         // dd($link);
@@ -187,6 +196,7 @@ class BookingController extends Controller{
                 // 'templates' => $templates->toArray(),
                 'filters' => null,
                 'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
+                'timezone' => \Timezone::getCurrentTimezone($owner_id),
             ];
             
             if(!empty($filtered_hall) || !empty($filtered_worker) || !empty($filtered_template)){

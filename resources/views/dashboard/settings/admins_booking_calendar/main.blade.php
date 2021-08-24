@@ -86,6 +86,14 @@
                     info-badge-label="list view" />
                 @endif
                 
+                @if(array_key_exists("enable_booking_on_any_time", $setting))
+                <x-setting.checkbox_setting_item
+                    :setting="$setting"
+                    label="Enable booking on any time"
+                    setting_key="enable_booking_on_any_time"
+                    input_id="enablBookingOnWeekend" />
+                @endif
+                
             </div>
         </div>
         @endif

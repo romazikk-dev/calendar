@@ -25,6 +25,7 @@ class SettingAdminsBookingCalendarController extends Controller
                 "week_max_events_per_day_to_show" => "required|integer|min:1|max:100",
                 "day_max_events_per_day_to_show" => "required|integer|min:1|max:1000",
                 "list_max_events_per_day_to_show" => "required|integer|min:1|max:1000",
+                "enable_booking_on_any_time" => "nullable|string|in:on",
             ]);
             
             // dd($validated);

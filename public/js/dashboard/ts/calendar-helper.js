@@ -50,6 +50,56 @@ exports.Filter = Filter;
 
 /***/ }),
 
+/***/ "./resources/js/ts/dashboard/calendar_helper/FreeGetDataParams.ts":
+/*!************************************************************************!*\
+  !*** ./resources/js/ts/dashboard/calendar_helper/FreeGetDataParams.ts ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.FreeGetDataParams = void 0;
+
+var FreeGetDataParams =
+/** @class */
+function () {
+  // range: DateRange;
+  function FreeGetDataParams() {
+    this.freeGetDataParams = freeGetDataParams;
+  }
+
+  FreeGetDataParams.prototype.parse = function () {// console.log(movingEvent);
+    // console.log(JSON.parse(movingEvent));
+    // console.log(JSON.parse(JSON.stringify(this.movingEvent)));
+  };
+
+  FreeGetDataParams.prototype.getItem = function (item) {
+    if (item === void 0) {
+      item = null;
+    }
+
+    if (item === null || typeof this.freeGetDataParams === 'undefined' || this.freeGetDataParams === null) return null;
+    item = item.split('.');
+
+    if (item.length === 1) {
+      return typeof this.freeGetDataParams[item[0]] !== 'undefined' ? this.freeGetDataParams[item[0]] : null;
+    } else if (item.length === 2) {
+      return typeof this.freeGetDataParams[item[0]] !== 'undefined' && typeof this.freeGetDataParams[item[0]][item[1]] !== 'undefined' ? this.freeGetDataParams[item[0]][item[1]] : null;
+    }
+
+    return null;
+  };
+
+  return FreeGetDataParams;
+}();
+
+exports.FreeGetDataParams = FreeGetDataParams;
+
+/***/ }),
+
 /***/ "./resources/js/ts/dashboard/calendar_helper/MovingE.ts":
 /*!**************************************************************!*\
   !*** ./resources/js/ts/dashboard/calendar_helper/MovingE.ts ***!
@@ -386,6 +436,8 @@ var View_1 = __webpack_require__(/*! ./View */ "./resources/js/ts/dashboard/cale
 
 var Filter_1 = __webpack_require__(/*! ./Filter */ "./resources/js/ts/dashboard/calendar_helper/Filter.ts");
 
+var FreeGetDataParams_1 = __webpack_require__(/*! ./FreeGetDataParams */ "./resources/js/ts/dashboard/calendar_helper/FreeGetDataParams.ts");
+
 var NumericHelper_1 = __webpack_require__(/*! ./helpers/NumericHelper */ "./resources/js/ts/dashboard/calendar_helper/helpers/NumericHelper.ts");
 
 var Helper =
@@ -398,6 +450,7 @@ function () {
     this.time = new Time_1.Time();
     this.view = new View_1.View();
     this.filter = new Filter_1.Filter();
+    this.freeGetDataParams = new FreeGetDataParams_1.FreeGetDataParams();
     this.numericHelper = new NumericHelper_1.NumericHelper();
   }
 

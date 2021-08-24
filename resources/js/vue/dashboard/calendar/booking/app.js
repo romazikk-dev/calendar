@@ -78,6 +78,7 @@ Vue.mixin({
     data: function(){
         return {
             // app: null,
+            mainSettings: mainSettings,
             hoursList: [
                 {
                     hour: '00',
@@ -329,6 +330,9 @@ Vue.mixin({
         newEventShow: function(){
             return this.$store.getters['new_event/show'];
         },
+        // newEventWithEvents: function(){
+        //     return this.$store.getters['new_event/withEvents'];
+        // },
         newEventUrlSearchParamsMain: function(){
             return this.$store.getters['new_event/urlSearchParamsMain'];
         },
@@ -343,6 +347,9 @@ Vue.mixin({
         movingEvent: function(){
             return this.$store.getters['moving_event/event'];
         },
+        // movingEventWithEvents: function(){
+        //     return this.$store.getters['moving_event/withEvents'];
+        // },
         isMovingEvent: function(){
             // return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
             return typeof this.movingEvent !== 'undefined' && this.movingEvent !== null;
@@ -415,6 +422,30 @@ Vue.mixin({
         isFiltersAny: function () {
             return this.$store.getters['filters/isAny'];
         },
+        
+        // Data when request is to get free slots
+        freeHallTitle: function () {
+            if(this.isMovingEvent)
+                return this.movingEvent.hall_without_user_scope.title;
+            if(this.isNewEventMainFull)
+                return this.newEventMain.hall.title;
+            return null;
+        },
+        freeWorkerName: function () {
+            if(this.isMovingEvent)
+                return this.fullNameOfObj(this.movingEvent.worker_without_user_scope);
+            if(this.isNewEventMainFull)
+                return this.fullNameOfObj(this.newEventMain.worker);
+            return null;
+        },
+        
+        // Free slots get data params
+        freeWithEvents: function () {
+            return this.$store.getters['free_get_data_params/withEvents'];
+        },
+        freeBookingAnyTime: function () {
+            return this.$store.getters['free_get_data_params/bookingAnyTime'];
+        }
     },
     methods: {
         // Switch to day view
@@ -564,6 +595,7 @@ Vue.mixin({
             
             if(this.isNewEventMainFull){
                 if(dataType == 'free'){
+                    // alert(111);
                     urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
                 }else{
                     urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];

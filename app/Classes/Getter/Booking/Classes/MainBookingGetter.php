@@ -239,7 +239,13 @@ class MainBookingGetter{
         
         // var_dump($duration);
         // die();
-            
+        
+        /*
+        *   Starts BOOKING modal with setting date range of retrieving bookings(events)
+        *   will be returned all events which starts or ends in a range of dates
+        *   will add template_without_user_scope to bookings which custom_duration is null
+        *   even if parameter(with) to get it(template_without_user_scope) not specified
+        */
         $booking_model = Booking::where(function($query) use (
             $start_datetime_carbon, $end_datetime_carbon, $time_comperison_sign_less, $duration
         ){
@@ -325,6 +331,9 @@ class MainBookingGetter{
                 if(is_string($v))
                     $booking_model->with($v);
             }
+        
+        // $this->parameter_checker->isArrayWithAllStrValues($params[$itm['key']])
+        // $booking_model->with('templateWithoutUserScope');
             
         if(!empty($this->status) && is_array($this->status)){
             if(count($this->status) > 1){
@@ -367,13 +376,46 @@ class MainBookingGetter{
         return $booking_model;
     }
     
-    public function getBookingsAsDateTimeKeyArray(){
-        $bookings = $this->composeBookingModel()->get();
+    protected function isWithInArray(string $with_str){
+        if(!is_array($this->with) || empty($this->with))
+            return false;
+            
+        foreach($this->with as $k => $v){
+            if(str_starts_with($v, $with_str))
+                return true;
+        }
         
+        return false;
+    }
+    
+    public function cleanBookingsAfterRetrieving($bookings){
+        // var_dump($this->with);
+        // die();
+        // if(
+        //     empty($this->with) ||
+        //     (
+        //         is_array($this->with) && !empty($this->with) && !in_array('templateWithoutUserScope', $this->with)
+        //     )
+        // ){
+        if(!$this->isWithInArray('templateWithoutUserScope')){
+            // var_dump(111);
+            // die();
+            foreach($bookings as $k => &$v)
+                $v->makeHidden('templateWithoutUserScope');
+        }
+    
+        return $bookings;
+    }
+    
+    public function getBookingsAsDateTimeKeyArray(bool $as_arr = false){
+        $bookings = $this->composeBookingModel()->get();
+        $bookings = $this->cleanBookingsAfterRetrieving($bookings);
         // $booking_model = $this->composeBookingModel();
         // $sql = $booking_model->toSql();
         // $sql = \Str::replaceArray('?', $booking_model->getBindings(), $booking_model->toSql());
         // var_dump($sql);
+        // var_dump($bookings->toArray());
+        // var_dump($bookings);
         // die();
     
         if($bookings->isEmpty())
@@ -385,8 +427,11 @@ class MainBookingGetter{
             $booking_hour_index = \Carbon\Carbon::parse($booking->time)->format('H_i');
             $booking_hour_index .= '_' . $booking->worker_id;
             $booking_hour_index .= '_' . $booking->id;
-            $booked_itms[$booking_date_index][$booking_hour_index] = $booking;
-            // $booked_itms[$booking_date_index][$booking_hour_index] = $booking->toArray();
+            if($as_arr === true){
+                $booked_itms[$booking_date_index][$booking_hour_index] = $booking->toArray();
+            }else{
+                $booked_itms[$booking_date_index][$booking_hour_index] = $booking;
+            }
         }
         
         // var_dump($booked_itms);

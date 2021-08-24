@@ -23,9 +23,19 @@ class Timezone extends MainTimezone{
         return $values;
     }
     
-    public function getCurrentTimezone(){
-        $setting = \Setting::of(SettingKeys::HALL_DEFAULT_TIMEZONE)->getOrPlaceholder();
-        return $setting['timezone'];
+    public function getCurrentTimezone($user_id = null){
+        if(empty($user_id) || !is_numeric($user_id)){
+            $auth_user = auth()->user();
+            $user_id = !empty($auth_user) ? $auth_user->id : null;
+        }
+        
+        $setting = \Setting::of(SettingKeys::HALL_DEFAULT_TIMEZONE);
+        if(empty($user_id))
+            return $setting->getPlaceholder()['timezone'];
+            
+        return $setting->getOrPlaceholder([
+            'user_id' => $user_id
+        ])['timezone'];
     }
     
     public function getValuesInRegardToRequest(){

@@ -12,7 +12,8 @@ use App\Models\Template;
 use App\Models\Client;
 use App\Scopes\UserScope;
 use App\Models\TemplateSpecifics;
-use App\Classes\Setting\Enums\Keys as SettingKeys;
+use App\Classes\Setting\Enums\Keys as SettingsKeys;
+use App\Classes\Setting\Settings\AdminsBookingCalendar\Enums\MainKeys as AdminsBookingCalendarMainSettingKeys;
 use App\Classes\Getter\Enums\Keys as GetterKeys;
 use App\Classes\BookedAndRequested\Retrieval as BookedAndRequestedRetrieval;
 use App\Classes\Range\Range;
@@ -22,7 +23,7 @@ class BookingsController extends Controller
     public function index(){
         
         $duration_range = \DurationRange::get();
-        $admins_booking_calendar_main_settings = \Setting::of(SettingKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
+        $admins_booking_calendar_main_settings = \Setting::of(SettingsKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
             
         $dashboard_calendar_move_event = !empty($_COOKIE['dashboard_calendar_move_event']) ?
             json_decode($_COOKIE['dashboard_calendar_move_event']) : null;
@@ -32,6 +33,15 @@ class BookingsController extends Controller
         $moving_event = !empty($_COOKIE['moving_event']) ? json_decode($_COOKIE['moving_event'], true) : null;
         $new_event = !empty($_COOKIE['dashboard_calendar-new_event']) ? json_decode($_COOKIE['dashboard_calendar-new_event'], true) : null;
         
+        $free_get_data_params = !empty($_COOKIE['dashboard_calendar-free_get_data_params']) ?
+            json_decode($_COOKIE['dashboard_calendar-free_get_data_params'], true) : null;
+            
+        // if(empty($admins_booking_calendar_main_settings[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME]) ||
+        // $admins_booking_calendar_main_settings[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME] === false){
+        //     $params[Params::FREE_SHOW_ALL_TIMES] = true;
+        // }
+        
+        // dd();
         // dd(\Calendar::dashboard()->view()->getView());
         // $view = \Calendar::dashboard()->view()->getView();
         
@@ -75,7 +85,9 @@ class BookingsController extends Controller
             'view' => \Calendar::dashboard()->view()->getView(),
             'moving_event' => null,
             'new_event' => null,
-            'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
+            'free_get_data_params' => $free_get_data_params,
+            // 'custom_titles' => \Setting::of(SettingsKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
+            'main_settings' => \Setting::of(SettingsKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder(),
             'calendar_settings' => $admins_booking_calendar_main_settings,
             'duration_range' => $duration_range,
             // 'template_main_settings' => $template_main_settings,
@@ -110,6 +122,7 @@ class BookingsController extends Controller
         
             if(!empty($output_new_event)){
                 $output_new_event['show'] = !empty($new_event['show']) && $new_event['show'] === true ? true : false;
+                $output_new_event['withEvents'] = !empty($new_event['withEvents']) && in_array($new_event['withEvents'], ['all','per_client']) ? $new_event['withEvents'] : null;
                 $output['new_event'] = $output_new_event;
             }
         }
@@ -126,7 +139,8 @@ class BookingsController extends Controller
                     ->with([
                         'templateWithoutUserScope.specific',
                         'workerWithoutUserScope',
-                        'hallWithoutUserScope'
+                        'hallWithoutUserScope',
+                        'clientWithoutUserScope'
                     ])->first()->toArray();
             }
             
@@ -156,6 +170,7 @@ class BookingsController extends Controller
             
             if(!empty($output_moving_event)){
                 $output_moving_event['show'] = !empty($moving_event['show']) && $moving_event['show'] === true ? true : false;
+                $output_moving_event['withEvents'] = !empty($moving_event['withEvents']) && in_array($moving_event['withEvents'], ['all','per_client']) ? $moving_event['withEvents'] : null;
                 $output['moving_event'] = $output_moving_event;
             }
         }

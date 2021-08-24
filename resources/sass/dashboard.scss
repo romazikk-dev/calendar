@@ -505,6 +505,36 @@
 }
 
 .calendar-all-bookings{
+    .for-slot{
+        padding-left: 30px;
+        padding-right: 4px;
+        padding-top: 4px;
+        .slot{
+            display: block;
+            width: 100%;
+            margin-bottom: 3px;
+            border-radius: 3px;
+            font-size: 10px;
+            padding: 2px 6px;
+            color: black;
+            text-decoration: none;
+            transition: background .2s ease;
+            margin-bottom: 6px;
+        }
+        .opened-slot{
+            // background-color: rgba(144, 238, 144, 0.5);
+            background-color: rgba(84, 159, 183, 1);
+            color: white;
+        }
+    }
+    .week-calendar, .day-calendar{
+        .for-closed-slot{
+            padding-left: 4px;
+        }
+        .for-slot{
+            padding-left: 4px;
+        }
+    }
     .for-closed-slot{
         padding-left: 30px;
         padding-right: 4px;
@@ -524,7 +554,8 @@
         }
     }
     .cell-placeholder{
-        min-height: 85px!important;
+        // min-height: 85px!important;
+        padding: 6px;
     }
     .month-calendar, .week-calendar{
         min-width: 800px;
@@ -565,6 +596,19 @@
                         opacity: 1;
                     }
                 }
+                &.weekend{
+                    // display: block;
+                    // width: 100%;
+                    background-color: rgba(255, 0, 0, 0.1);
+                    // margin-bottom: 3px;
+                    // border-radius: 3px;
+                    // font-size: 10px;
+                    // padding: 2px 6px;
+                    // color: black;
+                    // text-decoration: none;
+                    // transition: background .2s ease;
+                    // margin-bottom: 6px;
+                }
                 .cell-content{
                     min-height: 80px!important;
                     position: relative;
@@ -602,7 +646,7 @@
             }
         }
         .current-day{
-            background-color: rgba(8,232,222, 0.3); 
+            background-color: rgba(8,232,222, 0.3)!important; 
         }
         .booking{
             position: absolute;
@@ -617,9 +661,10 @@
             --counters-opacity: .4;
             width: 26px;
             position: absolute;
+            top: var(--counters-padding-top, 26px);
             // float: left;
             font-size: var(--counters-font-size, 12px);
-            padding-top: var(--counters-padding-top, 26px);
+            // padding-top: var(--counters-padding-top, 26px);
             padding-left: var(--counters-padding-left, 4px);
             line-height: var(--counters-line-height, 14px);
             opacity: var(--counters-opacity, .4);
@@ -689,6 +734,7 @@
                     padding-right: 5px;
                     .free-slot{
                         --btn-pick-text-decoration: none;
+                        // min-height: var(--min-height-cell, initial)!important;
                         display: block;
                         position: relative;
                         width: 100%;
@@ -701,12 +747,12 @@
                         text-decoration: none;
                         transition: background .2s ease;
                         margin-bottom: 6px;
-                        cursor: pointer;
-                        &.min-slot-height{
-                            min-height: 64px;
-                        }
+                        // cursor: pointer;
+                        // &.min-slot-height{
+                        //     min-height: 64px;
+                        // }
                         &:hover{
-                            --btn-pick-text-decoration: underline;
+                            // --btn-pick-text-decoration: underline;
                         }
                         &.too-short{
                             background-color: rgba(242,195,42, 0.5);
@@ -721,6 +767,24 @@
                         }
                         .btn-pick{
                             text-decoration: var(--btn-pick-text-decoration);
+                            width: 100%;
+                            border: none;
+                            outline: none;
+                            &:hover{
+                                --btn-pick-text-decoration: underline;
+                            }
+                            &:focus{
+                                box-shadow: none!important;
+                            }
+                            // position: absolute;
+                            // bottom: 0px;
+                            // left: 0px;
+                            // width: 100%;
+                            // border: none;
+                            // outline: none;
+                            // &:focus{
+                            //     box-shadow: none!importamt;
+                            // }
                         }
                     }
                     .event{
@@ -765,6 +829,17 @@
                         padding: 2px;
                     }
                 }
+            }
+        }
+    }
+    .week-calendar, .day-calendar{
+        .free-slot{
+            min-height: var(--min-height-cell, initial)!important;
+            padding-bottom: 30px!important;
+            .btn-pick{
+                position: absolute;
+                bottom: 0px;
+                left: 0px;
             }
         }
     }
@@ -1304,6 +1379,22 @@
         border-radius: 6px;
         margin-top: 10px;
         padding: 10px;
+        .form-group-for-checkbox{
+            padding: 10px 0px;
+            --input-size: 34px;
+            input{
+                float: left!important;
+                display: inline-block;
+                width: var(--input-size);
+                height: var(--input-size);
+                cursor: pointer;
+            }
+            label{
+                line-height: var(--input-size);
+                padding-left: 10px;
+                cursor: pointer;
+            }
+        }
     }
     
     /* Timezone setting
@@ -1724,6 +1815,7 @@ input, textarea, select{
     }
     .modal-header, .modal-footer{
         color: white;
+        cursor: move;
     }
     .modal-content{
         background-color: #6c757d;

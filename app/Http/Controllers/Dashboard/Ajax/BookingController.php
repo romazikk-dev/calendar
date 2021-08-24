@@ -11,13 +11,15 @@ use App\Models\Template;
 use App\Models\Client;
 // use App\Scopes\UserScope;
 // use App\Models\TemplateSpecifics;
-// use App\Classes\Setting\Enums\Keys as SettingKeys;
+use App\Classes\Setting\Enums\Keys as SettingsKeys;
+use App\Classes\Setting\Settings\AdminsBookingCalendar\Enums\MainKeys as AdminsBookingCalendarMainSettingKeys;
 // use App\Classes\BookedAndRequested\Retrieval as BookedAndRequestedRetrieval;
 use App\Classes\Range\Range;
 // use Illuminate\Support\Facades\Validator;
 use App\Classes\Getter\Enums\Keys as GetterKeys;
 use App\Classes\Getter\Booking\Enums\GetterTypes;
 use App\Classes\Getter\Booking\Enums\Params;
+use App\Classes\Getter\Booking\Enums\FreeWithEventsParams;
 use App\Models\Booking;
 use App\Classes\Getter\Template\Enums\Params as TemplateParams;
 use App\Rules\DurationRange;
@@ -27,8 +29,13 @@ class BookingController extends Controller
     public function free(Request $request, $start, $end){
         $validated = $request->validate([
             'worker' => 'required|integer|exists:workers,id',
+            'client' => 'required|integer|exists:clients,id',
             'exclude_ids' => 'nullable|array',
             'exclude_ids.*' => 'nullable|integer|exists:bookings,id',
+            'with' => 'nullable|array',
+            'with.*' => 'nullable|string',
+            'with_events' => 'nullable|string|in:per_client,all',
+            'booking_any_time' => 'nullable|in:true',
         ]);
         
         // $getter = \Getter::of(GetterKeys::BOOKINGS);
@@ -44,22 +51,61 @@ class BookingController extends Controller
         
         // var_dump($validated);
         // die();
+        $calendar_main_setting = \Setting::of(SettingsKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
+        
+        // var_dump($calendar_main_setting[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME]);
+        // die();
         
         $params = [];
+        $params[Params::WITH] = [
+            'templateWithoutUserScope.specific', 'workerWithoutUserScope',
+            'hallWithoutUserScope', 'clientWithoutUserScope'
+        ];
         foreach([
-            Params::WORKER, Params::EXCLUDE_IDS
+            Params::WORKER, Params::EXCLUDE_IDS, Params::WITH
         ] as $getter_param){
             if(!empty($validated[$getter_param]))
                 $params[$getter_param] = $validated[$getter_param];
         }
         
+        if(!empty($validated['with_events'])){
+            $params[Params::FREE_WITH_EVENTS] = true;
+            if($validated['with_events'] == 'per_client')
+                $params[Params::FREE_WITH_EVENTS_PER_CLIENT] = $validated['client'];
+        }
+        
+        if(!empty($calendar_main_setting[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME]) &&
+        !empty($validated['booking_any_time']) && $validated['booking_any_time'] == "true"){
+            $params[Params::FREE_SHOW_ALL_TIMES] = true;
+        }
+        
+        // $params[Params::FREE_SHOW_ALL_TIMES] = true;
+        
+        // var_dump($params);
+        // die();
+        
+        // $params[Params::WITH_EVENTS_PER_CLIENT] = $validated['client'];
+        // $params[Params::CLIENT] = $validated['client'];
+        
+        // var_dump($params);
+        // die();
+        
         // $range = new Range($start, $end, 'month');
+        
+        // var_dump($_GET);
+        // die();
+        
+        // var_dump(\Getter::bookings()->free(
+        //     new Range($start, $end, 'month'),
+        //     $params
+        // ));
+        // die();
         
         // var_dump($params);
         // die();
         
         return response()->json([
-            'data' => \Getter::of(GetterKeys::BOOKINGS)->free(
+            'data' => \Getter::bookings()->free(
                 new Range($start, $end, 'month'),
                 $params
             ),
@@ -222,24 +268,25 @@ class BookingController extends Controller
             ],
         ]);
         
+        $calendar_main_setting = \Setting::of(SettingsKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
         $book_on_datetime = $validated['date'] . " " . $validated['time'] . ":00";
         
-        if(\Suspension::isSuspendedOnDate($hall, $book_on_datetime))
-            return response()->json([
-                'error' => 'Hall is suspended on ' . $book_on_datetime
-            ]);
+        // if(\Suspension::isSuspendedOnDate($hall, $book_on_datetime))
+        //     return response()->json([
+        //         'error' => 'Hall is suspended on ' . $book_on_datetime
+        //     ]);
+        // 
+        // if(\Suspension::isSuspendedOnDate($worker, $book_on_datetime))
+        //     return response()->json([
+        //         'error' => 'Worker is suspended on ' . $book_on_datetime
+        //     ]);
         
-        if(\Suspension::isSuspendedOnDate($worker, $book_on_datetime))
-            return response()->json([
-                'error' => 'Worker is suspended on ' . $book_on_datetime
-            ]);
-        
-        $all_holidays = \Holiday::getAllAsUniqueDateValue($hall, $worker);
-        $for_holiday_check_val = str_replace('-', '_', $validated['date']);
-        if(in_array($for_holiday_check_val, $all_holidays))
-            return response()->json([
-                'error' => 'You trying book on date wich is holiday right now.'
-            ]);
+        // $all_holidays = \Holiday::getAllAsUniqueDateValue($hall, $worker);
+        // $for_holiday_check_val = str_replace('-', '_', $validated['date']);
+        // if(in_array($for_holiday_check_val, $all_holidays))
+        //     return response()->json([
+        //         'error' => 'You trying book on date wich is holiday right now.'
+        //     ]);
         
         $template = Template::byId($template->id)
             ->whereHas('workers', function($query) use ($hall, $worker) {
@@ -255,36 +302,59 @@ class BookingController extends Controller
             ]);
         
         
-        $duration_in_minutes = \Time::parseStringHourMinutesToMinutes($validated['duration']);
-        $start = $book_on_datetime;
-        $carbon_time = \Carbon\Carbon::parse($book_on_datetime);
-        $carbon_time->addMinutes($duration_in_minutes);
-        $end = $carbon_time->format('Y-m-d H:i:s');
+        // $duration_in_minutes = \Time::parseStringHourMinutesToMinutes($validated['duration']);
+        // $start = $book_on_datetime;
+        // $carbon_time = \Carbon\Carbon::parse($book_on_datetime);
+        // $carbon_time->addMinutes($duration_in_minutes);
+        // $end = $carbon_time->format('Y-m-d H:i:s');
+        // 
+        // $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
+        //     new Range($start, $end, 'month'),
+        //     [
+        //         Params::ONLY_APPROVED => true,
+        //         Params::FIRST_ITEMS => true,
+        //         Params::EXCLUDE_RANGE_START_AND_END_DATES => true,
+        //     ]
+        // );
+        // 
+        // if(!empty($bookings))
+        //     return response()->json([
+        //         'error' => 'Wrong time, time is already taken!'
+        //     ]);
             
-        $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
-            new Range($start, $end, 'month'),
-            [
-                Params::ONLY_APPROVED => true,
-                Params::FIRST_ITEMS => true,
-                Params::EXCLUDE_RANGE_START_AND_END_DATES => true,
-            ]
-        );
+        $booking = new Booking();
+        $booking->user_id = auth()->user()->id;
+        $booking->hall_id = $hall->id;
+        $booking->template_id = $template->id;
+        $booking->worker_id = $worker->id;
+        $booking->client_id = $client->id;
+        $booking->time = $book_on_datetime;
+        $booking->approved = 1;
+        $booking->custom_duration = \Time::parseStringHourMinutesToMinutes($validated['duration']);
         
-        if(!empty($bookings))
+        $check_params = [];
+        if(!empty($calendar_main_setting[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME]) &&
+        $calendar_main_setting[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME] === true){
+            $check_params = ['crossing_other_bookings'];
+        }
+        
+        if(!$booking->isFitsInTime($check_params))
             return response()->json([
-                'error' => 'Wrong time, time is already taken!'
+                // 'error' => 'Booking, not fits in time!'
+                'error' => $booking->getNotFitsInTimeReason()
             ]);
-            
-        $booking = Booking::create([
-            'user_id' => auth()->user()->id,
-            'hall_id' => $hall->id,
-            'template_id' => $template->id,
-            'worker_id' => $worker->id,
-            'client_id' => $client->id,
-            'time' => $book_on_datetime,
-            'approved' => 1,
-            'custom_duration' => \Time::parseStringHourMinutesToMinutes($validated['duration']),
-        ]);
+        
+        $booking->save();
+        // $booking = Booking::create([
+        //     'user_id' => auth()->user()->id,
+        //     'hall_id' => $hall->id,
+        //     'template_id' => $template->id,
+        //     'worker_id' => $worker->id,
+        //     'client_id' => $client->id,
+        //     'time' => $book_on_datetime,
+        //     'approved' => 1,
+        //     'custom_duration' => \Time::parseStringHourMinutesToMinutes($validated['duration']),
+        // ]);
         
         return response()->json([
             'status' => 'success'
@@ -392,19 +462,25 @@ class BookingController extends Controller
             'duration' => 'nullable|string|max:10|regex:/\d{2}:\d{2}/i',
         ]);
         
+        $calendar_main_setting = \Setting::of(SettingsKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
+        $check_params = [];
+        if(!empty($calendar_main_setting[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME]) &&
+        $calendar_main_setting[AdminsBookingCalendarMainSettingKeys::ENABLE_BOOKING_ON_ANY_TIME] === true)
+            $check_params = ['crossing_other_bookings'];
+        
         if(!$has_item){
             if(empty($validated['duration']))
                 return response()->json([
                     'msg' => 'No parameters. There is nothing to do.'
                 ]);
             $booking->custom_duration = \Time::parseStringHourMinutesToMinutes($validated['duration']);
-            if($booking->isFitsInTime() && $booking->save())
+            if($booking->isFitsInTime($check_params) && $booking->save())
                 return response()->json([
                     'status' => 'success',
                     'booking' => $booking,
                 ]);
             return response()->json([
-                'msg' => 'Wrong duration'
+                'msg' => $booking->getNotFitsInTimeReason(),
             ]);
         }
         
@@ -433,13 +509,13 @@ class BookingController extends Controller
         if(!empty($validated['duration']))
             $booking->custom_duration = \Time::parseStringHourMinutesToMinutes($validated['duration']);
             
-        if($booking->isFitsInTime() && $booking->saveAsApproved())
+        if($booking->isFitsInTime($check_params) && $booking->saveAsApproved())
             return response()->json([
                 'status' => 'success',
                 'booking' => $booking,
             ]);
         return response()->json([
-            'msg' => 'Wrong parameters'
+            'msg' => $booking->getNotFitsInTimeReason()
         ]);
     }
     

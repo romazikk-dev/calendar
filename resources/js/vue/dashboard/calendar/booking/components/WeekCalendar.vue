@@ -34,6 +34,30 @@
                 <tbody>
                     <tr>
                         <td v-for="(i, index) in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(i)}">
+                            <div v-if="
+                                mainSettings.enable_booking_on_any_time && freeBookingAnyTime &&
+                                (isNewEventMainFull || isMovingEvent) &&
+                                getDayItem(index) && !getDayItem(index).is_weekend
+                            " class="for-slot">
+                                <div class="slot opened-slot">
+                                    <b>
+                                        {{freeHallTitle}} opened:<br>
+                                        {{getDayItem(index).start}} - {{getDayItem(index).end}}
+                                    </b>
+                                </div>
+                            </div>
+                            <div v-if="(isNewEventMainFull || isMovingEvent) && getDayItem(index) && getDayItem(index).is_weekend"
+                            class="for-closed-slot">
+                                <div class="closed-slot">
+                                    <b>{{freeHallTitle}} closed</b>
+                                </div>
+                            </div>
+                            <div v-if="(isNewEventMainFull || isMovingEvent) && getDayItem(index) && !getDayItem(index).bookable"
+                            class="for-closed-slot">
+                                <div class="closed-slot">
+                                    <b>{{freeWorkerName}} not working</b>
+                                </div>
+                            </div>
                             <month-cell v-if="getDayItem(index)"
                                 :counters-to-top="true"
                                 @clickMore="showModalMoreEvent($event)"

@@ -8,7 +8,11 @@ use App\Classes\Setting\Enums\Keys;
 class Timezone extends Setting{
     
     public function getOrPlaceholder($params = []){
-        $setting = $this->getSettingFromDB(true);
+        if(!empty($params['user_id']) && is_numeric($params['user_id']))
+        $setting = $this->getSettingFromDB(
+            true,
+            !empty($params['user_id']) && is_numeric($params['user_id']) ? $params['user_id'] : null
+        );
         
         // dd($setting);
         if(empty($setting))

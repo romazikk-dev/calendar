@@ -26,7 +26,7 @@
             var templateSpecifics = @json($template_specifics);
             var templateSpecificsAsIdKey = @json($template_specifics_as_id_key);
             
-            var customTitles = @json($custom_titles);
+            var mainSettings = @json($main_settings);
             
             // console.log(templateSpecificsAsIdKey);
             // console.log(33333333);
@@ -37,6 +37,7 @@
             var filters = @json($filters);
             var movingEvent = @json($moving_event);
             var newEvent = @json($new_event);
+            var freeGetDataParams = @json($free_get_data_params);
             // console.log(333333333);
             // console.log(filters);
             

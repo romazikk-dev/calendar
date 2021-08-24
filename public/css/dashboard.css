@@ -502,6 +502,40 @@
   line-height: 14px !important;
 }
 
+.calendar-all-bookings .for-slot {
+  padding-left: 30px;
+  padding-right: 4px;
+  padding-top: 4px;
+}
+
+.calendar-all-bookings .for-slot .slot {
+  display: block;
+  width: 100%;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  font-size: 10px;
+  padding: 2px 6px;
+  color: black;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  margin-bottom: 6px;
+}
+
+.calendar-all-bookings .for-slot .opened-slot {
+  background-color: #549fb7;
+  color: white;
+}
+
+.calendar-all-bookings .week-calendar .for-closed-slot,
+.calendar-all-bookings .day-calendar .for-closed-slot {
+  padding-left: 4px;
+}
+
+.calendar-all-bookings .week-calendar .for-slot,
+.calendar-all-bookings .day-calendar .for-slot {
+  padding-left: 4px;
+}
+
 .calendar-all-bookings .for-closed-slot {
   padding-left: 30px;
   padding-right: 4px;
@@ -523,7 +557,7 @@
 }
 
 .calendar-all-bookings .cell-placeholder {
-  min-height: 85px !important;
+  padding: 6px;
 }
 
 .calendar-all-bookings .month-calendar,
@@ -576,6 +610,12 @@
   opacity: 1;
 }
 
+.calendar-all-bookings .month-calendar table td.weekend,
+.calendar-all-bookings .week-calendar table td.weekend,
+.calendar-all-bookings .day-calendar table td.weekend {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
 .calendar-all-bookings .month-calendar table td .cell-content,
 .calendar-all-bookings .week-calendar table td .cell-content,
 .calendar-all-bookings .day-calendar table td .cell-content {
@@ -625,7 +665,7 @@
 .calendar-all-bookings .month-calendar .current-day,
 .calendar-all-bookings .week-calendar .current-day,
 .calendar-all-bookings .day-calendar .current-day {
-  background-color: rgba(8, 232, 222, 0.3);
+  background-color: rgba(8, 232, 222, 0.3) !important;
 }
 
 .calendar-all-bookings .month-calendar .booking,
@@ -646,8 +686,8 @@
   --counters-opacity: .4;
   width: 26px;
   position: absolute;
+  top: var(--counters-padding-top, 26px);
   font-size: var(--counters-font-size, 12px);
-  padding-top: var(--counters-padding-top, 26px);
   padding-left: var(--counters-padding-left, 4px);
   line-height: var(--counters-line-height, 14px);
   opacity: var(--counters-opacity, 0.4);
@@ -763,19 +803,6 @@
   text-decoration: none;
   transition: background 0.2s ease;
   margin-bottom: 6px;
-  cursor: pointer;
-}
-
-.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot.min-slot-height,
-.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot.min-slot-height,
-.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot.min-slot-height {
-  min-height: 64px;
-}
-
-.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot:hover,
-.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot:hover,
-.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot:hover {
-  --btn-pick-text-decoration: underline;
 }
 
 .calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot.too-short,
@@ -800,6 +827,21 @@
 .calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot .btn-pick {
   -webkit-text-decoration: var(--btn-pick-text-decoration);
           text-decoration: var(--btn-pick-text-decoration);
+  width: 100%;
+  border: none;
+  outline: none;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot .btn-pick:hover,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot .btn-pick:hover,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot .btn-pick:hover {
+  --btn-pick-text-decoration: underline;
+}
+
+.calendar-all-bookings .month-calendar .events .for-events .if-events .free-slot .btn-pick:focus,
+.calendar-all-bookings .week-calendar .events .for-events .if-events .free-slot .btn-pick:focus,
+.calendar-all-bookings .day-calendar .events .for-events .if-events .free-slot .btn-pick:focus {
+  box-shadow: none !important;
 }
 
 .calendar-all-bookings .month-calendar .events .for-events .if-events .event,
@@ -852,6 +894,19 @@
   right: 6px;
   border-radius: 0px 3px 0px 0px;
   padding: 2px;
+}
+
+.calendar-all-bookings .week-calendar .free-slot,
+.calendar-all-bookings .day-calendar .free-slot {
+  min-height: var(--min-height-cell, initial) !important;
+  padding-bottom: 30px !important;
+}
+
+.calendar-all-bookings .week-calendar .free-slot .btn-pick,
+.calendar-all-bookings .day-calendar .free-slot .btn-pick {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
 }
 
 .calendar-all-bookings .list-calendar {
@@ -1344,6 +1399,25 @@
   padding: 10px;
 }
 
+.setting-page .clients-booking-calendar-main-setting .form-group-for-checkbox {
+  padding: 10px 0px;
+  --input-size: 34px;
+}
+
+.setting-page .clients-booking-calendar-main-setting .form-group-for-checkbox input {
+  float: left !important;
+  display: inline-block;
+  width: var(--input-size);
+  height: var(--input-size);
+  cursor: pointer;
+}
+
+.setting-page .clients-booking-calendar-main-setting .form-group-for-checkbox label {
+  line-height: var(--input-size);
+  padding-left: 10px;
+  cursor: pointer;
+}
+
 .setting-page .timezone-picker-page {
   background-color: #f8f9fa !important;
   margin-top: 20px;
@@ -1720,6 +1794,7 @@ select {
 .modal-custom-dark-header-footer .modal-header,
 .modal-custom-dark-header-footer .modal-footer {
   color: white;
+  cursor: move;
 }
 
 .modal-custom-dark-header-footer .modal-content {

@@ -4,7 +4,7 @@
         <script type="text/javascript">
             
             // alert(111);
-            
+            var timezone = '{{$timezone}}';
             var token = @if(!empty($token)) '{{$token}}' @else null @endif;
             
             // console.log(73737373);
@@ -58,9 +58,14 @@
             // console.log(routes.calendar.booking.register);
             
         </script>
+        
+        <script src="{{ asset('js/booking_calendar/calendar-helper.js') }}?{{rand(100, 1000000000)}}"></script>
+        <!-- <script src="{{ asset('js/dashboard/ts/calendar-helper.js') }}?{{rand(100, 1000000000)}}"></script> -->
         <!-- <script src="{{ asset('js/calendar-booking.js') }}?{{rand(100, 1000)}}"></script> -->
         <script src="{{ asset('js/calendar-booking-helper-2.js') }}?{{rand(100, 1000000000)}}"></script>
-        <script src="{{ asset('js/calendar-booking-2.js') }}?{{rand(100, 1000000000)}}"></script>
+        <!-- <script src="{{ asset('js/calendar-booking-2.js') }}?{{rand(100, 1000000000)}}"></script> -->
+        <script src="{{ asset('js/calendar-booking-3.js') }}?{{rand(100, 1000000000)}}"></script>
+        
     </x-slot>
     
     <x-slot name="styles">

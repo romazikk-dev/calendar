@@ -7,6 +7,7 @@ import { Person } from "./Person";
 import { Time } from "./Time";
 import { View } from "./View";
 import { Filter } from "./Filter";
+import { FreeGetDataParams } from "./FreeGetDataParams";
 import { NumericHelper } from "./helpers/NumericHelper";
 // import { View as EnumView } from "./enums/View";
 
@@ -20,6 +21,7 @@ class Helper{
     time?: Time;
     view?: View;
     filter?: Filter;
+    freeGetDataParams?: FreeGetDataParams;
     numericHelper?: NumericHelper;
   
     constructor() {
@@ -29,6 +31,7 @@ class Helper{
         this.time = new Time();
         this.view = new View();
         this.filter = new Filter();
+        this.freeGetDataParams = new FreeGetDataParams();
         this.numericHelper = new NumericHelper();
     }
 }

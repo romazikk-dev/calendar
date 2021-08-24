@@ -6,6 +6,7 @@ namespace App\Classes\Setting\Settings\AdminsBookingCalendar;
 use App\Classes\Setting\Enums\Keys;
 use App\Classes\Language\Enums\Abriviations;
 use App\Classes\Setting\Settings\Setting;
+use App\Classes\Setting\Settings\AdminsBookingCalendar\Enums\MainKeys;
 
 class Main extends Setting{
     
@@ -42,23 +43,39 @@ class Main extends Setting{
     }
     
     protected function parse($data){
+        // dd($data);
+        
         $setting = $this->getSettingFromDB(true);
         
         if(is_string($setting))
             $setting = json_decode($setting, true);
         
         $placeholder = $this->getPlaceholder();
+        $setting_keys = array_keys($placeholder);
         if(empty($setting)){
             $setting = $placeholder;
         }else{
             $setting = array_merge($placeholder, $setting);
         }
         
+        // Clean old keys in DB if exist
+        foreach(array_keys($setting) as $key){
+            if(!in_array($key, $setting_keys))
+                unset($setting[$key]);
+        }
+        
         // dd($data);
         // dd($setting);
         // $placeholder = $this->getPlaceholder();
-        $setting_keys = array_keys($setting);
+        // $setting_keys = array_keys($setting);
         foreach($setting_keys as $key){
+            // For checkboxes
+            if(in_array($key, [
+                MainKeys::ENABLE_BOOKING_ON_ANY_TIME
+            ])){
+                $setting[$key] = array_key_exists($key, $data) && $data[$key] == 'on' ? true : false ;
+                continue;
+            }
             if(array_key_exists($key, $data)){
                 $value = $data[$key];
                 if(is_numeric($value))
@@ -75,10 +92,11 @@ class Main extends Setting{
     
     public function getPlaceholder(){
         return [
-            'month_max_events_per_day_to_show' => 2,
-            'week_max_events_per_day_to_show' => 10,
-            'day_max_events_per_day_to_show' => 20,
-            'list_max_events_per_day_to_show' => 50,
+            MainKeys::MONTH_MAX_EVENTS_PER_DAY_TO_SHOW => 2,
+            MainKeys::WEEK_MAX_EVENTS_PER_DAY_TO_SHOW => 10,
+            MainKeys::DAY_MAX_EVENTS_PER_DAY_TO_SHOW => 20,
+            MainKeys::LIST_MAX_EVENTS_PER_DAY_TO_SHOW => 50,
+            MainKeys::ENABLE_BOOKING_ON_ANY_TIME => false,
         ];
     }
     

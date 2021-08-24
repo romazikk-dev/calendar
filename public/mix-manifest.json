@@ -1,6 +1,8 @@
 {
     "/js/calendar-booking-2.js": "/js/calendar-booking-2.js",
+    "/js/calendar-booking-3.js": "/js/calendar-booking-3.js",
     "/js/dashboard/calendar-booking-admin.js": "/js/dashboard/calendar-booking-admin.js",
     "/js/dashboard/ts/calendar-helper.js": "/js/dashboard/ts/calendar-helper.js",
+    "/js/booking_calendar/calendar-helper.js": "/js/booking_calendar/calendar-helper.js",
     "/css/dashboard.css": "/css/dashboard.css"
 }

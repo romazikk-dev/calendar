@@ -3379,7 +3379,8 @@ __webpack_require__.r(__webpack_exports__);
               templates.push(item);
             });
             _this2.templates = templates;
-            _this2.pickedItmHall = itm; // console.log(JSON.parse(JSON.stringify(this.workers)));
+            _this2.pickedItmHall = itm;
+            console.log(JSON.parse(JSON.stringify(_this2.templates)));
           })["catch"](function (error) {
             // handle error
             console.log(error);
@@ -6469,8 +6470,10 @@ __webpack_require__.r(__webpack_exports__);
       var parsedTemplates = {};
       getRowOfTemps();
       this.parsedTemplates = parsedTemplates;
-      console.log(JSON.parse(JSON.stringify('parsedTemplates')));
-      console.log(JSON.parse(JSON.stringify(this.parsedTemplates))); // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
+      console.log(JSON.parse(JSON.stringify('parseTemplatesAccordingToSpecifics')));
+      console.log(JSON.parse(JSON.stringify(this.parsedTemplates))); // console.log(JSON.parse(JSON.stringify('parsedTemplates')));
+      // console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
+      // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
 
       function getRowOfTemps() {
         // let parsedTemplatesLevel = [];
@@ -6481,8 +6484,9 @@ __webpack_require__.r(__webpack_exports__);
 
           if (typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined') {
             if (template.specific.ids_trace !== null) {
-              var idsTraceArr = template.specific.ids_trace.split(',');
-              console.log(JSON.parse(JSON.stringify('idsTraceArr')));
+              // console.log(JSON.parse(JSON.stringify(5555)));
+              var idsTraceArr = template.specific.ids_trace.split(','); // console.log(JSON.parse(JSON.stringify('idsTraceArr')));
+
               var currentSpecificsToWorkWith = _this.specifics;
               idsTracePath = '';
 
@@ -6507,8 +6511,18 @@ __webpack_require__.r(__webpack_exports__);
               var idsTracePathTemp = idsTracePath + '.fields[' + template.id + ']';
               eval("\n                                if(typeof parsedTemplates".concat(idsTracePath, " === 'undefined')\n                                    parsedTemplates").concat(idsTracePath, " = {\n                                        type: 'specific',\n                                        id: template.specific.id,\n                                        title: template.specific.title,\n                                        fields: {}\n                                    };\n                                \n                                parsedTemplates").concat(idsTracePathTemp, " = {\n                                    type: 'template',\n                                    template: template,\n                                    id: template.id,\n                                    title: template.title\n                                };\n                            "));
             } else {
-              if (typeof parsedTemplates[template.specific.id] === 'undefined') parsedTemplates[template.specific.id] = {};
-              parsedTemplates[template.specific.id][template.id] = template;
+              if (typeof parsedTemplates[template.specific.id] === 'undefined') parsedTemplates[template.specific.id] = {
+                type: 'specific',
+                id: template.specific.id,
+                title: template.specific.title,
+                fields: {}
+              };
+              parsedTemplates[template.specific.id].fields[template.id] = {
+                type: 'template',
+                template: template,
+                id: template.id,
+                title: template.title
+              };
             }
           }
         }
@@ -6528,6 +6542,7 @@ __webpack_require__.r(__webpack_exports__);
     //     // this.parseTemplatesAccordingToSpecifics();
     // },
     templates: function templates(val) {
+      // console.log(JSON.parse(JSON.stringify(val)));
       // return;
       this.parsedTemplates = null;
       if (val !== null) this.parseTemplatesAccordingToSpecifics(); // this.$nextTick(() => {
@@ -6806,8 +6821,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/calendar_2/booking/store/modules/filters.js");
 /* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/calendar_2/booking/store/modules/owner.js");
 /* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/calendar_2/booking/store/modules/client.js");
@@ -6815,6 +6830,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/calendar_2/booking/store/modules/updater.js");
 /* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/calendar_2/booking/store/modules/specifics.js");
 /* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/calendar_2/booking/store/modules/custom_titles.js");
+/* harmony import */ var _modules_dates__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/dates */ "./resources/js/vue/calendar_2/booking/store/modules/dates.js");
 
 
 
@@ -6824,9 +6840,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_7__.default.use(vuex__WEBPACK_IMPORTED_MODULE_8__.default); // const debug = process.env.NODE_ENV !== 'production'
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_8__.default.Store({
+vue__WEBPACK_IMPORTED_MODULE_8__.default.use(vuex__WEBPACK_IMPORTED_MODULE_9__.default); // const debug = process.env.NODE_ENV !== 'production'
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_9__.default.Store({
   modules: {
     filters: _modules_filters__WEBPACK_IMPORTED_MODULE_0__.default,
     owner: _modules_owner__WEBPACK_IMPORTED_MODULE_1__.default,
@@ -6834,7 +6851,8 @@ vue__WEBPACK_IMPORTED_MODULE_7__.default.use(vuex__WEBPACK_IMPORTED_MODULE_8__.d
     halls: _modules_halls__WEBPACK_IMPORTED_MODULE_3__.default,
     updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default,
     specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_5__.default,
-    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__.default
+    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__.default,
+    dates: _modules_dates__WEBPACK_IMPORTED_MODULE_7__.default
   } // strict: debug,
   // plugins: debug ? [createLogger()] : []
 
@@ -6971,6 +6989,349 @@ var getters = {
   namespaced: true,
   state: state,
   getters: getters
+});
+
+/***/ }),
+
+/***/ "./resources/js/vue/calendar_2/booking/store/modules/dates.js":
+/*!********************************************************************!*\
+  !*** ./resources/js/vue/calendar_2/booking/store/modules/dates.js ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+var state = function state() {
+  return {
+    // timezone: calendarHelper.time.timezone,
+    startDates: {
+      month: new Date(),
+      week: new Date(),
+      day: new Date(),
+      list: new Date()
+    },
+    current: {
+      date: null,
+      year: null,
+      month: null,
+      day: null,
+      weekday: null,
+      isoWeekday: null
+    },
+    interval: {
+      firstDate: null,
+      lastDate: null
+    },
+    month: {
+      firstDate: null,
+      lastDate: null,
+      monthTwoDigits: null,
+      totalDays: null,
+      firstDateWeekday: null,
+      firstDateIsoWeekday: null
+    },
+    week: {
+      firstDate: null,
+      lastDate: null
+    },
+    list: {
+      firstDate: null,
+      lastDate: null
+    },
+    day: {
+      date: null,
+      weekday: null,
+      isoWeekday: null
+    }
+  };
+}; // getters
+
+
+var getters = {
+  startDates: function startDates(state) {
+    return state.startDates;
+  },
+  current: function current(state) {
+    return state.current;
+  },
+  interval: function interval(state) {
+    return state.interval;
+  },
+  month: function month(state) {
+    return state.month;
+  },
+  week: function week(state) {
+    return state.week;
+  },
+  list: function list(state) {
+    return state.list;
+  },
+  day: function day(state) {
+    return state.day;
+  },
+  canGoToPreviousMonth: function canGoToPreviousMonth(state) {
+    var firstMonthDay, firstDayOfCurrentMonth;
+    firstMonthDay = moment(state.month.firstDate).startOf('month');
+    firstDayOfCurrentMonth = moment(state.current.date).startOf('month');
+    return firstMonthDay.isAfter(firstDayOfCurrentMonth);
+  },
+  canGoToPreviousWeek: function canGoToPreviousWeek(state) {
+    var firstWeekDay, firstDayOfCurrentWeek;
+    firstWeekDay = moment(state.week.firstDate);
+    firstDayOfCurrentWeek = moment(state.current.date).startOf('week').add(1, 'days');
+    return firstWeekDay.isAfter(firstDayOfCurrentWeek);
+  },
+  canGoToPreviousList: function canGoToPreviousList(state) {
+    var firstWeekDay, firstDayOfCurrentWeek;
+    firstWeekDay = moment(state.list.firstDate);
+    firstDayOfCurrentWeek = moment(state.current.date).startOf('week').add(1, 'days');
+    return firstWeekDay.isAfter(firstDayOfCurrentWeek);
+  },
+  canGoToPreviousDay: function canGoToPreviousDay(state) {
+    var momentDayDate, momentCurrentDate;
+    momentDayDate = moment(state.day.date);
+    momentCurrentDate = moment(state.current.date);
+    return momentDayDate.isAfter(momentCurrentDate);
+  }
+}; //actions
+
+var actions = {
+  goToday: function goToday(_ref) {
+    var state = _ref.state;
+    var view = this.getters['view/view'];
+    if (view.toLowerCase() == 'month') this.dispatch('dates/goTodayMonth');
+    if (view.toLowerCase() == 'week') this.dispatch('dates/goTodayWeek');
+    if (view.toLowerCase() == 'day') this.dispatch('dates/goTodayDay');
+    if (view.toLowerCase() == 'list') this.dispatch('dates/goTodayList');
+    this.dispatch('dates/setStartDates'); // console.log(JSON.parse(JSON.stringify(555566666)));
+
+    console.log(JSON.parse(JSON.stringify(view)));
+  },
+  goNext: function goNext(_ref2) {
+    var state = _ref2.state;
+    var view = this.getters['view/view'];
+    if (view.toLowerCase() == 'month') this.dispatch('dates/goNextMonth');
+    if (view.toLowerCase() == 'week') this.dispatch('dates/goNextWeek');
+    if (view.toLowerCase() == 'day') this.dispatch('dates/goNextDay');
+    if (view.toLowerCase() == 'list') this.dispatch('dates/goNextList');
+    this.dispatch('dates/setStartDates'); // console.log(JSON.parse(JSON.stringify(555566666)));
+
+    console.log(JSON.parse(JSON.stringify(view)));
+  },
+  goPrevious: function goPrevious(_ref3) {
+    var state = _ref3.state;
+    var view = this.getters['view/view'];
+    if (view.toLowerCase() == 'month' && this.getters['dates/canGoToPreviousMonth']) this.dispatch('dates/goPreviousMonth');
+    if (view.toLowerCase() == 'week' && this.getters['dates/canGoToPreviousWeek']) this.dispatch('dates/goPreviousWeek');
+    if (view.toLowerCase() == 'day' && this.getters['dates/canGoToPreviousDay']) this.dispatch('dates/goPreviousDay');
+    if (view.toLowerCase() == 'list' && this.getters['dates/canGoToPreviousList']) this.dispatch('dates/goPreviousList');
+    this.dispatch('dates/setStartDates');
+  },
+  setCurrentDateDates: function setCurrentDateDates(_ref4) {
+    var state = _ref4.state;
+    var currentDate = new Date();
+    var momentCurrentDate = moment(currentDate);
+    if (state.current.date == null) state.current.date = currentDate;
+    if (state.current.year == null) state.current.year = momentCurrentDate.format('YYYY');
+    if (state.current.month == null) state.current.month = momentCurrentDate.format('MM');
+    if (state.current.day == null) state.current.day = momentCurrentDate.format('DD');
+    if (state.current.weekday == null) state.current.weekday = momentCurrentDate.weekday();
+    if (state.current.isoWeekday == null) state.current.isoWeekday = momentCurrentDate.isoWeekday();
+  },
+  goPreviousMonth: function goPreviousMonth(_ref5) {
+    var state = _ref5.state;
+    var dateOfMonth = moment(state.month.firstDate).subtract(1, 'M').toDate();
+    this.dispatch('dates/setMonthDates', dateOfMonth);
+  },
+  goPreviousWeek: function goPreviousWeek(_ref6) {
+    var state = _ref6.state;
+    var dateOfWeek = moment(state.week.firstDate).subtract(7, 'days').toDate(); // alert(dateOfWeek);
+
+    this.dispatch('dates/setWeekDates', dateOfWeek);
+  },
+  goPreviousList: function goPreviousList(_ref7) {
+    var state = _ref7.state;
+    var dateOfWeek = moment(state.list.firstDate).subtract(7, 'days').toDate();
+    this.dispatch('dates/setListDates', dateOfWeek);
+  },
+  goPreviousDay: function goPreviousDay(_ref8) {
+    var state = _ref8.state;
+    var dayDate = moment(state.day.date).subtract(1, 'days').toDate();
+    this.dispatch('dates/setDayDates', dayDate);
+  },
+  goNextMonth: function goNextMonth(_ref9) {
+    var state = _ref9.state;
+    var dateOfMonth = moment(state.month.firstDate).add(1, 'M').toDate();
+    this.dispatch('dates/setMonthDates', dateOfMonth);
+  },
+  goNextWeek: function goNextWeek(_ref10) {
+    var state = _ref10.state;
+    var dateOfWeek = moment(state.week.firstDate).add(7, 'days').toDate();
+    this.dispatch('dates/setWeekDates', dateOfWeek);
+  },
+  goNextList: function goNextList(_ref11) {
+    var state = _ref11.state;
+    var dateOfWeek = moment(state.list.firstDate).add(7, 'days').toDate();
+    this.dispatch('dates/setListDates', dateOfWeek);
+  },
+  goNextDay: function goNextDay(_ref12) {
+    var state = _ref12.state;
+    var date = moment(state.day.date).add(1, 'days').toDate();
+    this.dispatch('dates/setDayDates', date);
+  },
+  goTodayMonth: function goTodayMonth(_ref13) {
+    var state = _ref13.state;
+    this.dispatch('dates/setMonthDates', state.current.date);
+  },
+  goTodayWeek: function goTodayWeek(_ref14) {
+    var state = _ref14.state;
+    this.dispatch('dates/setWeekDates', state.current.date);
+  },
+  goTodayList: function goTodayList(_ref15) {
+    var state = _ref15.state;
+    this.dispatch('dates/setListDates', state.current.date);
+  },
+  goTodayDay: function goTodayDay(_ref16) {
+    var state = _ref16.state;
+    this.dispatch('dates/setDayDates', state.current.date);
+  },
+  setDates: function setDates(_ref17, date) {
+    var state = _ref17.state;
+    var view = this.getters['view/view'];
+    var aliases = {
+      month: 'dates/setMonthDates',
+      week: 'dates/setWeekDates',
+      list: 'dates/setListDates',
+      day: 'dates/setDayDates'
+    };
+    this.dispatch(aliases[view], date);
+    state.startDates.month = date;
+    state.startDates.week = date;
+    state.startDates.list = date;
+    state.startDates.day = date;
+  },
+  setMonthDates: function setMonthDates(_ref18, oneOfMonthDate) {
+    var state = _ref18.state;
+    this.dispatch('dates/setCurrentDateDates');
+    var momentOneOfMonthDate, firstDate, lastDate;
+    momentOneOfMonthDate = moment(oneOfMonthDate);
+    state.month.firstDate = momentOneOfMonthDate.startOf('month').toDate();
+    state.month.lastDate = momentOneOfMonthDate.endOf('month').toDate();
+    state.month.monthTwoDigits = momentOneOfMonthDate.format('MM');
+    state.month.firstDateWeekday = moment(state.month.firstDate).weekday();
+    state.month.firstDateIsoWeekday = moment(state.month.firstDate).isoWeekday();
+    state.month.totalDays = state.month.lastDate.getDate(); // alert(state.month.firstDateIsoWeekday);
+
+    firstDate = state.month.firstDateWeekday < 4 ? moment(state.month.firstDate).subtract(7, "days").startOf('week').add(1, 'days') : moment(state.month.firstDate).startOf('week').add(1, 'days');
+    lastDate = new Date(firstDate);
+    lastDate.setDate(lastDate.getDate() + 41);
+    state.interval.firstDate = firstDate;
+    state.interval.lastDate = lastDate;
+    console.log(JSON.parse(JSON.stringify(state))); // console.log(JSON.parse(JSON.stringify(firstDate)));
+    // console.log(JSON.parse(JSON.stringify(lastDate)));
+  },
+  setWeekDates: function setWeekDates(_ref19, oneOfWeekDate) {
+    var state = _ref19.state;
+    this.dispatch('dates/setCurrentDateDates');
+    var momentOneOfWeekDate, firstDate, lastDate, momentStartOfWeek;
+    momentOneOfWeekDate = moment(oneOfWeekDate);
+
+    if (momentOneOfWeekDate.day() == 0) {
+      momentOneOfWeekDate = momentOneOfWeekDate.subtract(6, 'days');
+    }
+
+    state.week.firstDate = momentOneOfWeekDate.startOf('week').add(1, 'days').toDate();
+    state.week.lastDate = moment(state.week.firstDate).add(6, 'days').toDate();
+    state.interval.firstDate = state.week.firstDate;
+    state.interval.lastDate = state.week.lastDate;
+    console.log(JSON.parse(JSON.stringify(state)));
+  },
+  setListDates: function setListDates(_ref20, oneOfWeekDate) {
+    var state = _ref20.state;
+    this.dispatch('dates/setCurrentDateDates');
+    var momentOneOfWeekDate, firstDate, lastDate, momentStartOfWeek;
+    momentOneOfWeekDate = moment(oneOfWeekDate);
+
+    if (momentOneOfWeekDate.day() == 0) {
+      momentOneOfWeekDate = momentOneOfWeekDate.subtract(6, 'days');
+    }
+
+    state.list.firstDate = momentOneOfWeekDate.startOf('week').add(1, 'days').toDate();
+    state.list.lastDate = moment(state.list.firstDate).add(6, 'days').toDate();
+    state.interval.firstDate = state.list.firstDate;
+    state.interval.lastDate = state.list.lastDate; // console.log(JSON.parse(JSON.stringify(state)));
+  },
+  setDayDates: function setDayDates(_ref21, dayDate) {
+    var state = _ref21.state;
+    this.dispatch('dates/setCurrentDateDates');
+    var momentDayDate = moment(dayDate);
+    state.day.date = momentDayDate.toDate();
+    state.day.weekday = momentDayDate.day();
+    state.day.isoWeekday = momentDayDate.isoWeekday();
+    state.interval.firstDate = state.day.date;
+    state.interval.lastDate = state.day.date; // console.log(JSON.parse(JSON.stringify(state)));
+  },
+  setStartDates: function setStartDates(_ref22) {
+    var state = _ref22.state;
+    var view, momentViewDate, momentCurrentDate, date;
+    view = this.getters['view/view'];
+    if (view == 'month') momentViewDate = moment(state.month.firstDate);
+    if (view == 'week') momentViewDate = moment(state.week.firstDate);
+    if (view == 'list') momentViewDate = moment(state.list.firstDate);
+    if (view == 'day') momentViewDate = moment(state.day.date);
+    momentCurrentDate = moment(state.current.date);
+    date = momentViewDate.toDate();
+
+    if (momentViewDate.diff(momentCurrentDate) >= 0) {
+      if (view == 'month') {
+        state.startDates.month = date;
+        state.startDates.week = date;
+        state.startDates.list = date;
+        state.startDates.day = date;
+      } else if (view == 'week' || view == 'list') {
+        state.startDates.week = date;
+        state.startDates.list = date;
+        state.startDates.day = date;
+        var momentViewDateOfMonthStart = momentViewDate.startOf('month').format('YYYYMMDD');
+        var startDateMonthOfMonthStart = moment(state.startDates.month).startOf('month').format('YYYYMMDD');
+        if (momentViewDateOfMonthStart != startDateMonthOfMonthStart) state.startDates.month = date;
+      } else if (view == 'day') {
+        state.startDates.day = date;
+        var momentViewDateClone;
+        momentViewDateClone = momentViewDate.clone();
+        var momentViewDateOfWeekStart = momentViewDateClone.subtract(1, 'days').startOf('week').format('YYYYMMDD');
+        var startDateMonthOfWeekStart = moment(state.startDates.week).startOf('week').format('YYYYMMDD');
+
+        if (momentViewDateOfWeekStart != startDateMonthOfWeekStart) {
+          state.startDates.week = date;
+        }
+
+        momentViewDateClone = momentViewDate.clone();
+
+        var _momentViewDateOfMonthStart = momentViewDateClone.startOf('month').format('YYYYMMDD');
+
+        var _startDateMonthOfMonthStart = moment(state.startDates.month).startOf('month').format('YYYYMMDD');
+
+        if (_momentViewDateOfMonthStart != _startDateMonthOfMonthStart) {
+          state.startDates.month = date;
+        }
+      }
+    } else {
+      state.startDates.month = date;
+      state.startDates.week = date;
+      state.startDates.list = date;
+      state.startDates.day = date;
+    }
+  }
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  namespaced: true,
+  state: state,
+  getters: getters,
+  actions: actions
 });
 
 /***/ }),

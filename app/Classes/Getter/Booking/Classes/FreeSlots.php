@@ -18,6 +18,7 @@ use App\Scopes\UserScope;
 use App\Classes\Range\Range;
 use App\Classes\Setting\Enums\Keys as SettingsKeys;
 use App\Classes\Getter\Booking\Enums\Params;
+use App\Classes\Getter\Booking\Enums\FreeWithEventsParams;
 use App\Classes\Enums\Weekdays;
 use App\Models\Holiday;
 use App\Exceptions\BookingGetterBadParametersException;
@@ -33,7 +34,11 @@ class FreeSlots extends MainBookingGetter{
     protected $worker_result;
     protected $worker_holidays, $hall_holidays;
     protected $hall_business_hours;
-    protected $with_events_per_client;
+    protected $with_events, $with_events_per_client;
+    
+    // Show free slots for every time from 00:00 to 23:59,
+    // including weekends of halls and workers and any suspensions
+    protected $show_all_times;
         
     function __construct(
         Range $range,
@@ -42,8 +47,23 @@ class FreeSlots extends MainBookingGetter{
         if(empty($params[Params::WORKER]) || !is_numeric($params[Params::WORKER]))
             throw new BookingGetterBadParametersException("Worker param is required for retrieving free slots. Error in ".self::class."::".__FUNCTION__);
         
-        if(!empty($params[Params::WITH_EVENTS_PER_CLIENT]) && is_numeric($params[Params::WITH_EVENTS_PER_CLIENT]))
-            $this->with_events_per_client = (int)$params[Params::WITH_EVENTS_PER_CLIENT];
+        if(!empty($params[Params::FREE_SHOW_ALL_TIMES]))
+            $this->show_all_times = true;
+            
+        // var_dump($params);
+        // die();
+        // if(!empty($params[Params::WITH_EVENTS_PER_CLIENT]) && is_numeric($params[Params::WITH_EVENTS_PER_CLIENT]))
+        //     $this->with_events_per_client = (int)$params[Params::WITH_EVENTS_PER_CLIENT];
+        
+        // var_dump($params[Params::FREE_WITH_EVENTS_PER_CLIENT]);
+        // die();
+        
+        if(!empty($params[Params::FREE_WITH_EVENTS]) && $params[Params::FREE_WITH_EVENTS] === true)
+            $this->with_events = true;
+        
+        if(!empty($params[Params::FREE_WITH_EVENTS_PER_CLIENT]) && is_numeric($params[Params::FREE_WITH_EVENTS_PER_CLIENT]) &&
+        $params[Params::FREE_WITH_EVENTS_PER_CLIENT] > 0)
+            $this->with_events_per_client = (int)$params[Params::FREE_WITH_EVENTS_PER_CLIENT];
         
         // $this->worker_result = Worker::byId($params[Params::WORKER])->with('hallsWithoutUserScope')->first();
         // $this->worker_result = $this->getWorkerById();
@@ -89,161 +109,49 @@ class FreeSlots extends MainBookingGetter{
         }
     }
     
-    // protected function getWorker(){
-    // 
-    // }
-    
-    // public function get(){
-    //     $bookings = $this->getBookingsAsDateTimeKeyArray();
-    // 
-    //     // var_dump($bookings);
-    //     // die();
-    //     $min_duration = \DurationRange::get(DurationRangeParams::START);
-    //     $max_duration = \DurationRange::get(DurationRangeParams::END);
-    // 
-    //     $start_date_carbon = \Carbon\Carbon::parse($this->range->getStartDate());
-    //     $end_date_carbon = \Carbon\Carbon::parse($this->range->getEndDate());
-    // 
-    //     if(!empty($params[Params::RESTRICT_TO_MAX_DATE]))
-    //         $max_date_carbon = \Carbon\Carbon::parse($this->max_datetime);
-    // 
-    //     $output = [];
-    //     do{
-    //         $weekday = Range::getWeekdayFromCarbonInstance($start_date_carbon);
-    // 
-    //         $datetime_of_item = $start_date_carbon->format("Y-m-d H:i:s");
-    //         $holiday_val = \Holiday::getKeyOfCarbonInstance($start_date_carbon);
-    // 
-    //         $bookable = true;
-    //         if(\Suspension::isSuspendedOnDate($this->worker_result, $datetime_of_item) ||
-    //         !empty($this->worker_holidays) && in_array($holiday_val, $this->worker_holidays))
-    //             $bookable = false;
-    // 
-    //         $is_weekend = false;
-    //         if(\Suspension::isSuspendedOnDate($this->worker_result->hallsWithoutUserScope->first(), $datetime_of_item) ||
-    //         (!empty($this->hall_holidays) && in_array($holiday_val, $this->hall_holidays)))
-    //             $is_weekend = true;
-    // 
-    //         //Set initial itm
-    //         $itm = [
-    //             'year' => $start_date_carbon->format("Y"),
-    //             'month' => $start_date_carbon->format("m"),
-    //             'day' => $start_date_carbon->format("d"),
-    //             'type' => 'free',
-    //             'is_weekend' => $is_weekend,
-    //             'weekday' => $weekday,
-    //             'bookable' => $bookable,
-    //             'items' => null,
-    //         ];
-    // 
-    //         $itm_date_index = $itm['year'] . '_' . $itm['month'] . '_' . $itm['day'];
-    //         $itm_date = $itm['year'] . '-' . $itm['month'] . '-' . $itm['day'];
-    // 
-    //         //Set itm data related to hall
-    //         $hall_business_hours = $this->getHallBusinessHoursForCarbonDate($start_date_carbon);
-    // 
-    //         $itm['start'] = !empty($hall_business_hours->start_hour) ? $hall_business_hours->start_hour : null;
-    //         $itm['end'] = !empty($hall_business_hours->end_hour) ? $hall_business_hours->end_hour : null;
-    //         if(!empty($hall_business_hours->is_weekend)){
-    //             $itm['bookable'] = false;
-    //             $itm['is_weekend'] = true;
-    //             $itm['items'] = null;
-    //             $output[] = $itm;
-    //             $start_date_carbon->addDays(1);
-    //             continue;
-    //         }
-    // 
-    //         $hall_start_time = $hall_business_hours->start_hour;
-    //         $hall_end_time = $hall_business_hours->end_hour;
-    // 
-    //         //Set hall start - datetime format
-    //         $hall_start_datetime = $itm_date . ' ' . $hall_start_time;
-    //         if(count(explode(':', $hall_start_time)) <= 2)
-    //             $hall_start_datetime .= ':00';
-    // 
-    //         //Set hall end - datetime format
-    //         $hall_end_datetime = $itm_date . ' ' . $hall_end_time;
-    //         if(count(explode(':', $hall_end_time)) <= 2)
-    //             $hall_end_datetime .= ':00';
-    // 
-    //         //Set start and end carbon instances
-    //         $start_carbon = \Carbon\Carbon::parse($hall_start_datetime);
-    //         $end_carbon = \Carbon\Carbon::parse($hall_end_datetime);
-    //         $free_times = [];
-    // 
-    //         if(!empty($bookings) && !empty($bookings[$itm_date_index])){
-    //             $items = [];
-    //             $booking = $bookings[$itm_date_index];
-    // 
-    //             foreach($booking as $k=>$v){
-    //                 $booking_carbon = \Carbon\Carbon::parse($v->time);
-    //                 $template_duration = !empty($v->custom_duration) ?
-    //                     $v->custom_duration : $v->templateWithoutUserScope->duration;
-    // 
-    //                 if($v->approved && $start_carbon->lte($booking_carbon)){
-    //                     if($start_carbon->lt($booking_carbon))
-    //                         $items[] = $this->composeFreeItem($start_carbon, $booking_carbon);
-    //                     $start_carbon = clone $booking_carbon;
-    //                     $start_carbon->addMinutes($template_duration);
-    //                 }
-    //             }
-    // 
-    //             if($start_carbon->lt($end_carbon))
-    //                 $items[] = $this->composeFreeItem($start_carbon, $end_carbon);
-    // 
-    //             if(!empty($items))
-    //                 $itm['items'] = $items;
-    // 
-    //         }else{
-    //             $itm['items'] = [$this->composeFreeItem($start_carbon, $end_carbon)];
-    //         }
-    // 
-    //         $output[] = $itm;
-    //         $start_date_carbon->addDays(1);
-    //     }while(
-    //         $start_date_carbon->lte($end_date_carbon) &&
-    //         (
-    //             empty($max_date_carbon) ||
-    //             (!empty($max_date_carbon) && $start_date_carbon->lte($max_date_carbon))
-    //         )
-    //     );
-    // 
-    //     return $output;
-    // }
+    protected function concatDateTime(string $date, string $time){
+        if(count(explode(':', $time)) <= 2)
+            $time .= ':00';
+        return $date . ' ' . $time;
+    }
     
     public function get(){
+        // $bookings = $this->getBookingsAsDateTimeKeyArray(true);
         $bookings = $this->getBookingsAsDateTimeKeyArray();
-    
-        // var_dump($bookings);
+        
+        // var_dump($calendar_main_setting);
         // die();
         
         $min_duration = \DurationRange::get(DurationRangeParams::START);
         $max_duration = \DurationRange::get(DurationRangeParams::END);
-    
+        
+        // Start, end dates of range
         $start_date_carbon = \Carbon\Carbon::parse($this->range->getStartDate());
         $end_date_carbon = \Carbon\Carbon::parse($this->range->getEndDate());
-    
         if(!empty($params[Params::RESTRICT_TO_MAX_DATE]))
             $max_date_carbon = \Carbon\Carbon::parse($this->max_datetime);
-    
+        
         $output = [];
         do{
             $weekday = Range::getWeekdayFromCarbonInstance($start_date_carbon);
     
             $datetime_of_item = $start_date_carbon->format("Y-m-d H:i:s");
             $holiday_val = \Holiday::getKeyOfCarbonInstance($start_date_carbon);
-    
+            
+            // Check if worker suspended or has a holiday on checking day
             $bookable = true;
             if(\Suspension::isSuspendedOnDate($this->worker_result, $datetime_of_item) ||
-            !empty($this->worker_holidays) && in_array($holiday_val, $this->worker_holidays))
+            (!empty($this->worker_holidays) && in_array($holiday_val, $this->worker_holidays)))
                 $bookable = false;
-    
+            
+            // Check if worker`s hall which he is working in is
+            // suspended or has a holiday on checking day
             $is_weekend = false;
             if(\Suspension::isSuspendedOnDate($this->worker_result->hallsWithoutUserScope->first(), $datetime_of_item) ||
             (!empty($this->hall_holidays) && in_array($holiday_val, $this->hall_holidays)))
                 $is_weekend = true;
-    
-            //Set initial itm
+            
+            // Set initial itm values
             $itm = [
                 'year' => $start_date_carbon->format("Y"),
                 'month' => $start_date_carbon->format("m"),
@@ -254,41 +162,65 @@ class FreeSlots extends MainBookingGetter{
                 'bookable' => $bookable,
                 'items' => null,
             ];
+            
+            if(!empty($itm['is_weekend'])){
+                $itm['start'] = null;
+                $itm['end'] = null;
+                // $output[] = $itm;
+                // $start_date_carbon->addDays(1);
+                // continue;
+            }
     
             $itm_date_index = $itm['year'] . '_' . $itm['month'] . '_' . $itm['day'];
             $itm_date = $itm['year'] . '-' . $itm['month'] . '-' . $itm['day'];
-    
-            //Set itm data related to hall
+            
             $hall_business_hours = $this->getHallBusinessHoursForCarbonDate($start_date_carbon);
-    
+            
+            // var_dump($hall_business_hours);
+            // die();
+            
             $itm['start'] = !empty($hall_business_hours->start_hour) ? $hall_business_hours->start_hour : null;
             $itm['end'] = !empty($hall_business_hours->end_hour) ? $hall_business_hours->end_hour : null;
             if(!empty($hall_business_hours->is_weekend)){
-                $itm['bookable'] = false;
                 $itm['is_weekend'] = true;
                 $itm['items'] = null;
-                $output[] = $itm;
-                $start_date_carbon->addDays(1);
-                continue;
+                // $output[] = $itm;
+                // $start_date_carbon->addDays(1);
+                // continue;
             }
-    
-            $hall_start_time = $hall_business_hours->start_hour;
-            $hall_end_time = $hall_business_hours->end_hour;
-    
-            //Set hall start - datetime format
-            $hall_start_datetime = $itm_date . ' ' . $hall_start_time;
-            if(count(explode(':', $hall_start_time)) <= 2)
-                $hall_start_datetime .= ':00';
-    
-            //Set hall end - datetime format
-            $hall_end_datetime = $itm_date . ' ' . $hall_end_time;
-            if(count(explode(':', $hall_end_time)) <= 2)
-                $hall_end_datetime .= ':00';
-    
-            //Set start and end carbon instances
-            $hall_start_carbon = \Carbon\Carbon::parse($hall_start_datetime);
-            $start_carbon = $hall_start_carbon->copy();
-            $end_carbon = \Carbon\Carbon::parse($hall_end_datetime);
+            
+            $is_compose_free_item = function() use ($itm) {
+                // if($itm['day'] == '27' && $itm['month'] == '08'){
+                //     var_dump($itm);
+                //     die();
+                // }
+                return (empty($itm['is_weekend']) && !empty($itm['bookable'])) ||
+                    $this->show_all_times === true;
+                // return empty($itm['is_weekend']) || $this->show_all_times === true;
+            };
+            
+            if(
+                (!empty($itm['is_weekend']) && $itm['is_weekend'] == true) ||
+                // (!empty($itm['bookable']) && $itm['bookable'] == true) ||
+                $this->show_all_times === true
+            ){
+                // var_dump($this->show_all_times);
+                // die();
+                $hall_start_carbon = \Carbon\Carbon::parse($itm_date)->startOfDay();
+                $start_carbon = $hall_start_carbon->copy();
+                $end_carbon = \Carbon\Carbon::parse($itm_date)->endOfDay();
+            }else{
+                $hall_start_time = $hall_business_hours->start_hour;
+                $hall_end_time = $hall_business_hours->end_hour;
+        
+                $hall_start_datetime = $this->concatDateTime($itm_date, $hall_start_time);
+                $hall_end_datetime = $this->concatDateTime($itm_date, $hall_end_time);
+        
+                // Set start and end carbon instances
+                $hall_start_carbon = \Carbon\Carbon::parse($hall_start_datetime);
+                $start_carbon = $hall_start_carbon->copy();
+                $end_carbon = \Carbon\Carbon::parse($hall_end_datetime);
+            }
             
             if(!empty($bookings) && !empty($bookings[$itm_date_index])){
                 $items = [];
@@ -296,11 +228,10 @@ class FreeSlots extends MainBookingGetter{
                 
                 // Merge all crossing bookings(events)
                 $merged_booking = $this->getEventsWithMergedCrossing($booking);
-                
-                // if($itm['day'] == 19){
-                //     var_dump($merged_booking);
-                //     die();
-                // }
+                if(!empty($this->with_events_per_client))
+                    $booking = array_filter($booking, function($v) {
+                        return $v->client_id == $this->with_events_per_client;
+                    });
                 
                 // Bookings(events) ids to track added (event) items
                 $added_bookings_ids = [];
@@ -342,6 +273,11 @@ class FreeSlots extends MainBookingGetter{
                     }
                 };
                 
+                // if($itm['month'] == '08' && $itm['day'] == '27'){
+                //     var_dump($merged_booking);
+                //     die();
+                // }
+                
                 // if exists approved events(bookings)
                 if(!empty($merged_booking)){
                     foreach($merged_booking as $k => $v){
@@ -350,7 +286,7 @@ class FreeSlots extends MainBookingGetter{
                         
                         // Only puts items which are less then `$start_carbon`
                         if($start_booking_carbon->lte($hall_start_carbon)){
-                            if(!empty($this->with_events_per_client)){
+                            if(!empty($this->with_events)){
                                 $booking_events = $get_unique_booking_events_from_range([
                                     "start" => $start_booking_carbon->copy()->startOfDay()->timestamp,
                                     "end" => $end_booking_carbon->timestamp,
@@ -374,7 +310,7 @@ class FreeSlots extends MainBookingGetter{
                         }
                         
                         if($start_carbon->eq($start_booking_carbon)){
-                            if(!empty($this->with_events_per_client)){
+                            if(!empty($this->with_events)){
                                 $range_start_carbon = $start_booking_carbon->copy();
                                 if($end_booking_carbon->lt($end_carbon)){
                                     $range_end_carbon = $end_booking_carbon->copy();
@@ -409,8 +345,10 @@ class FreeSlots extends MainBookingGetter{
                             }
                             
                             // If we do not need client`s events, just create free item
-                            if(empty($this->with_events_per_client)){
-                                $items[] = $this->composeFreeItem($range_start_carbon, $range_end_carbon);
+                            if(empty($this->with_events)){
+                                // if(empty($itm['is_weekend']) || $this->show_all_times === true)
+                                if($is_compose_free_item())
+                                    $items[] = $this->composeFreeItem($range_start_carbon, $range_end_carbon);
                                 
                                 // If end time of hall less then start or less then end date
                                 //  of iterable item(merged booking), break the iteration
@@ -427,7 +365,9 @@ class FreeSlots extends MainBookingGetter{
                                 "start" => $range_start_carbon->timestamp,
                                 "end" => $range_end_carbon->timestamp,
                             ], $booking);
-                            $items[] = $this->composeFreeItem($range_start_carbon, $range_end_carbon, $booking_events);
+                            // if(empty($itm['is_weekend']) || $this->show_all_times === true)
+                            if($is_compose_free_item())
+                                $items[] = $this->composeFreeItem($range_start_carbon, $range_end_carbon, $booking_events);
                             
                             $to_break = false;
                             if($end_carbon->lte($start_booking_carbon)){
@@ -464,17 +404,48 @@ class FreeSlots extends MainBookingGetter{
                         if($last_item['type'] == 'event'){
                             list($start_last_item_carbon, $end_last_item_carbon) =
                                 array_values($this->getStartEndCarbonFromBookingInstance($last_item));
-                            if($end_last_item_carbon->lt($end_carbon))
+                            // if(
+                            //     $end_last_item_carbon->lt($end_carbon) &&
+                            //     (
+                            //         empty($itm['is_weekend']) || $this->show_all_times === true
+                            //     )
+                            // )
+                            if($end_last_item_carbon->lt($end_carbon) && $is_compose_free_item())
                                 $items[] = $this->composeFreeItem($start_carbon, $end_carbon);
+                            
+                            $start_carbon = $end_carbon->copy();
                         }
                         if($last_item['type'] == 'free' && $itm['day'] > 4){
                             $date_str = implode('-', [$itm['year'], $itm['month'], $itm['day']]);
                             $start_last_item_carbon = \Carbon\Carbon::parse($date_str . ' ' . $last_item['from']);
                             $end_last_item_carbon = \Carbon\Carbon::parse($date_str . ' ' . $last_item['to']);
-                            if($end_last_item_carbon->lt($end_carbon))
+                            // if($end_last_item_carbon->lt($end_carbon) &&
+                            //     (
+                            //         empty($itm['is_weekend']) || $this->show_all_times === true
+                            //     )
+                            // )
+                            if($end_last_item_carbon->lt($end_carbon) && $is_compose_free_item())
                                 $items[] = $this->composeFreeItem($end_booking_carbon, $end_carbon);
+                            
+                            $start_carbon = $end_carbon->copy();
+                            // $start_carbon = $end_last_item_carbon->copy();
                         }
                     }
+                    
+                    if($start_carbon->lt($end_carbon) && $is_compose_free_item()){
+                        $items[] = $this->composeFreeItem($start_carbon, $end_carbon);
+                        $start_carbon = $end_carbon->copy();
+                    }
+                    
+                    // if($itm['month'] == '08' && $itm['day'] == '24'){
+                    //     var_dump($start_carbon->toDate());
+                    //     die();
+                    // }
+                    
+                    // if($itm['month'] == '08' && $itm['day'] == '27'){
+                    //     var_dump($start_carbon->toDate());
+                    //     die();
+                    // }
                     
                 // if exists only not approved events(bookings)
                 }else{
@@ -488,7 +459,9 @@ class FreeSlots extends MainBookingGetter{
                         "start" => $start_carbon->timestamp,
                         "end" => $end_carbon->timestamp,
                     ], $booking);
-                    $items[] = $this->composeFreeItem($start_carbon, $end_carbon, $booking_events);
+                    // if(empty($itm['is_weekend']) || $this->show_all_times === true)
+                    if($is_compose_free_item())
+                        $items[] = $this->composeFreeItem($start_carbon, $end_carbon, $booking_events);
                     
                     $booking_events = $get_unique_booking_events_from_range([
                         "start" => $end_carbon->timestamp,
@@ -501,7 +474,9 @@ class FreeSlots extends MainBookingGetter{
                     $itm['items'] = $items;
     
             }else{
-                $itm['items'] = [$this->composeFreeItem($start_carbon, $end_carbon)];
+                // if(empty($itm['is_weekend']) || $this->show_all_times === true)
+                if($is_compose_free_item())
+                    $itm['items'] = [$this->composeFreeItem($start_carbon, $end_carbon)];
             }
     
             $output[] = $itm;
@@ -561,9 +536,28 @@ class FreeSlots extends MainBookingGetter{
     }
     
     protected function getEventsWithMergedCrossing($events){
+        // if(count($events) > 1){
+        //     var_dump($this->with_events_per_client);
+        //     var_dump($events);
+        //     die();
+        // }
+        
         if(empty($events))
             return $events;
+            
+        // if(!empty($this->with_events_per_client))
+        //     // foreach ($events as $key => $val)
+        //     //     if($events[$key]->client_id != $this->with_events_per_client)
+        //     //         unset($events[$key]);
+        //     $events = array_filter($events, function($v) {
+        //         return $v->client_id == $this->with_events_per_client;
+        //     });
         
+        // if(count($events) > 1){
+        //     var_dump($events);
+        //     die();
+        // }
+            
         // Get all essential columns for composing free data items
         $output = [];
         foreach ($events as $key => &$event) {
@@ -643,7 +637,8 @@ class FreeSlots extends MainBookingGetter{
             'too_short' => $free_minutes < $min_duration,
         ];
         
-        if(!empty($inner_events))
+        // if(!empty($inner_events) && !empty($this->with_events_per_client))
+        if(!empty($inner_events) && !empty($this->with_events))
             $composed_free_item['not_approved_bookings'] = $inner_events;
             
         return $composed_free_item;

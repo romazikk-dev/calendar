@@ -60,7 +60,11 @@
                         setting_key="calendar_alias"
                         input_id="calendarAliasInput"
                         input_placeholder="Alias ..."
-                        :info_badge_label="route('calendar.booking.alias', [$setting['calendar_alias']])" />
+                        :info_badge_label="
+                            !empty($setting['calendar_alias']) ?
+                            route('calendar.booking.alias', [$setting['calendar_alias']]) :
+                            ''
+                        " />
                 @endif
                 
                 @if(array_key_exists("max_future_booking_offset", $setting))

@@ -30,7 +30,7 @@
         </div>
         
         <time-picker-modal ref="time_picker_modal" />
-        <modal-duration v-if="isMovingEvent" ref="modal_duration" />
+        <modal-duration ref="modal_duration" />
         
         <modal-move-path-picker
             @pick_time="onModalMovePathPickerPickTime"
@@ -58,7 +58,7 @@
     import MonthCalendar from "./MonthCalendar.vue";
     import WeekCalendar from "./WeekCalendar.vue";
     import DayCalendar from "./DayCalendar.vue";
-    import ListCalendar from "./ListCalendar.vue";
+    import ListCalendar from "./list_calendar/ListCalendar.vue";
     // import Filters from "./Filters.vue";
     import Loader from "./Loader.vue";
     import TimePickerModal from "./modals/TimePickerModal.vue";
@@ -67,6 +67,9 @@
     import MovingEventInfoBox from "./MovingEventInfoBox.vue";
     import NewEventInfoBox from "./NewEventInfoBox.vue";
     import ModalMoreEvents from "./modals/ModalMoreEvents.vue";
+    
+    import {GetDataFreeWithEventsParams} from './enums';
+    
     export default {
         name: 'app',
         mounted() {
@@ -139,6 +142,8 @@
                 this.calendar.getData();
             },
             setMovingEvent: function (event){
+                this.$store.dispatch('new_event/reset');
+                // this.$store.dispatch('moving_event/reset');
                 return new Promise((resolve, reject) => {
                     this.getClients(event.client_id).then((clients) => {
                         if(clients === null)
@@ -363,8 +368,20 @@
                     if(!_this.isProp(_this.movingEvent) && !_this.isNewEventMainFull)
                         urlSearchParams = _this.getFiltersSearchParams(urlSearchParams);
                     
-                    console.log(JSON.parse(JSON.stringify('urlSearchParams 3333')));
-                    console.log(JSON.parse(JSON.stringify(urlSearchParams)));
+                    // console.log(_this.freeWithEvents);
+                    if(lastGetDataType == 'free'){
+                        if(_this.isProp(_this.freeWithEvents) &&
+                        Object.values(GetDataFreeWithEventsParams).includes(_this.freeWithEvents)){
+                            // console.log(_this.freeWithEvents);
+                            urlSearchParams.append("with_events", _this.freeWithEvents);
+                        }
+                        if(_this.isProp(_this.freeBookingAnyTime) && _this.freeBookingAnyTime === true){
+                            urlSearchParams.append("booking_any_time", _this.freeBookingAnyTime);
+                        }
+                    }
+                    
+                    // console.log(JSON.parse(JSON.stringify('urlSearchParams 3333')));
+                    // console.log(JSON.parse(JSON.stringify(urlSearchParams)));
                     
                     if(!_this.isMovingEvent){
                         urlSearchParams.append("with[]", 'templateWithoutUserScope.specific');
@@ -519,9 +536,13 @@
             ModalMoreEvents,
             InfoNavbar,
             ModalBook,
+            
+            GetDataFreeWithEventsParams,
         },
         watch: {
-            // showCalendar: function (val) {}
+            // freeWithEvents: function (val) {
+            //     this.calendar.getData();
+            // },
         }
     }
 </script>

@@ -354,6 +354,12 @@ Route::group([
     ])->name('booking.alias');
     
     // Route::get('/booking/{alias}', function(){
+    //     echo 11111;
+    // })->where([
+    //     'alias' => '^[A-z0-9_-]+$',
+    // ])->name('booking.alias');
+    
+    // Route::get('/booking/{alias}', function(){
     //     dd(111111);
     // })->where(['identifier','[A-Za-z0-9]+'])->name('owner_booking');
     

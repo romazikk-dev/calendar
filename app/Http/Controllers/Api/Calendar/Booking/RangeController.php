@@ -48,6 +48,17 @@ class RangeController extends Controller{
         ]);
         
         // var_dump(auth()->user()->id);
+        // var_dump([
+        //     BookingGetterParams::WORKER => $validated['worker'],
+        //     BookingGetterParams::OWNER => $user->id,
+        //     BookingGetterParams::CLIENT => auth()->user()->id,
+        //     BookingGetterParams::WITH_EVENTS_PER_CLIENT => auth()->user()->id,
+        //     BookingGetterParams::WITH => [
+        //         // 'templateWithoutUserScope'
+        //         'templateWithoutUserScope.specific', 'workerWithoutUserScope',
+        //         'hallWithoutUserScope', 'clientWithoutUserScope'
+        //     ],
+        // ]);
         // die();
         
         $slots = \Getter::bookings()->free(
@@ -55,9 +66,12 @@ class RangeController extends Controller{
                 BookingGetterParams::WORKER => $validated['worker'],
                 BookingGetterParams::OWNER => $user->id,
                 BookingGetterParams::CLIENT => auth()->user()->id,
-                BookingGetterParams::WITH_EVENTS_PER_CLIENT => auth()->user()->id,
+                BookingGetterParams::FREE_WITH_EVENTS => true,
+                // BookingGetterParams::FREE_WITH_EVENTS => auth()->user()->id,
                 BookingGetterParams::WITH => [
-                    'templateWithoutUserScope'
+                    // 'templateWithoutUserScope'
+                    'templateWithoutUserScope.specific', 'workerWithoutUserScope',
+                    'hallWithoutUserScope', 'clientWithoutUserScope'
                 ],
             ]
         );
@@ -98,6 +112,98 @@ class RangeController extends Controller{
         $bookingRetrievial = new BookingRetrievial($user, $hall, $worker, $template, $range, $client);
         
         $free_slots = $bookingRetrievial->getFreeSlots();
+        
+        $output = [
+            'data' => $free_slots,
+            // 'business_hours' => json_decode($hall->business_hours, true),
+            'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
+        ];
+        
+        // var_dump(json_decode($hall->business_hours, true));
+        // die();
+        
+        if ($request->wantsJson()) {
+            return response()->json($output);
+        } else {
+            return view('api.calendar.booking.range.index', [
+                'range' => $free_slots,
+                // 'template_url' => $this->getTemplateUrl($request->url()),
+                // 't' => 'test',
+            ]);
+        }
+        // var_dump($free_slots);
+        // die();
+    }
+    
+    public function guest(Request $request, User $user, $start, $end){
+        
+        $validated = $request->validate([
+            'hall' => 'required|integer|exists:halls,id',
+            'worker' => 'required|integer|exists:workers,id',
+            'template' => 'required|integer|exists:templates,id',
+            // 'view' => 'required|string|in:month,week,day,list',
+        ]);
+        
+        // $params[Params::WITH] = [
+        //     'templateWithoutUserScope.specific', 'workerWithoutUserScope',
+        //     'hallWithoutUserScope', 'clientWithoutUserScope'
+        // ];
+        
+        $slots = \Getter::bookings()->free(
+            new Range($start, $end, 'month'), [
+                BookingGetterParams::WORKER => $validated['worker'],
+                BookingGetterParams::OWNER => $user->id,
+                // BookingGetterParams::CLIENT => auth()->user()->id,
+                // BookingGetterParams::WITH_EVENTS_PER_CLIENT => auth()->user()->id,
+                BookingGetterParams::WITH => [
+                    'templateWithoutUserScope'
+                    // 'templateWithoutUserScope.specific', 'workerWithoutUserScope',
+                    // 'hallWithoutUserScope', 'clientWithoutUserScope'
+                ],
+            ]
+        );
+        
+        $hall = Hall::withoutGlobalScope(UserScope::class)->find($validated['hall']);
+        
+        $output = [
+            'data' => $slots,
+            'business_hours' => json_decode($hall->business_hours, true),
+            // 'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
+        ];
+        
+        return response()->json($output);
+        
+        // if ($request->wantsJson()) {
+        //     return response()->json($output);
+        // } else {
+        //     return view('api.calendar.booking.range.index', [
+        //         'range' => $output,
+        //         // 'template_url' => $this->getTemplateUrl($request->url()),
+        //         // 't' => 'test',
+        //     ]);
+        // }
+        
+        // $hall_start = '08:00';
+        // $hall_end = '22:00';
+        
+        // echo $this->auth->user()->timezone;
+        // echo date('Y-m-d H:i:s', 1618040400);
+        // die();
+        
+        $hall = Hall::withoutGlobalScope(UserScope::class)->find($validated['hall']);
+        $worker = Worker::withoutGlobalScope(UserScope::class)->find($validated['worker']);
+        $template = Template::withoutGlobalScope(UserScope::class)->find($validated['template']);
+        // $client = $request->user();
+        
+        $range = new Range($start, $end, $validated['view']);
+        $bookingRetrievial = new BookingRetrievial($user, $hall, $worker, $template, $range);
+        
+        // var_dump(1); die();
+        
+        $free_slots = $bookingRetrievial->getFreeSlots();
+        
+        // var_dump($bookingRetrievial->getBusinessHours(true, true));
+        // die();
         
         $output = [
             'data' => $free_slots,
@@ -179,67 +285,67 @@ class RangeController extends Controller{
     // }
     
     
-    public function guest(Request $request, User $user, $start, $end){
-        // var_dump([$user_id, $start, $end]);
-        // die();
-        
-        // $range = new Range();
-        // var_dump($range->index());
-        // die();
-        
-        // if(!($user = User::find($user_id)))
-        //     abort(404, 'Page not found');
-            
-        $validated = $request->validate([
-            'hall' => 'required|integer|exists:halls,id',
-            'worker' => 'required|integer|exists:workers,id',
-            'template' => 'required|integer|exists:templates,id',
-            'view' => 'required|string|in:month,week,day,list',
-        ]);
-        
-        // $hall_start = '08:00';
-        // $hall_end = '22:00';
-        
-        // echo $this->auth->user()->timezone;
-        // echo date('Y-m-d H:i:s', 1618040400);
-        // die();
-        
-        $hall = Hall::withoutGlobalScope(UserScope::class)->find($validated['hall']);
-        $worker = Worker::withoutGlobalScope(UserScope::class)->find($validated['worker']);
-        $template = Template::withoutGlobalScope(UserScope::class)->find($validated['template']);
-        // $client = $request->user();
-        
-        $range = new Range($start, $end, $validated['view']);
-        $bookingRetrievial = new BookingRetrievial($user, $hall, $worker, $template, $range);
-        
-        // var_dump(1); die();
-        
-        $free_slots = $bookingRetrievial->getFreeSlots();
-        
-        // var_dump($bookingRetrievial->getBusinessHours(true, true));
-        // die();
-        
-        $output = [
-            'data' => $free_slots,
-            // 'business_hours' => json_decode($hall->business_hours, true),
-            'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
-        ];
-        
-        // var_dump(json_decode($hall->business_hours, true));
-        // die();
-        
-        if ($request->wantsJson()) {
-            return response()->json($output);
-        } else {
-            return view('api.calendar.booking.range.index', [
-                'range' => $free_slots,
-                // 'template_url' => $this->getTemplateUrl($request->url()),
-                // 't' => 'test',
-            ]);
-        }
-        // var_dump($free_slots);
-        // die();
-    }
+    // public function guest(Request $request, User $user, $start, $end){
+    //     // var_dump([$user_id, $start, $end]);
+    //     // die();
+    // 
+    //     // $range = new Range();
+    //     // var_dump($range->index());
+    //     // die();
+    // 
+    //     // if(!($user = User::find($user_id)))
+    //     //     abort(404, 'Page not found');
+    // 
+    //     $validated = $request->validate([
+    //         'hall' => 'required|integer|exists:halls,id',
+    //         'worker' => 'required|integer|exists:workers,id',
+    //         'template' => 'required|integer|exists:templates,id',
+    //         'view' => 'required|string|in:month,week,day,list',
+    //     ]);
+    // 
+    //     // $hall_start = '08:00';
+    //     // $hall_end = '22:00';
+    // 
+    //     // echo $this->auth->user()->timezone;
+    //     // echo date('Y-m-d H:i:s', 1618040400);
+    //     // die();
+    // 
+    //     $hall = Hall::withoutGlobalScope(UserScope::class)->find($validated['hall']);
+    //     $worker = Worker::withoutGlobalScope(UserScope::class)->find($validated['worker']);
+    //     $template = Template::withoutGlobalScope(UserScope::class)->find($validated['template']);
+    //     // $client = $request->user();
+    // 
+    //     $range = new Range($start, $end, $validated['view']);
+    //     $bookingRetrievial = new BookingRetrievial($user, $hall, $worker, $template, $range);
+    // 
+    //     // var_dump(1); die();
+    // 
+    //     $free_slots = $bookingRetrievial->getFreeSlots();
+    // 
+    //     // var_dump($bookingRetrievial->getBusinessHours(true, true));
+    //     // die();
+    // 
+    //     $output = [
+    //         'data' => $free_slots,
+    //         // 'business_hours' => json_decode($hall->business_hours, true),
+    //         'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
+    //     ];
+    // 
+    //     // var_dump(json_decode($hall->business_hours, true));
+    //     // die();
+    // 
+    //     if ($request->wantsJson()) {
+    //         return response()->json($output);
+    //     } else {
+    //         return view('api.calendar.booking.range.index', [
+    //             'range' => $free_slots,
+    //             // 'template_url' => $this->getTemplateUrl($request->url()),
+    //             // 't' => 'test',
+    //         ]);
+    //     }
+    //     // var_dump($free_slots);
+    //     // die();
+    // }
     
     // protected function wrongTimestamps(){
     //     return (is_null($this->start_timestamp) || is_null($this->end_timestamp) ||

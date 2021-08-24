@@ -43,8 +43,11 @@
                 
                 this.parsedTemplates = parsedTemplates;
                 
-                console.log(JSON.parse(JSON.stringify('parsedTemplates')));
+                console.log(JSON.parse(JSON.stringify('parseTemplatesAccordingToSpecifics')));
                 console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
+                
+                // console.log(JSON.parse(JSON.stringify('parsedTemplates')));
+                // console.log(JSON.parse(JSON.stringify(this.parsedTemplates)));
                 
                 // console.log(JSON.parse(JSON.stringify(parsedTemplates)));
                 
@@ -57,9 +60,10 @@
                         
                         if(typeof template.specific !== 'undefined' && typeof template.specific.ids_trace !== 'undefined'){
                             if(template.specific.ids_trace !== null){
+                                // console.log(JSON.parse(JSON.stringify(5555)));
                                 let idsTraceArr = template.specific.ids_trace.split(',');
                                 
-                                console.log(JSON.parse(JSON.stringify('idsTraceArr')));
+                                // console.log(JSON.parse(JSON.stringify('idsTraceArr')));
                                 let currentSpecificsToWorkWith = _this.specifics;
                                 
                                 idsTracePath = '';
@@ -107,9 +111,19 @@
                                 `);
                             }else{
                                 if(typeof parsedTemplates[template.specific.id] === 'undefined')
-                                    parsedTemplates[template.specific.id] = {};
-                                    
-                                parsedTemplates[template.specific.id][template.id] = template;
+                                    parsedTemplates[template.specific.id] = {
+                                        type: 'specific',
+                                        id: template.specific.id,
+                                        title: template.specific.title,
+                                        fields: {}
+                                    };
+                                
+                                parsedTemplates[template.specific.id].fields[template.id] = {
+                                    type: 'template',
+                                    template: template,
+                                    id: template.id,
+                                    title: template.title
+                                };
                             }
                         }
                     }
@@ -131,6 +145,7 @@
             //     // this.parseTemplatesAccordingToSpecifics();
             // },
             templates: function(val){
+                // console.log(JSON.parse(JSON.stringify(val)));
                 // return;
                 this.parsedTemplates = null;
                 if(val !== null)

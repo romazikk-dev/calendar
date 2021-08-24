@@ -38,6 +38,8 @@ class SettingClientsBookingCalendarController extends Controller
         $setting_data = $setting->getOrPlaceholder();
         $setting_data['calendar_alias'] = \CalendarAlias::getByUser();
         
+        // dd($setting_data);
+        
         return view('dashboard.settings.clients_booking_calendar.main', [
             'setting' => $setting_data,
         ]);

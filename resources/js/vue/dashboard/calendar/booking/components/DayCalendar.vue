@@ -25,7 +25,32 @@
                 <tbody>
                     <tr>
                         <td :class="{'current-day': isCurrentDate}">
+                            <div v-if="
+                                mainSettings.enable_booking_on_any_time && freeBookingAnyTime &&
+                                (isNewEventMainFull || isMovingEvent) &&
+                                date && !date.is_weekend
+                            " class="for-slot">
+                                <div class="slot opened-slot">
+                                    <b>
+                                        {{freeHallTitle}} opened:<br>
+                                        {{date.start}} - {{date.end}}
+                                    </b>
+                                </div>
+                            </div>
+                            <div v-if="(isNewEventMainFull || isMovingEvent) && date && date.is_weekend"
+                            class="for-closed-slot">
+                                <div class="closed-slot">
+                                    <b>{{freeHallTitle}} closed</b>
+                                </div>
+                            </div>
+                            <div v-if="(isNewEventMainFull || isMovingEvent) && date && !date.bookable"
+                            class="for-closed-slot">
+                                <div class="closed-slot">
+                                    <b>{{freeWorkerName}} not working</b>
+                                </div>
+                            </div>
                             <month-cell v-if="date"
+                                :show-placeholder="true"
                                 :counters-dis-transparency="true"
                                 :counters-to-top="true"
                                 :counters-bigger="true"

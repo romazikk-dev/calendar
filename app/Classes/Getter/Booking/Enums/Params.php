@@ -38,5 +38,9 @@ class Params{
     const ALL_IN_RANGE = "all_in_range";
     
     // client id
-    const WITH_EVENTS_PER_CLIENT = "with_events_per_client";
+    // const WITH_EVENTS_PER_CLIENT = "with_events_per_client";
+    // const WITH_EVENTS = "with_events";
+    const FREE_WITH_EVENTS_PER_CLIENT = "free_with_events_per_client";
+    const FREE_WITH_EVENTS = "free_with_events";
+    const FREE_SHOW_ALL_TIMES = "free_show_all_times";
 }

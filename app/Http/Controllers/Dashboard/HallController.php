@@ -362,6 +362,7 @@ class HallController extends Controller
     public function update(Request $request, $id){
         
         $validate_rules = $this->mainValidationRules();
+        // dd($validate_rules);
         
         $rules_and_messages = \PhonePicker::getPhonesValidetionRulesAndCustomMessages($request);
         $messages = $rules_and_messages['messages'];
@@ -390,6 +391,7 @@ class HallController extends Controller
         );
         
         $validated['business_hours'] = json_encode($validated['business_hours']);
+        // dd($validated['business_hours']);
         
         if(!empty($validated['assign_workers'])){
             $assign_workers = array_keys($validated['assign_workers']);

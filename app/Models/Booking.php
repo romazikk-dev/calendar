@@ -18,6 +18,8 @@ class Booking extends Model
     protected $guarded = [];
     protected $appends = ['from','to','date','right_duration'];
     
+    protected $not_fits_in_time_reason = null;
+    
     // public function getFreeSlots($year, $month, $day){
     //     if(is_null($this->keyDateArray)){
     //         $this->keyDateArray = [];
@@ -176,32 +178,85 @@ class Booking extends Model
         // static::addGlobalScope(new NotDeletedScope);
     }
     
-    public function isFitsInTime(){
-        $carbon_time = \Carbon\Carbon::parse($this->time);
-        $holidays = \Holiday::getAllAsUniqueDateValue(
-            $this->hallWithoutUserScope, $this->workerWithoutUserScope
-        );
+    public function isFitsInTime(array $check = []){
+        // $admins_booking_calendar_main_settings = \Setting::of(SettingKeys::ADMINS_BOOKING_CALENDAR_MAIN)->getOrPlaceholder();
         
-        // Check if date of `booking` is not in holidays
-        $holiday_check_key = \Holiday::getKeyOfCarbonInstance($carbon_time);
-        if(in_array($holiday_check_key, $holidays))
+        $carbon_time = \Carbon\Carbon::parse($this->time);
+        $datetime = $carbon_time->format("Y-m-d H:i:s");
+        
+        $is_check_param = function(string $param) use ($check){
+            return empty($check) || (!empty($check) && in_array($param, $check));
+        };
+        
+        if($is_check_param('hall_suspension') &&
+        \Suspension::isSuspendedOnDate($this->hallWithoutUserScope, $datetime)){
+            $this->not_fits_in_time_reason = 'Hall is suspended on ' . $datetime;
             return false;
+        }
+        
+        if($is_check_param('worker_suspension') &&
+        \Suspension::isSuspendedOnDate($this->workerWithoutUserScope, $datetime)){
+            $this->not_fits_in_time_reason = 'Worker is suspended on ' . $datetime;
+            return false;
+        }
+        
+        if($is_check_param('hall_holidays') || $is_check_param('worker_holidays') || $is_check_param('all_holidays')){
+            // $carbon_time = \Carbon\Carbon::parse($this->time);
+            $holidays = \Holiday::getAllAsUniqueDateValue(
+                $this->hallWithoutUserScope, $this->workerWithoutUserScope, [
+                    "separate" => true,
+                ]
+            );
+            
+            // Check if date of `booking` is not in holidays
+            $holiday_check_key = \Holiday::getKeyOfCarbonInstance($carbon_time);
+            
+            if($is_check_param('hall_holidays') || $is_check_param('all_holidays')){
+                if(in_array($holiday_check_key, $holidays['hall_holidays'])){
+                    $this->not_fits_in_time_reason = 'You trying book on date `' . $datetime . '` wich is holiday for hall right now.';
+                    return false;
+                }
+            }
+            
+            if($is_check_param('worker_holidays') || $is_check_param('all_holidays')){
+                if(in_array($holiday_check_key, $holidays['worker_holidays'])){
+                    $this->not_fits_in_time_reason = 'You trying book on date `' . $datetime . '` wich is holiday for worker right now.';
+                    return false;
+                }
+            }
+        }
         
         $duration = empty($this->custom_duration) ? $this->custom_duration : $this->right_duration;
         $carbon_iso_weekday = $carbon_time->isoWeekday();
         $weekday_str = array_values(Weekdays::all())[$carbon_iso_weekday - 1];
         $carbon_time_end = $carbon_time->copy()->addMinutes($duration);
+        
+        if($is_check_param('business_hours')){
+            $hall_business_hours = $this->hallWithoutUserScope
+                ->makeVisible(['business_hours'])
+                ->toArray()['business_hours'];
             
-        $hall_business_hours = $this->hallWithoutUserScope
-            ->makeVisible(['business_hours'])
-            ->toArray()['business_hours'];
-        $hall_business_hours = json_decode($hall_business_hours, true)[$weekday_str];
+            // var_dump($hall_business_hours);
+            // die();
+                
+            $hall_business_hours = json_decode($hall_business_hours, true)[$weekday_str];
+            if(!empty($hall_business_hours['is_weekend']) && $hall_business_hours['is_weekend'] == 'on'){
+                $this->not_fits_in_time_reason = 'You trying book on date `' . $datetime . '` wich is weekend for hall right now(bussiness hour is weekend).';
+                return false;
+            }
+            // var_dump($hall_business_hours);
+            // die();
+            
+            $carbon_start_hall = \Carbon\Carbon::parse($carbon_time->format("Y-m-d " . $hall_business_hours['start_hour'] . ':00'));
+            $carbon_end_hall = \Carbon\Carbon::parse($carbon_time->format("Y-m-d " . $hall_business_hours['end_hour'] . ':00'));
+            
+            if($carbon_time->lt($carbon_start_hall) || $carbon_end_hall->lt($carbon_time_end)){
+                $this->not_fits_in_time_reason = 'You trying book on date `' . $datetime . '` wich is out of range working hours of hall right now(not in range of bussiness hours).';
+                return false;
+            }
+        }
         
-        $carbon_start_hall = \Carbon\Carbon::parse($carbon_time->format("Y-m-d " . $hall_business_hours['start_hour'] . ':00'));
-        $carbon_end_hall = \Carbon\Carbon::parse($carbon_time->format("Y-m-d " . $hall_business_hours['end_hour'] . ':00'));
         
-        if($carbon_time->lt($carbon_start_hall) || $carbon_end_hall->lt($carbon_time_end))
-            return false;
         // Weekdays
         // var_dump($carbon_iso_weekday);
         // var_dump($weekday_str);
@@ -218,23 +273,34 @@ class Booking extends Model
         // var_dump($this->hallWithoutUserScope->toArray());
         // die();
         
-        $start = $this->time;
-        $end = $carbon_time_end->format('Y-m-d H:i:s');
+        if($is_check_param('crossing_other_bookings')){
+            $start = $this->time;
+            $end = $carbon_time_end->format('Y-m-d H:i:s');
+            
+            $bookings = \Getter::bookings()->all(
+                new Range($start, $end, 'month'), [
+                    BookingGetterParams::ONLY_APPROVED => true,
+                    BookingGetterParams::EXCLUDE_IDS => [$this->id],
+                    BookingGetterParams::FIRST_ITEMS => true,
+                    BookingGetterParams::EXCLUDE_RANGE_START_AND_END_DATES => true,
+                    BookingGetterParams::WORKER => $this->worker_id
+                ]
+            );
+            
+            // var_dump($bookings);
+            // die();
+            if(!empty($bookings)){
+                $this->not_fits_in_time_reason = 'You trying book on date `' . $datetime . '` wich is already taken by another event(booking).';
+                return false;
+            }
+        }
         
-        $bookings = \Getter::bookings()->all(
-            new Range($start, $end, 'month'), [
-                BookingGetterParams::ONLY_APPROVED => true,
-                BookingGetterParams::EXCLUDE_IDS => [$this->id],
-                BookingGetterParams::FIRST_ITEMS => true,
-                BookingGetterParams::EXCLUDE_RANGE_START_AND_END_DATES => true,
-                BookingGetterParams::WORKER => $this->worker_id
-            ]
-        );
-        
-        // var_dump($bookings);
-        // die();
-        
-        return empty($bookings);
+        // return empty($bookings);
+        return true;
+    }
+    
+    public function getNotFitsInTimeReason(){
+        return $this->not_fits_in_time_reason;
     }
     
     public function saveAsApproved(){

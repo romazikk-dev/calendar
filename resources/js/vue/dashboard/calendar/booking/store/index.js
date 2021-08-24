@@ -15,6 +15,7 @@ import dates from './modules/dates';
 import navbar from './modules/navbar';
 import view from './modules/view';
 import keys from './modules/keys';
+import free_get_data_params from './modules/free_get_data_params';
 
 
 Vue.use(Vuex);
@@ -38,6 +39,7 @@ export default new Vuex.Store({
         navbar,
         view,
         keys,
+        free_get_data_params,
     },
     // strict: debug,
     // plugins: debug ? [createLogger()] : []

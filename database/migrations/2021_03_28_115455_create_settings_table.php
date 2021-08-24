@@ -16,10 +16,11 @@ class CreateSettingsTable extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('key')->unique();
+            $table->string('key');
             $table->json('data')->nullable();
             $table->timestamps();
             
+            $table->unique(['user_id', 'key']);
             $table->foreign('user_id')->references('id')->on('users');
         });
     }

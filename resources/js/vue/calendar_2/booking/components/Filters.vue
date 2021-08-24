@@ -376,7 +376,7 @@
                                 });
                                 this.templates = templates;
                                 this.pickedItmHall = itm;
-                                // console.log(JSON.parse(JSON.stringify(this.workers)));
+                                console.log(JSON.parse(JSON.stringify(this.templates)));
                             })
                             .catch(function (error) {
                                 // handle error
