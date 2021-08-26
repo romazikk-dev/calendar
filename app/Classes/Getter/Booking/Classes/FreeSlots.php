@@ -365,6 +365,7 @@ class FreeSlots extends MainBookingGetter{
                                 "start" => $range_start_carbon->timestamp,
                                 "end" => $range_end_carbon->timestamp,
                             ], $booking);
+                            
                             // if(empty($itm['is_weekend']) || $this->show_all_times === true)
                             if($is_compose_free_item())
                                 $items[] = $this->composeFreeItem($range_start_carbon, $range_end_carbon, $booking_events);
@@ -410,8 +411,15 @@ class FreeSlots extends MainBookingGetter{
                             //         empty($itm['is_weekend']) || $this->show_all_times === true
                             //     )
                             // )
+                            
+                            // Get bookings(events) for free item
+                            $booking_events = $get_unique_booking_events_from_range([
+                                "start" => $start_carbon->timestamp,
+                                "end" => $end_carbon->timestamp,
+                            ], $booking);
+                            
                             if($end_last_item_carbon->lt($end_carbon) && $is_compose_free_item())
-                                $items[] = $this->composeFreeItem($start_carbon, $end_carbon);
+                                $items[] = $this->composeFreeItem($start_carbon, $end_carbon, $booking_events);
                             
                             $start_carbon = $end_carbon->copy();
                         }
@@ -424,8 +432,15 @@ class FreeSlots extends MainBookingGetter{
                             //         empty($itm['is_weekend']) || $this->show_all_times === true
                             //     )
                             // )
+                            
+                            // Get bookings(events) for free item
+                            $booking_events = $get_unique_booking_events_from_range([
+                                "start" => $end_booking_carbon->timestamp,
+                                "end" => $end_carbon->timestamp,
+                            ], $booking);
+                            
                             if($end_last_item_carbon->lt($end_carbon) && $is_compose_free_item())
-                                $items[] = $this->composeFreeItem($end_booking_carbon, $end_carbon);
+                                $items[] = $this->composeFreeItem($end_booking_carbon, $end_carbon, $booking_events);
                             
                             $start_carbon = $end_carbon->copy();
                             // $start_carbon = $end_last_item_carbon->copy();

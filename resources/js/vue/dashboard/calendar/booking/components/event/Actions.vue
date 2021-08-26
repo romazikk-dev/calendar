@@ -245,7 +245,7 @@
                 let nextEvent = null;
                 let isNext = false;
                 for(let i = 0; i < this.events.length; i++){
-                    if(isNext && this.events[i].approved == 1){
+                    if(isNext && this.event.worker_id == this.events[i].worker_id && this.events[i].approved == 1){
                         nextEvent = this.events[i];
                         break;
                     }

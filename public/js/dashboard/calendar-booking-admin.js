@@ -2558,7 +2558,10 @@ __webpack_require__.r(__webpack_exports__);
       return this.weekdaysList[this.dates.isoWeekday - 1];
     },
     isCurrentDate: function isCurrentDate() {
-      return this.currentIsoWeekday == this.dates.isoWeekday;
+      if (!this.isProp(this.dates)) return false;
+      var dayItemDate = moment(this.dates.date).format("YYYY-MM-DD");
+      var currentDate = moment(this.currentDate).format("YYYY-MM-DD");
+      return dayItemDate == currentDate;
     },
     dataUpdater: function dataUpdater() {
       return this.$store.getters['updater/counter'];
@@ -3449,6 +3452,7 @@ __webpack_require__.r(__webpack_exports__);
       // trigger: "click",
       trigger: "hover"
     });
+    this.adaptWidthOfEvents();
   },
   mounted: function mounted() {
     this.$store.dispatch('dates/setMonthDates', this.startDates.month);
@@ -3472,6 +3476,8 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    adaptWidthOfEvents: function adaptWidthOfEvents() {// $(".month-calendar .day-cell")
+    },
     showModalMoreEvent: function showModalMoreEvent(e) {
       // console.log(JSON.parse(JSON.stringify(e)));
       this.app.$refs.modal_more_events.show(e);
@@ -3757,6 +3763,9 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    adaptWidthOfEvents: function adaptWidthOfEvents() {
+      $(".month-calendar");
+    },
     conditionForItemsIteration: function conditionForItemsIteration(index) {
       return typeof this.item.items !== 'undefined' && Array.isArray(this.item.items) && this.item.items.length > 0 && (this.app.lastGetDataType === 'free' || this.app.lastGetDataType === 'all' && index < this.maxEventsPerDay);
     },
@@ -4275,7 +4284,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'weekCalendar',
@@ -4293,6 +4301,19 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    isTypeEvents: function isTypeEvents() {
+      var firstDayItem = this.getDayItem(0);
+      if (!this.isProp(firstDayItem)) return false;
+      return firstDayItem.type == 'events';
+    },
+    isAllDaysEmpty: function isAllDaysEmpty() {
+      for (var i = 0; i < 7; i++) {
+        var dayItem = this.getDayItem(i);
+        if (this.isProp(dayItem) && dayItem.count_total > 0) return false;
+      }
+
+      return true;
+    },
     datesPerWeekday: function datesPerWeekday() {
       var initDateMoment;
       var weekDayFormat = 'D/M';
@@ -4338,10 +4359,20 @@ __webpack_require__.r(__webpack_exports__);
       var currentDateMoment = moment(this.currentDate);
       return (dateItemMoment.diff(currentDateMoment) >= 0 || dateItemMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")) && dateItem.bookable;
     },
-    isCurrentDate: function isCurrentDate(k) {
-      // console.log(moment(this.currentDate).startOf('week').format('DD'));
+    isCurrentDate: function isCurrentDate(index) {
+      var dayItem = this.getDayItem(index);
+      if (!this.isProp(dayItem)) return false;
+      var dayItemDate = moment(dayItem.year + '-' + dayItem.month + '-' + dayItem.day).format("YYYY-MM-DD");
+      var currentDate = moment(this.currentDate).format("YYYY-MM-DD");
+      console.log(JSON.parse(JSON.stringify('isCurrentDate')));
+      console.log(JSON.parse(JSON.stringify(dayItemDate == currentDate))); // console.log(JSON.parse(JSON.stringify(dayItemMoment.format("YYYY-MM-DD"))));
+      // console.log(JSON.parse(JSON.stringify(currentDateMoment.format("YYYY-MM-DD"))));
+      // console.log(JSON.parse(JSON.stringify(dayItemMoment.diff(currentDateMoment))));
+
+      return dayItemDate == currentDate; // console.log(moment(this.currentDate).startOf('week').format('DD'));
       // console.log(moment(this.firstWeekday).startOf('week').format('DD'));
-      return this.currentIsoWeekday == k; // return this.currentIsoWeekday == k &&
+      // return this.currentIsoWeekday == k;
+      // return this.currentIsoWeekday == k &&
       // moment(this.currentDate).startOf('week').format('DD') == moment(this.firstWeekday).startOf('week').format('DD');
       // return this.yearOfCurrentDate == this.getDate(i,k,'year') &&
       // this.monthOfCurrentDate == this.getDate(i,k,'month') &&
@@ -5235,7 +5266,7 @@ __webpack_require__.r(__webpack_exports__);
       var isNext = false;
 
       for (var i = 0; i < this.events.length; i++) {
-        if (isNext && this.events[i].approved == 1) {
+        if (isNext && this.event.worker_id == this.events[i].worker_id && this.events[i].approved == 1) {
           nextEvent = this.events[i];
           break;
         }
@@ -7003,6 +7034,7 @@ __webpack_require__.r(__webpack_exports__);
       return this.isProp(this.movingEvent) ? "Edit event" : "New event";
     },
     clientObj: function clientObj() {
+      if (this.isProp(this.event)) return this.event.client_without_user_scope;
       if (this.isProp(this.movingEventClient)) return this.movingEventClient;
       if (this.isProp(this.newEventClient)) return this.newEventClient;
       return null;
@@ -7014,25 +7046,30 @@ __webpack_require__.r(__webpack_exports__);
       return this.isProp(this.clientObj) && this.isProp(this.clientObj.email) ? this.clientObj.email : null;
     },
     hallTitle: function hallTitle() {
+      if (this.isProp(this.event)) return this.event.hall_without_user_scope.title;
       if (this.isProp(this.movingEvent)) return this.movingEvent.hall_without_user_scope.title;
       if (this.isNewEventMainFull) return this.newEventMain.hall.title;
       return null;
     },
     templateTitle: function templateTitle() {
+      if (this.isProp(this.event)) return this.event.template_without_user_scope.title;
       if (this.isProp(this.movingEvent)) return this.movingEvent.template_without_user_scope.title;
       if (this.isNewEventMainFull) return this.newEventMain.template.title;
       return null;
     },
     workerName: function workerName() {
+      if (this.isProp(this.event)) return this.fullNameOfObj(this.event.worker_without_user_scope);
       if (this.isProp(this.movingEvent)) return this.fullNameOfObj(this.movingEvent.worker_without_user_scope);
       if (this.isProp(this.isNewEventMainFull)) return this.fullNameOfObj(this.newEventMain.worker);
       return null;
     },
     eventDate: function eventDate() {
+      if (this.isProp(this.event)) return this.getHumanReadableDate(moment(this.event.time).toDate());
       if (this.isProp(this.movingEvent) && this.isProp(this.movingEvent.time)) return this.getHumanReadableDate(moment(this.movingEvent.time).toDate());
       return null;
     },
     eventTime: function eventTime() {
+      if (this.isProp(this.event)) return this.event.from;
       if (this.isProp(this.movingEvent) && this.isProp(this.movingEvent.from)) return this.movingEvent.from;
       return null;
     }
@@ -7155,6 +7192,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
  // import Actions from "../event/Actions.vue";
 
 
@@ -7173,6 +7215,19 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    isTypeEvents: function isTypeEvents() {
+      var firstDayItem = this.getDayItem(0);
+      if (!this.isProp(firstDayItem)) return false;
+      return firstDayItem.type == 'events';
+    },
+    isAllDaysEmpty: function isAllDaysEmpty() {
+      for (var i = 0; i < 7; i++) {
+        var dayItem = this.getDayItem(i);
+        if (this.isProp(dayItem) && dayItem.count_total > 0) return false;
+      }
+
+      return true;
+    },
     datesPerWeekday: function datesPerWeekday() {
       var initDateMoment;
       var weekDayFormat = 'MMMM D, YYYY';
@@ -7234,9 +7289,18 @@ __webpack_require__.r(__webpack_exports__);
       var currentDateMoment = moment(this.currentDate);
       return (dateItemMoment.diff(currentDateMoment) >= 0 || dateItemMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")) && dateItem.bookable;
     },
-    // isCurrentDate: function(k){
-    //     return this.currentIsoWeekday == k;
-    // },
+    isCurrentDate: function isCurrentDate(index) {
+      var dayItem = this.getDayItem(index);
+      if (!this.isProp(dayItem)) return false;
+      var dayItemDate = moment(dayItem.year + '-' + dayItem.month + '-' + dayItem.day).format("YYYY-MM-DD");
+      var currentDate = moment(this.currentDate).format("YYYY-MM-DD"); // console.log(JSON.parse(JSON.stringify('isCurrentDate')));
+      // console.log(JSON.parse(JSON.stringify(dayItemDate == currentDate)));
+      // console.log(JSON.parse(JSON.stringify(dayItemMoment.format("YYYY-MM-DD"))));
+      // console.log(JSON.parse(JSON.stringify(currentDateMoment.format("YYYY-MM-DD"))));
+      // console.log(JSON.parse(JSON.stringify(dayItemMoment.diff(currentDateMoment))));
+
+      return dayItemDate == currentDate;
+    },
     getData: function getData() {
       var _this2 = this;
 
@@ -7535,6 +7599,11 @@ __webpack_require__.r(__webpack_exports__);
       _this.$refs.edit.reset(false);
 
       _this.$refs.client.reset();
+
+      $('#' + _this.modalId).removeAttr('style');
+    });
+    $('#' + this.modalId).draggable({
+      handle: ".modal-header, .modal-footer"
     });
   },
   // props: ['bookDate'],
@@ -7665,7 +7734,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 
@@ -7679,9 +7747,16 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   mounted: function mounted() {
+    var _this = this;
+
     $("#" + this.modalId).on('show.bs.modal', function () {});
     $("#" + this.modalId).on('shown.bs.modal', function () {});
-    $("#" + this.modalId).on('hidden.bs.modal', function () {// this.$store.dispatch('moving_event/reset');
+    $("#" + this.modalId).on('hidden.bs.modal', function () {
+      // this.$store.dispatch('moving_event/reset');
+      $('#' + _this.modalId).removeAttr('style');
+    });
+    $('#' + this.modalId).draggable({
+      handle: ".modal-header, .modal-footer"
     });
   },
   // props: ['bookDate'],
@@ -7705,7 +7780,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     onClickOkBtn: function onClickOkBtn(e) {
-      var _this = this;
+      var _this2 = this;
 
       if (!this.isProp(this.e) || !this.isProp(this.e.event)) return false; // if(!this.isMovingEvent)
       //     return false;
@@ -7714,9 +7789,9 @@ __webpack_require__.r(__webpack_exports__);
         duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration)
       }).then(function (data) {
         // this.$store.dispatch('moving_event/reset');
-        _this.hide();
+        _this2.hide();
 
-        _this.$store.commit('updater/increaseCounter');
+        _this2.$store.commit('updater/increaseCounter');
       }); // this.app.editEvent(this.movingEvent.id, {
       //     duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration),
       // }).then((data) => {
@@ -8779,6 +8854,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'timeBar',
   mounted: function mounted() {
@@ -8807,7 +8884,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {
     stopperWidth: function stopperWidth() {
-      if (typeof this.stopper === 'undefined' || this.stopper === null) return 0;
+      if (!this.isProp(this.stopper) || isNaN(this.stopper) || this.stopper >= this.maxDuration) return 0;
       var perc = 100 - (this.stopper - this.minDuration) / (this.maxDuration - this.minDuration) * 100;
       perc = Math.abs(Math.floor(perc));
       return perc > 100 ? '0%' : perc + "%";
@@ -9327,6 +9404,11 @@ __webpack_require__.r(__webpack_exports__);
       _this.$refs.time_bar_duration.reset();
 
       _this.$refs.time_bar_book.reset();
+
+      $('#' + _this.modalId).removeAttr('style');
+    });
+    $('#' + this.modalId).draggable({
+      handle: ".modal-header, .modal-footer"
     });
   },
   // props: ['bookDate'],
@@ -12127,7 +12209,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/* .alert .event-itemm{\n    line-height: 18px!important;\n} */\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/* .alert .event-itemm{\n    line-height: 18px!important;\n} */\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -58141,6 +58223,7 @@ var render = function() {
                       return _c(
                         "td",
                         {
+                          staticClass: "day-cell",
                           class: {
                             "current-day": _vm.isCurrentDate(i, k),
                             weekend:
@@ -59498,7 +59581,7 @@ var render = function() {
                 "th",
                 {
                   staticClass: "weekday-title",
-                  class: { "current-day": _vm.isCurrentDate(item) }
+                  class: { "current-day": _vm.isCurrentDate(index) }
                 },
                 [
                   _c(
@@ -59531,21 +59614,16 @@ var render = function() {
         _c("tbody", [
           _c("tr"),
           _vm._v(" "),
-          _c("tr", { staticClass: "divider" }, [
-            _c("td", { class: { "current-day": _vm.isCurrentDate(1) } }),
-            _vm._v(" "),
-            _c("td", { class: { "current-day": _vm.isCurrentDate(2) } }),
-            _vm._v(" "),
-            _c("td", { class: { "current-day": _vm.isCurrentDate(3) } }),
-            _vm._v(" "),
-            _c("td", { class: { "current-day": _vm.isCurrentDate(4) } }),
-            _vm._v(" "),
-            _c("td", { class: { "current-day": _vm.isCurrentDate(5) } }),
-            _vm._v(" "),
-            _c("td", { class: { "current-day": _vm.isCurrentDate(6) } }),
-            _vm._v(" "),
-            _c("td", { class: { "current-day": _vm.isCurrentDate(7) } })
-          ])
+          _c(
+            "tr",
+            { staticClass: "divider" },
+            _vm._l(7, function(item, index) {
+              return _c("td", {
+                class: { "current-day": _vm.isCurrentDate(index) }
+              })
+            }),
+            0
+          )
         ])
       ]),
       _vm._v(" "),
@@ -59553,85 +59631,99 @@ var render = function() {
         _c("tbody", [
           _c(
             "tr",
-            _vm._l(7, function(i, index) {
-              return _c(
-                "td",
-                {
-                  class: { "current-day": _vm.isCurrentDate(i) },
-                  attrs: { "data-weekday": i }
-                },
-                [
-                  _vm.mainSettings.enable_booking_on_any_time &&
-                  _vm.freeBookingAnyTime &&
-                  (_vm.isNewEventMainFull || _vm.isMovingEvent) &&
-                  _vm.getDayItem(index) &&
-                  !_vm.getDayItem(index).is_weekend
-                    ? _c("div", { staticClass: "for-slot" }, [
-                        _c("div", { staticClass: "slot opened-slot" }, [
-                          _c("b", [
-                            _vm._v(
-                              "\n                                    " +
-                                _vm._s(_vm.freeHallTitle) +
-                                " opened:"
-                            ),
-                            _c("br"),
-                            _vm._v(
-                              "\n                                    " +
-                                _vm._s(_vm.getDayItem(index).start) +
-                                " - " +
-                                _vm._s(_vm.getDayItem(index).end) +
-                                "\n                                "
-                            )
-                          ])
-                        ])
-                      ])
-                    : _vm._e(),
-                  _vm._v(" "),
-                  (_vm.isNewEventMainFull || _vm.isMovingEvent) &&
-                  _vm.getDayItem(index) &&
-                  _vm.getDayItem(index).is_weekend
-                    ? _c("div", { staticClass: "for-closed-slot" }, [
-                        _c("div", { staticClass: "closed-slot" }, [
-                          _c("b", [
-                            _vm._v(_vm._s(_vm.freeHallTitle) + " closed")
-                          ])
-                        ])
-                      ])
-                    : _vm._e(),
-                  _vm._v(" "),
-                  (_vm.isNewEventMainFull || _vm.isMovingEvent) &&
-                  _vm.getDayItem(index) &&
-                  !_vm.getDayItem(index).bookable
-                    ? _c("div", { staticClass: "for-closed-slot" }, [
-                        _c("div", { staticClass: "closed-slot" }, [
-                          _c("b", [
-                            _vm._v(_vm._s(_vm.freeWorkerName) + " not working")
-                          ])
-                        ])
-                      ])
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm.getDayItem(index)
-                    ? _c("month-cell", {
-                        attrs: {
-                          "counters-to-top": true,
-                          item: _vm.getDayItem(index)
-                        },
-                        on: {
-                          clickMore: function($event) {
-                            return _vm.showModalMoreEvent($event)
-                          },
-                          cancel: function($event) {
-                            return _vm.cancelBook($event)
-                          }
-                        }
-                      })
-                    : _vm._e()
-                ],
-                1
-              )
-            }),
-            0
+            [
+              _vm.isAllDaysEmpty && _vm.isTypeEvents
+                ? _c("td", { attrs: { colspan: "7" } }, [
+                    _c("div", { staticClass: "cell-placeholder" }, [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(_vm.noEventsText) +
+                          "\n                        "
+                      )
+                    ])
+                  ])
+                : _vm._l(7, function(i, index) {
+                    return _c(
+                      "td",
+                      {
+                        class: { "current-day": _vm.isCurrentDate(index) },
+                        attrs: { "data-weekday": i }
+                      },
+                      [
+                        _vm.mainSettings.enable_booking_on_any_time &&
+                        _vm.freeBookingAnyTime &&
+                        (_vm.isNewEventMainFull || _vm.isMovingEvent) &&
+                        _vm.getDayItem(index) &&
+                        !_vm.getDayItem(index).is_weekend
+                          ? _c("div", { staticClass: "for-slot" }, [
+                              _c("div", { staticClass: "slot opened-slot" }, [
+                                _c("b", [
+                                  _vm._v(
+                                    "\n                                    " +
+                                      _vm._s(_vm.freeHallTitle) +
+                                      " opened:"
+                                  ),
+                                  _c("br"),
+                                  _vm._v(
+                                    "\n                                    " +
+                                      _vm._s(_vm.getDayItem(index).start) +
+                                      " - " +
+                                      _vm._s(_vm.getDayItem(index).end) +
+                                      "\n                                "
+                                  )
+                                ])
+                              ])
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        (_vm.isNewEventMainFull || _vm.isMovingEvent) &&
+                        _vm.getDayItem(index) &&
+                        _vm.getDayItem(index).is_weekend
+                          ? _c("div", { staticClass: "for-closed-slot" }, [
+                              _c("div", { staticClass: "closed-slot" }, [
+                                _c("b", [
+                                  _vm._v(_vm._s(_vm.freeHallTitle) + " closed")
+                                ])
+                              ])
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        (_vm.isNewEventMainFull || _vm.isMovingEvent) &&
+                        _vm.getDayItem(index) &&
+                        !_vm.getDayItem(index).bookable
+                          ? _c("div", { staticClass: "for-closed-slot" }, [
+                              _c("div", { staticClass: "closed-slot" }, [
+                                _c("b", [
+                                  _vm._v(
+                                    _vm._s(_vm.freeWorkerName) + " not working"
+                                  )
+                                ])
+                              ])
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.getDayItem(index)
+                          ? _c("month-cell", {
+                              attrs: {
+                                "counters-to-top": true,
+                                item: _vm.getDayItem(index)
+                              },
+                              on: {
+                                clickMore: function($event) {
+                                  return _vm.showModalMoreEvent($event)
+                                },
+                                cancel: function($event) {
+                                  return _vm.cancelBook($event)
+                                }
+                              }
+                            })
+                          : _vm._e()
+                      ],
+                      1
+                    )
+                  })
+            ],
+            2
           )
         ])
       ])
@@ -62556,52 +62648,60 @@ var render = function() {
           [
             _vm._l(7, function(i, index) {
               return _vm.getDayItem(index) &&
-                _vm.getDayItem(index).type == "free"
+                _vm.getDayItem(index).type == "free" &&
+                _vm.getDayItem(index).items
                 ? [
                     _c("tr", { staticClass: "title" }, [
-                      _c("td", { attrs: { colspan: "4" } }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "event-weekday",
-                            attrs: { href: "#" },
-                            on: {
-                              click: function($event) {
-                                $event.preventDefault()
-                                _vm.goToDayView(_vm.getDayItem(index))
+                      _c(
+                        "td",
+                        {
+                          class: { "current-day": _vm.isCurrentDate(index) },
+                          attrs: { colspan: "4" }
+                        },
+                        [
+                          _c(
+                            "a",
+                            {
+                              staticClass: "event-weekday",
+                              attrs: { href: "#" },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  _vm.goToDayView(_vm.getDayItem(index))
+                                }
                               }
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                                    " +
-                                _vm._s(_vm.weekdaysList[index]) +
-                                "\n                            "
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "event-date",
-                            attrs: { href: "#" },
-                            on: {
-                              click: function($event) {
-                                $event.preventDefault()
-                                _vm.goToDayView(_vm.getDayItem(index))
+                            },
+                            [
+                              _vm._v(
+                                "\n                                    " +
+                                  _vm._s(_vm.weekdaysList[index]) +
+                                  "\n                            "
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "a",
+                            {
+                              staticClass: "event-date",
+                              attrs: { href: "#" },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  _vm.goToDayView(_vm.getDayItem(index))
+                                }
                               }
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                                    " +
-                                _vm._s(_vm.datesPerWeekday[index]) +
-                                "\n                            "
-                            )
-                          ]
-                        )
-                      ])
+                            },
+                            [
+                              _vm._v(
+                                "\n                                    " +
+                                  _vm._s(_vm.datesPerWeekday[index]) +
+                                  "\n                            "
+                              )
+                            ]
+                          )
+                        ]
+                      )
                     ]),
                     _vm._v(" "),
                     _vm._l(_vm.getDayItem(i - 1).items, function(item) {
@@ -62627,6 +62727,14 @@ var render = function() {
                                 attrs: {
                                   "day-item": _vm.getDayItem(index),
                                   item: item
+                                },
+                                on: {
+                                  click_free: function($event) {
+                                    _vm.onClickPickFree(
+                                      _vm.getDayItem(index),
+                                      item
+                                    )
+                                  }
                                 }
                               })
                             ]
@@ -62709,7 +62817,15 @@ var render = function() {
           ],
           2
         )
-      ])
+      ]),
+      _vm._v(" "),
+      _vm.isAllDaysEmpty && _vm.isTypeEvents
+        ? _c(
+            "div",
+            { staticClass: "cell-placeholder cell-placeholder-with-bg" },
+            [_vm._v(_vm._s(_vm.noEventsText))]
+          )
+        : _vm._e()
     ])
   ])
 }
@@ -62936,7 +63052,7 @@ var render = function() {
             on: {
               click: function($event) {
                 $event.preventDefault()
-                _vm.onClickPickFree(_vm.getDayItem(_vm.index), _vm.item)
+                return _vm.$emit("click_free")
               }
             }
           },
@@ -62954,7 +63070,7 @@ var render = function() {
               on: {
                 click: function($event) {
                   $event.preventDefault()
-                  _vm.onClickPickFree(_vm.getDayItem(_vm.index), _vm.item)
+                  return _vm.$emit("click_free")
                 }
               }
             },
@@ -63151,6 +63267,8 @@ var render = function() {
                 "div",
                 { staticClass: "modal-body" },
                 [
+                  _c("info-alert", { attrs: { event: _vm.e.event } }),
+                  _vm._v(" "),
                   _c("duration", {
                     ref: "duration",
                     attrs: { e: _vm.e },
@@ -78752,7 +78870,8 @@ Vue.mixin({
           key: 'not_approved',
           label: 'Not approved'
         }
-      }
+      },
+      noEventsText: 'No events.'
     };
   },
   computed: {

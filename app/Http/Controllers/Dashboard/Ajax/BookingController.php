@@ -213,34 +213,10 @@ class BookingController extends Controller
                 'msg' => 'Event is already approved'
             ]);
             
-        // var_dump($booking->toArray());
-        // die();
-        // $duration_in_minutes = \Time::parseStringHourMinutesToMinutes($validated['duration']);
-        // $duration = $booking->right_duration;
-        $start = $booking->time;
-        $carbon_time = \Carbon\Carbon::parse($booking->time);
-        $carbon_time->addMinutes($booking->right_duration);
-        $end = $carbon_time->format('Y-m-d H:i:s');
-        $bookings = \Getter::of(GetterKeys::BOOKINGS)->all(
-            // auth()->user(),
-            new Range($start, $end, 'month'),
-            [
-                Params::ONLY_APPROVED => true,
-                Params::EXCLUDE_IDS => [$booking->id],
-                Params::FIRST_ITEMS => true,
-                Params::EXCLUDE_RANGE_START_AND_END_DATES => true,
-            ]
-        );
-        
-        if(!empty($bookings))
+        if(!$booking->isFitsInTime())
             return response()->json([
-                'msg' => 'Event crossing one of other`s events in a day'
+                'error' => $booking->getNotFitsInTimeReason()
             ]);
-        
-        // var_dump($start, $end, $booking->right_duration);
-        // var_dump($bookings);
-        // die();
-        // return;
         
         $booking->approved = 1;
         $booking->save();

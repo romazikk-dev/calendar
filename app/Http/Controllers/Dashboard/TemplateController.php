@@ -218,6 +218,7 @@ class TemplateController extends Controller
         
         // $picked_specific = \Specifics::getPickedSpecificFromModel($template);
         // dd($picked_specific);
+        // dd($template->toArray());
         
         return view('dashboard.template.create', [
             'template' => $template,
@@ -226,7 +227,6 @@ class TemplateController extends Controller
             'specifics' => !empty($parsed_specifics) ? $parsed_specifics : [],
             // 'picked_specific' => empty($template->specific) ? null :
             'picked_specific' => \Specifics::getPickedSpecificFromModel($template),
-                
         ]);
     }
 
@@ -255,7 +255,7 @@ class TemplateController extends Controller
         unset($validated['_token'],$validated['_method']);
         // dd($validated);
         
-        $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
+        $validated['duration'] = (int)floor(((int)strtotime('1970-01-01 ' . $validated['duration'] .':00')) / 60);
         
         if(!empty($validated['assign_workers'])){
             $assign_workers = array_keys($validated['assign_workers']);

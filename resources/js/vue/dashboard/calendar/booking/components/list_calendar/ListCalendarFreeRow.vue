@@ -11,11 +11,11 @@
             <div class="status"></div>
         </td>
         <td>
-            <a class="free-time-btn" href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Free time</a>
+            <a class="free-time-btn" href="#" @click.prevent="$emit('click_free')">Free time</a>
         </td>
         <td>
             <div class="float-right">
-                <a class="pick-btn" href="#" @click.prevent="onClickPickFree(getDayItem(index), item)">Pick</a>
+                <a class="pick-btn" href="#" @click.prevent="$emit('click_free')">Pick</a>
             </div>
             <span v-if="item.too_short" class="small float-right">
                 Too short!

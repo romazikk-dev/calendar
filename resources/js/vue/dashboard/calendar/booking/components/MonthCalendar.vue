@@ -18,7 +18,7 @@
                             'current-day': isCurrentDate(i,k),
                             'weekend': (isNewEventMainFull || isMovingEvent) && (getDate(i,k,'is_weekend') || !getDate(i,k,'bookable')),
                             /* 'weekend': getDate(i,k,'is_weekend') || !getDate(i,k,'bookable'), */
-                        }">
+                        }" class="day-cell">
                             <div class="cell-content">
                                 <div class="day"
                                     @click.prevent="goToDayView(getDate(i,k))"
@@ -81,6 +81,7 @@
                 // trigger: "click",
                 trigger: "hover",
             });
+            this.adaptWidthOfEvents();
         },
         mounted() {
             this.$store.dispatch('dates/setMonthDates', this.startDates.month);
@@ -104,6 +105,9 @@
             },
         },
         methods: {
+            adaptWidthOfEvents: function () {
+                // $(".month-calendar .day-cell")
+            },
             showModalMoreEvent: function(e){
                 // console.log(JSON.parse(JSON.stringify(e)));
                 this.app.$refs.modal_more_events.show(e);

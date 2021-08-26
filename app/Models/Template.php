@@ -80,7 +80,7 @@ class Template extends Model
     }
     
     public function getDurationParsedAttribute(){
-        return date('H:i', $this->duration);
+        return date('H:i', $this->duration * 60);
     }
     
     /**

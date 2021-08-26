@@ -560,6 +560,12 @@
   padding: 6px;
 }
 
+.calendar-all-bookings .cell-placeholder.cell-placeholder-with-bg {
+  border: 1px solid #ccc;
+  background-image: url(/imgs/week-calendar-table-odd-row-bg.jpg);
+  border-radius: 0.25rem;
+}
+
 .calendar-all-bookings .month-calendar,
 .calendar-all-bookings .week-calendar {
   min-width: 800px;
@@ -916,6 +922,10 @@
   --title-bg: #f1f1f1;
   --td-padding: 7px 10px;
   --text-color: #20232a;
+}
+
+.calendar-all-bookings .list-calendar .current-day {
+  background-color: rgba(8, 232, 222, 0.3) !important;
 }
 
 .calendar-all-bookings .list-calendar table.contt {

@@ -92,7 +92,13 @@
                 return this.weekdaysList[this.dates.isoWeekday - 1];
             },
             isCurrentDate: function(){
-                return this.currentIsoWeekday == this.dates.isoWeekday;
+                if(!this.isProp(this.dates))
+                    return false;
+                    
+                let dayItemDate = moment(this.dates.date).format("YYYY-MM-DD");
+                let currentDate = moment(this.currentDate).format("YYYY-MM-DD");
+                
+                return dayItemDate == currentDate;
             },
             dataUpdater: function () {
                 return this.$store.getters['updater/counter'];

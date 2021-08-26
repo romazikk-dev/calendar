@@ -13,11 +13,10 @@
                 </div>
                 <div class="modal-body" v-if="e">
                     <!-- <loader ref="loader"></loader>   -->
-                    <!-- <info-alert :event="e.event"/> -->
+                    <info-alert :event="e.event"/>
                     <duration ref="duration"
                         @change="durationChanged($event)"
                         :e="e" />
-                            
                 </div>
                 <div class="modal-footer">
                     
@@ -66,6 +65,11 @@
             $("#" + this.modalId).on('shown.bs.modal', () => {});
             $("#" + this.modalId).on('hidden.bs.modal', () => {
                 // this.$store.dispatch('moving_event/reset');
+                $('#' + this.modalId).removeAttr('style');
+            });
+            
+            $('#' + this.modalId).draggable({
+                handle: ".modal-header, .modal-footer"
             });
         },
         // props: ['bookDate'],

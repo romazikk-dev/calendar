@@ -7,7 +7,7 @@
                 <thead>
                     <tr>
                         <th v-for="(item, index) in 7"
-                            :class="{'current-day': isCurrentDate(item)}"
+                            :class="{'current-day': isCurrentDate(index)}"
                             class="weekday-title">
                                 <a href="#" @click.prevent="goToDayView(getDayItem(index))">
                                     {{weekdaysList[index]}}
@@ -19,13 +19,7 @@
                 <tbody>
                     <tr></tr>
                     <tr class="divider">
-                        <td :class="{'current-day': isCurrentDate(1)}"></td>
-                        <td :class="{'current-day': isCurrentDate(2)}"></td>
-                        <td :class="{'current-day': isCurrentDate(3)}"></td>
-                        <td :class="{'current-day': isCurrentDate(4)}"></td>
-                        <td :class="{'current-day': isCurrentDate(5)}"></td>
-                        <td :class="{'current-day': isCurrentDate(6)}"></td>
-                        <td :class="{'current-day': isCurrentDate(7)}"></td>
+                        <td v-for="(item, index) in 7" :class="{'current-day': isCurrentDate(index)}"></td>
                     </tr>
                 </tbody>
             </table>
@@ -33,7 +27,12 @@
             <table cellspacing="0" :key="dataKey">
                 <tbody>
                     <tr>
-                        <td v-for="(i, index) in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(i)}">
+                        <td v-if="isAllDaysEmpty && isTypeEvents" colspan="7">
+                            <div class="cell-placeholder">
+                                {{noEventsText}}
+                            </div>
+                        </td>
+                        <td v-else v-for="(i, index) in 7" :data-weekday="i" :class="{'current-day': isCurrentDate(index)}">
                             <div v-if="
                                 mainSettings.enable_booking_on_any_time && freeBookingAnyTime &&
                                 (isNewEventMainFull || isMovingEvent) &&
@@ -91,6 +90,20 @@
             };
         },
         computed: {
+            isTypeEvents: function () {
+                let firstDayItem = this.getDayItem(0);
+                if(!this.isProp(firstDayItem))
+                    return false;
+                return firstDayItem.type == 'events';
+            },
+            isAllDaysEmpty: function () {
+                for(let i = 0; i < 7; i++){
+                    let dayItem = this.getDayItem(i);
+                    if(this.isProp(dayItem) && dayItem.count_total > 0)
+                        return false;
+                }
+                return true;
+            },
             datesPerWeekday: function () {
                 let initDateMoment;
                 let weekDayFormat = 'D/M';
@@ -150,10 +163,24 @@
                     dateItemMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")
                 ) && dateItem.bookable;
             },
-            isCurrentDate: function(k){
+            isCurrentDate: function(index){
+                let dayItem = this.getDayItem(index);
+                if(!this.isProp(dayItem))
+                    return false;
+                    
+                let dayItemDate = moment(dayItem.year+'-'+dayItem.month+'-'+dayItem.day).format("YYYY-MM-DD");
+                let currentDate = moment(this.currentDate).format("YYYY-MM-DD");
+                
+                console.log(JSON.parse(JSON.stringify('isCurrentDate')));
+                console.log(JSON.parse(JSON.stringify(dayItemDate == currentDate)));
+                // console.log(JSON.parse(JSON.stringify(dayItemMoment.format("YYYY-MM-DD"))));
+                // console.log(JSON.parse(JSON.stringify(currentDateMoment.format("YYYY-MM-DD"))));
+                // console.log(JSON.parse(JSON.stringify(dayItemMoment.diff(currentDateMoment))));
+                
+                return dayItemDate == currentDate;
                 // console.log(moment(this.currentDate).startOf('week').format('DD'));
                 // console.log(moment(this.firstWeekday).startOf('week').format('DD'));
-                return this.currentIsoWeekday == k;
+                // return this.currentIsoWeekday == k;
                 // return this.currentIsoWeekday == k &&
                 // moment(this.currentDate).startOf('week').format('DD') == moment(this.firstWeekday).startOf('week').format('DD');
                 // return this.yearOfCurrentDate == this.getDate(i,k,'year') &&

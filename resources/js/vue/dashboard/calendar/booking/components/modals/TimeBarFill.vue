@@ -5,6 +5,8 @@
 
 <template>
     <div>
+        <!-- {{minDuration}} - {{maxDuration}}<br>
+        {{stopper}} - {{stopperWidth}} -->
         <div class="range-slider grad"
             ref="range_slider"
             :style="{
@@ -67,7 +69,7 @@
         },
         computed: {
             stopperWidth: function () {
-                if(typeof this.stopper === 'undefined' || this.stopper === null)
+                if(!this.isProp(this.stopper) || isNaN(this.stopper) || this.stopper >= this.maxDuration)
                     return 0;
                 let perc = 100 - (
                     (this.stopper - this.minDuration) / (this.maxDuration - this.minDuration) * 100

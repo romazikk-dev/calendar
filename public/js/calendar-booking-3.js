@@ -7578,22 +7578,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/calendar_3/booking/store/modules/filters.js");
-/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/calendar_3/booking/store/modules/owner.js");
-/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/calendar_3/booking/store/modules/client.js");
-/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/calendar_3/booking/store/modules/halls.js");
-/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/calendar_3/booking/store/modules/updater.js");
-/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/calendar_3/booking/store/modules/specifics.js");
-/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/calendar_3/booking/store/modules/custom_titles.js");
-/* harmony import */ var _modules_new_event__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/new_event */ "./resources/js/vue/calendar_3/booking/store/modules/new_event.js");
-/* harmony import */ var _modules_template__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/template */ "./resources/js/vue/calendar_3/booking/store/modules/template.js");
-/* harmony import */ var _modules_dates__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/dates */ "./resources/js/vue/calendar_3/booking/store/modules/dates.js");
-/* harmony import */ var _modules_navbar__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/navbar */ "./resources/js/vue/calendar_3/booking/store/modules/navbar.js");
-/* harmony import */ var _modules_view__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/view */ "./resources/js/vue/calendar_3/booking/store/modules/view.js");
-/* harmony import */ var _modules_keys__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/keys */ "./resources/js/vue/calendar_3/booking/store/modules/keys.js");
-
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _modules_filters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/filters */ "./resources/js/vue/calendar_3/booking/store/modules/filters.js");
+/* harmony import */ var _modules_owner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/owner */ "./resources/js/vue/calendar_3/booking/store/modules/owner.js");
+/* harmony import */ var _modules_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/client */ "./resources/js/vue/calendar_3/booking/store/modules/client.js");
+/* harmony import */ var _modules_halls__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/halls */ "./resources/js/vue/calendar_3/booking/store/modules/halls.js");
+/* harmony import */ var _modules_updater__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/updater */ "./resources/js/vue/calendar_3/booking/store/modules/updater.js");
+/* harmony import */ var _modules_specifics__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/specifics */ "./resources/js/vue/calendar_3/booking/store/modules/specifics.js");
+/* harmony import */ var _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/custom_titles */ "./resources/js/vue/calendar_3/booking/store/modules/custom_titles.js");
+/* harmony import */ var _modules_template__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/template */ "./resources/js/vue/calendar_3/booking/store/modules/template.js");
+/* harmony import */ var _modules_dates__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/dates */ "./resources/js/vue/calendar_3/booking/store/modules/dates.js");
+/* harmony import */ var _modules_navbar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/navbar */ "./resources/js/vue/calendar_3/booking/store/modules/navbar.js");
+/* harmony import */ var _modules_view__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/view */ "./resources/js/vue/calendar_3/booking/store/modules/view.js");
+/* harmony import */ var _modules_keys__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/keys */ "./resources/js/vue/calendar_3/booking/store/modules/keys.js");
 
 
 
@@ -7609,28 +7607,23 @@ __webpack_require__.r(__webpack_exports__);
 
  // import free_get_data_params from './modules/free_get_data_params';
 
-vue__WEBPACK_IMPORTED_MODULE_0__.default.use(vuex__WEBPACK_IMPORTED_MODULE_1__.default); // const debug = process.env.NODE_ENV !== 'production'
+vue__WEBPACK_IMPORTED_MODULE_12__.default.use(vuex__WEBPACK_IMPORTED_MODULE_13__.default); // const debug = process.env.NODE_ENV !== 'production'
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_1__.default.Store({
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_13__.default.Store({
   modules: {
-    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_2__.default,
-    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_3__.default,
-    client: _modules_client__WEBPACK_IMPORTED_MODULE_4__.default,
-    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_5__.default,
-    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_6__.default,
-    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_7__.default,
-    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_8__.default,
-    moving_event: moving_event,
-    new_event: _modules_new_event__WEBPACK_IMPORTED_MODULE_9__.default,
-    template: _modules_template__WEBPACK_IMPORTED_MODULE_10__.default,
-    dates: _modules_dates__WEBPACK_IMPORTED_MODULE_11__.default,
-    navbar: _modules_navbar__WEBPACK_IMPORTED_MODULE_12__.default,
-    view: _modules_view__WEBPACK_IMPORTED_MODULE_13__.default,
-    keys: _modules_keys__WEBPACK_IMPORTED_MODULE_14__.default // free_get_data_params,
-
-  } // strict: debug,
-  // plugins: debug ? [createLogger()] : []
-
+    filters: _modules_filters__WEBPACK_IMPORTED_MODULE_0__.default,
+    owner: _modules_owner__WEBPACK_IMPORTED_MODULE_1__.default,
+    client: _modules_client__WEBPACK_IMPORTED_MODULE_2__.default,
+    halls: _modules_halls__WEBPACK_IMPORTED_MODULE_3__.default,
+    updater: _modules_updater__WEBPACK_IMPORTED_MODULE_4__.default,
+    specifics: _modules_specifics__WEBPACK_IMPORTED_MODULE_5__.default,
+    custom_titles: _modules_custom_titles__WEBPACK_IMPORTED_MODULE_6__.default,
+    template: _modules_template__WEBPACK_IMPORTED_MODULE_7__.default,
+    dates: _modules_dates__WEBPACK_IMPORTED_MODULE_8__.default,
+    navbar: _modules_navbar__WEBPACK_IMPORTED_MODULE_9__.default,
+    view: _modules_view__WEBPACK_IMPORTED_MODULE_10__.default,
+    keys: _modules_keys__WEBPACK_IMPORTED_MODULE_11__.default
+  }
 }));
 
 /***/ }),
@@ -8593,171 +8586,6 @@ var mutations = {
   getters: getters,
   actions: actions,
   mutations: mutations
-});
-
-/***/ }),
-
-/***/ "./resources/js/vue/calendar_3/booking/store/modules/new_event.js":
-/*!************************************************************************!*\
-  !*** ./resources/js/vue/calendar_3/booking/store/modules/new_event.js ***!
-  \************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-// import shop from '../../api/shop'
-var state = function state() {
-  return {
-    cookieName: 'dashboard_calendar-new_event',
-    client: calendarHelper.newE.getItem('client'),
-    main: {
-      hall: calendarHelper.newE.getItem('main.hall'),
-      worker: calendarHelper.newE.getItem('main.worker'),
-      template: calendarHelper.newE.getItem('main.template')
-    },
-    show: calendarHelper.newE.getItem('show')
-  };
-}; // getters
-
-
-var getters = {
-  all: function all(state) {
-    return state;
-  },
-  main: function main(state) {
-    return state.main;
-  },
-  client: function client(state) {
-    return state.client;
-  },
-  hall: function hall(state) {
-    return state.main.hall;
-  },
-  worker: function worker(state) {
-    return state.main.worker;
-  },
-  template: function template(state) {
-    return state.main.template;
-  },
-  show: function show(state) {
-    return state.show;
-  },
-  isMainFull: function isMainFull(state) {
-    return typeof state.main !== 'undefined' && state.main !== null && typeof state.main.hall !== 'undefined' && state.main.hall !== null && typeof state.main.worker !== 'undefined' && state.main.worker !== null && typeof state.main.template !== 'undefined' && state.main.template !== null;
-  },
-  isClientFull: function isClientFull(state) {
-    return typeof state.client !== 'undefined' && state.client !== null;
-  },
-  isFull: function isFull(state, getters) {
-    return getters.isMainFull && getters.isClientFull;
-  },
-  // urlSearchParamsMain: (state, as_string = false) => {
-  urlSearchParamsFree: function urlSearchParamsFree(state, getters) {
-    var urlSearchParams = new URLSearchParams();
-
-    if (getters.isMainFull === true) {
-      // urlSearchParams.append("hall", state.main.hall.id);
-      urlSearchParams.append("worker", state.main.worker.id); // urlSearchParams.append("template", state.main.template.id);
-    }
-
-    if (state.client !== null) urlSearchParams.append("client", state.client.id); // alert(1111111);
-    // console.log(JSON.parse(JSON.stringify(urlSearchParams)));
-
-    return urlSearchParams;
-  },
-  urlSearchParamsMain: function urlSearchParamsMain(state, getters) {
-    var urlSearchParams = new URLSearchParams();
-
-    if (getters.isMainFull === true) {
-      urlSearchParams.append("hall", state.main.hall.id);
-      urlSearchParams.append("worker", state.main.worker.id);
-      urlSearchParams.append("template", state.main.template.id);
-    }
-
-    if (state.client !== null) urlSearchParams.append("client", state.client.id);
-    return urlSearchParams;
-  }
-}; // mutations
-
-var mutations = {
-  reset: function reset(state) {
-    state.client = null;
-    state.main = {
-      hall: null,
-      worker: null,
-      template: null
-    };
-    state.show = false;
-  },
-  setMain: function setMain(state, main) {
-    if (typeof main !== 'undefined' && main !== null && typeof main.hall !== 'undefined' && main.hall !== null && typeof main.worker !== 'undefined' && main.worker !== null && typeof main.template !== 'undefined' && main.template !== null) {
-      state.main = main;
-    }
-  },
-  setClient: function setClient(state, client) {
-    if (typeof client !== 'undefined' && client !== null) state.client = client;
-  },
-  setShow: function setShow(state, show) {
-    if (typeof show === 'undefined') return;
-    state.show = show === true ? true : false;
-  }
-}; // actions
-
-var actions = {
-  reset: function reset(context, picked) {
-    this.commit('new_event/reset');
-    this.commit('free_get_data_params/withEvents', null);
-    this.dispatch('new_event/set_cookie');
-  },
-  setMain: function setMain(context, main) {
-    this.commit('new_event/setMain', main);
-    this.dispatch('new_event/set_cookie');
-  },
-  setClient: function setClient(context, client) {
-    this.commit('new_event/setClient', client);
-    this.dispatch('new_event/set_cookie');
-  },
-  setShow: function setShow(context, show) {
-    this.commit('new_event/setShow', show);
-    this.dispatch('new_event/set_cookie');
-  },
-  set_cookie: function set_cookie(_ref) {
-    var state = _ref.state;
-    var cookieData = {
-      client: null,
-      main: {
-        hall: null,
-        worker: null,
-        template: null
-      },
-      show: false
-    };
-    if (state.client !== null && typeof state.client.id !== 'undefined' && !isNaN(state.client.id)) cookieData.client = state.client.id;
-
-    if (this.getters['new_event/isMainFull'] && typeof state.main.hall.id !== 'undefined' && !isNaN(state.main.hall.id) && typeof state.main.worker.id !== 'undefined' && !isNaN(state.main.worker.id) && typeof state.main.template.id !== 'undefined' && !isNaN(state.main.template.id)) {
-      cookieData.main.hall = state.main.hall.id;
-      cookieData.main.worker = state.main.worker.id;
-      cookieData.main.template = state.main.template.id;
-    }
-
-    cookieData.show = state.show === true ? true : false;
-
-    if (cookieData.main.hall === null || cookieData.main.worker === null || cookieData.main.template === null) {
-      cookie.remove(state.cookieName);
-    } else {
-      cookie.set(state.cookieName, cookieData);
-    }
-  }
-};
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  namespaced: true,
-  state: state,
-  getters: getters,
-  mutations: mutations,
-  actions: actions
 });
 
 /***/ }),

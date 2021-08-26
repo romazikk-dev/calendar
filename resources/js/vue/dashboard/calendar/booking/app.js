@@ -188,7 +188,8 @@ Vue.mixin({
                     key: 'not_approved',
                     label: 'Not approved',
                 }
-            }
+            },
+            noEventsText: 'No events.'
         };
     },
     computed: {
