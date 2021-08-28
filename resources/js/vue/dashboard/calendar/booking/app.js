@@ -345,6 +345,19 @@ Vue.mixin({
         movingEventPicked: function(){
             return this.$store.getters['moving_event/picked'];
         },
+        movingEventComposedWithPicked: function(){
+            if(!this.isProp(this.movingEvent))
+                return null;
+            
+            let event = JSON.parse(JSON.stringify(this.movingEvent));
+            if(this.movingEventIsPickedFull){
+                event.hall_without_user_scope = this.movingEventPicked.hall;
+                event.template_without_user_scope = this.movingEventPicked.template;
+                event.worker_without_user_scope = this.movingEventPicked.worker;
+            }
+            
+            return event;
+        },
         movingEvent: function(){
             return this.$store.getters['moving_event/event'];
         },

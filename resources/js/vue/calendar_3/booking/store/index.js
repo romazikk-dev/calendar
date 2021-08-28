@@ -8,12 +8,14 @@ import halls from './modules/halls';
 import updater from './modules/updater';
 import specifics from './modules/specifics';
 import custom_titles from './modules/custom_titles';
+import moving_event from './modules/moving_event';
+import new_event from './modules/new_event';
 import template from './modules/template';
 import dates from './modules/dates';
 import navbar from './modules/navbar';
 import view from './modules/view';
 import keys from './modules/keys';
-// import free_get_data_params from './modules/free_get_data_params';
+import free_get_data_params from './modules/free_get_data_params';
 
 
 Vue.use(Vuex);
@@ -30,10 +32,15 @@ export default new Vuex.Store({
         updater,
         specifics,
         custom_titles,
+        moving_event,
+        new_event,
         template,
         dates,
         navbar,
         view,
         keys,
+        free_get_data_params,
     },
+    // strict: debug,
+    // plugins: debug ? [createLogger()] : []
 });

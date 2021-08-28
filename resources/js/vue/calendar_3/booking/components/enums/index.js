@@ -1,5 +1,5 @@
-// import GetDataFreeWithEventsParams from "./modules/GetDataFreeWithEventsParams";
+import GetDataFreeWithEventsParams from "./modules/GetDataFreeWithEventsParams";
 
 export {
-    // GetDataFreeWithEventsParams as GetDataFreeWithEventsParams,
+    GetDataFreeWithEventsParams as GetDataFreeWithEventsParams,
 }

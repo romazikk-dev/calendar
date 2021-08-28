@@ -31,12 +31,12 @@
                                         </div>
                                     </div>
                                 </template>
-                                <template v-else>
+                                <!-- <template v-else> -->
                                     <month-cell v-if="notPast(i,k)"
                                         @open-modal="openModal($event,i,k)"
                                         @cancel="cancelBook($event)"
                                         :items="getDate(i,k,'items')"></month-cell>
-                                </template>
+                                <!-- </template> -->
                                 <!-- <a @click.prevent="openModal(i,k)" v-if="notPast(i,k)" class="booking" href="#">book...</a> -->
                             </div>
                         </td>
@@ -214,8 +214,8 @@
                     this.componentApp = this.getParentComponentByName(this, 'app');
                 
                 this.componentApp.getData(
-                    moment(this.firstCalendarDate).format('DD-MM-YYYY'),
-                    moment(this.lastCalendarDate).format('DD-MM-YYYY'),
+                    moment(this.firstCalendarDate).format('YYYY-MM-DD'),
+                    moment(this.lastCalendarDate).format('YYYY-MM-DD'),
                     (response) => {
                         this.dates = response.data.data;
                     },

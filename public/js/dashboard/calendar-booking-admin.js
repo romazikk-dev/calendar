@@ -2868,7 +2868,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     onClickEdit: function onClickEdit(e) {
       this.closeTooltipOfEvent(e);
-      if (this.isProp(this.movingEvent)) this.app.$refs.move_path_picker.show(this.movingEvent);
+      if (this.isProp(this.movingEvent)) this.app.$refs.move_path_picker.show(this.movingEventComposedWithPicked);
       if (this.isNewEventMainFull) this.app.$refs.modal_book.show();
     },
     onClickClose: function onClickClose(e) {
@@ -3539,6 +3539,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _event_Actions_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event/Actions.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5466,6 +5477,9 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    setE: function setE(e) {
+      this.e = e;
+    },
     reset: function reset() {
       this.setDuration();
     },
@@ -5485,6 +5499,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   watch: {
     e: function e(newValue, oldValue) {
+      console.log(JSON.parse(JSON.stringify('Duration changed')));
       this.setDuration();
     }
   }
@@ -7950,11 +7965,19 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   mounted: function mounted() {
+    var _this = this;
+
     $("#" + this.modalId).on('show.bs.modal', function () {});
     $("#" + this.modalId).on('shown.bs.modal', function () {});
-    $("#" + this.modalId).on('hidden.bs.modal', function () {});
+    $("#" + this.modalId).on('hidden.bs.modal', function () {
+      $('#' + _this.modalId).removeAttr('style');
+    });
     this.setIsAllFilterBlocksCollapsed(); // console.log(this.$refs);
     // console.log(JSON.parse(JSON.stringify(this.$refs)));
+
+    $('#' + this.modalId).draggable({
+      handle: ".modal-header, .modal-footer"
+    });
   },
   // props: ['bookDate'],
   data: function data() {
@@ -8331,6 +8354,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -8364,6 +8393,10 @@ __webpack_require__.r(__webpack_exports__);
     });
     $("#" + this.modalId).on('hidden.bs.modal', function () {
       _this.showTab = 'events';
+      $('#' + _this.modalId).removeAttr('style');
+    });
+    $('#' + this.modalId).draggable({
+      handle: ".modal-header, .modal-footer"
     });
   },
   // props: ['bookDate'],
@@ -8375,6 +8408,7 @@ __webpack_require__.r(__webpack_exports__);
       // errorResponse: null,
       e: null,
       events: null,
+      editedEvent: null,
       // choosenTime: null,
       showEditResetBtn: false,
       showEditPickTimeBtn: false,
@@ -8392,10 +8426,14 @@ __webpack_require__.r(__webpack_exports__);
     //         return null;
     //     return this.e.items;
     // },
-    getDataDate: function getDataDate() {
-      if (this.e == null || typeof this.e.day === 'undefined' || this.e.day === null || typeof this.e.month === 'undefined' || this.e.month === null || typeof this.e.year === 'undefined' || this.e.year === null) return null;
-      return this.e.year + '-' + this.e.month + '-' + this.e.day;
-    },
+    // getDataDate: function () {
+    //     if(this.e == null ||
+    //     typeof this.e.day === 'undefined' || this.e.day === null ||
+    //     typeof this.e.month === 'undefined' || this.e.month === null ||
+    //     typeof this.e.year === 'undefined' || this.e.year === null)
+    //         return null;
+    //     return this.e.year + '-' + this.e.month + '-' + this.e.day;
+    // },
     dateObj: function dateObj() {
       if (this.e == null || typeof this.e.day === 'undefined' || this.e.day === null || typeof this.e.month === 'undefined' || this.e.month === null || typeof this.e.year === 'undefined' || this.e.year === null) return null;
       var momentDate = moment(this.e.year + '-' + this.e.month + '-' + this.e.day);
@@ -8415,12 +8453,11 @@ __webpack_require__.r(__webpack_exports__);
     applyDurationAndBackToEvents: function applyDurationAndBackToEvents(e) {
       var _this2 = this;
 
-      if (!this.isMovingEvent) return false;
-      this.app.editEvent(this.movingEvent.id, {
+      if (!this.isProp(this.durationE)) return;
+      this.app.editEvent(this.durationE.event.id, {
         duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration)
       }).then(function (data) {
-        _this2.$store.dispatch('moving_event/reset');
-
+        // this.$store.dispatch('moving_event/reset');
         return _this2.setEvents();
       })["finally"](function () {
         _this2.showTab = 'events';
@@ -8431,12 +8468,11 @@ __webpack_require__.r(__webpack_exports__);
     applyDurationAndCloseModal: function applyDurationAndCloseModal(e) {
       var _this3 = this;
 
-      if (!this.isMovingEvent) return false;
-      this.app.editEvent(this.movingEvent.id, {
+      if (!this.isProp(this.durationE)) return;
+      this.app.editEvent(this.durationE.event.id, {
         duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration)
       }).then(function (data) {
-        _this3.$store.dispatch('moving_event/reset');
-
+        // this.$store.dispatch('moving_event/reset');
         _this3.hide(true);
 
         _this3.$store.commit('updater/increaseCounter');
@@ -8450,20 +8486,23 @@ __webpack_require__.r(__webpack_exports__);
     onClickPickTime: function onClickPickTime() {
       var _this4 = this;
 
-      if (this.$refs.edit.isAllItemsPicked) {
-        this.$store.dispatch('moving_event/setPicked', {
-          hall: this.$refs.edit.pickedHall,
-          worker: this.$refs.edit.pickedWorker,
-          template: this.$refs.edit.pickedTemplate
-        });
-        console.log(JSON.parse(JSON.stringify(this.movingEventPicked)));
-        this.calendar.getData({
-          type: 'free',
-          exclude_ids: [this.movingEvent.id] // test: true
+      if (this.$refs.edit.isAllItemsPicked && this.isProp(this.editedEvent)) {
+        this.app.setMovingEvent(this.editedEvent).then(function (data) {
+          _this4.$store.dispatch('moving_event/setPicked', {
+            hall: _this4.$refs.edit.pickedHall,
+            worker: _this4.$refs.edit.pickedWorker,
+            template: _this4.$refs.edit.pickedTemplate
+          }); // console.log(JSON.parse(JSON.stringify(this.movingEventPicked)));
 
-        }).then(function () {
-          // this.hide();
-          _this4.hide(false);
+
+          _this4.calendar.getData({
+            type: 'free',
+            exclude_ids: [_this4.movingEvent.id] // test: true
+
+          }).then(function () {
+            // this.hide();
+            _this4.hide(false);
+          });
         });
       } // this.$refs.edit.setMovingEventPickedItems();
       // this.setShowMovingEvent(true);
@@ -8506,19 +8545,25 @@ __webpack_require__.r(__webpack_exports__);
     onActionMove: function onActionMove(event) {
       var _this6 = this;
 
-      this.app.setMovingEvent(event).then(function (data) {
-        // console.log(JSON.parse(JSON.stringify(this.$refs)));
-        // console.log(this.$refs);
-        _this6.showTab = 'edit';
-
-        _this6.$nextTick(function () {
-          _this6.$refs.edit.fillFields({
-            hall_id: data.event.hall_id,
-            template_id: data.event.template_id,
-            worker_id: data.event.worker_id
-          });
+      // this.app.setMovingEvent(event).then((data) => {
+      // console.log(JSON.parse(JSON.stringify(this.$refs)));
+      // console.log(this.$refs);
+      this.editedEvent = event;
+      this.showTab = 'edit';
+      this.$nextTick(function () {
+        _this6.$refs.edit.fillFields({
+          hall_id: _this6.editedEvent.hall_id,
+          template_id: _this6.editedEvent.template_id,
+          worker_id: _this6.editedEvent.worker_id
         });
-      });
+      }); // setTimeout(() => {
+      //     this.$refs.edit.fillFields({
+      //         hall_id: event.hall_id,
+      //         template_id: event.template_id,
+      //         worker_id: event.worker_id,
+      //     });
+      // }, 1000);
+      // });
     },
     onClickActionApprove: function onClickActionApprove(event) {
       var _this7 = this;
@@ -8539,74 +8584,77 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     onClickActionDuration: function onClickActionDuration(event) {
+      // this.app.setMovingEvent(event).then((data) => {
+      // console.log(JSON.parse(JSON.stringify(event)));
+      // this.showTab = 'duration';
+      // this.showTab = 'duration';
+      // this.$nextTick(() => {
+      this.durationE = {
+        event: event,
+        nextEvent: this.getNextEventFromEvents(this.events, event)
+      };
+      this.showTab = 'duration'; // this.$refs.duration.setE(this.durationE);
+      // });
+      // setE
+      // console.log(JSON.parse(JSON.stringify(event)));
+      // console.log(JSON.parse(JSON.stringify(this.durationE)));
+      // });
+    },
+    onClickActionDateTime: function onClickActionDateTime(event) {
       var _this9 = this;
 
       this.app.setMovingEvent(event).then(function (data) {
-        // console.log(JSON.parse(JSON.stringify(event)));
-        _this9.durationE = {
-          event: event,
-          nextEvent: _this9.getNextEventFromEvents(_this9.events, event)
-        };
-        _this9.showTab = 'duration'; // console.log(JSON.parse(JSON.stringify(event)));
-
-        console.log(JSON.parse(JSON.stringify(_this9.durationE)));
-      });
-    },
-    onClickActionDateTime: function onClickActionDateTime(event) {
-      var _this10 = this;
-
-      this.app.setMovingEvent(event).then(function (data) {
-        _this10.calendar.getData({
+        _this9.calendar.getData({
           type: 'free',
-          exclude_ids: [_this10.movingEvent.id]
+          exclude_ids: [_this9.movingEvent.id]
         });
       }).then(function (data) {
-        _this10.hide(false);
+        _this9.hide(false);
       });
     },
     durationStrHoursAndMinutes: function durationStrHoursAndMinutes(event) {
       return calendarHelper.time.composeHourMinuteTimeFromMinutes(event.right_duration);
     },
     setEvents: function setEvents() {
-      var _this11 = this;
+      var _this10 = this;
 
       return new Promise(function (resolve, reject) {
-        if (_this11.isEDate) {
-          var date = _this11.e.year + '-' + _this11.e.month + '-' + _this11.e.day;
+        if (_this10.isEDate) {
+          var date = _this10.e.year + '-' + _this10.e.month + '-' + _this10.e.day;
 
-          _this11.app.getData(date, date, {
+          _this10.app.getData(date, date, {
             type: 'all'
           }).then(function (data) {
             // console.log(JSON.parse(JSON.stringify(data)));
             // console.log(JSON.parse(JSON.stringify(data.data[0].items)));
-            _this11.events = data.data[0].items;
+            _this10.events = data.data[0].items;
             resolve();
           });
         } else {
-          _this11.events = null;
+          _this10.events = null;
           reject();
         }
       });
     },
     show: function show(e) {
-      var _this12 = this;
+      var _this11 = this;
 
       console.log(JSON.parse(JSON.stringify('show show show')));
       console.log(JSON.parse(JSON.stringify(e)));
       this.e = e;
       this.setEvents()["finally"](function () {
-        $('#' + _this12.modalId).modal('show');
+        $('#' + _this11.modalId).modal('show');
       });
     },
     hide: function hide() {
-      var _this13 = this;
+      var _this12 = this;
 
       var resetMovingEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
       $('#' + this.modalId).modal('hide'); // alert(resetMovingEvent);
 
       if (resetMovingEvent === true) {
         setTimeout(function () {
-          _this13.$store.dispatch('moving_event/reset');
+          _this12.$store.dispatch('moving_event/reset');
         }, 400);
       } // setTimeout(() => {
       //     this.showTab = 'events';
@@ -58830,46 +58878,6 @@ var render = function() {
                                     }
                                   },
                                   [
-                                    itm.time_crossing
-                                      ? _c(
-                                          "div",
-                                          {
-                                            staticClass:
-                                              "warning-sign text-warning tooltip-active",
-                                            attrs: {
-                                              "data-placement": "auto",
-                                              title:
-                                                "<div class='small'>Event is crossing time one of others events</div>"
-                                            }
-                                          },
-                                          [
-                                            _c(
-                                              "svg",
-                                              {
-                                                staticClass:
-                                                  "bi bi-exclamation-triangle-fill",
-                                                attrs: {
-                                                  xmlns:
-                                                    "http://www.w3.org/2000/svg",
-                                                  width: "14",
-                                                  height: "14",
-                                                  fill: "currentColor",
-                                                  viewBox: "0 0 16 16"
-                                                }
-                                              },
-                                              [
-                                                _c("path", {
-                                                  attrs: {
-                                                    d:
-                                                      "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
-                                                  }
-                                                })
-                                              ]
-                                            )
-                                          ]
-                                        )
-                                      : _vm._e(),
-                                    _vm._v(" "),
                                     _c(
                                       "div",
                                       {
@@ -58884,7 +58892,47 @@ var render = function() {
                                                 .first_name
                                             )
                                           )
-                                        ])
+                                        ]),
+                                        _vm._v(" "),
+                                        itm.time_crossing
+                                          ? _c(
+                                              "div",
+                                              {
+                                                staticClass:
+                                                  "text-warning tooltip-active d-inline-block",
+                                                attrs: {
+                                                  "data-placement": "auto",
+                                                  title:
+                                                    "<div class='small'>Event is crossing time one of others events</div>"
+                                                }
+                                              },
+                                              [
+                                                _c(
+                                                  "svg",
+                                                  {
+                                                    staticClass:
+                                                      "bi bi-exclamation-triangle-fill",
+                                                    attrs: {
+                                                      xmlns:
+                                                        "http://www.w3.org/2000/svg",
+                                                      width: "14",
+                                                      height: "14",
+                                                      fill: "currentColor",
+                                                      viewBox: "0 0 16 16"
+                                                    }
+                                                  },
+                                                  [
+                                                    _c("path", {
+                                                      attrs: {
+                                                        d:
+                                                          "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                                                      }
+                                                    })
+                                                  ]
+                                                )
+                                              ]
+                                            )
+                                          : _vm._e()
                                       ]
                                     ),
                                     _vm._v(" "),
@@ -63833,7 +63881,7 @@ var render = function() {
             "div",
             { staticClass: "modal-body" },
             [
-              _vm.showTab == "edit" && _vm.movingEvent
+              _vm.showTab == "edit"
                 ? _c("edit", { ref: "edit", on: { change: _vm.onEditChange } })
                 : _vm._e(),
               _vm._v(" "),
@@ -63873,7 +63921,48 @@ var render = function() {
                                           _vm.durationStrHoursAndMinutes(itm)
                                         )
                                       )
-                                    ])
+                                    ]),
+                                    _vm._v(" "),
+                                    itm.time_crossing
+                                      ? _c(
+                                          "div",
+                                          {
+                                            staticClass:
+                                              "warning-sign text-warning tooltip-active d-inline-block",
+                                            attrs: {
+                                              "data-placement": "auto",
+                                              title: "",
+                                              "data-original-title":
+                                                "<div class='small'>Event is crossing time one of others events</div>"
+                                            }
+                                          },
+                                          [
+                                            _c(
+                                              "svg",
+                                              {
+                                                staticClass:
+                                                  "bi bi-exclamation-triangle-fill",
+                                                attrs: {
+                                                  xmlns:
+                                                    "http://www.w3.org/2000/svg",
+                                                  width: "14",
+                                                  height: "14",
+                                                  fill: "currentColor",
+                                                  viewBox: "0 0 16 16"
+                                                }
+                                              },
+                                              [
+                                                _c("path", {
+                                                  attrs: {
+                                                    d:
+                                                      "M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                                                  }
+                                                })
+                                              ]
+                                            )
+                                          ]
+                                        )
+                                      : _vm._e()
                                   ]
                                 ),
                                 _vm._v(" "),
@@ -63936,7 +64025,8 @@ var render = function() {
                                         dayData: _vm.e,
                                         "right-placed": true,
                                         "show-date-time-current-day": true,
-                                        "emit-events-on-btns-click": true
+                                        "emit-events-on-btns-click": true,
+                                        "disabled-drop-menu-items-with-line-through": true
                                       },
                                       on: {
                                         clickActionMove: function($event) {
@@ -63968,7 +64058,7 @@ var render = function() {
                   ])
                 : _vm._e(),
               _vm._v(" "),
-              _vm.showTab == "duration" && _vm.movingEvent
+              _vm.showTab == "duration"
                 ? _c(
                     "div",
                     [
@@ -79011,6 +79101,18 @@ Vue.mixin({
     },
     movingEventPicked: function movingEventPicked() {
       return this.$store.getters['moving_event/picked'];
+    },
+    movingEventComposedWithPicked: function movingEventComposedWithPicked() {
+      if (!this.isProp(this.movingEvent)) return null;
+      var event = JSON.parse(JSON.stringify(this.movingEvent));
+
+      if (this.movingEventIsPickedFull) {
+        event.hall_without_user_scope = this.movingEventPicked.hall;
+        event.template_without_user_scope = this.movingEventPicked.template;
+        event.worker_without_user_scope = this.movingEventPicked.worker;
+      }
+
+      return event;
     },
     movingEvent: function movingEvent() {
       return this.$store.getters['moving_event/event'];

@@ -11,6 +11,7 @@ use App\Models\Template;
 use App\Models\Worker;
 use App\Exceptions\Api\Calendar\BadRangeException;
 use App\Scopes\UserScope;
+use App\Classes\Range\Range;
 
 class BookController extends Controller{
     
@@ -23,17 +24,21 @@ class BookController extends Controller{
     public function all(Request $request, User $user, $from_date = null, $to_date = null){
         $client = $request->user();
         
-        // $booking_model = Booking::withoutGlobalScope(UserScope::class)->byUser($user->id)->orderBy('time', 'ASC');
         $booking_model = Booking::withoutGlobalScope(UserScope::class)->with(
             'templateWithoutUserScope',
             'workerWithoutUserScope',
             'hallWithoutUserScope'
         )->byUser($user->id)->byClient($client->id)->orderBy('time', 'ASC');
         
-        if(!is_null($from_date)){
-            $from_date_arr = explode('_', $from_date);
-            $booking_model->where('time', '>=', $from_date_arr[0] . ' ' . $from_date_arr[1]);
-        }
+        // var_dump($booking_model->get()->toArray());
+        // var_dump($user->id);
+        // var_dump($client->id);
+        // die();
+        
+        // if(!is_null($from_date)){
+        //     $from_date_arr = explode('_', $from_date);
+        //     $booking_model->where('time', '>=', $from_date_arr[0] . ' ' . $from_date_arr[1]);
+        // }
         // $from_date_arr = explode('_', $from_date);
         // $from_date_carbon = \Carbon\Carbon::parse('');
         // $only_date_arr = explode('-', $from_date_arr[0]);
@@ -42,15 +47,7 @@ class BookController extends Controller{
         //     $booking_model->where('time', '>=', $from_date_arr[0] . ' ' . $from_date_arr[1]);
         
         $bookings = $booking_model->get();
-        
-        // foreach($bookings as $booking){
-        //     var_dump($booking->templateWithoutUserScope);
-        // }
-        // // var_dump($bookings->template);
-        // die();
-        
         return response()->json($bookings->toArray());
-        // return response()->json($client);
     }
     
     public function create(Request $request, User $user, $hall_id, $template_id, $worker_id){

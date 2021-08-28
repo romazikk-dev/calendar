@@ -237,7 +237,10 @@ class MainBookingGetter{
             'end' => $this->duration_end,
         ];
         
-        // var_dump($duration);
+        // var_dump($this->range->getStartDatetime());
+        // var_dump($this->range->getEndDatetime());
+        // var_dump($start_datetime_carbon->toDate());
+        // var_dump($end_datetime_carbon->toDate());
         // die();
         
         /*

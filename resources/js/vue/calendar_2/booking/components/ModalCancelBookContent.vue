@@ -135,7 +135,7 @@
                 this.bTimeMoment = moment(this.booking.time);
                 this.bTitle = this.booking.template_without_user_scope.title;
                 
-                let durationSeconds = this.booking.template_without_user_scope.duration/60;
+                let durationSeconds = this.booking.right_duration;
                 let durationHourPart = parseInt(durationSeconds/60);
                 if(durationHourPart < 10)
                     durationHourPart = '0' + durationHourPart;

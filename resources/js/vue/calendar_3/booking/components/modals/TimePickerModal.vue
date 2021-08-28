@@ -82,6 +82,12 @@
                 
                 this.$refs.time_bar_duration.reset();
                 this.$refs.time_bar_book.reset();
+                
+                $('#' + this.modalId).removeAttr('style');
+            });
+            
+            $('#' + this.modalId).draggable({
+                handle: ".modal-header, .modal-footer"
             });
         },
         // props: ['bookDate'],

@@ -79,7 +79,7 @@
                     <!-- <edit v-if="movingEvent" /> -->
                     <edit ref="edit"
                         @change="onEditChange"
-                        v-if="showTab == 'edit' && movingEvent" />
+                        v-if="showTab == 'edit'" />
                     
                     <div v-if="showTab == 'events'">
                         <div class="modal-events" v-if="events">
@@ -92,6 +92,11 @@
                                     <div class="badge-time badge badge-info">
                                         {{itm.from}} - {{itm.to}} |
                                         <b>{{durationStrHoursAndMinutes(itm)}}</b>
+                                        <div v-if="itm.time_crossing" data-placement="auto" title="" class="warning-sign text-warning tooltip-active d-inline-block" data-original-title="<div class='small'>Event is crossing time one of others events</div>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="bi bi-exclamation-triangle-fill">
+                                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+                                            </svg>
+                                        </div>
                                     </div>
                                     <div class="event-itemm text-warning">
                                         <span>Client: </span><b>{{itm.client_without_user_scope.first_name}}</b>
@@ -112,6 +117,7 @@
                                             :right-placed="true"
                                             :show-date-time-current-day="true"
                                             :emit-events-on-btns-click="true"
+                                            :disabled-drop-menu-items-with-line-through="true"
                                             @clickActionMove="onActionMove(itm)"
                                             @clickActionDuration="onClickActionDuration(itm)"
                                             @clickActionDateTime="onClickActionDateTime(itm)"
@@ -123,7 +129,7 @@
                         </div>
                     </div>
                     
-                    <div v-if="showTab == 'duration' && movingEvent">
+                    <div v-if="showTab == 'duration'">
                         <info-alert :event="durationE.event"
                             :date-obj="dateObj" />
                         <!-- <div class="alert alert-primary small" role="alert">
@@ -251,6 +257,11 @@
             
             $("#" + this.modalId).on('hidden.bs.modal', () => {
                 this.showTab = 'events';
+                $('#' + this.modalId).removeAttr('style');
+            });
+            
+            $('#' + this.modalId).draggable({
+                handle: ".modal-header, .modal-footer"
             });
         },
         // props: ['bookDate'],
@@ -265,6 +276,7 @@
                 
                 e: null,
                 events: null,
+                editedEvent: null,
                 // choosenTime: null,
                 
                 showEditResetBtn: false,
@@ -285,14 +297,14 @@
             //         return null;
             //     return this.e.items;
             // },
-            getDataDate: function () {
-                if(this.e == null ||
-                typeof this.e.day === 'undefined' || this.e.day === null ||
-                typeof this.e.month === 'undefined' || this.e.month === null ||
-                typeof this.e.year === 'undefined' || this.e.year === null)
-                    return null;
-                return this.e.year + '-' + this.e.month + '-' + this.e.day;
-            },
+            // getDataDate: function () {
+            //     if(this.e == null ||
+            //     typeof this.e.day === 'undefined' || this.e.day === null ||
+            //     typeof this.e.month === 'undefined' || this.e.month === null ||
+            //     typeof this.e.year === 'undefined' || this.e.year === null)
+            //         return null;
+            //     return this.e.year + '-' + this.e.month + '-' + this.e.day;
+            // },
             dateObj: function () {
                 if(this.e == null ||
                 typeof this.e.day === 'undefined' || this.e.day === null ||
@@ -324,13 +336,13 @@
         },
         methods: {
             applyDurationAndBackToEvents: function (e) {
-                if(!this.isMovingEvent)
-                    return false;
+                if(!this.isProp(this.durationE))
+                    return;
                 
-                this.app.editEvent(this.movingEvent.id, {
+                this.app.editEvent(this.durationE.event.id, {
                     duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration),
                 }).then((data) => {
-                    this.$store.dispatch('moving_event/reset');
+                    // this.$store.dispatch('moving_event/reset');
                     return this.setEvents();
                 }).finally(() => {
                     this.showTab = 'events';
@@ -338,13 +350,13 @@
                 });
             },
             applyDurationAndCloseModal: function (e) {
-                if(!this.isMovingEvent)
-                    return false;
+                if(!this.isProp(this.durationE))
+                    return;
                 
-                this.app.editEvent(this.movingEvent.id, {
+                this.app.editEvent(this.durationE.event.id, {
                     duration: calendarHelper.time.composeHourMinuteTimeFromMinutes(this.$refs.duration.duration),
                 }).then((data) => {
-                    this.$store.dispatch('moving_event/reset');
+                    // this.$store.dispatch('moving_event/reset');
                     this.hide(true);
                     this.$store.commit('updater/increaseCounter');
                 });
@@ -360,22 +372,26 @@
                 // return this.e.year + '-' + this.e.month + '-' + this.e.day;
             },
             onClickPickTime: function () {
-                if(this.$refs.edit.isAllItemsPicked){
-                    this.$store.dispatch('moving_event/setPicked', {
-                        hall: this.$refs.edit.pickedHall,
-                        worker: this.$refs.edit.pickedWorker,
-                        template: this.$refs.edit.pickedTemplate,
-                    });
-                    
-                    console.log(JSON.parse(JSON.stringify(this.movingEventPicked)));
-                    
-                    this.calendar.getData({
-                        type: 'free',
-                        exclude_ids: [this.movingEvent.id],
-                        // test: true
-                    }).then(() => {
-                        // this.hide();
-                        this.hide(false);
+                if(this.$refs.edit.isAllItemsPicked && this.isProp(this.editedEvent)){
+                    this.app.setMovingEvent(this.editedEvent).then((data) => {
+                        
+                        this.$store.dispatch('moving_event/setPicked', {
+                            hall: this.$refs.edit.pickedHall,
+                            worker: this.$refs.edit.pickedWorker,
+                            template: this.$refs.edit.pickedTemplate,
+                        });
+                        
+                        // console.log(JSON.parse(JSON.stringify(this.movingEventPicked)));
+                        
+                        this.calendar.getData({
+                            type: 'free',
+                            exclude_ids: [this.movingEvent.id],
+                            // test: true
+                        }).then(() => {
+                            // this.hide();
+                            this.hide(false);
+                        });
+                        
                     });
                 }
                 
@@ -415,18 +431,27 @@
                 });
             },
             onActionMove: function (event) {
-                this.app.setMovingEvent(event).then((data) => {
+                // this.app.setMovingEvent(event).then((data) => {
                     // console.log(JSON.parse(JSON.stringify(this.$refs)));
                     // console.log(this.$refs);
+                    this.editedEvent = event;
                     this.showTab = 'edit';
                     this.$nextTick(() => {
                         this.$refs.edit.fillFields({
-                            hall_id: data.event.hall_id,
-                            template_id: data.event.template_id,
-                            worker_id: data.event.worker_id,
+                            hall_id: this.editedEvent.hall_id,
+                            template_id: this.editedEvent.template_id,
+                            worker_id: this.editedEvent.worker_id,
                         });
                     });
-                });
+                    
+                    // setTimeout(() => {
+                    //     this.$refs.edit.fillFields({
+                    //         hall_id: event.hall_id,
+                    //         template_id: event.template_id,
+                    //         worker_id: event.worker_id,
+                    //     });
+                    // }, 1000);
+                // });
             },
             onClickActionApprove: function (event) {
                 this.app.approveEvent(event.id).then((data) => {
@@ -443,16 +468,23 @@
                 });
             },
             onClickActionDuration: function (event) {
-                this.app.setMovingEvent(event).then((data) => {
+                // this.app.setMovingEvent(event).then((data) => {
                     // console.log(JSON.parse(JSON.stringify(event)));
-                    this.durationE = {
-                        event: event,
-                        nextEvent: this.getNextEventFromEvents(this.events, event),
-                    }
-                    this.showTab = 'duration';
+                    // this.showTab = 'duration';
+                    
+                    // this.showTab = 'duration';
+                    // this.$nextTick(() => {
+                        this.durationE = {
+                            event: event,
+                            nextEvent: this.getNextEventFromEvents(this.events, event),
+                        }
+                        this.showTab = 'duration';
+                        // this.$refs.duration.setE(this.durationE);
+                    // });
+                    // setE
                     // console.log(JSON.parse(JSON.stringify(event)));
-                    console.log(JSON.parse(JSON.stringify(this.durationE)));
-                });
+                    // console.log(JSON.parse(JSON.stringify(this.durationE)));
+                // });
             },
             onClickActionDateTime: function (event) {
                 this.app.setMovingEvent(event).then((data) => {

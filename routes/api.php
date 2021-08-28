@@ -130,13 +130,13 @@ Route::group([
         ], function () {
         
             Route::get('/guest/{start}/{end}', [ApiRangeController::class, 'guest'])->where([
-                'start' => '\d{2}-\d{2}-\d{4}',
-                'end' => '\d{2}-\d{2}-\d{4}',
+                'start' => '\d{4}-\d{2}-\d{2}',
+                'end' => '\d{4}-\d{2}-\d{2}',
             ])->name('guest');
             
             Route::get('/client/{start}/{end}', [ApiRangeController::class, 'client'])->where([
-                'start' => '\d{2}-\d{2}-\d{4}',
-                'end' => '\d{2}-\d{2}-\d{4}',
+                'start' => '\d{4}-\d{2}-\d{2}',
+                'end' => '\d{4}-\d{2}-\d{2}',
             ])->middleware('auth:sanctum')->name('client');
             
             // 'middleware' => 'auth:sanctum',

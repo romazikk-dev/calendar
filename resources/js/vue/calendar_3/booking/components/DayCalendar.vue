@@ -25,10 +25,14 @@
                 <tbody>
                     <tr>
                         <td :class="{'current-day': isCurrentDate}">
-                            <div v-if="date && !date.is_weekend" class="for-slot">
+                            <div v-if="
+                                mainSettings.enable_booking_on_any_time && freeBookingAnyTime &&
+                                (isNewEventMainFull || isMovingEvent) &&
+                                date && !date.is_weekend
+                            " class="for-slot">
                                 <div class="slot opened-slot">
                                     <b>
-                                        opened:<br>
+                                        {{freeHallTitle}} opened:<br>
                                         {{date.start}} - {{date.end}}
                                     </b>
                                 </div>
@@ -36,13 +40,13 @@
                             <div v-if="(isNewEventMainFull || isMovingEvent) && date && date.is_weekend"
                             class="for-closed-slot">
                                 <div class="closed-slot">
-                                    <b>closed</b>
+                                    <b>{{freeHallTitle}} closed</b>
                                 </div>
                             </div>
                             <div v-if="(isNewEventMainFull || isMovingEvent) && date && !date.bookable"
                             class="for-closed-slot">
                                 <div class="closed-slot">
-                                    <b>not working</b>
+                                    <b>{{freeWorkerName}} not working</b>
                                 </div>
                             </div>
                             <month-cell v-if="date"
@@ -88,7 +92,13 @@
                 return this.weekdaysList[this.dates.isoWeekday - 1];
             },
             isCurrentDate: function(){
-                return this.currentIsoWeekday == this.dates.isoWeekday;
+                if(!this.isProp(this.dates))
+                    return false;
+                    
+                let dayItemDate = moment(this.dates.date).format("YYYY-MM-DD");
+                let currentDate = moment(this.currentDate).format("YYYY-MM-DD");
+                
+                return dayItemDate == currentDate;
             },
             dataUpdater: function () {
                 return this.$store.getters['updater/counter'];

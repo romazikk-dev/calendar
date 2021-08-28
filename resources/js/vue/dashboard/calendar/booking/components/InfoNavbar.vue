@@ -249,7 +249,7 @@
                 this.closeTooltipOfEvent(e);
                 
                 if(this.isProp(this.movingEvent))
-                    this.app.$refs.move_path_picker.show(this.movingEvent);
+                    this.app.$refs.move_path_picker.show(this.movingEventComposedWithPicked);
                 if(this.isNewEventMainFull)
                     this.app.$refs.modal_book.show();
             },

@@ -84,6 +84,9 @@
             },
         },
         methods: {
+            setE: function (e) {
+                this.e = e;
+            },
             reset: function (){
                 this.setDuration();
             },
@@ -104,6 +107,7 @@
         },
         watch: {
             e: function(newValue, oldValue){
+                console.log(JSON.parse(JSON.stringify('Duration changed')));
                 this.setDuration();
         	},
     	}

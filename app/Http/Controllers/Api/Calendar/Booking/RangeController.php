@@ -47,6 +47,16 @@ class RangeController extends Controller{
             // 'view' => 'required|string|in:month,week,day,list',
         ]);
         
+        // $hall = Hall::find($validated['hall']);
+        $hall = Hall::withoutGlobalScope(UserScope::class)
+            ->byUser($user->id)
+            ->where('id', $request->hall)
+            ->first();
+        
+        // var_dump($hall);
+        // var_dump($validated['hall']);
+        // die();
+        
         // var_dump(auth()->user()->id);
         // var_dump([
         //     BookingGetterParams::WORKER => $validated['worker'],
@@ -61,24 +71,35 @@ class RangeController extends Controller{
         // ]);
         // die();
         
+        // var_dump($user->id);
+        // die();
+        
+        // var_dump(BookingGetterParams::all());
+        $params = [
+            BookingGetterParams::WORKER => $validated['worker'],
+            BookingGetterParams::OWNER => $user->id,
+            BookingGetterParams::CLIENT => auth()->user()->id,
+            BookingGetterParams::FREE_WITH_EVENTS => true,
+            BookingGetterParams::WITH => [
+                // 'templateWithoutUserScope'
+                'templateWithoutUserScope.specific', 'workerWithoutUserScope',
+                'hallWithoutUserScope', 'clientWithoutUserScope'
+            ],
+        ];
+        
+        // var_dump($params);
+        // die();
+        
         $slots = \Getter::bookings()->free(
-            new Range($start, $end, 'month'), [
-                BookingGetterParams::WORKER => $validated['worker'],
-                BookingGetterParams::OWNER => $user->id,
-                BookingGetterParams::CLIENT => auth()->user()->id,
-                BookingGetterParams::FREE_WITH_EVENTS => true,
-                // BookingGetterParams::FREE_WITH_EVENTS => auth()->user()->id,
-                BookingGetterParams::WITH => [
-                    // 'templateWithoutUserScope'
-                    'templateWithoutUserScope.specific', 'workerWithoutUserScope',
-                    'hallWithoutUserScope', 'clientWithoutUserScope'
-                ],
-            ]
+            new Range($start, $end, 'month'), $params
         );
+        
+        // var_dump($slots);
+        // die();
         
         $output = [
             'data' => $slots,
-            // 'business_hours' => json_decode($hall->business_hours, true),
+            'business_hours' => json_decode($hall->business_hours, true),
             // 'business_hours' => $bookingRetrievial->getBusinessHours(true, true),
         ];
         

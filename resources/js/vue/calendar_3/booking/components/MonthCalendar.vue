@@ -18,7 +18,7 @@
                             'current-day': isCurrentDate(i,k),
                             'weekend': (isNewEventMainFull || isMovingEvent) && (getDate(i,k,'is_weekend') || !getDate(i,k,'bookable')),
                             /* 'weekend': getDate(i,k,'is_weekend') || !getDate(i,k,'bookable'), */
-                        }">
+                        }" class="day-cell">
                             <div class="cell-content">
                                 <div class="day"
                                     @click.prevent="goToDayView(getDate(i,k))"
@@ -31,10 +31,14 @@
                                     <!-- <div v-if="getDate(i,k,'items')">
                                         dasdasda sda sdasd
                                     </div> -->
-                                    <div v-if="!getDate(i,k,'is_weekend')" class="for-slot">
+                                    <div v-if="
+                                        mainSettings.enable_booking_on_any_time && freeBookingAnyTime &&
+                                        (isNewEventMainFull || isMovingEvent) &&
+                                        !getDate(i,k,'is_weekend')
+                                    " class="for-slot">
                                         <div class="slot opened-slot">
                                             <b>
-                                                opened:<br>
+                                                {{freeHallTitle}} opened:<br>
                                                 {{getDate(i,k,'start')}} - {{getDate(i,k,'end')}}
                                             </b>
                                         </div>
@@ -42,13 +46,13 @@
                                     <div v-if="(isNewEventMainFull || isMovingEvent) && getDate(i,k,'is_weekend')"
                                     class="for-closed-slot">
                                         <div class="closed-slot">
-                                            <b>closed</b>
+                                            <b>{{freeHallTitle}} closed</b>
                                         </div>
                                     </div>
                                     <div v-if="(isNewEventMainFull || isMovingEvent) && !getDate(i,k,'bookable')"
                                     class="for-closed-slot">
                                         <div class="closed-slot">
-                                            <b>not working</b>
+                                            <b>{{freeWorkerName}} not working</b>
                                         </div>
                                     </div>
                                     <month-cell v-if="getDate(i,k,'items')"
@@ -77,6 +81,7 @@
                 // trigger: "click",
                 trigger: "hover",
             });
+            this.adaptWidthOfEvents();
         },
         mounted() {
             this.$store.dispatch('dates/setMonthDates', this.startDates.month);
@@ -100,6 +105,9 @@
             },
         },
         methods: {
+            adaptWidthOfEvents: function () {
+                // $(".month-calendar .day-cell")
+            },
             showModalMoreEvent: function(e){
                 // console.log(JSON.parse(JSON.stringify(e)));
                 this.app.$refs.modal_more_events.show(e);

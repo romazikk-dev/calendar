@@ -273,7 +273,7 @@ class FreeSlots extends MainBookingGetter{
                     }
                 };
                 
-                // if($itm['month'] == '08' && $itm['day'] == '27'){
+                // if($itm['month'] == '08' && $itm['day'] == '26'){
                 //     var_dump($merged_booking);
                 //     die();
                 // }
@@ -452,37 +452,59 @@ class FreeSlots extends MainBookingGetter{
                         $start_carbon = $end_carbon->copy();
                     }
                     
-                    // if($itm['month'] == '08' && $itm['day'] == '24'){
-                    //     var_dump($start_carbon->toDate());
+                    // if($itm['month'] == '08' && $itm['day'] == '26'){
+                    //     var_dump($end_carbon->toDate());
+                    //     var_dump($end_of_day_carbon->toDate());
                     //     die();
                     // }
-                    
-                    // if($itm['month'] == '08' && $itm['day'] == '27'){
-                    //     var_dump($start_carbon->toDate());
-                    //     die();
-                    // }
+                    if(!empty($this->with_events) && $start_carbon->lt($start_carbon->copy()->endOfDay())){
+                        $booking_events = $get_unique_booking_events_from_range([
+                            "start" => $start_carbon->timestamp,
+                            "end" => $start_carbon->copy()->endOfDay()->timestamp,
+                        ], $booking);
+                        $put_events_into_items($booking_events);
+                    }
                     
                 // if exists only not approved events(bookings)
                 }else{
-                    $booking_events = $get_unique_booking_events_from_range([
-                        "start" => $start_carbon->copy()->startOfDay()->timestamp,
-                        "end" => $start_carbon->timestamp,
-                    ], $booking);
-                    $put_events_into_items($booking_events);
                     
-                    $booking_events = $get_unique_booking_events_from_range([
-                        "start" => $start_carbon->timestamp,
-                        "end" => $end_carbon->timestamp,
-                    ], $booking);
-                    // if(empty($itm['is_weekend']) || $this->show_all_times === true)
-                    if($is_compose_free_item())
-                        $items[] = $this->composeFreeItem($start_carbon, $end_carbon, $booking_events);
+                    if($is_compose_free_item()){
+                        if(!empty($this->show_all_times)){
+                            $booking_events = $get_unique_booking_events_from_range([
+                                "start" => $start_carbon->copy()->startOfDay()->timestamp,
+                                "end" => $end_carbon->timestamp,
+                            ], $booking);
+                            $items[] = $this->composeFreeItem($start_carbon, $end_carbon, $booking_events);
+                        }else{
+                            if(!empty($this->with_events)){
+                                $booking_events = $get_unique_booking_events_from_range([
+                                    "start" => $start_carbon->copy()->startOfDay()->timestamp,
+                                    "end" => $start_carbon->timestamp,
+                                ], $booking);
+                                $put_events_into_items($booking_events);
+                            }
+                            
+                            $booking_events = $get_unique_booking_events_from_range([
+                                "start" => $start_carbon->timestamp,
+                                "end" => $end_carbon->timestamp,
+                            ], $booking);
+                            $items[] = $this->composeFreeItem($start_carbon, $end_carbon, $booking_events);
+                        }
+                    }
                     
-                    $booking_events = $get_unique_booking_events_from_range([
-                        "start" => $end_carbon->timestamp,
-                        "end" => $start_carbon->copy()->endOfDay()->timestamp,
-                    ], $booking);
-                    $put_events_into_items($booking_events);
+                    $end_of_day_carbon = $end_carbon->copy()->endOfDay();
+                    // if($itm['month'] == '08' && $itm['day'] == '26'){
+                    //     var_dump($end_carbon->toDate());
+                    //     var_dump($end_of_day_carbon->toDate());
+                    //     die();
+                    // }
+                    if(!empty($this->with_events) && $end_carbon->timestamp < $end_of_day_carbon->timestamp){
+                        $booking_events = $get_unique_booking_events_from_range([
+                            "start" => $end_carbon->timestamp,
+                            "end" => $end_of_day_carbon->timestamp,
+                        ], $booking);
+                        $put_events_into_items($booking_events);
+                    }
                 }
                     
                 if(!empty($items))

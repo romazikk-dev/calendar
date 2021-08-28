@@ -562,7 +562,8 @@
                 
                 // moment(this.firstWeekday).format('DD-MM-YYYY'),
                 // moment(this.lastWeekday).format('DD-MM-YYYY'),
-                let date = this.currentChoosenDateMoment.format('DD-MM-YYYY');
+                // let date = this.currentChoosenDateMoment.format('DD-MM-YYYY');
+                let date = this.currentChoosenDateMoment.format('YYYY-MM-DD');
                 this.componentApp.getData(
                     date,
                     date,
@@ -585,27 +586,47 @@
             setWorkHours: function(){
                 let start = null;
                 let end = null;
+                
+                Object.values(this.bussinessHours).forEach((item, i) => {
+                    if(typeof item.is_weekend !== 'undefined')
+                        return;
+                        
+                    let start_hour = parseInt(item.start_hour.split(':')[0]);
+                    let end_hour = parseInt(item.end_hour.split(':')[0]);
+                    
+                    if(start_hour < start || start === null){
+                        start = start_hour;
+                    }
+                    
+                    if(end_hour > end || end === null){
+                        end = end_hour;
+                    }
+                });
+                
+                start = moment('1970-01-01 ' + ((start > 9) ? start : "0" + start) + ':00');
+                end = moment('1970-01-01 ' + ((end > 9) ? end : "0" + end) + ':00');
+                
                 // return;
                 // console.log(business_hours);
-                this.bussinessHours.forEach((item, i) => {
-                    if(start == null){
-                        // start = item.start;
-                        start = moment('1970-01-01 ' + item.start_hour + ':00');
-                        let first = true;
-                    }
-                    if(end == null){
-                        end = moment('1970-01-01 ' + item.end_hour + ':00');
-                        let first = true;
-                    }
-                    if(typeof first != 'undefined' && first == true)
-                        return;
-                    let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
-                    let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
-                    if(itemStart.diff(start) < 0)
-                        start = itemStart;
-                    if(itemStart.diff(start) >= 0)
-                        end = itemEnd;
-                });
+                // this.bussinessHours.forEach((item, i) => {
+                //     if(start == null){
+                //         // start = item.start;
+                //         start = moment('1970-01-01 ' + item.start_hour + ':00');
+                //         let first = true;
+                //     }
+                //     if(end == null){
+                //         end = moment('1970-01-01 ' + item.end_hour + ':00');
+                //         let first = true;
+                //     }
+                //     if(typeof first != 'undefined' && first == true)
+                //         return;
+                //     let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+                //     let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
+                //     if(itemStart.diff(start) < 0)
+                //         start = itemStart;
+                //     if(itemStart.diff(start) >= 0)
+                //         end = itemEnd;
+                // });
                 // 
                 // return;
                 // 

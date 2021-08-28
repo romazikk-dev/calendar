@@ -33,7 +33,7 @@
             // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
             // console.log(JSON.parse(JSON.stringify(this.token)));
             
-            console.log(JSON.parse(JSON.stringify(777777777)));
+            // console.log(JSON.parse(JSON.stringify(777777777)));
             // console.log(JSON.parse(JSON.stringify(this.$store.getters['updater/clientInfo'])));
             this.$store.dispatch('client/increaseUpdaterCounter');
             
@@ -103,11 +103,11 @@
         },
         methods: {
             getData: function(startDate, endDate, successCallback = () => {
-                console.log('success');
+                // console.log('success');
             }, errorCallback = () => {
-                console.log('error');
+                // console.log('error');
             }, finalCallback = () => {
-                console.log('final');
+                // console.log('final');
             },){
                 
                 if(this.isAuth()){
@@ -135,7 +135,7 @@
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error);
+                    // console.log(error);
                 })
                 .then(() => {
                     // always executed
@@ -145,11 +145,11 @@
                 
             },
             bookOn: function(bookOnDate, bookOnTime, successCallback = () => {
-                console.log('success');
+                // console.log('success');
             }, errorCallback = () => {
-                console.log('error');
+                // console.log('error');
             }, finalCallback = () => {
-                console.log('final');
+                // console.log('final');
             }){
                 if(this.tokenHeader == null)
                     return;
@@ -185,7 +185,7 @@
                 });
             },
             cancelBooking: function(booking, successCallback = () => {
-                console.log('success');
+                // console.log('success');
             }){
                 if(this.tokenHeader == null)
                     return;
@@ -209,7 +209,7 @@
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error);
+                    // console.log(error);
                 })
                 .then(() => {
                     // always executed
@@ -248,8 +248,8 @@
                     // this.allBookings = response.data;
                     this.$store.commit('client/setBookings', response.data);
                     // console.log(this.clientInfo);
-                    console.log(JSON.parse(JSON.stringify('setBookings 4444')));
-                    console.log(JSON.parse(JSON.stringify(response.data)));
+                    // console.log(JSON.parse(JSON.stringify('setBookings 4444')));
+                    // console.log(JSON.parse(JSON.stringify(response.data)));
                 })
                 .catch(function (error) {
                     // handle error

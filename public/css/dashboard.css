@@ -278,7 +278,7 @@
   margin: 0px;
   width: 100%;
   padding: 4px;
-  max-height: 200px;
+  max-height: 300px;
   overflow: auto;
 }
 
@@ -887,19 +887,6 @@
   position: absolute;
   top: 2px;
   right: 4px;
-}
-
-.calendar-all-bookings .month-calendar .events .for-events .if-events .warning-sign,
-.calendar-all-bookings .week-calendar .events .for-events .if-events .warning-sign,
-.calendar-all-bookings .day-calendar .events .for-events .if-events .warning-sign {
-  position: absolute;
-  display: block;
-  height: 14px;
-  width: 14px;
-  top: 0px;
-  right: 6px;
-  border-radius: 0px 3px 0px 0px;
-  padding: 2px;
 }
 
 .calendar-all-bookings .week-calendar .free-slot,

@@ -63,8 +63,8 @@
         <!-- <script src="{{ asset('js/dashboard/ts/calendar-helper.js') }}?{{rand(100, 1000000000)}}"></script> -->
         <!-- <script src="{{ asset('js/calendar-booking.js') }}?{{rand(100, 1000)}}"></script> -->
         <script src="{{ asset('js/calendar-booking-helper-2.js') }}?{{rand(100, 1000000000)}}"></script>
-        <!-- <script src="{{ asset('js/calendar-booking-2.js') }}?{{rand(100, 1000000000)}}"></script> -->
-        <script src="{{ asset('js/calendar-booking-3.js') }}?{{rand(100, 1000000000)}}"></script>
+        <script src="{{ asset('js/calendar-booking-2.js') }}?{{rand(100, 1000000000)}}"></script>
+        <!-- <script src="{{ asset('js/calendar-booking-3.js') }}?{{rand(100, 1000000000)}}"></script> -->
         
     </x-slot>
     

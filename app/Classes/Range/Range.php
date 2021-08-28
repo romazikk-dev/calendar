@@ -55,6 +55,7 @@ class Range{
             $end .= ' 23:59:59';
         
         // var_dump($start);
+        // var_dump($end);
         // die();
         
         $carbon_now = \Carbon\Carbon::now(\Timezone::getCurrentTimezone());

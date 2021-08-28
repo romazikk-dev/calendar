@@ -100,11 +100,17 @@
         mounted() {
             $("#" + this.modalId).on('show.bs.modal', () => {});
             $("#" + this.modalId).on('shown.bs.modal', () => {});
-            $("#" + this.modalId).on('hidden.bs.modal', () => {});
+            $("#" + this.modalId).on('hidden.bs.modal', () => {
+                $('#' + this.modalId).removeAttr('style');
+            });
             
             this.setIsAllFilterBlocksCollapsed();
             // console.log(this.$refs);
             // console.log(JSON.parse(JSON.stringify(this.$refs)));
+            
+            $('#' + this.modalId).draggable({
+                handle: ".modal-header, .modal-footer"
+            });
         },
         // props: ['bookDate'],
         data: function(){

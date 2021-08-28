@@ -6,9 +6,11 @@
             <table class="contt" cellspacing="0">
                 <tbody>
                     
-                    <template v-for="(i, index) in 7" v-if="getDayItem(index) && getDayItem(index).type == 'free'">
+                    <template v-for="(i, index) in 7" v-if="
+                        getDayItem(index) && getDayItem(index).type == 'free' && getDayItem(index).items
+                    ">
                         <tr class="title">
-                            <td colspan="4">
+                            <td colspan="4" :class="{'current-day': isCurrentDate(index)}">
                                 <a href="#" @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-weekday">
                                         {{weekdaysList[index]}}
@@ -30,6 +32,7 @@
                                     :item="itemm" :key="itemm.id" />
                                 
                                 <free-row :day-item="getDayItem(index)"
+                                    @click_free="onClickPickFree(getDayItem(index), item)"
                                     :item="item"/>
                                         
                                 <!-- <tr class="event free"
@@ -89,6 +92,8 @@
                 </tbody>
             </table>
             
+            <div class="cell-placeholder cell-placeholder-with-bg" v-if="isAllDaysEmpty && isTypeEvents">{{noEventsText}}</div>
+            
         </div>
         
     </div>
@@ -113,6 +118,20 @@
             };
         },
         computed: {
+            isTypeEvents: function () {
+                let firstDayItem = this.getDayItem(0);
+                if(!this.isProp(firstDayItem))
+                    return false;
+                return firstDayItem.type == 'events';
+            },
+            isAllDaysEmpty: function () {
+                for(let i = 0; i < 7; i++){
+                    let dayItem = this.getDayItem(i);
+                    if(this.isProp(dayItem) && dayItem.count_total > 0)
+                        return false;
+                }
+                return true;
+            },
             datesPerWeekday: function () {
                 let initDateMoment;
                 let weekDayFormat = 'MMMM D, YYYY';
@@ -191,9 +210,22 @@
                     dateItemMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD")
                 ) && dateItem.bookable;
             },
-            // isCurrentDate: function(k){
-            //     return this.currentIsoWeekday == k;
-            // },
+            isCurrentDate: function(index){
+                let dayItem = this.getDayItem(index);
+                if(!this.isProp(dayItem))
+                    return false;
+                    
+                let dayItemDate = moment(dayItem.year+'-'+dayItem.month+'-'+dayItem.day).format("YYYY-MM-DD");
+                let currentDate = moment(this.currentDate).format("YYYY-MM-DD");
+                
+                // console.log(JSON.parse(JSON.stringify('isCurrentDate')));
+                // console.log(JSON.parse(JSON.stringify(dayItemDate == currentDate)));
+                // console.log(JSON.parse(JSON.stringify(dayItemMoment.format("YYYY-MM-DD"))));
+                // console.log(JSON.parse(JSON.stringify(currentDateMoment.format("YYYY-MM-DD"))));
+                // console.log(JSON.parse(JSON.stringify(dayItemMoment.diff(currentDateMoment))));
+                
+                return dayItemDate == currentDate;
+            },
             getData: function(params = null){
                 let startDate = moment(this.$store.getters['dates/interval'].firstDate).format('YYYY-MM-DD');
                 let endDate = moment(this.$store.getters['dates/interval'].lastDate).format('YYYY-MM-DD');

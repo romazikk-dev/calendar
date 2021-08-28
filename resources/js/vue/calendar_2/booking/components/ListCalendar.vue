@@ -9,9 +9,8 @@
         <div class="for-table">
             <table>
                 <tbody>
-                    <template v-for="date in dates" v-if="date.bookable && !date.is_weekend && notPast(date)">
-                    <!-- <template v-for="date in dates"> -->
-                        
+                    <!-- <template v-for="date in dates" v-if="date.bookable && !date.is_weekend && notPast(date)"> -->
+                    <template v-for="date in dates" v-if="date.items && notPast(date)">
                         <tr class="day-title" :class="{'current-date': isCurrentDate(date)}">
                             <td colspan="2">
                                 <span>{{getWeekdayTitleFromDateItem(date)}}</span>
@@ -33,16 +32,16 @@
                                     <div v-if="item.not_approved_bookings" class="not-approved-bookings">
                                         <div v-for="notApprovedItem in item.not_approved_bookings">
                                             <span class="circle not-approved"></span>
-                                            {{notApprovedItem.booking.template_without_user_scope.title}}
-                                            <a href="#" @click.prevent="cancelBook(notApprovedItem.booking)" class="btn-book">Cancel</a>
+                                            {{notApprovedItem.template_without_user_scope.title}}
+                                            <a href="#" @click.prevent="cancelBook(notApprovedItem)" class="btn-book">Cancel</a>
                                         </div>
                                     </div>
                                 </div>
-                                <div v-if="item.type == 'booked'" class="for-itm for-itm-booked">
+                                <div v-if="item.type == 'event'" class="for-itm for-itm-booked">
                                     <span class="background-text">YOUR BOOKED EVENT</span>
                                     <span class="circle booked"></span>
-                                    <b>{{item.booking.template_without_user_scope.title}}</b>
-                                    <a href="#" @click.prevent="cancelBook(item.booking)" class="btn-book">Cancel</a>
+                                    <b>{{item.template_without_user_scope.title}}</b>
+                                    <a href="#" @click.prevent="cancelBook(item)" class="btn-book">Cancel</a>
                                 </div>
                             </td>
                         </tr>
@@ -171,7 +170,8 @@
         },
         methods: {
             notPast: function(date){
-                let dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + date.start + ':00');
+                let start = typeof date.start === 'undefined' || date.start === null ? '00:00' : date.start;
+                let dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + start + ':00');
                 let currentDateMoment = moment(this.currentDate);
                 
                 return dateMoment.diff(currentDateMoment) >= 0 ||
@@ -235,8 +235,8 @@
                     this.componentApp = this.getParentComponentByName(this, 'app');
                 
                 this.componentApp.getData(
-                    moment(this.firstWeekday).format('DD-MM-YYYY'),
-                    moment(this.lastWeekday).format('DD-MM-YYYY'),
+                    moment(this.firstWeekday).format('YYYY-MM-DD'),
+                    moment(this.lastWeekday).format('YYYY-MM-DD'),
                     (response) => {
                         this.dates = response.data.data;
                         this.bussinessHours = response.data.business_hours;
@@ -291,10 +291,11 @@
                     return false;
                 let itemsCount = 0;
                 this.dates.forEach((date, i) => {
-                    if(date.bookable && !date.is_weekend && this.notPast(date))
+                    // if(date.bookable && !date.is_weekend && this.notPast(date))
+                    if(this.notPast(date))
                         itemsCount++;
                 });
-                console.log(itemsCount);
+                // console.log(itemsCount);
                 // if(itemsCount > 0)
                 this.empty = itemsCount > 0 ? false : true;
             },

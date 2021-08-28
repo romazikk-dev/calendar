@@ -69,7 +69,12 @@ window.cookie = require('js-cookie');
 import App from './components/App.vue';
 
 Vue.mixin({
-    mounted: function(){},
+    mounted: function(){
+        // this.setApp();
+        if(this.isMovingEvent)
+            this.$store.dispatch('moving_event/setShow', true);
+        //     this.showMovingEvent = true;
+    },
     data: function(){
         return {
             // app: null,
@@ -183,7 +188,8 @@ Vue.mixin({
                     key: 'not_approved',
                     label: 'Not approved',
                 }
-            }
+            },
+            noEventsText: 'No events.'
         };
     },
     computed: {
@@ -235,6 +241,9 @@ Vue.mixin({
             if(this.calendar !== null && typeof this.calendar.$refs.navbar !== 'undefined')
                 return this.calendar.$refs.navbar;
             return null;
+        },
+        showMovingEvent: function () {
+            return this.$store.getters['moving_event/show'];
         },
         view: function () {
             return this.$store.getters['view/view'];
@@ -322,12 +331,32 @@ Vue.mixin({
         newEventShow: function(){
             return this.$store.getters['new_event/show'];
         },
+        // newEventWithEvents: function(){
+        //     return this.$store.getters['new_event/withEvents'];
+        // },
         newEventUrlSearchParamsMain: function(){
             return this.$store.getters['new_event/urlSearchParamsMain'];
         },
+        
+        // Moving event data of moving_event `$store` module
+        movingEventIsPickedFull: function(){
+            return this.$store.getters['moving_event/isPickedFull'];
+        },
+        movingEventPicked: function(){
+            return this.$store.getters['moving_event/picked'];
+        },
+        movingEvent: function(){
+            return this.$store.getters['moving_event/event'];
+        },
+        // movingEventWithEvents: function(){
+        //     return this.$store.getters['moving_event/withEvents'];
+        // },
         isMovingEvent: function(){
             // return this.movingEvent !== null && typeof this.movingEvent.template_without_user_scope !== 'undefined';
             return typeof this.movingEvent !== 'undefined' && this.movingEvent !== null;
+        },
+        movingEventClient: function(){
+            return this.$store.getters['moving_event/client'];
         },
         movingEventDateObj: function(){
             if(this.movingEvent === null)
@@ -394,6 +423,30 @@ Vue.mixin({
         isFiltersAny: function () {
             return this.$store.getters['filters/isAny'];
         },
+        
+        // Data when request is to get free slots
+        freeHallTitle: function () {
+            if(this.isMovingEvent)
+                return this.movingEvent.hall_without_user_scope.title;
+            if(this.isNewEventMainFull)
+                return this.newEventMain.hall.title;
+            return null;
+        },
+        freeWorkerName: function () {
+            if(this.isMovingEvent)
+                return this.fullNameOfObj(this.movingEvent.worker_without_user_scope);
+            if(this.isNewEventMainFull)
+                return this.fullNameOfObj(this.newEventMain.worker);
+            return null;
+        },
+        
+        // Free slots get data params
+        freeWithEvents: function () {
+            return this.$store.getters['free_get_data_params/withEvents'];
+        },
+        freeBookingAnyTime: function () {
+            return this.$store.getters['free_get_data_params/bookingAnyTime'];
+        }
     },
     methods: {
         // Switch to day view
@@ -462,6 +515,10 @@ Vue.mixin({
             this.calendar.getData(params);
         },
         
+        resetMovingEvent: function(){
+            this.$store.dispatch('moving_event/reset');
+            this.calendar.getData();
+        },
         resetNewEvent: function(){
             this.$store.dispatch('new_event/reset');
             this.calendar.getData();
@@ -536,6 +593,22 @@ Vue.mixin({
         },
         urlSearchParams: function(dataType = 'all', as_string = false){
             let urlSearchParams;
+            
+            if(this.isNewEventMainFull){
+                if(dataType == 'free'){
+                    // alert(111);
+                    urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
+                }else{
+                    urlSearchParams = this.$store.getters['new_event/urlSearchParamsMain'];
+                }
+            }else if(this.isMovingEvent){
+                if(dataType == 'free'){
+                    // alert(111);
+                    urlSearchParams = this.$store.getters['moving_event/urlSearchParamsFree'];
+                }else{
+                    urlSearchParams = this.$store.getters['moving_event/urlSearchParams'];
+                }
+            }
             
             urlSearchParams = new URLSearchParams(urlSearchParams);
             

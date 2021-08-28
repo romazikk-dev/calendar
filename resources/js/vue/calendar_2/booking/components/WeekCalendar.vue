@@ -227,6 +227,7 @@
             },
             cancelBook: function(event){
                 this.cancelBookData = event;
+                // console.log(this.cancelBookData);
                 $('#cancelBookModal').modal('show');
                 // console.log(event);
             },
@@ -250,6 +251,8 @@
                 });
             },
             placeItems: function(){
+                // console.log(JSON.parse(JSON.stringify(this.workHours)));
+                // return;
                 // console.log(555555555555555555555555555555);
                 let _this = this;
                 
@@ -275,7 +278,7 @@
                 });
                 
                 function placeBeginningClosedDateItem(dateItem){
-                    // return true;
+                    // return;
                     let startDateItemMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + dateItem.start + ':00');
                     let startWorkHour = _this.workHours[0];
                     if(startWorkHour < 10)
@@ -533,18 +536,20 @@
                 // console.log(JSON.parse(JSON.stringify(moment(this.firstWeekday).format('DD-MM-YYYY'))));
                 
                 this.componentApp.getData(
-                    moment(this.firstWeekday).format('DD-MM-YYYY'),
-                    moment(this.lastWeekday).format('DD-MM-YYYY'),
+                    moment(this.firstWeekday).format('YYYY-MM-DD'),
+                    moment(this.lastWeekday).format('YYYY-MM-DD'),
                     (response) => {
+                        // alert(4444);
                         // handle success
                         // console.log(response.data.data);
                         this.dates = response.data.data;
                         // this.setWorkHours(response.data.start, response.data.end);
                         // console.log(response.data.business_hours);
                         this.bussinessHours = response.data.business_hours;
+                        // alert(4444);
                         this.setWorkHours();
                         
-                        console.log(JSON.parse(JSON.stringify(434343434)));
+                        // console.log(JSON.parse(JSON.stringify(434343434)));
                         // console.log(JSON.parse(JSON.stringify(this.workHours)));
                         // console.log(JSON.parse(JSON.stringify(this.bussinessHours)));
                         
@@ -569,30 +574,60 @@
             },
             // setWorkHours: function(startHour, endHour){
             setWorkHours: function(){
+                // alert(111);
                 let start = null;
                 let end = null;
+                // let first;
                 // return;
-                // console.log(business_hours);
-                this.bussinessHours.forEach((item, i) => {
-                    // if(typeof item.start === 'undefined' || typeof item.end === 'undefined')
-                    if(start == null){
-                        // start = item.start;
-                        start = moment('1970-01-01 ' + item.start_hour + ':00');
-                        let first = true;
-                    }
-                    if(end == null){
-                        end = moment('1970-01-01 ' + item.end_hour + ':00');
-                        let first = true;
-                    }
-                    if(typeof first != 'undefined' && first == true)
+                // console.log(JSON.parse(JSON.stringify(777777777)));
+                // console.log(this.bussinessHours);
+                // alert(111);
+                
+                Object.values(this.bussinessHours).forEach((item, i) => {
+                    if(typeof item.is_weekend !== 'undefined')
                         return;
-                    let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
-                    let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
-                    if(itemStart.diff(start) < 0)
-                        start = itemStart;
-                    if(itemStart.diff(start) >= 0)
-                        end = itemEnd;
+                        
+                    let start_hour = parseInt(item.start_hour.split(':')[0]);
+                    let end_hour = parseInt(item.end_hour.split(':')[0]);
+                    
+                    if(start_hour < start || start === null){
+                        start = start_hour;
+                    }
+                    
+                    if(end_hour > end || end === null){
+                        end = end_hour;
+                    }
+                    
+                        
+                    // if(end_hour < end)
+                    //     end = end_hour;
+                    
+                    // alert(111);
+                    // if(typeof item.start === 'undefined' || typeof item.end === 'undefined')
+                    // if(start == null){
+                    //     // start = item.start;
+                    //     start = moment('1970-01-01 ' + item.start_hour + ':00');
+                    //     first = true;
+                    // }
+                    // if(end == null){
+                    //     end = moment('1970-01-01 ' + item.end_hour + ':00');
+                    //     first = true;
+                    // }
+                    // if(typeof first != 'undefined' && first == true)
+                    //     return;
+                    // let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+                    // let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
+                    // if(itemStart.diff(start) < 0)
+                    //     start = itemStart;
+                    // if(itemStart.diff(start) >= 0)
+                    //     end = itemEnd;
                 });
+                
+                // alert(end);
+                
+                start = moment('1970-01-01 ' + ((start > 9) ? start : "0" + start) + ':00');
+                end = moment('1970-01-01 ' + ((end > 9) ? end : "0" + end) + ':00');
+                // alert(111);
                 // 
                 // return;
                 // 
@@ -610,7 +645,10 @@
                 for(let i = startHourInt; i < endHourInt; i++){
                     this.workHours.push(i);
                 }
-                // console.log(this.workHours);
+                
+                // alert(111);
+                console.log(JSON.parse(JSON.stringify(777777777)));
+                console.log(this.workHours);
                 
                 // console.log(JSON.parse(JSON.stringify(777777777)));
                 // console.log(JSON.parse(JSON.stringify(this.workHours)));

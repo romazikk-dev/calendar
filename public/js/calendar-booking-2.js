@@ -1884,8 +1884,8 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     // console.log(JSON.parse(JSON.stringify(this.templateSpecificsAsIdKey)));
     // console.log(JSON.parse(JSON.stringify(this.token)));
-    console.log(JSON.parse(JSON.stringify(777777777))); // console.log(JSON.parse(JSON.stringify(this.$store.getters['updater/clientInfo'])));
-
+    // console.log(JSON.parse(JSON.stringify(777777777)));
+    // console.log(JSON.parse(JSON.stringify(this.$store.getters['updater/clientInfo'])));
     this.$store.dispatch('client/increaseUpdaterCounter');
     this.setClient();
     if (this.cookieFilters !== null) this.showCalendar = true;
@@ -1947,14 +1947,11 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     getData: function getData(startDate, endDate) {
-      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-        console.log('success');
+      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {// console.log('success');
       };
-      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
-        console.log('error');
+      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {// console.log('error');
       };
-      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
-        console.log('final');
+      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {// console.log('final');
       };
 
       if (this.isAuth()) {
@@ -1975,9 +1972,8 @@ __webpack_require__.r(__webpack_exports__);
       axios.get(url, headers).then(function (response) {
         // handle success
         successCallback(response); // console.log(JSON.parse(JSON.stringify(this.dates)));
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
+      })["catch"](function (error) {// handle error
+        // console.log(error);
       }).then(function () {
         // always executed
         finalCallback(); // $('#cancelBookModal').modal('hide');
@@ -1986,14 +1982,11 @@ __webpack_require__.r(__webpack_exports__);
     bookOn: function bookOn(bookOnDate, bookOnTime) {
       var _this = this;
 
-      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-        console.log('success');
+      var successCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {// console.log('success');
       };
-      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
-        console.log('error');
+      var errorCallback = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {// console.log('error');
       };
-      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {
-        console.log('final');
+      var finalCallback = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {// console.log('final');
       };
       if (this.tokenHeader == null) return;
       var url = routes.calendar.booking.book.create;
@@ -2025,8 +2018,7 @@ __webpack_require__.r(__webpack_exports__);
     cancelBooking: function cancelBooking(booking) {
       var _this2 = this;
 
-      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-        console.log('success');
+      var successCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {// console.log('success');
       };
       if (this.tokenHeader == null) return;
       var url = routes.calendar.booking.book.cancel; // url = url.replace(':hall_id', this.cookieFilters.hall.id);
@@ -2044,9 +2036,8 @@ __webpack_require__.r(__webpack_exports__);
         _this2.$store.commit('updater/increaseCounter');
 
         _this2.setBookings();
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
+      })["catch"](function (error) {// handle error
+        // console.log(error);
       }).then(function () {// always executed
       });
     },
@@ -2079,10 +2070,9 @@ __webpack_require__.r(__webpack_exports__);
         // handle success
         // this.allBookings = response.data;
         _this3.$store.commit('client/setBookings', response.data); // console.log(this.clientInfo);
+        // console.log(JSON.parse(JSON.stringify('setBookings 4444')));
+        // console.log(JSON.parse(JSON.stringify(response.data)));
 
-
-        console.log(JSON.parse(JSON.stringify('setBookings 4444')));
-        console.log(JSON.parse(JSON.stringify(response.data)));
       })["catch"](function (error) {// handle error
       }).then(function () {// always executed
       });
@@ -2872,8 +2862,9 @@ __webpack_require__.r(__webpack_exports__);
       // console.log(moment(this.lastWeekday).format('DD-MM-YYYY'));
       // moment(this.firstWeekday).format('DD-MM-YYYY'),
       // moment(this.lastWeekday).format('DD-MM-YYYY'),
+      // let date = this.currentChoosenDateMoment.format('DD-MM-YYYY');
 
-      var date = this.currentChoosenDateMoment.format('DD-MM-YYYY');
+      var date = this.currentChoosenDateMoment.format('YYYY-MM-DD');
       this.componentApp.getData(date, date, function (response) {
         _this4.date = response.data.data[0];
         _this4.bussinessHours = response.data.business_hours;
@@ -2890,27 +2881,43 @@ __webpack_require__.r(__webpack_exports__);
     // setWorkHours: function(startHour, endHour){
     setWorkHours: function setWorkHours() {
       var start = null;
-      var end = null; // return;
+      var end = null;
+      Object.values(this.bussinessHours).forEach(function (item, i) {
+        if (typeof item.is_weekend !== 'undefined') return;
+        var start_hour = parseInt(item.start_hour.split(':')[0]);
+        var end_hour = parseInt(item.end_hour.split(':')[0]);
+
+        if (start_hour < start || start === null) {
+          start = start_hour;
+        }
+
+        if (end_hour > end || end === null) {
+          end = end_hour;
+        }
+      });
+      start = moment('1970-01-01 ' + (start > 9 ? start : "0" + start) + ':00');
+      end = moment('1970-01-01 ' + (end > 9 ? end : "0" + end) + ':00'); // return;
       // console.log(business_hours);
-
-      this.bussinessHours.forEach(function (item, i) {
-        if (start == null) {
-          // start = item.start;
-          start = moment('1970-01-01 ' + item.start_hour + ':00');
-          var _first = true;
-        }
-
-        if (end == null) {
-          end = moment('1970-01-01 ' + item.end_hour + ':00');
-          var _first2 = true;
-        }
-
-        if (typeof first != 'undefined' && first == true) return;
-        var itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
-        var itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
-        if (itemStart.diff(start) < 0) start = itemStart;
-        if (itemStart.diff(start) >= 0) end = itemEnd;
-      }); // 
+      // this.bussinessHours.forEach((item, i) => {
+      //     if(start == null){
+      //         // start = item.start;
+      //         start = moment('1970-01-01 ' + item.start_hour + ':00');
+      //         let first = true;
+      //     }
+      //     if(end == null){
+      //         end = moment('1970-01-01 ' + item.end_hour + ':00');
+      //         let first = true;
+      //     }
+      //     if(typeof first != 'undefined' && first == true)
+      //         return;
+      //     let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+      //     let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
+      //     if(itemStart.diff(start) < 0)
+      //         start = itemStart;
+      //     if(itemStart.diff(start) >= 0)
+      //         end = itemEnd;
+      // });
+      // 
       // return;
       // 
 
@@ -2963,6 +2970,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
 //
 //
 //
@@ -3591,7 +3602,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 
@@ -3670,7 +3680,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     notPast: function notPast(date) {
-      var dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + date.start + ':00');
+      var start = typeof date.start === 'undefined' || date.start === null ? '00:00' : date.start;
+      var dateMoment = moment(date.year + '-' + date.month + '-' + date.day + ' ' + start + ':00');
       var currentDateMoment = moment(this.currentDate);
       return dateMoment.diff(currentDateMoment) >= 0 || dateMoment.format("YYYY MM DD") == currentDateMoment.format("YYYY MM DD");
     },
@@ -3728,7 +3739,7 @@ __webpack_require__.r(__webpack_exports__);
 
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
-      this.componentApp.getData(moment(this.firstWeekday).format('DD-MM-YYYY'), moment(this.lastWeekday).format('DD-MM-YYYY'), function (response) {
+      this.componentApp.getData(moment(this.firstWeekday).format('YYYY-MM-DD'), moment(this.lastWeekday).format('YYYY-MM-DD'), function (response) {
         _this2.dates = response.data.data;
         _this2.bussinessHours = response.data.business_hours; // console.log(JSON.parse(JSON.stringify(this.dates)));
       }, function () {}, function () {
@@ -3773,9 +3784,10 @@ __webpack_require__.r(__webpack_exports__);
       if (this.dates == null) return false;
       var itemsCount = 0;
       this.dates.forEach(function (date, i) {
-        if (date.bookable && !date.is_weekend && _this3.notPast(date)) itemsCount++;
-      });
-      console.log(itemsCount); // if(itemsCount > 0)
+        // if(date.bookable && !date.is_weekend && this.notPast(date))
+        if (_this3.notPast(date)) itemsCount++;
+      }); // console.log(itemsCount);
+      // if(itemsCount > 0)
 
       this.empty = itemsCount > 0 ? false : true;
     }
@@ -4599,7 +4611,7 @@ __webpack_require__.r(__webpack_exports__);
 
       this.bTimeMoment = moment(this.booking.time);
       this.bTitle = this.booking.template_without_user_scope.title;
-      var durationSeconds = this.booking.template_without_user_scope.duration / 60;
+      var durationSeconds = this.booking.right_duration;
       var durationHourPart = parseInt(durationSeconds / 60);
       if (durationHourPart < 10) durationHourPart = '0' + durationHourPart;
       var durationMinutePart = durationSeconds % 60;
@@ -5059,7 +5071,7 @@ __webpack_require__.r(__webpack_exports__);
       var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       // return;
       if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app');
-      this.componentApp.getData(moment(this.firstCalendarDate).format('DD-MM-YYYY'), moment(this.lastCalendarDate).format('DD-MM-YYYY'), function (response) {
+      this.componentApp.getData(moment(this.firstCalendarDate).format('YYYY-MM-DD'), moment(this.lastCalendarDate).format('YYYY-MM-DD'), function (response) {
         _this2.dates = response.data.data;
       }, function () {}, function () {
         $('#cancelBookModal').modal('hide');
@@ -5702,7 +5714,8 @@ __webpack_require__.r(__webpack_exports__);
       return bussinessHours.start + ' - ' + bussinessHours.end;
     },
     cancelBook: function cancelBook(event) {
-      this.cancelBookData = event;
+      this.cancelBookData = event; // console.log(this.cancelBookData);
+
       $('#cancelBookModal').modal('show'); // console.log(event);
     },
     onBooked: function onBooked() {
@@ -5727,6 +5740,8 @@ __webpack_require__.r(__webpack_exports__);
     placeItems: function placeItems() {
       var _this5 = this;
 
+      // console.log(JSON.parse(JSON.stringify(this.workHours)));
+      // return;
       // console.log(555555555555555555555555555555);
       var _this = this;
 
@@ -5747,7 +5762,7 @@ __webpack_require__.r(__webpack_exports__);
       });
 
       function placeBeginningClosedDateItem(dateItem) {
-        // return true;
+        // return;
         var startDateItemMoment = moment(dateItem.year + '-' + dateItem.month + '-' + dateItem.day + ' ' + dateItem.start + ':00');
         var startWorkHour = _this.workHours[0];
         if (startWorkHour < 10) startWorkHour = '0' + startWorkHour; // let bussinessHours = _this.bussinessHours[dateItem.weekday - 1];
@@ -5977,17 +5992,17 @@ __webpack_require__.r(__webpack_exports__);
       if (this.componentApp == null) this.componentApp = this.getParentComponentByName(this, 'app'); // console.log(JSON.parse(JSON.stringify(434343434)));
       // console.log(JSON.parse(JSON.stringify(moment(this.firstWeekday).format('DD-MM-YYYY'))));
 
-      this.componentApp.getData(moment(this.firstWeekday).format('DD-MM-YYYY'), moment(this.lastWeekday).format('DD-MM-YYYY'), function (response) {
+      this.componentApp.getData(moment(this.firstWeekday).format('YYYY-MM-DD'), moment(this.lastWeekday).format('YYYY-MM-DD'), function (response) {
+        // alert(4444);
         // handle success
         // console.log(response.data.data);
         _this6.dates = response.data.data; // this.setWorkHours(response.data.start, response.data.end);
         // console.log(response.data.business_hours);
 
-        _this6.bussinessHours = response.data.business_hours;
+        _this6.bussinessHours = response.data.business_hours; // alert(4444);
 
-        _this6.setWorkHours();
-
-        console.log(JSON.parse(JSON.stringify(434343434))); // console.log(JSON.parse(JSON.stringify(this.workHours)));
+        _this6.setWorkHours(); // console.log(JSON.parse(JSON.stringify(434343434)));
+        // console.log(JSON.parse(JSON.stringify(this.workHours)));
         // console.log(JSON.parse(JSON.stringify(this.bussinessHours)));
         // console.log(JSON.parse(JSON.stringify(4444444444444444)));
         // setTimeout(() => {
@@ -6001,35 +6016,59 @@ __webpack_require__.r(__webpack_exports__);
         // this.placeItems();
         // console.log(response.data[0]);
         // console.log(JSON.parse(JSON.stringify(this.dates)));
+
       }, function () {}, function () {
         $('#cancelBookModal').modal('hide');
       });
     },
     // setWorkHours: function(startHour, endHour){
     setWorkHours: function setWorkHours() {
+      // alert(111);
       var start = null;
-      var end = null; // return;
-      // console.log(business_hours);
+      var end = null; // let first;
+      // return;
+      // console.log(JSON.parse(JSON.stringify(777777777)));
+      // console.log(this.bussinessHours);
+      // alert(111);
 
-      this.bussinessHours.forEach(function (item, i) {
+      Object.values(this.bussinessHours).forEach(function (item, i) {
+        if (typeof item.is_weekend !== 'undefined') return;
+        var start_hour = parseInt(item.start_hour.split(':')[0]);
+        var end_hour = parseInt(item.end_hour.split(':')[0]);
+
+        if (start_hour < start || start === null) {
+          start = start_hour;
+        }
+
+        if (end_hour > end || end === null) {
+          end = end_hour;
+        } // if(end_hour < end)
+        //     end = end_hour;
+        // alert(111);
         // if(typeof item.start === 'undefined' || typeof item.end === 'undefined')
-        if (start == null) {
-          // start = item.start;
-          start = moment('1970-01-01 ' + item.start_hour + ':00');
-          var _first = true;
-        }
+        // if(start == null){
+        //     // start = item.start;
+        //     start = moment('1970-01-01 ' + item.start_hour + ':00');
+        //     first = true;
+        // }
+        // if(end == null){
+        //     end = moment('1970-01-01 ' + item.end_hour + ':00');
+        //     first = true;
+        // }
+        // if(typeof first != 'undefined' && first == true)
+        //     return;
+        // let itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
+        // let itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
+        // if(itemStart.diff(start) < 0)
+        //     start = itemStart;
+        // if(itemStart.diff(start) >= 0)
+        //     end = itemEnd;
 
-        if (end == null) {
-          end = moment('1970-01-01 ' + item.end_hour + ':00');
-          var _first2 = true;
-        }
+      }); // alert(end);
 
-        if (typeof first != 'undefined' && first == true) return;
-        var itemStart = moment('1970-01-01 ' + item.start_hour + ':00');
-        var itemEnd = moment('1970-01-01 ' + item.end_hour + ':00');
-        if (itemStart.diff(start) < 0) start = itemStart;
-        if (itemStart.diff(start) >= 0) end = itemEnd;
-      }); // 
+      start = moment('1970-01-01 ' + (start > 9 ? start : "0" + start) + ':00');
+      end = moment('1970-01-01 ' + (end > 9 ? end : "0" + end) + ':00'); // alert(111);
+      // 
       // return;
       // 
 
@@ -6047,10 +6086,12 @@ __webpack_require__.r(__webpack_exports__);
 
       for (var i = startHourInt; i < endHourInt; i++) {
         this.workHours.push(i);
-      } // console.log(this.workHours);
-      // console.log(JSON.parse(JSON.stringify(777777777)));
-      // console.log(JSON.parse(JSON.stringify(this.workHours)));
+      } // alert(111);
 
+
+      console.log(JSON.parse(JSON.stringify(777777777)));
+      console.log(this.workHours); // console.log(JSON.parse(JSON.stringify(777777777)));
+      // console.log(JSON.parse(JSON.stringify(this.workHours)));
     },
     setDates: function setDates(firstCalendarMonthDate) {
       var currentDateMoment = moment(this.currentDate);
@@ -6146,6 +6187,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
 //
 //
 //
@@ -50490,10 +50535,7 @@ var render = function() {
                         on: {
                           click: function($event) {
                             $event.preventDefault()
-                            return _vm.$emit(
-                              "cancel",
-                              not_approved_booking.booking
-                            )
+                            return _vm.$emit("cancel", not_approved_booking)
                           }
                         }
                       },
@@ -50504,12 +50546,22 @@ var render = function() {
               })
             : _vm._e(),
           _vm._v(" "),
-          item.type == "booked"
+          item.type == "event"
             ? _c(
                 "div",
-                { staticClass: "calendar-top-item booked-calendar-item" },
+                {
+                  staticClass: "calendar-top-item",
+                  class: {
+                    "booked-calendar-item": item.approved,
+                    "requested-booking-calendar-item": !item.approved
+                  }
+                },
                 [
-                  _vm._v("\n                Booked on:"),
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(item.approved ? "Booked on" : "In approving") +
+                      ":"
+                  ),
                   _c("br"),
                   _vm._v(" "),
                   _c("b", [
@@ -50526,7 +50578,7 @@ var render = function() {
                       on: {
                         click: function($event) {
                           $event.preventDefault()
-                          return _vm.$emit("cancel", item.booking)
+                          return _vm.$emit("cancel", item)
                         }
                       }
                     },
@@ -51055,7 +51107,7 @@ var render = function() {
             "tbody",
             [
               _vm._l(_vm.dates, function(date) {
-                return date.bookable && !date.is_weekend && _vm.notPast(date)
+                return date.items && _vm.notPast(date)
                   ? [
                       _c(
                         "tr",
@@ -51151,7 +51203,7 @@ var render = function() {
                                                   _vm._v(
                                                     "\n                                        " +
                                                       _vm._s(
-                                                        notApprovedItem.booking
+                                                        notApprovedItem
                                                           .template_without_user_scope
                                                           .title
                                                       ) +
@@ -51168,7 +51220,7 @@ var render = function() {
                                                         ) {
                                                           $event.preventDefault()
                                                           return _vm.cancelBook(
-                                                            notApprovedItem.booking
+                                                            notApprovedItem
                                                           )
                                                         }
                                                       }
@@ -51185,7 +51237,7 @@ var render = function() {
                                   )
                                 : _vm._e(),
                               _vm._v(" "),
-                              item.type == "booked"
+                              item.type == "event"
                                 ? _c(
                                     "div",
                                     { staticClass: "for-itm for-itm-booked" },
@@ -51203,8 +51255,8 @@ var render = function() {
                                       _c("b", [
                                         _vm._v(
                                           _vm._s(
-                                            item.booking
-                                              .template_without_user_scope.title
+                                            item.template_without_user_scope
+                                              .title
                                           )
                                         )
                                       ]),
@@ -51217,9 +51269,7 @@ var render = function() {
                                           on: {
                                             click: function($event) {
                                               $event.preventDefault()
-                                              return _vm.cancelBook(
-                                                item.booking
-                                              )
+                                              return _vm.cancelBook(item)
                                             }
                                           }
                                         },
@@ -52583,27 +52633,23 @@ var render = function() {
                                 _vm._v(" "),
                                 _vm.getDate(i, k).is_weekend
                                   ? [_vm._m(0, true)]
-                                  : [
-                                      _vm.notPast(i, k)
-                                        ? _c("month-cell", {
-                                            attrs: {
-                                              items: _vm.getDate(i, k, "items")
-                                            },
-                                            on: {
-                                              "open-modal": function($event) {
-                                                return _vm.openModal(
-                                                  $event,
-                                                  i,
-                                                  k
-                                                )
-                                              },
-                                              cancel: function($event) {
-                                                return _vm.cancelBook($event)
-                                              }
-                                            }
-                                          })
-                                        : _vm._e()
-                                    ]
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _vm.notPast(i, k)
+                                  ? _c("month-cell", {
+                                      attrs: {
+                                        items: _vm.getDate(i, k, "items")
+                                      },
+                                      on: {
+                                        "open-modal": function($event) {
+                                          return _vm.openModal($event, i, k)
+                                        },
+                                        cancel: function($event) {
+                                          return _vm.cancelBook($event)
+                                        }
+                                      }
+                                    })
+                                  : _vm._e()
                               ],
                               2
                             )
@@ -52753,7 +52799,7 @@ var render = function() {
                                 on: {
                                   click: function($event) {
                                     $event.preventDefault()
-                                    return _vm.$emit("cancel", itmm.booking)
+                                    return _vm.$emit("cancel", itmm)
                                   }
                                 }
                               },
@@ -53318,7 +53364,7 @@ var render = function() {
                                     $event.preventDefault()
                                     return _vm.$emit(
                                       "cancel",
-                                      not_approved_booking.booking
+                                      not_approved_booking
                                     )
                                   }
                                 }
@@ -53330,14 +53376,24 @@ var render = function() {
                       })
                     : _vm._e(),
                   _vm._v(" "),
-                  item.type == "booked"
+                  item.type == "event"
                     ? _c(
                         "div",
                         {
-                          staticClass: "calendar-top-item booked-calendar-item"
+                          staticClass: "calendar-top-item",
+                          class: {
+                            "booked-calendar-item": item.approved,
+                            "requested-booking-calendar-item": !item.approved
+                          }
                         },
                         [
-                          _vm._v("\n                    Booked on:"),
+                          _vm._v(
+                            "\n                    " +
+                              _vm._s(
+                                item.approved ? "Booked on" : "In approving"
+                              ) +
+                              ":"
+                          ),
                           _c("br"),
                           _vm._v(" "),
                           _c("b", [
@@ -53355,7 +53411,7 @@ var render = function() {
                               on: {
                                 click: function($event) {
                                   $event.preventDefault()
-                                  return _vm.$emit("cancel", item.booking)
+                                  return _vm.$emit("cancel", item)
                                 }
                               }
                             },

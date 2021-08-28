@@ -289,7 +289,7 @@
     margin: 0px;
     width: 100%;
     padding: 4px;
-    max-height: 200px;
+    max-height: 300px;
     overflow: auto;
     .free-slot{
         display: block;
@@ -823,16 +823,16 @@
                             right: 4px;
                         }
                     }
-                    .warning-sign{
-                        position: absolute;
-                        display: block;
-                        height: 14px;
-                        width: 14px;
-                        top: 0px;
-                        right: 6px;
-                        border-radius: 0px 3px 0px 0px;
-                        padding: 2px;
-                    }
+                    // .warning-sign{
+                    //     position: absolute;
+                    //     display: block;
+                    //     height: 14px;
+                    //     width: 14px;
+                    //     top: 0px;
+                    //     right: 6px;
+                    //     border-radius: 0px 3px 0px 0px;
+                    //     padding: 2px;
+                    // }
                 }
             }
         }

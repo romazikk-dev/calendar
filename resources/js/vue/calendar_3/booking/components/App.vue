@@ -8,8 +8,8 @@
             <button type="button" class="btn btn-sm btn-primary">Middle</button>
         </div> -->
         
-        <!-- <info-navbar v-if="isShowInfoNavbar" ref="info_navbar" />
-        <navbar v-else ref="navbar" /> -->
+        <info-navbar v-if="isShowInfoNavbar" ref="info_navbar" />
+        <navbar v-else ref="navbar" />
         
         <navigation ref="navigation" />
          
@@ -53,8 +53,8 @@
 <script>
     import ModalBook from "./modals/ModalBook.vue";
     import Navigation from "./Navigation.vue";
-    // import Navbar from "./navbar/Navbar.vue";
-    // import InfoNavbar from "./InfoNavbar.vue";
+    import Navbar from "./navbar/Navbar.vue";
+    import InfoNavbar from "./InfoNavbar.vue";
     import MonthCalendar from "./MonthCalendar.vue";
     import WeekCalendar from "./WeekCalendar.vue";
     import DayCalendar from "./DayCalendar.vue";
@@ -67,6 +67,8 @@
     import MovingEventInfoBox from "./MovingEventInfoBox.vue";
     import NewEventInfoBox from "./NewEventInfoBox.vue";
     import ModalMoreEvents from "./modals/ModalMoreEvents.vue";
+    
+    import {GetDataFreeWithEventsParams} from './enums';
     
     export default {
         name: 'app',
@@ -366,6 +368,18 @@
                     if(!_this.isProp(_this.movingEvent) && !_this.isNewEventMainFull)
                         urlSearchParams = _this.getFiltersSearchParams(urlSearchParams);
                     
+                    // console.log(_this.freeWithEvents);
+                    if(lastGetDataType == 'free'){
+                        if(_this.isProp(_this.freeWithEvents) &&
+                        Object.values(GetDataFreeWithEventsParams).includes(_this.freeWithEvents)){
+                            // console.log(_this.freeWithEvents);
+                            urlSearchParams.append("with_events", _this.freeWithEvents);
+                        }
+                        if(_this.isProp(_this.freeBookingAnyTime) && _this.freeBookingAnyTime === true){
+                            urlSearchParams.append("booking_any_time", _this.freeBookingAnyTime);
+                        }
+                    }
+                    
                     // console.log(JSON.parse(JSON.stringify('urlSearchParams 3333')));
                     // console.log(JSON.parse(JSON.stringify(urlSearchParams)));
                     
@@ -515,15 +529,20 @@
             TimePickerModal,
             ModalDuration,
             ModalMovePathPicker,
-            // Navbar,
+            Navbar,
             MovingEventInfoBox,
             NewEventInfoBox,
             Navigation,
             ModalMoreEvents,
-            // InfoNavbar,
+            InfoNavbar,
             ModalBook,
+            
+            GetDataFreeWithEventsParams,
         },
         watch: {
+            // freeWithEvents: function (val) {
+            //     this.calendar.getData();
+            // },
         }
     }
 </script>

@@ -13,7 +13,7 @@
                             <!-- <button @click.prevent="$emit('cancel', itm)"
                                 type="button"
                                 class="btn btn-link btn-sm btn-block">Cancel</button > -->
-                            <button @click.prevent="$emit('cancel', itmm.booking)"
+                            <button @click.prevent="$emit('cancel', itmm)"
                                 type="button"
                                 class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                         </div>

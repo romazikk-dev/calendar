@@ -236,6 +236,9 @@
             },
         },
         methods: {
+            adaptWidthOfEvents: function () {
+                $(".month-calendar")
+            },
             conditionForItemsIteration: function (index) {
                 return typeof this.item.items !== 'undefined' && Array.isArray(this.item.items) &&
                 this.item.items.length > 0 &&

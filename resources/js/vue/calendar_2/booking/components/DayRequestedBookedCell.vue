@@ -6,16 +6,20 @@
                     class="calendar-top-item requested-booking-calendar-item">
                         In approving:<br>
                         <b>Men haircut<br>{{not_approved_booking.from}} - {{not_approved_booking.to}}</b>
-                    <button @click.prevent="$emit('cancel', not_approved_booking.booking)"
+                    <button @click.prevent="$emit('cancel', not_approved_booking)"
                         type="button"
                         class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
                 </div>
             </template>
-            <div v-if="item.type == 'booked'"
-                class="calendar-top-item booked-calendar-item">
-                    Booked on:<br>
+            <div v-if="item.type == 'event'"
+                class="calendar-top-item"
+                :class="{
+                    'booked-calendar-item': item.approved,
+                    'requested-booking-calendar-item': !item.approved,
+                }">
+                    {{item.approved ? 'Booked on' : 'In approving'}}:<br>
                     <b>Men haircut<br>{{item.from}} - {{item.to}}</b>
-                    <button @click.prevent="$emit('cancel', item.booking)"
+                    <button @click.prevent="$emit('cancel', item)"
                         type="button"
                         class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
             </div>
