@@ -190,9 +190,18 @@
                 
                 // alert(111);
                 let filterSpecifics = {};
+                // return;
+                // console.log(JSON.parse(JSON.stringify(this.items)));
                 for(let idx in this.items){
+                    // if(typeof this.items[idx] === 'undefined' || this.items[idx] === null)
+                    //     continue;
+                    // if(idx == 2)
+                    //     break;
+                        
                     let item = this.items[idx];
                     let specific = item.specific;
+                    
+                    // console.log(JSON.parse(JSON.stringify(idx)));
                     if(typeof specific.ids_trace !== undefined && specific.ids_trace !== null){
                         let idsTraceArr = (specific.ids_trace.split(',')).map(val => parseInt(val));
                         
@@ -201,6 +210,9 @@
                         }else{
                             idsTraceArr.push(specific.id);
                         }
+                        
+                        // break;
+                        // console.log(JSON.parse(JSON.stringify(_this.specificsAsKeyId)));
                         
                         let idsTracePath = '';
                         if(idsTraceArr.length > 0){
@@ -261,13 +273,14 @@
                     // console.log(idsTraceArr);
                 }
                 
-                console.log('filterSpecifics');
-                console.log(filterSpecifics);
+                // console.log('filterSpecifics');
+                // console.log(filterSpecifics);
                 this.filterSpecifics = filterSpecifics;
             },
             openModal: function(){
                 let _this = this;
                 
+                // alert(1111);
                 // e.preventDefault();
                 // if(this.items == null){
                     axios.post(_this.dataListUrl).then((response) => {
@@ -295,11 +308,15 @@
                             // items[idx].selected = false;
                         }
                         _this.items = items;
+                        
+                        // console.log(JSON.parse(JSON.stringify(7777777)));
+                        // console.log(JSON.parse(JSON.stringify(this.items)));
+                        
                         _this.setFilterSpecifics();
                         
-                        console.log(JSON.parse(JSON.stringify(7777777)));
-                        console.log(JSON.parse(JSON.stringify(this.items)));
-                        console.log(JSON.parse(JSON.stringify(this.selectedItemsKeyAsId)));
+                        // console.log(JSON.parse(JSON.stringify(7777777)));
+                        // console.log(JSON.parse(JSON.stringify(this.items)));
+                        // console.log(JSON.parse(JSON.stringify(this.selectedItemsKeyAsId)));
                         
                         $("#" + _this.modalId).modal('show');
                     }).catch(function (error) {
@@ -353,7 +370,7 @@
                     }
                     this.selectedItems = JSON.parse(JSON.stringify(selectedItems));
                     $("#" + this.modalId).modal('hide');
-                    
+                
                     this.recalculateBadgeValue();
                 }
             },

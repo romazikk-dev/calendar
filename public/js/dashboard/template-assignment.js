@@ -2029,11 +2029,16 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       var _this = this; // alert(111);
 
 
-      var filterSpecifics = {};
+      var filterSpecifics = {}; // return;
+      // console.log(JSON.parse(JSON.stringify(this.items)));
 
       for (var idx in this.items) {
+        // if(typeof this.items[idx] === 'undefined' || this.items[idx] === null)
+        //     continue;
+        // if(idx == 2)
+        //     break;
         var item = this.items[idx];
-        var specific = item.specific;
+        var specific = item.specific; // console.log(JSON.parse(JSON.stringify(idx)));
 
         if (_typeof(specific.ids_trace) !== undefined && specific.ids_trace !== null) {
           var idsTraceArr = specific.ids_trace.split(',').map(function (val) {
@@ -2044,7 +2049,9 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             idsTraceArr = [specific.id];
           } else {
             idsTraceArr.push(specific.id);
-          }
+          } // break;
+          // console.log(JSON.parse(JSON.stringify(_this.specificsAsKeyId)));
+
 
           var idsTracePath = '';
 
@@ -2086,16 +2093,15 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         } // console.log('specific.ids_trace');
         // console.log(idsTraceArr);
 
-      }
+      } // console.log('filterSpecifics');
+      // console.log(filterSpecifics);
 
-      console.log('filterSpecifics');
-      console.log(filterSpecifics);
+
       this.filterSpecifics = filterSpecifics;
     },
     openModal: function openModal() {
-      var _this2 = this;
-
-      var _this = this; // e.preventDefault();
+      var _this = this; // alert(1111);
+      // e.preventDefault();
       // if(this.items == null){
 
 
@@ -2127,13 +2133,14 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
         }
 
-        _this.items = items;
+        _this.items = items; // console.log(JSON.parse(JSON.stringify(7777777)));
+        // console.log(JSON.parse(JSON.stringify(this.items)));
 
-        _this.setFilterSpecifics();
+        _this.setFilterSpecifics(); // console.log(JSON.parse(JSON.stringify(7777777)));
+        // console.log(JSON.parse(JSON.stringify(this.items)));
+        // console.log(JSON.parse(JSON.stringify(this.selectedItemsKeyAsId)));
 
-        console.log(JSON.parse(JSON.stringify(7777777)));
-        console.log(JSON.parse(JSON.stringify(_this2.items)));
-        console.log(JSON.parse(JSON.stringify(_this2.selectedItemsKeyAsId)));
+
         $("#" + _this.modalId).modal('show');
       })["catch"](function (error) {
         console.log(error);
@@ -2202,7 +2209,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
       }
     },
     setAssignItems: function setAssignItems() {
-      var _this3 = this;
+      var _this2 = this;
 
       var _this = this;
 
@@ -2225,9 +2232,9 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             } // this.items = JSON.parse(JSON.stringify(items));
 
 
-            _this3.items = items;
+            _this2.items = items;
 
-            _this3.applySelect(); // console.log(JSON.parse(JSON.stringify(this.items)));
+            _this2.applySelect(); // console.log(JSON.parse(JSON.stringify(this.items)));
 
           })["catch"](function (error) {
             console.log(error);

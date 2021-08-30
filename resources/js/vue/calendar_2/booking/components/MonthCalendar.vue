@@ -141,7 +141,7 @@
                 return dateFirstItem.type == 'booked' ? true : false;
             },
             next: function(){
-                console.log('next');
+                // console.log('next');
                 var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M');
                 // console.log(dateOfNextMonth.toDate());
                 this.setDates(dateOfNextMonth.toDate());
@@ -176,8 +176,8 @@
                 // console.log(this.$parent.isAuth());
                 this.bookDate = this.getDate(i,k);
                 this.bookTimePeriod = itm;
-                console.log(111);
-                console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
+                // console.log(111);
+                // console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
                 $('#bookModal').modal('show');
             },
             notPast: function(i,k){

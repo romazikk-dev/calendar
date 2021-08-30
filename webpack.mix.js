@@ -34,7 +34,7 @@ mix.js('resources/js/vue/dashboard/calendar/booking/app.js', 'public/js/dashboar
 // mix.js('resources/js/vue/dashboard/hall_assignment/app.js', 'public/js/dashboard/hall-assignment.js').vue();
 // mix.js('resources/js/vue/dashboard/suspension/app.js', 'public/js/dashboard/suspension.js').vue();
 
-// mix.js('resources/js/vue/dashboard/template_assignment/app.js', 'public/js/dashboard/template-assignment.js').vue();
+mix.js('resources/js/vue/dashboard/template_assignment/app.js', 'public/js/dashboard/template-assignment.js').vue();
 
 // mix.js('resources/js/vue/dashboard/worker_assignment/app.js', 'public/js/dashboard/worker-assignment.js').vue();
 // mix.js('resources/js/vue/dashboard/holidays/app.js', 'public/js/dashboard/holidays.js').vue();

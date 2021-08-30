@@ -2,7 +2,7 @@
     <div>
         <!-- <loader v-show="showFilters" ref="loader" /> -->
         <modal-alert ref="modal_alert" />
-        <div v-show="showFilters" class="filters-select">
+        <div v-if="showFilters" class="filters-select">
             <!-- <h4>Select place, worker, service</h4> -->
             <div class="show-filters-title">
                 <h4>Please select all filters:</h4>
@@ -53,12 +53,14 @@
                             </div>
                         </div>
                         
+                        <!-- {{pickedTemplateIdsTrace}} -->
                         <template-picker :templates="templates"
                             :specifics="templateSpecifics"
                             :specifics-as-id-key="templateSpecificsAsIdKey"
                             :picked-template-ids-trace="pickedTemplateIdsTrace"
                             v-if="templateSpecifics"
                             @change="change('template', $event)" />
+                            
                         <div v-else id="templateDropdown" class="dropdown">
                             <span>{{customTitle('template')}}:</span>
                             <a :class="{disabled: (templates == null)}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -90,7 +92,7 @@
                     </a>
                 </div>
                 
-                <div class="back pt-2">
+                <div class="back pt-2" v-if="isFiltered">
                     <a @click.prevent="backToCalendar" class="btn btn-sm btn-link w-100" href="#">
                         Back
                     </a>
@@ -160,7 +162,7 @@
                 pickedItmView: 'month',
                 
                 //Currently picked template`s ids trace
-                pickedTemplateIdsTrace: null,
+                // pickedTemplateIdsTrace: null,
                 //Count how much were picked template when picked form is shown
                 // pickTemplateTimesCount: 0,
                 
@@ -177,6 +179,9 @@
             };
         },
         computed: {
+            isFiltered: function(){
+                return typeof filters !== 'undefined' && filters !== null;
+            },
             customTitle: function(){
                 return (name) => {
                     return this.$store.getters['custom_titles/title'](name);
@@ -240,6 +245,27 @@
                     return string.charAt(0).toUpperCase() + string.slice(1);
                 };
             },
+            pickedTemplateIdsTrace: function(){
+                let itmTemplate = this.cookieItmTemplate;
+                if(itmTemplate === null ||
+                typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+                    return null;
+                
+                if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
+                    return [itmTemplate.specific.id, itmTemplate.id];
+                
+                let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+                let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+                idsTrace.push(itmTemplate.specific.id);
+                idsTrace.push(itmTemplate.id);
+                
+                return idsTrace
+                
+                // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+                // this.pickedTemplateIdsTrace = null;
+                // this.pickedTemplateIdsTrace = idsTrace;
+                // this.pickedTemplateIdsTrace = null;
+            },
         },
         methods: {
             changeView: function(view){
@@ -251,25 +277,25 @@
                 // this.composeSearch();
                 this.emitChange();
             },
-            setPickedTemplateIdsTrace: function(){
-                let itmTemplate = this.cookieItmTemplate;
-                if(itmTemplate === null ||
-                typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
-                    return null;
-                
-                if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
-                    return [itmTemplate.specific.id];
-                
-                let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
-                let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
-                idsTrace.push(itmTemplate.specific.id);
-                idsTrace.push(itmTemplate.id);
-                
-                // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
-                // this.pickedTemplateIdsTrace = null;
-                this.pickedTemplateIdsTrace = idsTrace;
-                // this.pickedTemplateIdsTrace = null;
-            },
+            // setPickedTemplateIdsTrace: function(){
+            //     let itmTemplate = this.cookieItmTemplate;
+            //     if(itmTemplate === null ||
+            //     typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+            //         return null;
+            // 
+            //     if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
+            //         return [itmTemplate.specific.id];
+            // 
+            //     let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+            //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+            //     idsTrace.push(itmTemplate.specific.id);
+            //     idsTrace.push(itmTemplate.id);
+            // 
+            //     // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+            //     // this.pickedTemplateIdsTrace = null;
+            //     this.pickedTemplateIdsTrace = idsTrace;
+            //     // this.pickedTemplateIdsTrace = null;
+            // },
             backToCalendar: function(){
                 this.showFilters = false;
                 this.$emit('showCalendar');
@@ -279,17 +305,33 @@
             },
             fillFilters: function(){
                 if(this.cookieItmHall !== null){
+                    // console.log('22222 - fillFilters');
+                    // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
                     this.change('hall', this.cookieItmHall);
                     if(this.cookieItmTemplate !== null){
                         this.change('template', this.cookieItmTemplate);
                         
-                        console.log('22222 - setPickedTemplateIdsTrace');
-                        // console.log(this.cookieItmTemplate);
-                        console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
+                        // pickedItmHall: null,
+                        // pickedItmWorker: null,
+                        // pickedItmTemplate: null,
+                        // pickedItmView: 'month',
                         
-                        this.setPickedTemplateIdsTrace();
-                        console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
-                        console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+                         // setTimeout(() => {
+                         //     // console.log('22222 - fillFilters');
+                         //     // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
+                         //     this.setPickedTemplateIdsTrace();
+                         // }, 600);
+                         
+                        // console.log('22222 - fillFilters');
+                        // console.log(JSON.parse(JSON.stringify(this.pickedItmHall)));
+                        // console.log('22222 - setPickedTemplateIdsTrace');
+                        // console.log(this.cookieItmTemplate);
+                        // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
+                        
+                        // this.setPickedTemplateIdsTrace();
+                        
+                        // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+                        // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
                         
                         if(this.cookieItmWorker !== null){
                             this.change('worker', this.cookieItmWorker);
@@ -310,6 +352,12 @@
                 //         }
                 //     }
                 // }
+                
+                console.log(JSON.parse(JSON.stringify(1111)));
+                this.fillFilters();
+                
+                console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+                console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
                 
                 if(this.cookieItmView !== null)
                     this.pickedItmView = this.cookieItmView;
@@ -350,7 +398,7 @@
                 if(items !== null && !Array.isArray(items))
                     return;
                     
-                console.log('resetPickedItems');
+                // console.log('resetPickedItems');
                     
                 if(items === null || items.includes("hall"))
                     this.pickedItmHall = null;
@@ -376,11 +424,11 @@
                                 });
                                 this.templates = templates;
                                 this.pickedItmHall = itm;
-                                console.log(JSON.parse(JSON.stringify(this.templates)));
+                                // console.log(JSON.parse(JSON.stringify(this.templates)));
                             })
                             .catch(function (error) {
                                 // handle error
-                                console.log(error);
+                                // console.log(error);
                             })
                             .then(function () {
                                 // always executed
@@ -408,7 +456,7 @@
                             })
                             .catch(function (error) {
                                 // handle error
-                                console.log(error);
+                                // console.log(error);
                             })
                             .then(function () {
                                 // always executed

@@ -5,7 +5,7 @@
                  @hideCalendar="showCalendar = false"
                  @showCalendar="showCalendar = true"></filters>
         
-        {{showCalendar ? 'showCalendar' : 'notShowCalendar'}}
+        <!-- {{showCalendar ? 'showCalendar' : 'notShowCalendar'}} -->
         
         <div v-show="showCalendar" class="container-fluid">
             <month-calendar v-if="monthView"
@@ -178,7 +178,7 @@
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error);
+                    // console.log(error);
                 })
                 .then(() => {
                     finalCallback();

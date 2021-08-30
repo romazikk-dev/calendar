@@ -42,7 +42,7 @@
             // console.log(this.dateRange);
             // console.log(this.view);
             // this.getDataForCalendar();
-            console.log(JSON.parse(JSON.stringify(this.items)));
+            // console.log(JSON.parse(JSON.stringify(this.items)));
         },
         props: ['items'],
         data: function(){

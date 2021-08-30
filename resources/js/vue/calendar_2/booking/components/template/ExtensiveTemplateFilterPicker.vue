@@ -1,5 +1,6 @@
 <template>
     <div>
+            <!-- {{pickedTemplateIdsTrace}}<br> -->
             <span>{{templateCustomTitle}}:</span><br>
             <dropdown-template-specifics
                 @change="$emit('change', $event)"
@@ -17,8 +18,8 @@
     export default {
         name: 'extensive_template_filter_picker',
         mounted() {
-            // console.log(JSON.parse(JSON.stringify(7777)));
-            // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+            console.log(JSON.parse(JSON.stringify(7777)));
+            console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
         },
         props: ['templates','specifics','specificsAsIdKey','pickedTemplateIdsTrace'],
         data: function(){
@@ -135,6 +136,8 @@
         },
         watch: {
             // pickedTemplateIdsTrace: function(val){
+            //     console.log(JSON.parse(JSON.stringify('watch::pickedTemplateIdsTrace')));
+            //     console.log(JSON.parse(JSON.stringify(val)));
             //     // alert(val);s
             //     // this.pickedTemplateIdsTrace = null;
             //     // this.parsedTemplates = null;

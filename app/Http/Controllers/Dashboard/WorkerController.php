@@ -112,6 +112,7 @@ class WorkerController extends Controller
         //     dd($assign_templates);
         
         return view('dashboard.worker.create', [
+            'specifics_as_key_id' => \Specifics::getDbSpecificsAsKeyId(true),
             'phone_types' => PhoneTypes::all(),
             'old_suspension' => \Suspension::getOldForVue(),
             'index_prefixes' => \PhonePicker::getIndexPrefixesForVue(),

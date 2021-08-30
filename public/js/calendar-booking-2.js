@@ -2008,9 +2008,8 @@ __webpack_require__.r(__webpack_exports__);
 
         _this.setBookings(); // this.dataUpdater++;
 
-      })["catch"](function (error) {
-        // handle error
-        console.log(error);
+      })["catch"](function (error) {// handle error
+        // console.log(error);
       }).then(function () {
         finalCallback();
       });
@@ -3172,6 +3171,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -3196,7 +3197,7 @@ __webpack_require__.r(__webpack_exports__);
       pickedItmTemplate: null,
       pickedItmView: 'month',
       //Currently picked template`s ids trace
-      pickedTemplateIdsTrace: null,
+      // pickedTemplateIdsTrace: null,
       //Count how much were picked template when picked form is shown
       // pickTemplateTimesCount: 0,
       // views: ['month','week','day','list'],
@@ -3210,6 +3211,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   computed: {
+    isFiltered: function isFiltered() {
+      return typeof filters !== 'undefined' && filters !== null;
+    },
     customTitle: function customTitle() {
       var _this = this;
 
@@ -3271,6 +3275,21 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       ;
+    },
+    pickedTemplateIdsTrace: function pickedTemplateIdsTrace() {
+      var itmTemplate = this.cookieItmTemplate;
+      if (itmTemplate === null || typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null) return null;
+      if (typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null) return [itmTemplate.specific.id, itmTemplate.id];
+      var idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+      var idsTrace = idsTraceString.split(',').map(function (val) {
+        return parseInt(val);
+      });
+      idsTrace.push(itmTemplate.specific.id);
+      idsTrace.push(itmTemplate.id);
+      return idsTrace; // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+      // this.pickedTemplateIdsTrace = null;
+      // this.pickedTemplateIdsTrace = idsTrace;
+      // this.pickedTemplateIdsTrace = null;
     }
   },
   methods: {
@@ -3283,20 +3302,25 @@ __webpack_require__.r(__webpack_exports__);
 
       this.emitChange();
     },
-    setPickedTemplateIdsTrace: function setPickedTemplateIdsTrace() {
-      var itmTemplate = this.cookieItmTemplate;
-      if (itmTemplate === null || typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null) return null;
-      if (typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null) return [itmTemplate.specific.id];
-      var idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
-      var idsTrace = idsTraceString.split(',').map(function (val) {
-        return parseInt(val);
-      });
-      idsTrace.push(itmTemplate.specific.id);
-      idsTrace.push(itmTemplate.id); // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
-      // this.pickedTemplateIdsTrace = null;
-
-      this.pickedTemplateIdsTrace = idsTrace; // this.pickedTemplateIdsTrace = null;
-    },
+    // setPickedTemplateIdsTrace: function(){
+    //     let itmTemplate = this.cookieItmTemplate;
+    //     if(itmTemplate === null ||
+    //     typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+    //         return null;
+    // 
+    //     if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
+    //         return [itmTemplate.specific.id];
+    // 
+    //     let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+    //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+    //     idsTrace.push(itmTemplate.specific.id);
+    //     idsTrace.push(itmTemplate.id);
+    // 
+    //     // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+    //     // this.pickedTemplateIdsTrace = null;
+    //     this.pickedTemplateIdsTrace = idsTrace;
+    //     // this.pickedTemplateIdsTrace = null;
+    // },
     backToCalendar: function backToCalendar() {
       this.showFilters = false;
       this.$emit('showCalendar');
@@ -3306,16 +3330,28 @@ __webpack_require__.r(__webpack_exports__);
     },
     fillFilters: function fillFilters() {
       if (this.cookieItmHall !== null) {
+        // console.log('22222 - fillFilters');
+        // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
         this.change('hall', this.cookieItmHall);
 
         if (this.cookieItmTemplate !== null) {
-          this.change('template', this.cookieItmTemplate);
-          console.log('22222 - setPickedTemplateIdsTrace'); // console.log(this.cookieItmTemplate);
-
-          console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
-          this.setPickedTemplateIdsTrace();
-          console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
-          console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+          this.change('template', this.cookieItmTemplate); // pickedItmHall: null,
+          // pickedItmWorker: null,
+          // pickedItmTemplate: null,
+          // pickedItmView: 'month',
+          // setTimeout(() => {
+          //     // console.log('22222 - fillFilters');
+          //     // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
+          //     this.setPickedTemplateIdsTrace();
+          // }, 600);
+          // console.log('22222 - fillFilters');
+          // console.log(JSON.parse(JSON.stringify(this.pickedItmHall)));
+          // console.log('22222 - setPickedTemplateIdsTrace');
+          // console.log(this.cookieItmTemplate);
+          // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
+          // this.setPickedTemplateIdsTrace();
+          // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+          // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
 
           if (this.cookieItmWorker !== null) {
             this.change('worker', this.cookieItmWorker);
@@ -3335,6 +3371,10 @@ __webpack_require__.r(__webpack_exports__);
       //     }
       // }
 
+      console.log(JSON.parse(JSON.stringify(1111)));
+      this.fillFilters();
+      console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+      console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
       if (this.cookieItmView !== null) this.pickedItmView = this.cookieItmView; // this.$refs.loader.fadeOut();
 
       this.$emit('hideCalendar');
@@ -3368,8 +3408,8 @@ __webpack_require__.r(__webpack_exports__);
     },
     resetPickedItems: function resetPickedItems() {
       var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      if (items !== null && !Array.isArray(items)) return;
-      console.log('resetPickedItems');
+      if (items !== null && !Array.isArray(items)) return; // console.log('resetPickedItems');
+
       if (items === null || items.includes("hall")) this.pickedItmHall = null;
       if (items === null || items.includes("template")) this.pickedItmTemplate = null;
       if (items === null || items.includes("worker")) this.pickedItmWorker = null;
@@ -3390,11 +3430,9 @@ __webpack_require__.r(__webpack_exports__);
               templates.push(item);
             });
             _this2.templates = templates;
-            _this2.pickedItmHall = itm;
-            console.log(JSON.parse(JSON.stringify(_this2.templates)));
-          })["catch"](function (error) {
-            // handle error
-            console.log(error);
+            _this2.pickedItmHall = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
+          })["catch"](function (error) {// handle error
+            // console.log(error);
           }).then(function () {// always executed
           });
           break;
@@ -3413,9 +3451,8 @@ __webpack_require__.r(__webpack_exports__);
             });
             _this2.workers = workers;
             _this2.pickedItmTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
-          })["catch"](function (error) {
-            // handle error
-            console.log(error);
+          })["catch"](function (error) {// handle error
+            // console.log(error);
           }).then(function () {// always executed
           });
           break;
@@ -5007,7 +5044,7 @@ __webpack_require__.r(__webpack_exports__);
       return dateFirstItem.type == 'booked' ? true : false;
     },
     next: function next() {
-      console.log('next');
+      // console.log('next');
       var dateOfNextMonth = moment(this.firstMonthDate).add(1, 'M'); // console.log(dateOfNextMonth.toDate());
 
       this.setDates(dateOfNextMonth.toDate());
@@ -5038,9 +5075,9 @@ __webpack_require__.r(__webpack_exports__);
       // $parent.isAuth();
       // console.log(this.$parent.isAuth());
       this.bookDate = this.getDate(i, k);
-      this.bookTimePeriod = itm;
-      console.log(111);
-      console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
+      this.bookTimePeriod = itm; // console.log(111);
+      // console.log(JSON.parse(JSON.stringify(this.bookTimePeriod)));
+
       $('#bookModal').modal('show');
     },
     notPast: function notPast(i, k) {
@@ -5191,11 +5228,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'monthCell',
-  mounted: function mounted() {
-    // console.log(this.dateRange);
+  mounted: function mounted() {// console.log(this.dateRange);
     // console.log(this.view);
     // this.getDataForCalendar();
-    console.log(JSON.parse(JSON.stringify(this.items)));
+    // console.log(JSON.parse(JSON.stringify(this.items)));
   },
   props: ['items'],
   data: function data() {
@@ -6489,11 +6525,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 // import ClientInfo from "./ClientInfo.vue";
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'extensive_template_filter_picker',
-  mounted: function mounted() {// console.log(JSON.parse(JSON.stringify(7777)));
-    // console.log(JSON.parse(JSON.stringify(this.pickedHall)));
+  mounted: function mounted() {
+    console.log(JSON.parse(JSON.stringify(7777)));
+    console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
   },
   props: ['templates', 'specifics', 'specificsAsIdKey', 'pickedTemplateIdsTrace'],
   data: function data() {
@@ -6577,6 +6615,8 @@ __webpack_require__.r(__webpack_exports__);
   components: {},
   watch: {
     // pickedTemplateIdsTrace: function(val){
+    //     console.log(JSON.parse(JSON.stringify('watch::pickedTemplateIdsTrace')));
+    //     console.log(JSON.parse(JSON.stringify(val)));
     //     // alert(val);s
     //     // this.pickedTemplateIdsTrace = null;
     //     // this.parsedTemplates = null;
@@ -50162,11 +50202,7 @@ var render = function() {
           }
         }
       }),
-      _vm._v(
-        "\n    \n    " +
-          _vm._s(_vm.showCalendar ? "showCalendar" : "notShowCalendar") +
-          "\n    \n    "
-      ),
+      _vm._v(" "),
       _c(
         "div",
         {
@@ -50621,118 +50657,197 @@ var render = function() {
     [
       _c("modal-alert", { ref: "modal_alert" }),
       _vm._v(" "),
-      _c(
-        "div",
-        {
-          directives: [
-            {
-              name: "show",
-              rawName: "v-show",
-              value: _vm.showFilters,
-              expression: "showFilters"
-            }
-          ],
-          staticClass: "filters-select"
-        },
-        [
-          _vm._m(0),
-          _vm._v(" "),
-          _c("div", { staticClass: "filter-select-item" }, [
-            _c("div", [
-              _c(
-                "div",
-                { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
-                [
-                  _c("span", [_vm._v("View: ")]),
-                  _vm._v(" "),
-                  _c(
-                    "a",
-                    {
-                      staticClass: "btn btn-sm btn-info dropdown-toggle",
-                      attrs: {
-                        href: "#",
-                        "data-toggle": "dropdown",
-                        "aria-haspopup": "true",
-                        "aria-expanded": "false"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n                        " +
-                          _vm._s(_vm.pickedItmView) +
-                          "\n                    "
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "dropdown-menu" },
-                    _vm._l(_vm.views, function(itm) {
-                      return itm.toLowerCase() !=
-                        _vm.pickedItmView.toLowerCase()
-                        ? _c(
-                            "a",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { href: "#" },
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  return _vm.change("view", itm)
-                                }
-                              }
-                            },
-                            [_vm._v(_vm._s(itm))]
-                          )
-                        : _vm._e()
-                    }),
-                    0
-                  )
-                ]
-              )
-            ]),
+      _vm.showFilters
+        ? _c("div", { staticClass: "filters-select" }, [
+            _vm._m(0),
             _vm._v(" "),
-            _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
-              _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
+            _c("div", { staticClass: "filter-select-item" }, [
+              _c("div", [
+                _c(
+                  "div",
+                  { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
+                  [
+                    _c("span", [_vm._v("View: ")]),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-sm btn-info dropdown-toggle",
+                        attrs: {
+                          href: "#",
+                          "data-toggle": "dropdown",
+                          "aria-haspopup": "true",
+                          "aria-expanded": "false"
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                        " +
+                            _vm._s(_vm.pickedItmView) +
+                            "\n                    "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "dropdown-menu" },
+                      _vm._l(_vm.views, function(itm) {
+                        return itm.toLowerCase() !=
+                          _vm.pickedItmView.toLowerCase()
+                          ? _c(
+                              "a",
+                              {
+                                staticClass: "dropdown-item",
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.change("view", itm)
+                                  }
+                                }
+                              },
+                              [_vm._v(_vm._s(itm))]
+                            )
+                          : _vm._e()
+                      }),
+                      0
+                    )
+                  ]
+                )
+              ]),
               _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "card-body" },
-                [
-                  _c(
-                    "div",
-                    { staticClass: "dropdown", attrs: { id: "hallDropdown" } },
-                    [
-                      _c("span", [
-                        _vm._v(_vm._s(_vm.customTitle("hall")) + ": ")
-                      ]),
-                      _vm._v(" "),
-                      _c(
-                        "a",
-                        {
-                          staticClass: "btn btn-sm btn-info dropdown-toggle",
-                          attrs: { href: "#", "data-toggle": "dropdown" }
-                        },
-                        [
-                          _vm._v(
-                            "\n                            " +
-                              _vm._s(
-                                _vm.pickedItmHall == null
-                                  ? "---"
-                                  : _vm.pickedItmHall.title
-                              ) +
-                              "\n                        "
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "dropdown-menu" },
-                        [
-                          _vm.halls.length
-                            ? _vm._l(_vm.halls, function(itm) {
+              _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
+                _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "card-body" },
+                  [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "dropdown",
+                        attrs: { id: "hallDropdown" }
+                      },
+                      [
+                        _c("span", [
+                          _vm._v(_vm._s(_vm.customTitle("hall")) + ": ")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-sm btn-info dropdown-toggle",
+                            attrs: { href: "#", "data-toggle": "dropdown" }
+                          },
+                          [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(
+                                  _vm.pickedItmHall == null
+                                    ? "---"
+                                    : _vm.pickedItmHall.title
+                                ) +
+                                "\n                        "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "dropdown-menu" },
+                          [
+                            _vm.halls.length
+                              ? _vm._l(_vm.halls, function(itm) {
+                                  return _c(
+                                    "a",
+                                    {
+                                      staticClass: "dropdown-item",
+                                      attrs: { href: "#" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.change("hall", itm)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v(_vm._s(itm.title))]
+                                  )
+                                })
+                              : [
+                                  _c(
+                                    "div",
+                                    { staticClass: "small pl-1 pr-1" },
+                                    [
+                                      _vm._v(
+                                        "\n                                    No items to choose ...\n                                "
+                                      )
+                                    ]
+                                  )
+                                ]
+                          ],
+                          2
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _vm.templateSpecifics
+                      ? _c("template-picker", {
+                          attrs: {
+                            templates: _vm.templates,
+                            specifics: _vm.templateSpecifics,
+                            "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
+                            "picked-template-ids-trace":
+                              _vm.pickedTemplateIdsTrace
+                          },
+                          on: {
+                            change: function($event) {
+                              return _vm.change("template", $event)
+                            }
+                          }
+                        })
+                      : _c(
+                          "div",
+                          {
+                            staticClass: "dropdown",
+                            attrs: { id: "templateDropdown" }
+                          },
+                          [
+                            _c("span", [
+                              _vm._v(_vm._s(_vm.customTitle("template")) + ":")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                staticClass:
+                                  "btn btn-sm btn-info dropdown-toggle",
+                                class: { disabled: _vm.templates == null },
+                                attrs: {
+                                  href: "#",
+                                  "data-toggle": "dropdown",
+                                  "aria-haspopup": "true",
+                                  "aria-expanded": "false"
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                            " +
+                                    _vm._s(
+                                      _vm.pickedItmTemplate == null
+                                        ? "---"
+                                        : _vm.pickedItmTemplate.title
+                                    ) +
+                                    "\n                        "
+                                )
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "dropdown-menu" },
+                              _vm._l(_vm.templates, function(itm) {
                                 return _c(
                                   "a",
                                   {
@@ -50741,202 +50856,120 @@ var render = function() {
                                     on: {
                                       click: function($event) {
                                         $event.preventDefault()
-                                        return _vm.change("hall", itm)
+                                        return _vm.change("template", itm)
                                       }
                                     }
                                   },
                                   [_vm._v(_vm._s(itm.title))]
                                 )
-                              })
-                            : [
-                                _c("div", { staticClass: "small pl-1 pr-1" }, [
-                                  _vm._v(
-                                    "\n                                    No items to choose ...\n                                "
-                                  )
-                                ])
-                              ]
-                        ],
-                        2
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _vm.templateSpecifics
-                    ? _c("template-picker", {
-                        attrs: {
-                          templates: _vm.templates,
-                          specifics: _vm.templateSpecifics,
-                          "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
-                          "picked-template-ids-trace":
-                            _vm.pickedTemplateIdsTrace
-                        },
+                              }),
+                              0
+                            )
+                          ]
+                        ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "dropdown",
+                        attrs: { id: "workerDropdown" }
+                      },
+                      [
+                        _c("span", [
+                          _vm._v(_vm._s(_vm.customTitle("worker")) + ":")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-sm btn-info dropdown-toggle",
+                            class: { disabled: _vm.workers == null },
+                            attrs: {
+                              href: "#",
+                              "data-toggle": "dropdown",
+                              "aria-haspopup": "true",
+                              "aria-expanded": "false"
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(
+                                  _vm.pickedItmWorker == null
+                                    ? "---"
+                                    : _vm.fullName(_vm.pickedItmWorker)
+                                ) +
+                                "\n                        "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "dropdown-menu" },
+                          _vm._l(_vm.workers, function(itm) {
+                            return _c(
+                              "a",
+                              {
+                                staticClass: "dropdown-item",
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.change("worker", itm)
+                                  }
+                                }
+                              },
+                              [_vm._v(_vm._s(_vm.fullName(itm)))]
+                            )
+                          }),
+                          0
+                        )
+                      ]
+                    )
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "apply pt-2" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-sm btn-primary w-100",
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.apply($event)
+                      }
+                    }
+                  },
+                  [_vm._v("\n                    Apply\n                ")]
+                )
+              ]),
+              _vm._v(" "),
+              _vm.isFiltered
+                ? _c("div", { staticClass: "back pt-2" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-sm btn-link w-100",
+                        attrs: { href: "#" },
                         on: {
-                          change: function($event) {
-                            return _vm.change("template", $event)
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.backToCalendar($event)
                           }
                         }
-                      })
-                    : _c(
-                        "div",
-                        {
-                          staticClass: "dropdown",
-                          attrs: { id: "templateDropdown" }
-                        },
-                        [
-                          _c("span", [
-                            _vm._v(_vm._s(_vm.customTitle("template")) + ":")
-                          ]),
-                          _vm._v(" "),
-                          _c(
-                            "a",
-                            {
-                              staticClass:
-                                "btn btn-sm btn-info dropdown-toggle",
-                              class: { disabled: _vm.templates == null },
-                              attrs: {
-                                href: "#",
-                                "data-toggle": "dropdown",
-                                "aria-haspopup": "true",
-                                "aria-expanded": "false"
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n                            " +
-                                  _vm._s(
-                                    _vm.pickedItmTemplate == null
-                                      ? "---"
-                                      : _vm.pickedItmTemplate.title
-                                  ) +
-                                  "\n                        "
-                              )
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "div",
-                            { staticClass: "dropdown-menu" },
-                            _vm._l(_vm.templates, function(itm) {
-                              return _c(
-                                "a",
-                                {
-                                  staticClass: "dropdown-item",
-                                  attrs: { href: "#" },
-                                  on: {
-                                    click: function($event) {
-                                      $event.preventDefault()
-                                      return _vm.change("template", itm)
-                                    }
-                                  }
-                                },
-                                [_vm._v(_vm._s(itm.title))]
-                              )
-                            }),
-                            0
-                          )
-                        ]
-                      ),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    {
-                      staticClass: "dropdown",
-                      attrs: { id: "workerDropdown" }
-                    },
-                    [
-                      _c("span", [
-                        _vm._v(_vm._s(_vm.customTitle("worker")) + ":")
-                      ]),
-                      _vm._v(" "),
-                      _c(
-                        "a",
-                        {
-                          staticClass: "btn btn-sm btn-info dropdown-toggle",
-                          class: { disabled: _vm.workers == null },
-                          attrs: {
-                            href: "#",
-                            "data-toggle": "dropdown",
-                            "aria-haspopup": "true",
-                            "aria-expanded": "false"
-                          }
-                        },
-                        [
-                          _vm._v(
-                            "\n                            " +
-                              _vm._s(
-                                _vm.pickedItmWorker == null
-                                  ? "---"
-                                  : _vm.fullName(_vm.pickedItmWorker)
-                              ) +
-                              "\n                        "
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "dropdown-menu" },
-                        _vm._l(_vm.workers, function(itm) {
-                          return _c(
-                            "a",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { href: "#" },
-                              on: {
-                                click: function($event) {
-                                  $event.preventDefault()
-                                  return _vm.change("worker", itm)
-                                }
-                              }
-                            },
-                            [_vm._v(_vm._s(_vm.fullName(itm)))]
-                          )
-                        }),
-                        0
-                      )
-                    ]
-                  )
-                ],
-                1
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "apply pt-2" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "btn btn-sm btn-primary w-100",
-                  attrs: { href: "#" },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      return _vm.apply($event)
-                    }
-                  }
-                },
-                [_vm._v("\n                    Apply\n                ")]
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "back pt-2" }, [
-              _c(
-                "a",
-                {
-                  staticClass: "btn btn-sm btn-link w-100",
-                  attrs: { href: "#" },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      return _vm.backToCalendar($event)
-                    }
-                  }
-                },
-                [_vm._v("\n                    Back\n                ")]
-              )
+                      },
+                      [_vm._v("\n                    Back\n                ")]
+                    )
+                  ])
+                : _vm._e()
             ])
           ])
-        ]
-      ),
+        : _vm._e(),
       _vm._v(" "),
       _c(
         "div",
