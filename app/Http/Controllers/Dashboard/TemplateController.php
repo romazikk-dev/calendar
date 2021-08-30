@@ -43,7 +43,7 @@ class TemplateController extends Controller
         
         $templates_arr = Datatables::eloquent($templates)
             ->editColumn('duration', function(Template $template) {
-                return date('H:i', $template->duration);
+                return date('H:i', $template->duration * 60);
             })
             // ->filterColumn('duration', function($query, $keyword) {
             //     $sql = "DATE_FORMAT(templates.`duration`, '%H:%i') like ?";
@@ -127,7 +127,8 @@ class TemplateController extends Controller
         //     'assign_workers' => 'nullable|array',
         // ]);
         
-        $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
+        // $validated['duration'] = strtotime('1970-01-01 ' . $validated['duration'] .':00');
+        $validated['duration'] = (int)floor(((int)strtotime('1970-01-01 ' . $validated['duration'] .':00')) / 60);
         
         if(!empty($validated['assign_workers'])){
             $assign_workers = array_keys($validated['assign_workers']);
