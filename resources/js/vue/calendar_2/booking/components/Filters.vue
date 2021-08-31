@@ -27,6 +27,8 @@
                     <div class="card-header">Filters</div>
                     <div class="card-body">
                         
+                        {{pickedTemplateIdsTrace}}
+                        
                         <div id="hallDropdown" class="dropdown">
                             <span>{{customTitle('hall')}}: </span>
                             <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
@@ -146,8 +148,9 @@
             // console.log(JSON.parse(JSON.stringify('this.$store.state.count')));
             // console.log(JSON.parse(JSON.stringify(44444)));
             // console.log(JSON.parse(JSON.stringify(this.halls)));
-            
+            // alert(1111);
             if(!this.isCookieItmsEmpty){
+                // alert(1111);
                 this.fillFilters();
                 this.emitChange();
             }
@@ -162,7 +165,7 @@
                 pickedItmView: 'month',
                 
                 //Currently picked template`s ids trace
-                // pickedTemplateIdsTrace: null,
+                pickedTemplateIdsTrace: null,
                 //Count how much were picked template when picked form is shown
                 // pickTemplateTimesCount: 0,
                 
@@ -245,27 +248,27 @@
                     return string.charAt(0).toUpperCase() + string.slice(1);
                 };
             },
-            pickedTemplateIdsTrace: function(){
-                let itmTemplate = this.cookieItmTemplate;
-                if(itmTemplate === null ||
-                typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
-                    return null;
-                
-                if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
-                    return [itmTemplate.specific.id, itmTemplate.id];
-                
-                let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
-                let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
-                idsTrace.push(itmTemplate.specific.id);
-                idsTrace.push(itmTemplate.id);
-                
-                return idsTrace
-                
-                // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
-                // this.pickedTemplateIdsTrace = null;
-                // this.pickedTemplateIdsTrace = idsTrace;
-                // this.pickedTemplateIdsTrace = null;
-            },
+            // pickedTemplateIdsTrace: function(){
+            //     let itmTemplate = this.cookieItmTemplate;
+            //     if(itmTemplate === null ||
+            //     typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+            //         return null;
+            // 
+            //     if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
+            //         return [itmTemplate.specific.id, itmTemplate.id];
+            // 
+            //     let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+            //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+            //     idsTrace.push(itmTemplate.specific.id);
+            //     idsTrace.push(itmTemplate.id);
+            // 
+            //     return idsTrace
+            // 
+            //     // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+            //     // this.pickedTemplateIdsTrace = null;
+            //     // this.pickedTemplateIdsTrace = idsTrace;
+            //     // this.pickedTemplateIdsTrace = null;
+            // },
         },
         methods: {
             changeView: function(view){
@@ -277,25 +280,27 @@
                 // this.composeSearch();
                 this.emitChange();
             },
-            // setPickedTemplateIdsTrace: function(){
-            //     let itmTemplate = this.cookieItmTemplate;
-            //     if(itmTemplate === null ||
-            //     typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
-            //         return null;
-            // 
-            //     if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
-            //         return [itmTemplate.specific.id];
-            // 
-            //     let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
-            //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
-            //     idsTrace.push(itmTemplate.specific.id);
-            //     idsTrace.push(itmTemplate.id);
-            // 
-            //     // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
-            //     // this.pickedTemplateIdsTrace = null;
-            //     this.pickedTemplateIdsTrace = idsTrace;
-            //     // this.pickedTemplateIdsTrace = null;
-            // },
+            setPickedTemplateIdsTrace: function(){
+                let itmTemplate = this.cookieItmTemplate;
+                if(itmTemplate === null ||
+                typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+                    return;
+            
+                if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null){
+                    this.pickedTemplateIdsTrace = [itmTemplate.specific.id, template.id];
+                    return;
+                }
+            
+                let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+                let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+                idsTrace.push(itmTemplate.specific.id);
+                idsTrace.push(itmTemplate.id);
+            
+                // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+                // this.pickedTemplateIdsTrace = null;
+                this.pickedTemplateIdsTrace = idsTrace;
+                // this.pickedTemplateIdsTrace = null;
+            },
             backToCalendar: function(){
                 this.showFilters = false;
                 this.$emit('showCalendar');
@@ -304,6 +309,7 @@
                 return obj.first_name + ' ' + obj.last_name;
             },
             fillFilters: function(){
+                // alert(1111);
                 if(this.cookieItmHall !== null){
                     // console.log('22222 - fillFilters');
                     // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
@@ -328,7 +334,7 @@
                         // console.log(this.cookieItmTemplate);
                         // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
                         
-                        // this.setPickedTemplateIdsTrace();
+                        this.setPickedTemplateIdsTrace();
                         
                         // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
                         // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
@@ -342,6 +348,8 @@
             showFiltersPicker: function(){
                 this.showFilters = true;
                 
+                // alert(111);
+                
                 // if(this.cookieItmHall !== null && this.pickedItmHall === null){
                 //     this.change('hall', this.cookieItmHall);
                 //     if(this.cookieItmTemplate !== null && this.pickedItmTemplate === null){
@@ -353,11 +361,11 @@
                 //     }
                 // }
                 
-                console.log(JSON.parse(JSON.stringify(1111)));
+                // console.log(JSON.parse(JSON.stringify(1111)));
                 this.fillFilters();
                 
-                console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
-                console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+                // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+                // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
                 
                 if(this.cookieItmView !== null)
                     this.pickedItmView = this.cookieItmView;
@@ -403,8 +411,10 @@
                 if(items === null || items.includes("hall"))
                     this.pickedItmHall = null;
                     
-                if(items === null || items.includes("template"))
+                if(items === null || items.includes("template")){
                     this.pickedItmTemplate = null;
+                    this.pickedTemplateIdsTrace = null;
+                }
                     
                 if(items === null || items.includes("worker"))
                     this.pickedItmWorker = null;
@@ -444,23 +454,25 @@
                         if(itm === null)
                             return;
                         // alert(111);
-                        axios.get(routes.calendar.booking.worker.index + '?template=' + itm.id)
-                            .then((response) => {
-                                let workers = [];
-                                response.data.workers.forEach((item, i) => {
-                                    workers.push(item);
+                        setTimeout(() => {
+                            axios.get(routes.calendar.booking.worker.index + '?template_id=' + itm.id + '&hall_id=' + this.pickedItmHall.id)
+                                .then((response) => {
+                                    let workers = [];
+                                    response.data.workers.forEach((item, i) => {
+                                        workers.push(item);
+                                    });
+                                    this.workers = workers;
+                                    this.pickedItmTemplate = itm;
+                                    // console.log(JSON.parse(JSON.stringify(this.templates)));
+                                })
+                                .catch(function (error) {
+                                    // handle error
+                                    // console.log(error);
+                                })
+                                .then(function () {
+                                    // always executed
                                 });
-                                this.workers = workers;
-                                this.pickedItmTemplate = itm;
-                                // console.log(JSON.parse(JSON.stringify(this.templates)));
-                            })
-                            .catch(function (error) {
-                                // handle error
-                                // console.log(error);
-                            })
-                            .then(function () {
-                                // always executed
-                            });
+                        }, 300);
                             
                         break;
                     case 'worker':

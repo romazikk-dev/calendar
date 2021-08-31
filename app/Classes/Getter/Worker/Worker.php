@@ -28,13 +28,6 @@ class Worker extends MainWorker{
             $model = ModelWorker::query();
         }
         
-        // if(!empty($params[Params::OWNER_ID]) && is_numeric($params[Params::OWNER_ID])){
-        //     $model = ModelWorker::withoutGlobalScope(UserScope::class)
-        //         ->byUser($params[Params::OWNER_ID]);
-        // }else{
-        //     $model = ModelWorker::query();
-        // }
-        
         if($this->isParam($params, Params::ID)){
             if(is_array($params[Params::ID])){
                 $model->byIds($params[Params::ID]);
@@ -42,9 +35,6 @@ class Worker extends MainWorker{
                 $model->byId($params[Params::ID]);
             }
         }
-        
-        // if(!empty($params[Params::ID]) && is_numeric($params[Params::ID]))
-        //     $model->where('id', (int)$params[Params::ID]);
         
         if($this->isParam($params, Params::TEMPLATE_ID)){
         // if(!empty($params[Params::TEMPLATE_ID])){

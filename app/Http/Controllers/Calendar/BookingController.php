@@ -197,7 +197,10 @@ class BookingController extends Controller{
                 'filters' => null,
                 'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
                 'timezone' => \Timezone::getCurrentTimezone($owner_id),
+                'custom_titles' => \Setting::of(SettingKeys::CLIENTS_BOOKING_CALENDAR_CUSTOM_TITLES)->getOrPlaceholder(),
             ];
+            
+            // dd($output);
             
             if(!empty($filtered_hall) || !empty($filtered_worker) || !empty($filtered_template)){
                 $output['filters'] = [

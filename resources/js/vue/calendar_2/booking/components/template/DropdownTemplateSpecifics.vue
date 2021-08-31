@@ -109,8 +109,16 @@
             
         },
         watch: {
+            // pickedTemplateIdsTrace: function(val){
+            //     this.pickItemIfAlreadyPicked();
+            // },
             pickedTemplateIdsTrace: function(val){
-                this.pickItemIfAlreadyPicked();
+                if(val === null){
+                    // this.pickedParsedTemplate = null;
+                    this.pickedTemplateIdsTraceWithoutFirstElement = null
+                }else{
+                    this.pickItemIfAlreadyPicked();
+                }
             },
             parsedTemplates: function(val){
                 if(val === null)

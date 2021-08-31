@@ -3173,6 +3173,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -3183,7 +3185,9 @@ __webpack_require__.r(__webpack_exports__);
     // console.log(JSON.parse(JSON.stringify('this.$store.state.count')));
     // console.log(JSON.parse(JSON.stringify(44444)));
     // console.log(JSON.parse(JSON.stringify(this.halls)));
+    // alert(1111);
     if (!this.isCookieItmsEmpty) {
+      // alert(1111);
       this.fillFilters();
       this.emitChange();
     }
@@ -3197,7 +3201,7 @@ __webpack_require__.r(__webpack_exports__);
       pickedItmTemplate: null,
       pickedItmView: 'month',
       //Currently picked template`s ids trace
-      // pickedTemplateIdsTrace: null,
+      pickedTemplateIdsTrace: null,
       //Count how much were picked template when picked form is shown
       // pickTemplateTimesCount: 0,
       // views: ['month','week','day','list'],
@@ -3275,22 +3279,28 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       ;
-    },
-    pickedTemplateIdsTrace: function pickedTemplateIdsTrace() {
-      var itmTemplate = this.cookieItmTemplate;
-      if (itmTemplate === null || typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null) return null;
-      if (typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null) return [itmTemplate.specific.id, itmTemplate.id];
-      var idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
-      var idsTrace = idsTraceString.split(',').map(function (val) {
-        return parseInt(val);
-      });
-      idsTrace.push(itmTemplate.specific.id);
-      idsTrace.push(itmTemplate.id);
-      return idsTrace; // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
-      // this.pickedTemplateIdsTrace = null;
-      // this.pickedTemplateIdsTrace = idsTrace;
-      // this.pickedTemplateIdsTrace = null;
-    }
+    } // pickedTemplateIdsTrace: function(){
+    //     let itmTemplate = this.cookieItmTemplate;
+    //     if(itmTemplate === null ||
+    //     typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
+    //         return null;
+    // 
+    //     if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
+    //         return [itmTemplate.specific.id, itmTemplate.id];
+    // 
+    //     let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+    //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
+    //     idsTrace.push(itmTemplate.specific.id);
+    //     idsTrace.push(itmTemplate.id);
+    // 
+    //     return idsTrace
+    // 
+    //     // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+    //     // this.pickedTemplateIdsTrace = null;
+    //     // this.pickedTemplateIdsTrace = idsTrace;
+    //     // this.pickedTemplateIdsTrace = null;
+    // },
+
   },
   methods: {
     changeView: function changeView(view) {
@@ -3302,25 +3312,25 @@ __webpack_require__.r(__webpack_exports__);
 
       this.emitChange();
     },
-    // setPickedTemplateIdsTrace: function(){
-    //     let itmTemplate = this.cookieItmTemplate;
-    //     if(itmTemplate === null ||
-    //     typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null)
-    //         return null;
-    // 
-    //     if(typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null)
-    //         return [itmTemplate.specific.id];
-    // 
-    //     let idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
-    //     let idsTrace = idsTraceString.split(',').map((val) => parseInt(val));
-    //     idsTrace.push(itmTemplate.specific.id);
-    //     idsTrace.push(itmTemplate.id);
-    // 
-    //     // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
-    //     // this.pickedTemplateIdsTrace = null;
-    //     this.pickedTemplateIdsTrace = idsTrace;
-    //     // this.pickedTemplateIdsTrace = null;
-    // },
+    setPickedTemplateIdsTrace: function setPickedTemplateIdsTrace() {
+      var itmTemplate = this.cookieItmTemplate;
+      if (itmTemplate === null || typeof itmTemplate.specific === 'undefined' || itmTemplate.specific === null) return;
+
+      if (typeof itmTemplate.specific.ids_trace === 'undefined' || itmTemplate.specific.ids_trace === null) {
+        this.pickedTemplateIdsTrace = [itmTemplate.specific.id, template.id];
+        return;
+      }
+
+      var idsTraceString = JSON.parse(JSON.stringify(itmTemplate.specific.ids_trace));
+      var idsTrace = idsTraceString.split(',').map(function (val) {
+        return parseInt(val);
+      });
+      idsTrace.push(itmTemplate.specific.id);
+      idsTrace.push(itmTemplate.id); // this.pickedTemplateIdsTrace = Object.freeze(idsTrace);
+      // this.pickedTemplateIdsTrace = null;
+
+      this.pickedTemplateIdsTrace = idsTrace; // this.pickedTemplateIdsTrace = null;
+    },
     backToCalendar: function backToCalendar() {
       this.showFilters = false;
       this.$emit('showCalendar');
@@ -3329,6 +3339,7 @@ __webpack_require__.r(__webpack_exports__);
       return obj.first_name + ' ' + obj.last_name;
     },
     fillFilters: function fillFilters() {
+      // alert(1111);
       if (this.cookieItmHall !== null) {
         // console.log('22222 - fillFilters');
         // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
@@ -3349,8 +3360,8 @@ __webpack_require__.r(__webpack_exports__);
           // console.log('22222 - setPickedTemplateIdsTrace');
           // console.log(this.cookieItmTemplate);
           // console.log(JSON.parse(JSON.stringify(this.cookieItmTemplate)));
-          // this.setPickedTemplateIdsTrace();
-          // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+
+          this.setPickedTemplateIdsTrace(); // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
           // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
 
           if (this.cookieItmWorker !== null) {
@@ -3360,7 +3371,8 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     showFiltersPicker: function showFiltersPicker() {
-      this.showFilters = true; // if(this.cookieItmHall !== null && this.pickedItmHall === null){
+      this.showFilters = true; // alert(111);
+      // if(this.cookieItmHall !== null && this.pickedItmHall === null){
       //     this.change('hall', this.cookieItmHall);
       //     if(this.cookieItmTemplate !== null && this.pickedItmTemplate === null){
       //         this.change('template', this.cookieItmTemplate);
@@ -3370,11 +3382,11 @@ __webpack_require__.r(__webpack_exports__);
       //         }
       //     }
       // }
+      // console.log(JSON.parse(JSON.stringify(1111)));
 
-      console.log(JSON.parse(JSON.stringify(1111)));
-      this.fillFilters();
-      console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
-      console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+      this.fillFilters(); // console.log(JSON.parse(JSON.stringify('setPickedTemplateIdsTrace')));
+      // console.log(JSON.parse(JSON.stringify(this.pickedTemplateIdsTrace)));
+
       if (this.cookieItmView !== null) this.pickedItmView = this.cookieItmView; // this.$refs.loader.fadeOut();
 
       this.$emit('hideCalendar');
@@ -3411,7 +3423,12 @@ __webpack_require__.r(__webpack_exports__);
       if (items !== null && !Array.isArray(items)) return; // console.log('resetPickedItems');
 
       if (items === null || items.includes("hall")) this.pickedItmHall = null;
-      if (items === null || items.includes("template")) this.pickedItmTemplate = null;
+
+      if (items === null || items.includes("template")) {
+        this.pickedItmTemplate = null;
+        this.pickedTemplateIdsTrace = null;
+      }
+
       if (items === null || items.includes("worker")) this.pickedItmWorker = null;
     },
     change: function change(type, itm) {
@@ -3444,17 +3461,19 @@ __webpack_require__.r(__webpack_exports__);
 
           if (itm === null) return; // alert(111);
 
-          axios.get(routes.calendar.booking.worker.index + '?template=' + itm.id).then(function (response) {
-            var workers = [];
-            response.data.workers.forEach(function (item, i) {
-              workers.push(item);
+          setTimeout(function () {
+            axios.get(routes.calendar.booking.worker.index + '?template_id=' + itm.id + '&hall_id=' + _this2.pickedItmHall.id).then(function (response) {
+              var workers = [];
+              response.data.workers.forEach(function (item, i) {
+                workers.push(item);
+              });
+              _this2.workers = workers;
+              _this2.pickedItmTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
+            })["catch"](function (error) {// handle error
+              // console.log(error);
+            }).then(function () {// always executed
             });
-            _this2.workers = workers;
-            _this2.pickedItmTemplate = itm; // console.log(JSON.parse(JSON.stringify(this.templates)));
-          })["catch"](function (error) {// handle error
-            // console.log(error);
-          }).then(function () {// always executed
-          });
+          }, 300);
           break;
 
         case 'worker':
@@ -6489,8 +6508,16 @@ __webpack_require__.r(__webpack_exports__);
   },
   components: {},
   watch: {
+    // pickedTemplateIdsTrace: function(val){
+    //     this.pickItemIfAlreadyPicked();
+    // },
     pickedTemplateIdsTrace: function pickedTemplateIdsTrace(val) {
-      this.pickItemIfAlreadyPicked();
+      if (val === null) {
+        // this.pickedParsedTemplate = null;
+        this.pickedTemplateIdsTraceWithoutFirstElement = null;
+      } else {
+        this.pickItemIfAlreadyPicked();
+      }
     },
     parsedTemplates: function parsedTemplates(val) {
       if (val === null) this.pickedParsedTemplate = null;
@@ -50724,6 +50751,11 @@ var render = function() {
                   "div",
                   { staticClass: "card-body" },
                   [
+                    _vm._v(
+                      "\n                    \n                    " +
+                        _vm._s(_vm.pickedTemplateIdsTrace) +
+                        "\n                    \n                    "
+                    ),
                     _c(
                       "div",
                       {
