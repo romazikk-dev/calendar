@@ -21,7 +21,7 @@ mix.js('resources/js/vue/calendar_3/booking/app.js', 'public/js/calendar-booking
 mix.js('resources/js/vue/dashboard/calendar/booking/app.js', 'public/js/dashboard/calendar-booking-admin.js').vue();
 
 // mix.js('resources/js/vue/dashboard/hall/index/app.js', 'public/js/dashboard/halls/halls-list.js').vue();
-// mix.js('resources/js/vue/dashboard/template/index/app.js', 'public/js/dashboard/template/templates-list.js').vue();
+mix.js('resources/js/vue/dashboard/template/index/app.js', 'public/js/dashboard/template/templates-list.js').vue();
 // 
 // mix.js('resources/js/vue/dashboard/client/index/app.js', 'public/js/dashboard/client/clients-list.js').vue();
 

@@ -1903,7 +1903,8 @@ __webpack_require__.r(__webpack_exports__);
   name: 'app',
   mounted: function mounted() {
     this.regActionsOnModalClose();
-    this.initDataTable(); // this.regClickMoreInfoBtn();
+    this.initDataTable(); // alert(111);
+    // this.regClickMoreInfoBtn();
   },
   // props: ['postTitle'],
   data: function data() {
@@ -2062,6 +2063,16 @@ __webpack_require__.r(__webpack_exports__);
           width: '10px'
         }],
         "columnDefs": [{
+          "targets": [1],
+          'createdCell': function createdCell(td, cellData, rowData, row, col) {// $(td).addClass('dadsadadsa');
+          },
+          "render": function render(data, type, row, meta) {
+            var specific_titled_trace = row.specific_titled_trace.map(function (item) {
+              return item.toLowerCase();
+            });
+            return data + '<div class="small">' + specific_titled_trace.join("\n                                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-arrow-right\" viewBox=\"0 0 16 16\">\n                                    <path fill-rule=\"evenodd\" d=\"M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z\"></path>\n                                </svg>\n                            ") + '</div>';
+          }
+        }, {
           "targets": [5],
           'createdCell': function createdCell(td, cellData, rowData, row, col) {
             $(td).attr('data-toggle', 'tooltip');

@@ -5245,6 +5245,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'monthCell',
   mounted: function mounted() {// console.log(this.dateRange);
@@ -52895,36 +52900,50 @@ var render = function() {
             : _vm._e(),
           _vm._v(" "),
           itm.type == "event"
-            ? _c("div", { staticClass: "booked-slot" }, [
-                _c("b", [_vm._v("Booked on:")]),
-                _c("br"),
-                _vm._v(" "),
-                _c("b", [
-                  _vm._v(_vm._s(itm.template_without_user_scope.title)),
+            ? _c(
+                "div",
+                {
+                  staticClass: "booked-slot",
+                  class: {
+                    "booked-calendar-item": itm.approved,
+                    "not-approved-bookings-itm": !itm.approved
+                  }
+                },
+                [
+                  _c("b", [
+                    _vm._v(
+                      _vm._s(itm.approved ? "Booked on" : "In approving") + ":"
+                    )
+                  ]),
                   _c("br"),
-                  _vm._v(
-                    "\n                " +
-                      _vm._s(itm.from) +
-                      " - " +
-                      _vm._s(itm.to)
-                  )
-                ]),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-link btn-sm btn-block cancel",
-                    attrs: { type: "button" },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        return _vm.$emit("cancel", itm)
+                  _vm._v(" "),
+                  _c("b", [
+                    _vm._v(_vm._s(itm.template_without_user_scope.title)),
+                    _c("br"),
+                    _vm._v(
+                      "\n                " +
+                        _vm._s(itm.from) +
+                        " - " +
+                        _vm._s(itm.to)
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-link btn-sm btn-block cancel",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.$emit("cancel", itm)
+                        }
                       }
-                    }
-                  },
-                  [_c("span", [_vm._v("×")])]
-                )
-              ])
+                    },
+                    [_c("span", [_vm._v("×")])]
+                  )
+                ]
+              )
             : _vm._e()
         ])
       }),

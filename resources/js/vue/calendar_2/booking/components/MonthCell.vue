@@ -22,8 +22,13 @@
                         type="button"
                         class="btn btn-link btn-sm btn-block book">Book</button >
                 </div>
-                <div v-if="itm.type == 'event'" class='booked-slot'>
-                    <b>Booked on:</b><br>
+                <div v-if="itm.type == 'event'" class='booked-slot'
+                :class="{
+                    'booked-calendar-item': itm.approved,
+                    'not-approved-bookings-itm': !itm.approved,
+                }">
+                    <!-- <b>Booked on:</b><br> -->
+                    <b>{{itm.approved ? 'Booked on' : 'In approving'}}:</b><br>
                     <b>{{itm.template_without_user_scope.title}}<br>
                     {{itm.from}} - {{itm.to}}</b>
                     <button @click.prevent="$emit('cancel', itm)"
