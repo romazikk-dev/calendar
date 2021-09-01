@@ -9,12 +9,26 @@
     transition: opacity 150ms!important;
 }
 
+.first-letter-uppercase{
+    &::first-letter{
+        text-transform: uppercase;
+    }
+}
+
 
 /* HOME PAGE
 ******************************************************************/
 .home-page{
     .card{
         margin-bottom: 20px;
+        .card-header{
+            .title{
+                display: inline-block;
+                &::first-letter{
+                    text-transform: uppercase;
+                }
+            }
+        }
     }
 }
 
@@ -573,6 +587,11 @@
             // position: relative;
             a{
                 color: #333;
+                font-weight: normal;
+                display: block;
+                width: 100%;
+                height: 100%;
+                // text-decoration: underline;
                 // display: block;
                 // position: absolute;
                 // top: 0px;
@@ -1625,6 +1644,9 @@ input, textarea, select{
         .nav-item{
             a{
                 padding: 10px 14px;
+                &::first-letter {
+                    text-transform: uppercase;
+                }
             }
             &.active{
                 a{

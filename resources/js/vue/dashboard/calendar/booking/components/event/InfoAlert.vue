@@ -5,31 +5,37 @@
         
         <div class="row">
             <div v-if="clientName" class="col col-12 col-sm-6">
-                <span>Client(name): </span>
+                <span>{{capitalizeFirstLetter(getText('text.client'))}}(name): </span>
                 <b>{{clientName}}</b>
             </div>
             <div v-if="clientEmail" class="col col-12 col-sm-6">
-                <span>Client(email): </span>
+                <span>{{capitalizeFirstLetter(getText('text.client'))}}(email): </span>
                 <b>{{clientEmail}}</b>
             </div>
             <div v-if="hallTitle" class="col col-12 col-sm-6">
-                <span>Hall: </span>
+                <span>{{capitalizeFirstLetter(getText('text.hall'))}}: </span>
                 <b>{{hallTitle}}</b>
             </div>
             <div v-if="templateTitle" class="col col-12 col-sm-6">
-                <span>Template: </span>
+                <span>{{capitalizeFirstLetter(getText('text.template'))}}: </span>
                 <b>{{templateTitle}}</b>
             </div>
             <div v-if="workerName" class="col col-12 col-sm-6">
-                <span>Worker: </span>
+                <span>{{capitalizeFirstLetter(getText('text.worker'))}}: </span>
                 <b>{{workerName}}</b>
             </div>
             <div v-if="eventDate" class="col col-12 col-sm-6">
-                <span>Date(current): </span>
+                <span>
+                    {{capitalizeFirstLetter(getText('text.date'))}}
+                    ({{getText('text.current')}}):
+                </span>
                 <b>{{eventDate}}</b>
             </div>
             <div v-if="eventTime" class="col col-12 col-sm-6">
-                <span>Time(current): </span>
+                <span>
+                    {{capitalizeFirstLetter(getText('text.time'))}}
+                    ({{getText('text.current')}}):
+                </span>
                 <b>{{eventTime}}</b>
             </div>
         </div>
@@ -48,9 +54,11 @@
         },
         computed: {
             badgeTitle: function () {
+                let editEvent = this.capitalizeFirstLetter(this.getText('text.edit_event'));
+                let newEvent = this.capitalizeFirstLetter(this.getText('text.new_event'));
                 if(this.isProp(this.event))
-                    return "Edit event";
-                return this.isProp(this.movingEvent) ? "Edit event" : "New event";
+                    return editEvent;
+                return this.isProp(this.movingEvent) ? editEvent : newEvent;
             },
             clientObj: function () {
                 if(this.isProp(this.event))

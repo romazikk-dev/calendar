@@ -9,11 +9,23 @@
   transition: opacity 150ms !important;
 }
 
+.first-letter-uppercase::first-letter {
+  text-transform: uppercase;
+}
+
 /* HOME PAGE
 ******************************************************************/
 
 .home-page .card {
   margin-bottom: 20px;
+}
+
+.home-page .card .card-header .title {
+  display: inline-block;
+}
+
+.home-page .card .card-header .title::first-letter {
+  text-transform: uppercase;
 }
 
 :root {
@@ -580,6 +592,10 @@
 
 .calendar-all-bookings .week-calendar .weekday-title a {
   color: #333;
+  font-weight: normal;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .calendar-all-bookings .month-calendar table,
@@ -1634,6 +1650,10 @@ select {
 
 .main-navbar .navbar-nav .nav-item a {
   padding: 10px 14px;
+}
+
+.main-navbar .navbar-nav .nav-item a::first-letter {
+  text-transform: uppercase;
 }
 
 .main-navbar .navbar-nav .nav-item.active a {

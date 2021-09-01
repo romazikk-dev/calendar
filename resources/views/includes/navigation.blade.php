@@ -17,25 +17,25 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.index') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.index') }}">Home</a>
+                <a class="nav-link" href="{{ route('dashboard.index') }}">{{__('text.home')}}</a>
             </li>
             <li class="nav-item @if($current_controller == 'worker') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.worker.index') }}">Workers</a>
+                <a class="nav-link" href="{{ route('dashboard.worker.index') }}">{{__('text.workers')}}</a>
             </li>
             <li class="nav-item @if($current_controller == 'hall') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.hall.index') }}">Halls</a>
+                <a class="nav-link" href="{{ route('dashboard.hall.index') }}">{{__('text.halls')}}</a>
             </li>
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.template.index') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.template.index') }}">Templates</a>
+                <a class="nav-link" href="{{ route('dashboard.template.index') }}">{{__('text.templates')}}</a>
             </li>
             <!-- <li class="nav-item">
                 <a class="nav-link" href="#">Events</a>
             </li> -->
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.client.index') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.client.index') }}">Clients</a>
+                <a class="nav-link" href="{{ route('dashboard.client.index') }}">{{__('text.clients')}}</a>
             </li>
             <li class="nav-item @if(Route::current()->getName() == 'dashboard.bookings.index') active @endif">
-                <a class="nav-link" href="{{ route('dashboard.bookings.index') }}">Bookings</a>
+                <a class="nav-link" href="{{ route('dashboard.bookings.index') }}">{{__('text.bookings')}}</a>
             </li>
             <!-- <li class="nav-item">
                 <a class="nav-link" href="#">Schedule</a>
@@ -43,7 +43,7 @@
             
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="settingsNavbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Settings
+                    {{__('text.settings')}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="settingsNavbarDropdown">
                     
@@ -113,11 +113,11 @@
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Eng
+                    {{app()->getLocale()}}
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Rus</a>
-                    <a class="dropdown-item" href="#">Fren</a>
+                    <a class="dropdown-item" href="{{ route('dashboard.switch_lang', ['de']) }}">De</a>
+                    <a class="dropdown-item" href="{{ route('dashboard.switch_lang', ['en']) }}">En</a>
                 </div>
             </li>
         </ul>

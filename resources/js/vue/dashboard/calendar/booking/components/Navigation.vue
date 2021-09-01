@@ -14,10 +14,10 @@
                     </svg>
                 </button>
                 <button @click.prevent="goToday" type="button" class="btn btn-sm btn-secondary float-left go-today" :disabled="!canGoToPrevious">
-                    today
+                    {{getText('text.today')}}
                 </button>
                 <button :id="toDateCalendar.initId" type="button" class="btn btn-sm btn-light float-left go-to-date">
-                    to date
+                    {{getText('text.to_date')}}
                 </button>
             </div>
             
@@ -31,12 +31,14 @@
                         :disabled="item.toLowerCase() == view.toLowerCase()"
                         @click.prevent="changeView(item)"
                         type="button"
-                        class="btn btn-sm btn-secondary">{{item}}</button>
+                        class="btn btn-sm btn-secondary">{{getText('text.' + item)}}</button>
                 </div>
             </div>
             
             <div class="calendar-title">
-                {{calendarTitle}}
+                <span class="first-letter-uppercase d-inline-block">
+                    {{calendarTitle}}
+                </span>
             </div>
             
         </div>
@@ -72,22 +74,33 @@
         computed: {
             calendarTitle: function () {
                 if(this.view == 'month'){
-                    return moment(this.$store.getters['dates/month'].firstDate).format('MMMM YYYY');
+                    let titleMoment = moment(this.$store.getters['dates/month'].firstDate);
+                    let key = 'text.' + titleMoment.format('MMMM').toLowerCase().trim();
+                    return this.capitalizeFirstLetter(this.getText(key)) + titleMoment.format(' YYYY');
                 }else if(['week','list'].includes(this.view)){
                     let firstWeekdayMonth = new Date(this.dateInterval.firstDate).getMonth();
                     let lastWeekdayMonth = new Date(this.dateInterval.lastDate).getMonth();
                     if(firstWeekdayMonth == lastWeekdayMonth){
                         let firstWeekdayDay = moment(this.dateInterval.firstDate).format('D');
                         let lastWeekdayDay = moment(this.dateInterval.lastDate).format('D');
-                        let monthTitle = moment(this.dateInterval.firstDate).format('MMMM');
+                        let key = 'text.' + moment(this.dateInterval.firstDate).format('MMMM').toLowerCase().trim();
+                        let monthTitle = this.capitalizeFirstLetter(this.getText(key));
                         return firstWeekdayDay + ' - ' + lastWeekdayDay + ' ' + monthTitle;
                     }else{
-                        let firstWeekdayMonthTitle = moment(this.dateInterval.firstDate).format('D MMMM');
-                        let lastWeekdayMonthTitle = moment(this.dateInterval.lastDate).format('D MMMM');
+                        let firstWeekdayMoment = moment(this.dateInterval.firstDate);
+                        let lastWeekdayMoment = moment(this.dateInterval.lastDate);
+                        let firstMonthKey = 'text.' + firstWeekdayMoment.format('MMMM').toLowerCase().trim();
+                        let lastMonthKey = 'text.' + lastWeekdayMoment.format('MMMM').toLowerCase().trim();
+                        let firstWeekdayMonthTitle = moment(this.dateInterval.firstDate).format('D ') +
+                            this.capitalizeFirstLetter(this.getText(firstMonthKey));
+                        let lastWeekdayMonthTitle = moment(this.dateInterval.lastDate).format('D ') +
+                            this.capitalizeFirstLetter(this.getText(lastMonthKey));
                         return firstWeekdayMonthTitle + ' - ' + lastWeekdayMonthTitle;
                     }
                 }else if(this.view == 'day' || this.view == 'list'){
-                    return moment(this.dateInterval.firstDate).format('MMM D, YYYY');
+                    let dayMoment = moment(this.dateInterval.firstDate)
+                    let monthKey = 'text.' + dayMoment.format('MMM').toLowerCase().trim();
+                    return this.capitalizeFirstLetter(this.getText(monthKey)) + dayMoment.format(' D, YYYY');
                 }
             },
         },

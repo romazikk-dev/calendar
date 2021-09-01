@@ -1,6 +1,6 @@
 <x-dashboard-layout>
     <x-slot name="breadcrumbs">
-        {{ Breadcrumbs::render('client') }}
+        {{ Breadcrumbs::render('booking') }}
     </x-slot>
     
     <x-slot name="actions">

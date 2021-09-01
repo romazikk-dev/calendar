@@ -13,7 +13,9 @@
                             <td colspan="4" :class="{'current-day': isCurrentDate(index)}">
                                 <a href="#" @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-weekday">
-                                        {{weekdaysList[index]}}
+                                        <span class="first-letter-uppercase d-inline-block">
+                                            {{weekdaysList[index]}}
+                                        </span>
                                 </a>
                                 <a href="#" @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-date">
@@ -74,7 +76,9 @@
                                 <a href="#"
                                     @click.prevent="goToDayView(getDayItem(index))"
                                     class="event-weekday">
-                                        {{weekdaysList[index]}}
+                                        <span class="first-letter-uppercase d-inline-block">
+                                            {{weekdaysList[index]}}
+                                        </span>
                                 </a>
                                 <a href="#"
                                     @click.prevent="goToDayView(getDayItem(index))"
@@ -133,8 +137,8 @@
                 return true;
             },
             datesPerWeekday: function () {
+                let _this = this;
                 let initDateMoment;
-                let weekDayFormat = 'MMMM D, YYYY';
                 
                 if(typeof this.dateInterval !== 'undefined' && this.dateInterval !== null &&
                 typeof this.dateInterval.firstDate !== 'undefined' && this.dateInterval.firstDate !== null){
@@ -144,14 +148,19 @@
                 }
                 
                 return [
-                    initDateMoment.format(weekDayFormat),
-                    initDateMoment.add(1,'days').format(weekDayFormat),
-                    initDateMoment.add(1,'days').format(weekDayFormat),
-                    initDateMoment.add(1,'days').format(weekDayFormat),
-                    initDateMoment.add(1,'days').format(weekDayFormat),
-                    initDateMoment.add(1,'days').format(weekDayFormat),
-                    initDateMoment.add(1,'days').format(weekDayFormat),
+                    getDateFromMoment(initDateMoment),
+                    getDateFromMoment(initDateMoment.add(1,'days')),
+                    getDateFromMoment(initDateMoment.add(1,'days')),
+                    getDateFromMoment(initDateMoment.add(1,'days')),
+                    getDateFromMoment(initDateMoment.add(1,'days')),
+                    getDateFromMoment(initDateMoment.add(1,'days')),
+                    getDateFromMoment(initDateMoment.add(1,'days')),
                 ];
+                
+                function getDateFromMoment(dateMoment){
+                    let key = 'text.' + dateMoment.format('MMMM').toLowerCase().trim();
+                    return _this.capitalizeFirstLetter(_this.getText(key)) + dateMoment.format(' D, YYYY');
+                }
             },
             dataUpdater: function () {
                 return this.$store.getters['updater/counter'];

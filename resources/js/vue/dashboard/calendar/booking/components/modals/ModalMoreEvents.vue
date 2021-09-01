@@ -40,15 +40,17 @@
                     
                     <div v-if="['edit', 'duration'].includes(showTab)">
                         <h5 class="modal-title">
-                            Edit event
-                            <span class="small" v-if="showTab == 'duration'">(duration)</span>
+                            {{capitalizeFirstLetter(getText('text.edit_event'))}}
+                            <span class="small" v-if="showTab == 'duration'">
+                                ({{capitalizeFirstLetter(getText('text.duration'))}})
+                            </span>
                             <br>
                             <a @click.prevent="backToEvents" href="#"
                                 class="btn btn-sm btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
                                   <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
                                 </svg>
-                                back to events
+                                {{capitalizeFirstLetter(getText('text.back_to_events'))}}
                             </a>
                         </h5>
                     </div>
@@ -99,16 +101,20 @@
                                         </div>
                                     </div>
                                     <div class="event-itemm text-warning">
-                                        <span>Client: </span><b>{{itm.client_without_user_scope.first_name}}</b>
+                                        <span>{{capitalizeFirstLetter(getText('text.client'))}}: </span>
+                                        <b>{{itm.client_without_user_scope.first_name}}</b>
                                     </div>
                                     <div class="event-itemm">
-                                        <span>Hall: </span><b>{{itm.hall_without_user_scope.title}}</b>
+                                        <span>{{capitalizeFirstLetter(getText('text.hall'))}}: </span>
+                                        <b>{{itm.hall_without_user_scope.title}}</b>
                                     </div>
                                     <div class="event-itemm">
-                                        <span>Template: </span><b>{{itm.template_without_user_scope.title}}</b>
+                                        <span>{{capitalizeFirstLetter(getText('text.template'))}}: </span>
+                                        <b>{{itm.template_without_user_scope.title}}</b>
                                     </div>
                                     <div class="event-itemm">
-                                        <span>Worker: </span><b>{{itm.worker_without_user_scope.first_name}}</b>
+                                        <span>{{capitalizeFirstLetter(getText('text.worker'))}}: </span>
+                                        <b>{{itm.worker_without_user_scope.first_name}}</b>
                                     </div>
                                     
                                     <div class="for-actions">
@@ -168,7 +174,7 @@
                             @click.prevent="$refs.edit.reset()"
                             href="#"
                             class="btn btn-sm btn-warning btn-reset">
-                                Reset
+                                {{capitalizeFirstLetter(getText('text.reset'))}}
                         </a>
                         <a @click.prevent="onClickPickTime()"
                             href="#"
@@ -177,7 +183,7 @@
                                 'disabled': !showEditPickTimeBtn
                             }"
                             :disabled="!showEditPickTimeBtn">
-                                Pick time
+                                {{capitalizeFirstLetter(getText('text.pick_time'))}}
                         </a>
                     </div>
                     
@@ -185,7 +191,7 @@
                         <button v-if="showDurationApplyBtn"
                             @click.prevent="$refs.duration.reset()"
                             class="btn btn-sm btn-warning">
-                                Reset
+                                {{capitalizeFirstLetter(getText('text.reset'))}}
                         </button>
                         <button @click.prevent="applyDurationAndBackToEvents($event)"
                             v-if="showDurationApplyBtn"
@@ -194,7 +200,7 @@
                                 'disabled': !showDurationApplyBtn
                             }"
                             class="btn btn-sm btn-primary">
-                                Apply, and back to events
+                                {{capitalizeFirstLetter(getText('text.apply_and_back_to_events'))}}
                         </button>
                         <button @click.prevent="applyDurationAndCloseModal($event)"
                             v-if="showDurationApplyBtn"
@@ -203,14 +209,14 @@
                                 'disabled': !showDurationApplyBtn
                             }"
                             class="btn btn-sm btn-success">
-                                Apply, and close
+                                {{capitalizeFirstLetter(getText('text.apply_and_close'))}}
                         </button>
                     </div>
                         
                     <button type="button"
                         @click.prevent="hide(true)"
                         class="btn btn-sm btn-secondary">
-                            Close
+                            {{capitalizeFirstLetter(getText('text.close'))}}
                     </button>
                 </div>
             </div>
@@ -322,7 +328,11 @@
                 typeof this.e.year === 'undefined' || this.e.year === null)
                     return null;
                 let momentDate = moment(this.e.year + '-' + this.e.month + '-' + this.e.day);
-                return momentDate.format('D MMMM YYYY, ddd');
+                let monthKey = 'text.' + momentDate.format('MMMM').toLowerCase().trim();
+                let month = this.capitalizeFirstLetter(this.getText(monthKey));
+                let shortWeekKey = 'text.' + momentDate.format('ddd').toLowerCase().trim();
+                let shortWeek = this.capitalizeFirstLetter(this.getText(shortWeekKey));
+                return momentDate.format('D [' + month + '] YYYY, [' + shortWeek + ']');
                 // return this.e.year + '-' + this.e.month + '-' + this.e.day;
             },
             isEDate: function () {

@@ -7,7 +7,9 @@
                 <!-- <button type="button" class="btn btn-sm btn-info">All</button> -->
                 <button type="button"
                     @click="onClickBook"
-                    class="btn btn-sm btn-approved">Book</button>
+                    class="btn btn-sm btn-approved">
+                        {{capitalizeFirstLetter(getText('text.book'))}}
+                </button>
             </div>
             
             <div class="btn-group float-right" role="group" aria-label="Basic example">

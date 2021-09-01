@@ -12,28 +12,35 @@ Breadcrumbs::for('home', function ($trail) {
 
 Breadcrumbs::for('worker', function ($trail, $inner_page = null) {
     $trail->parent('home');
-    $trail->push("workers", route('dashboard.worker.index'));
+    $trail->push(__("text.workers"), route('dashboard.worker.index'));
     if(!is_null($inner_page))
         $trail->push($inner_page);
 });
 
 Breadcrumbs::for('hall', function ($trail, $inner_page = null) {
     $trail->parent('home');
-    $trail->push("halls", route('dashboard.hall.index'));
+    $trail->push(__("text.halls"), route('dashboard.hall.index'));
     if(!is_null($inner_page))
         $trail->push($inner_page);
 });
 
 Breadcrumbs::for('template', function ($trail, $inner_page = null) {
     $trail->parent('home');
-    $trail->push("templates", route('dashboard.template.index'));
+    $trail->push(__("text.templates"), route('dashboard.template.index'));
     if(!is_null($inner_page))
         $trail->push($inner_page);
 });
 
 Breadcrumbs::for('client', function ($trail, $inner_page = null) {
     $trail->parent('home');
-    $trail->push("clients", route('dashboard.client.index'));
+    $trail->push(__("text.clients"), route('dashboard.client.index'));
+    if(!is_null($inner_page))
+        $trail->push($inner_page);
+});
+
+Breadcrumbs::for('booking', function ($trail, $inner_page = null) {
+    $trail->parent('home');
+    $trail->push(__("text.bookings"), route('dashboard.client.index'));
     if(!is_null($inner_page))
         $trail->push($inner_page);
 });

@@ -177,7 +177,11 @@ Vue.mixin({
                     minute: '00',
                 },
             ],
-            weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            weekdaysList: [
+                this.getText('text.monday'), this.getText('text.tuesday'), this.getText('text.wednesday'),
+                this.getText('text.thursday'), this.getText('text.friday'), this.getText('text.saturday'),
+                this.getText('text.sunday'),
+            ],
             calendarSettings: calendarSettings,
             statusData: {
                 approved: {
@@ -462,6 +466,10 @@ Vue.mixin({
         }
     },
     methods: {
+        getText: function(key){
+            return Lang.get(key);
+        },
+        
         // Switch to day view
         goToDayView: function (dayItem) {
             let date = moment(dayItem.year + '-' + dayItem.month + '-' + dayItem.day, 'YYYY-MM-DD').toDate();
@@ -686,6 +694,11 @@ Vue.mixin({
         //     // console.log(this.$root.$children[0].$options.name);
         //     console.log(this.$root.$children[0].$options.name);
         // }
+        
+        //String helpers
+        capitalizeFirstLetter: function (string){
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
     },
 });
 

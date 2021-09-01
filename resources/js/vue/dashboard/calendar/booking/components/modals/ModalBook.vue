@@ -4,7 +4,9 @@
     
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Book an event</h5>
+                    <h5 class="modal-title">
+                        {{capitalizeFirstLetter(getText('text.book_an_event'))}}
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -13,14 +15,14 @@
                     <!-- <loader ref="loader"></loader>             -->
                     <div class="alert alert-warning" role="alert">
                         <template v-if="!showPickTimeBtn">
-                            Pick all items and then pick a time for event!
+                            {{getText('text.pick_all_items_and_then_pick_a_time_for_event')}}!
                         </template>
                         <template v-else>
-                            Pick a time for event!
+                            {{getText('text.pick_a_time_for_event')}}!
                         </template>
                     </div>
                     <client-picker @change="onChange"
-                        label="Client"
+                        :label="capitalizeFirstLetter(getText('text.client'))"
                         ref="client"
                         :small="true"
                         picked-item-placeholder="---"
@@ -32,8 +34,12 @@
                     <button @click.prevent="pickTime"
                         :disabled="!showPickTimeBtn"
                         type="button"
-                        class="btn btn-sm btn-success">Pick time</button>
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
+                        class="btn btn-sm btn-success">
+                            {{getText('text.pick_time')}}!
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                        {{capitalizeFirstLetter(getText('text.cancel'))}}
+                    </button>
                 </div>
             </div>
             

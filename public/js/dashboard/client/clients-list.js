@@ -1888,6 +1888,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -1907,6 +1909,9 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    getText: function getText(key) {
+      return Lang.get(key);
+    },
     isStatus: function isStatus(type, suspension) {
       return helper.isStatus(type, typeof suspension == 'undefined' || suspension == null ? null : suspension);
     },
@@ -2009,7 +2014,7 @@ __webpack_require__.r(__webpack_exports__);
     initDataTable: function initDataTable() {
       var _this = this;
 
-      $('#dataTable').DataTable({
+      var params = {
         "processing": true,
         "serverSide": true,
         "order": [[4, "desc"]],
@@ -2132,7 +2137,15 @@ __webpack_require__.r(__webpack_exports__);
           // }
 
         }
-      });
+      };
+
+      if (typeof locale !== 'undefined' && locale !== null) {
+        if (locale.toLowerCase() == 'de') params.language = {
+          url: '/locale/datatable/de_de.json'
+        };
+      }
+
+      $('#dataTable').DataTable(params);
     }
   },
   components: {
@@ -42443,7 +42456,13 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _c("th", [_vm._v("Created")]),
+            _c("th", [
+              _c(
+                "span",
+                { staticClass: "first-letter-uppercase d-inline-block" },
+                [_vm._v(_vm._s(_vm.getText("text.created")))]
+              )
+            ]),
             _vm._v(" "),
             _c("th")
           ])

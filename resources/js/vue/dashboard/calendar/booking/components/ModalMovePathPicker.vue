@@ -11,7 +11,9 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" :id="modalId + 'Label'">Event edit</h5>
+                            <h5 class="modal-title" :id="modalId + 'Label'">
+                                {{capitalizeFirstLetter(getText('text.edit_event'))}}
+                            </h5>
                             <button type="button"
                                 @click.prevent="close()"
                                 class="close">
@@ -60,13 +62,13 @@
                                 @click.prevent="pickTime()"
                                 type="button"
                                 class="btn btn-sm btn-primary">
-                                    Pick time
+                                    {{capitalizeFirstLetter(getText('text.pick_time'))}}
                             </button>
                             <a v-if="isPickedItemsChanged"
                                 @click.prevent="reset()"
                                 href="#"
                                 class="btn btn-sm btn-warning btn-reset">
-                                    Reset
+                                    {{capitalizeFirstLetter(getText('text.reset'))}}
                             </a>
                         </div>
                     </div>

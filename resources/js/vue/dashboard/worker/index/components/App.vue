@@ -22,7 +22,10 @@
                             <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/>
                         </svg>
                     </th>
-                    <th>Created</th>
+                    <!-- <th>Created</th> -->
+                    <th>
+                        <span class="first-letter-uppercase d-inline-block">{{getText('text.created')}}</span>
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -64,6 +67,9 @@
             };
         },
         methods: {
+            getText: function(key){
+                return Lang.get(key);
+            },
             isStatus: function(type, suspension){
                 return helper.isStatus(type, (typeof suspension == 'undefined' || suspension == null ? null : suspension));
             },
@@ -175,7 +181,8 @@
             },
             initDataTable: function(){
                 let _this = this;
-                $('#dataTable').DataTable({
+                
+                let params = {
                     "processing": true,
                     "serverSide": true,
                     "order": [[ 5, "desc" ]],
@@ -492,7 +499,16 @@
                         //     // "user_id": 451
                         // }
                     }
-                });
+                };
+                
+                if(typeof locale !== 'undefined' && locale !== null){
+                    if(locale.toLowerCase() == 'de')
+                        params.language = {
+                            url: '/locale/datatable/de_de.json'
+                        }
+                }
+                
+                $('#dataTable').DataTable(params);
             },
         },
         components: {

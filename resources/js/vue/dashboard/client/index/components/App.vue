@@ -17,7 +17,9 @@
                             <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                         </svg>
                     </th>
-                    <th>Created</th>
+                    <th>
+                        <span class="first-letter-uppercase d-inline-block">{{getText('text.created')}}</span>
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -59,6 +61,9 @@
             };
         },
         methods: {
+            getText: function(key){
+                return Lang.get(key);
+            },
             isStatus: function(type, suspension){
                 return helper.isStatus(type, (typeof suspension == 'undefined' || suspension == null ? null : suspension));
             },
@@ -170,7 +175,8 @@
             },
             initDataTable: function(){
                 let _this = this;
-                $('#dataTable').DataTable({
+                
+                let params = {
                     "processing": true,
                     "serverSide": true,
                     "order": [[ 4, "desc" ]],
@@ -447,7 +453,16 @@
                         //     // "user_id": 451
                         // }
                     }
-                });
+                };
+                
+                if(typeof locale !== 'undefined' && locale !== null){
+                    if(locale.toLowerCase() == 'de')
+                        params.language = {
+                            url: '/locale/datatable/de_de.json'
+                        }
+                }
+                
+                $('#dataTable').DataTable(params);
             },
         },
         components: {

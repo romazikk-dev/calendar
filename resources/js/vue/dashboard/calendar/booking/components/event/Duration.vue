@@ -2,9 +2,15 @@
     <div>
         
         <div class="duration-display">
-            Duration: <b>{{durationStrHoursAndMinutes}}</b><br />
+            {{capitalizeFirstLetter(getText('text.duration'))}}:
+            <b>
+                {{durationStrHoursAndMinutes}}
+            </b><br />
             <span class="small">
-                <i>{{initDurationStrHoursAndMinutes}} (current duration)</i>
+                <i>
+                    {{initDurationStrHoursAndMinutes}}
+                    ({{getText('text.current_duration')}})
+                </i>
             </span>
         </div>
         <div class="for-time-bar-fill pb-3">

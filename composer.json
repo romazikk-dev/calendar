@@ -17,6 +17,7 @@
         "laravel/sanctum": "^2.9",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.2",
+        "mariuzzo/laravel-js-localization": "^1.8",
         "nesbot/carbon": "^2.46",
         "spatie/laravel-permission": "^4.0",
         "yajra/laravel-datatables-oracle": "^9.15"

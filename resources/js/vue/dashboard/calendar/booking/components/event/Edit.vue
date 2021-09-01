@@ -2,7 +2,8 @@
     <div>
         
         <div id="hallDropdown" class="dropdown dropdown-standart">
-            <span>Hall: </span><br>
+            <span>{{capitalizeFirstLetter(getText('text.hall'))}}: </span>
+            <br>
             <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown">
                 {{!isHallPicked ? '---' : pickedHall.title}}
             </a>
@@ -24,7 +25,7 @@
         </div>
         
         <template-picker :templates="templates"
-            label="Template"
+            :label="capitalizeFirstLetter(getText('text.template'))"
             :specifics="templateSpecifics"
             :specifics-as-id-key="templateSpecificsAsIdKey"
             :picked-template-ids-trace="pickedTemplateIdsTrace"
@@ -32,7 +33,7 @@
             @change="change('template', $event)" />
             
         <div id="workerDropdown" class="dropdown dropdown-standart">
-            <span>Worker:</span><br>
+            <span>{{capitalizeFirstLetter(getText('text.worker'))}}:</span><br>
             <a :class="{disabled: !workers}" class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{fullPickedWorkerName}}
             </a>

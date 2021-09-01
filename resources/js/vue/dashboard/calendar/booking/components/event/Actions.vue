@@ -62,7 +62,7 @@
                                         title="<div class='small'>Not available as event is crossing time one of other events of this day</div>"
                                         @click.stop.prevent
                                         href="#">
-                                            Duration
+                                            {{capitalizeFirstLetter(getText('text.duration'))}}
                                             <span v-if="event.time_crossing" class="action-info text-warning">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
                                                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
@@ -72,12 +72,16 @@
                                     <a v-else
                                         class="dropdown-item"
                                         @click.prevent="onClickActionDuration($event)"
-                                        href="#">Duration</a>
+                                        href="#">
+                                            {{capitalizeFirstLetter(getText('text.duration'))}}
+                                    </a>
                                 </div>
                                 <div>
                                     <a class="dropdown-item"
                                         @click.prevent="onClickActionDateTime"
-                                        href="#">Date&Time</a>
+                                        href="#">
+                                            {{capitalizeFirstLetter(getText('text.date_and_time'))}}
+                                    </a>
                                 </div>
                                 <!-- <div class="action-date-time-current-day" v-if="showDateTimeCurrentDay">
                                     <a class="dropdown-item"
@@ -145,18 +149,18 @@
                             'dropdown-menu-right': dropdownToLeft || dropdownToLeftInDepenseOfWeekday,
                         }" :aria-labelledby="'actionRemoveDropdown_' + event.id">
                             <div class="small">
-                                Do you really want to delete this event?
+                                {{getText('text.do_you_really_want_to_delete_this_event')}}
                             </div>
                             <div class="btnns">
                                 <a href="#"
                                     @click.prevent="onClickActionRemove($event, event)"
                                     class="btnn text-primary btnn-yes">
-                                        Yes
+                                        {{capitalizeFirstLetter(getText('text.yes'))}}
                                 </a>
                                 <a href="#"
                                     @click.prevent="$refs['action_remove_drop_toggle_' + event.id].click()"
                                     class="btnn text-primary btnn-no">
-                                        No
+                                        {{capitalizeFirstLetter(getText('text.no'))}}
                                 </a>
                                 <div class="clearfix"></div>
                             </div>

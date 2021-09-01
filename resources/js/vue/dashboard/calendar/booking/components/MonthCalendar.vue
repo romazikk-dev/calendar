@@ -6,7 +6,9 @@
             <table :key="dataKey">
                 <thead>
                     <tr>
-                        <th v-for="weekday in weekdaysList">{{weekday}}</th>
+                        <th v-for="weekday in weekdaysList">
+                            <span class="first-letter-uppercase d-inline-block">{{weekday}}</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,13 +48,19 @@
                                     <div v-if="(isNewEventMainFull || isMovingEvent) && getDate(i,k,'is_weekend')"
                                     class="for-closed-slot">
                                         <div class="closed-slot">
-                                            <b>{{freeHallTitle}} closed</b>
+                                            <b>
+                                                {{freeHallTitle}}
+                                                {{capitalizeFirstLetter(getText('text.closed'))}}
+                                            </b>
                                         </div>
                                     </div>
                                     <div v-if="(isNewEventMainFull || isMovingEvent) && !getDate(i,k,'bookable')"
                                     class="for-closed-slot">
                                         <div class="closed-slot">
-                                            <b>{{freeWorkerName}} not working</b>
+                                            <b>
+                                                {{freeWorkerName}}
+                                                {{getText('text.suspended_workers')}}
+                                            </b>
                                         </div>
                                     </div>
                                     <month-cell v-if="getDate(i,k,'items')"

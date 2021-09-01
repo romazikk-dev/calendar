@@ -81,7 +81,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'de',
 
     /*
     |--------------------------------------------------------------------------
@@ -196,6 +196,8 @@ return [
         App\Providers\HelperServiceProvider::class,
         App\Providers\CalendarServiceProvider::class,
         App\Providers\CalendarAliasServiceProvider::class,
+        App\Providers\LocalizationServiceProvider::class,
+        Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
 
     ],
 

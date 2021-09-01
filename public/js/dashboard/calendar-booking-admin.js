@@ -2536,6 +2536,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'dayCalendar',
@@ -3097,6 +3099,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -3443,6 +3447,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'monthCalendar',
@@ -3539,6 +3551,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _event_Actions_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event/Actions.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Actions.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3978,6 +4005,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'navigation',
   mounted: function mounted() {
@@ -4005,7 +4034,9 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     calendarTitle: function calendarTitle() {
       if (this.view == 'month') {
-        return moment(this.$store.getters['dates/month'].firstDate).format('MMMM YYYY');
+        var titleMoment = moment(this.$store.getters['dates/month'].firstDate);
+        var key = 'text.' + titleMoment.format('MMMM').toLowerCase().trim();
+        return this.capitalizeFirstLetter(this.getText(key)) + titleMoment.format(' YYYY');
       } else if (['week', 'list'].includes(this.view)) {
         var firstWeekdayMonth = new Date(this.dateInterval.firstDate).getMonth();
         var lastWeekdayMonth = new Date(this.dateInterval.lastDate).getMonth();
@@ -4013,15 +4044,24 @@ __webpack_require__.r(__webpack_exports__);
         if (firstWeekdayMonth == lastWeekdayMonth) {
           var firstWeekdayDay = moment(this.dateInterval.firstDate).format('D');
           var lastWeekdayDay = moment(this.dateInterval.lastDate).format('D');
-          var monthTitle = moment(this.dateInterval.firstDate).format('MMMM');
+
+          var _key = 'text.' + moment(this.dateInterval.firstDate).format('MMMM').toLowerCase().trim();
+
+          var monthTitle = this.capitalizeFirstLetter(this.getText(_key));
           return firstWeekdayDay + ' - ' + lastWeekdayDay + ' ' + monthTitle;
         } else {
-          var firstWeekdayMonthTitle = moment(this.dateInterval.firstDate).format('D MMMM');
-          var lastWeekdayMonthTitle = moment(this.dateInterval.lastDate).format('D MMMM');
+          var firstWeekdayMoment = moment(this.dateInterval.firstDate);
+          var lastWeekdayMoment = moment(this.dateInterval.lastDate);
+          var firstMonthKey = 'text.' + firstWeekdayMoment.format('MMMM').toLowerCase().trim();
+          var lastMonthKey = 'text.' + lastWeekdayMoment.format('MMMM').toLowerCase().trim();
+          var firstWeekdayMonthTitle = moment(this.dateInterval.firstDate).format('D ') + this.capitalizeFirstLetter(this.getText(firstMonthKey));
+          var lastWeekdayMonthTitle = moment(this.dateInterval.lastDate).format('D ') + this.capitalizeFirstLetter(this.getText(lastMonthKey));
           return firstWeekdayMonthTitle + ' - ' + lastWeekdayMonthTitle;
         }
       } else if (this.view == 'day' || this.view == 'list') {
-        return moment(this.dateInterval.firstDate).format('MMM D, YYYY');
+        var dayMoment = moment(this.dateInterval.firstDate);
+        var monthKey = 'text.' + dayMoment.format('MMM').toLowerCase().trim();
+        return this.capitalizeFirstLetter(this.getText(monthKey)) + dayMoment.format(' D, YYYY');
       }
     }
   },
@@ -4221,6 +4261,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _MonthCell_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MonthCell.vue */ "./resources/js/vue/dashboard/calendar/booking/components/MonthCell.vue");
+//
+//
 //
 //
 //
@@ -4747,9 +4789,13 @@ __webpack_require__.r(__webpack_exports__);
       search: null
     };
   },
-  computed: {// showWarningAlert: function () {
+  computed: {
+    placeholder: function placeholder() {
+      return this.capitalizeFirstLetter(this.getText('text.search')) + ' ...';
+    } // showWarningAlert: function () {
     //     // console.log(JSON.parse(JSON.stringify(this.assignWorkers)));
     // },
+
   },
   methods: {
     resetClick: function resetClick(e) {
@@ -5220,6 +5266,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'Actions',
@@ -5396,6 +5446,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _modals_TimeBarFill_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../modals/TimeBarFill.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/TimeBarFill.vue");
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -5709,6 +5765,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../template/ExtensiveTemplateFilterPicker.vue */ "./resources/js/vue/dashboard/calendar/booking/components/template/ExtensiveTemplateFilterPicker.vue");
+//
 //
 //
 //
@@ -7036,6 +7093,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'eventInfoAlert',
   mounted: function mounted() {},
@@ -7045,8 +7108,10 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {
     badgeTitle: function badgeTitle() {
-      if (this.isProp(this.event)) return "Edit event";
-      return this.isProp(this.movingEvent) ? "Edit event" : "New event";
+      var editEvent = this.capitalizeFirstLetter(this.getText('text.edit_event'));
+      var newEvent = this.capitalizeFirstLetter(this.getText('text.new_event'));
+      if (this.isProp(this.event)) return editEvent;
+      return this.isProp(this.movingEvent) ? editEvent : newEvent;
     },
     clientObj: function clientObj() {
       if (this.isProp(this.event)) return this.event.client_without_user_scope;
@@ -7212,6 +7277,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
  // import Actions from "../event/Actions.vue";
 
 
@@ -7244,8 +7313,9 @@ __webpack_require__.r(__webpack_exports__);
       return true;
     },
     datesPerWeekday: function datesPerWeekday() {
+      var _this = this;
+
       var initDateMoment;
-      var weekDayFormat = 'MMMM D, YYYY';
 
       if (typeof this.dateInterval !== 'undefined' && this.dateInterval !== null && typeof this.dateInterval.firstDate !== 'undefined' && this.dateInterval.firstDate !== null) {
         initDateMoment = moment(this.dateInterval.firstDate);
@@ -7253,7 +7323,12 @@ __webpack_require__.r(__webpack_exports__);
         initDateMoment = moment(this.currentDate).startOf('week').add(1, 'days');
       }
 
-      return [initDateMoment.format(weekDayFormat), initDateMoment.add(1, 'days').format(weekDayFormat), initDateMoment.add(1, 'days').format(weekDayFormat), initDateMoment.add(1, 'days').format(weekDayFormat), initDateMoment.add(1, 'days').format(weekDayFormat), initDateMoment.add(1, 'days').format(weekDayFormat), initDateMoment.add(1, 'days').format(weekDayFormat)];
+      return [getDateFromMoment(initDateMoment), getDateFromMoment(initDateMoment.add(1, 'days')), getDateFromMoment(initDateMoment.add(1, 'days')), getDateFromMoment(initDateMoment.add(1, 'days')), getDateFromMoment(initDateMoment.add(1, 'days')), getDateFromMoment(initDateMoment.add(1, 'days')), getDateFromMoment(initDateMoment.add(1, 'days'))];
+
+      function getDateFromMoment(dateMoment) {
+        var key = 'text.' + dateMoment.format('MMMM').toLowerCase().trim();
+        return _this.capitalizeFirstLetter(_this.getText(key)) + dateMoment.format(' D, YYYY');
+      }
     },
     dataUpdater: function dataUpdater() {
       return this.$store.getters['updater/counter'];
@@ -7262,13 +7337,13 @@ __webpack_require__.r(__webpack_exports__);
       return this.$store.getters['filters/urlSearchPath'];
     },
     weekDayNotPast: function weekDayNotPast() {
-      var _this = this;
+      var _this2 = this;
 
       return function (i) {
-        if (_this.firstWeekday == null) return false;
-        var firstWeekdayMoment = moment(_this.firstWeekday);
-        var currentDateMoment = moment(_this.currentDate);
-        return i >= _this.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
+        if (_this2.firstWeekday == null) return false;
+        var firstWeekdayMoment = moment(_this2.firstWeekday);
+        var currentDateMoment = moment(_this2.currentDate);
+        return i >= _this2.weekdayOfCurrentDate || currentDateMoment.diff(firstWeekdayMoment) <= 0;
       };
     }
   },
@@ -7317,13 +7392,13 @@ __webpack_require__.r(__webpack_exports__);
       return dayItemDate == currentDate;
     },
     getData: function getData() {
-      var _this2 = this;
+      var _this3 = this;
 
       var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var startDate = moment(this.$store.getters['dates/interval'].firstDate).format('YYYY-MM-DD');
       var endDate = moment(this.$store.getters['dates/interval'].lastDate).format('YYYY-MM-DD');
       return this.app.getData(startDate, endDate, params).then(function (data) {
-        _this2.data = data.data;
+        _this3.data = data.data;
       });
     }
   },
@@ -7539,6 +7614,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Loader.vue */ "./resources/js/vue/dashboard/calendar/booking/components/Loader.vue");
 /* harmony import */ var _event_Edit_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../event/Edit.vue */ "./resources/js/vue/dashboard/calendar/booking/components/event/Edit.vue");
 /* harmony import */ var _ClientPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ClientPicker.vue */ "./resources/js/vue/dashboard/calendar/booking/components/ClientPicker.vue");
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -8360,6 +8441,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -8442,7 +8529,11 @@ __webpack_require__.r(__webpack_exports__);
     date: function date() {
       if (this.e == null || typeof this.e.day === 'undefined' || this.e.day === null || typeof this.e.month === 'undefined' || this.e.month === null || typeof this.e.year === 'undefined' || this.e.year === null) return null;
       var momentDate = moment(this.e.year + '-' + this.e.month + '-' + this.e.day);
-      return momentDate.format('D MMMM YYYY, ddd'); // return this.e.year + '-' + this.e.month + '-' + this.e.day;
+      var monthKey = 'text.' + momentDate.format('MMMM').toLowerCase().trim();
+      var month = this.capitalizeFirstLetter(this.getText(monthKey));
+      var shortWeekKey = 'text.' + momentDate.format('ddd').toLowerCase().trim();
+      var shortWeek = this.capitalizeFirstLetter(this.getText(shortWeekKey));
+      return momentDate.format('D [' + month + '] YYYY, [' + shortWeek + ']'); // return this.e.year + '-' + this.e.month + '-' + this.e.day;
     },
     isEDate: function isEDate() {
       if (this.e !== null || typeof this.e.day !== 'undefined' || this.e.day !== null || typeof this.e.month !== 'undefined' || this.e.month !== null || typeof this.e.year !== 'undefined' || this.e.year !== null) return true;
@@ -9863,6 +9954,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _modals_ModalFilter_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../modals/ModalFilter.vue */ "./resources/js/vue/dashboard/calendar/booking/components/modals/ModalFilter.vue");
 /* harmony import */ var _AppliedFilters_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AppliedFilters.vue */ "./resources/js/vue/dashboard/calendar/booking/components/navbar/AppliedFilters.vue");
+//
+//
 //
 //
 //
@@ -12257,7 +12350,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/* .alert .event-itemm{\n    line-height: 18px!important;\n} */\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/* .alert .event-itemm{\n    line-height: 18px!important;\n} */\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -12569,7 +12662,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "#viewDropdown .dropdown-toggle[data-v-4f8ce786] {\n  text-transform: capitalize;\n}\n#viewDropdown .dropdown-item[data-v-4f8ce786] {\n  text-transform: capitalize;\n}\n.handles .left-part button[data-v-4f8ce786]:nth-child(1) {\n  border-radius: 0.2rem 0 0 0.2rem;\n}\n.handles .left-part button[data-v-4f8ce786]:nth-child(2) {\n  border-radius: 0 0.2rem 0.2rem 0;\n}\n.handles .left-part button[data-v-4f8ce786]:nth-child(3) {\n  margin-left: 10px;\n}\n.for-table[data-v-4f8ce786] {\n  padding-top: 10px !important;\n}\ntable[data-v-4f8ce786] {\n  width: 100%;\n  min-width: 700px;\n  /* margin-top: 20px!important; */\n}\ntable th[data-v-4f8ce786] {\n  text-align: center;\n}\ntable th span[data-v-4f8ce786] {\n  display: block;\n  font-size: 16px;\n  font-weight: normal;\n  position: relative;\n  top: -3px;\n}\ntable td[data-v-4f8ce786], table th[data-v-4f8ce786] {\n  border: 1px solid #ccc;\n}\n\n/* table td:first-child{\n    width: 8%;\n} */\ntable td[data-v-4f8ce786] {\n  width: 14.2%;\n  vertical-align: top;\n  position: relative;\n  /* height: 20px; */\n}\ntable tr:nth-child(odd) td[data-v-4f8ce786] {\n  background-image: url(\"/imgs/week-calendar-table-odd-row-bg.jpg\");\n}\ntable tr.bookings td[data-v-4f8ce786] {\n  height: auto;\n}\ntable tr.divider td[data-v-4f8ce786] {\n  height: 10px;\n  background-color: #6c757d !important;\n  text-align: center;\n  font-weight: bold;\n  color: #f6f6f6;\n  /* color: #d4f4c9; */\n  /* font-size: 14px; */\n}\n@media only screen and (max-width: 900px) {\ntable tr.divider td[data-v-4f8ce786] {\n    font-size: 14px;\n}\n}\ntable td .cont[data-v-4f8ce786] {\n  min-height: 80px !important;\n  position: relative;\n}\ntable td .day[data-v-4f8ce786] {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n}\ntable td.hour-cell[data-v-4f8ce786]:first-child {\n  font-weight: bold;\n}\ntable td.hour-cell[data-v-4f8ce786] {\n  padding-right: 10px;\n  text-align: right;\n}\n\n/* table td{\n    font-weight: bold;\n} */\n.day.not-period[data-v-4f8ce786] {\n  color: #999;\n}\n.current-day[data-v-4f8ce786] {\n  background-color: rgba(8, 232, 222, 0.3) !important;\n}\n.booking[data-v-4f8ce786] {\n  position: absolute;\n  bottom: 0px;\n  right: 0px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "#viewDropdown .dropdown-toggle[data-v-4f8ce786] {\n  text-transform: capitalize;\n}\n#viewDropdown .dropdown-item[data-v-4f8ce786] {\n  text-transform: capitalize;\n}\n.handles .left-part button[data-v-4f8ce786]:nth-child(1) {\n  border-radius: 0.2rem 0 0 0.2rem;\n}\n.handles .left-part button[data-v-4f8ce786]:nth-child(2) {\n  border-radius: 0 0.2rem 0.2rem 0;\n}\n.handles .left-part button[data-v-4f8ce786]:nth-child(3) {\n  margin-left: 10px;\n}\n.for-table[data-v-4f8ce786] {\n  padding-top: 10px !important;\n}\ntable[data-v-4f8ce786] {\n  width: 100%;\n  min-width: 700px;\n  /* margin-top: 20px!important; */\n}\ntable th[data-v-4f8ce786] {\n  text-align: center;\n}\ntable td[data-v-4f8ce786], table th[data-v-4f8ce786] {\n  border: 1px solid #ccc;\n}\n\n/* table td:first-child{\n    width: 8%;\n} */\ntable td[data-v-4f8ce786] {\n  width: 14.2%;\n  vertical-align: top;\n  position: relative;\n  /* height: 20px; */\n}\ntable tr:nth-child(odd) td[data-v-4f8ce786] {\n  background-image: url(\"/imgs/week-calendar-table-odd-row-bg.jpg\");\n}\ntable tr.bookings td[data-v-4f8ce786] {\n  height: auto;\n}\ntable tr.divider td[data-v-4f8ce786] {\n  height: 10px;\n  background-color: #6c757d !important;\n  text-align: center;\n  font-weight: bold;\n  color: #f6f6f6;\n  /* color: #d4f4c9; */\n  /* font-size: 14px; */\n}\n@media only screen and (max-width: 900px) {\ntable tr.divider td[data-v-4f8ce786] {\n    font-size: 14px;\n}\n}\ntable td .cont[data-v-4f8ce786] {\n  min-height: 80px !important;\n  position: relative;\n}\ntable td .day[data-v-4f8ce786] {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n}\ntable td.hour-cell[data-v-4f8ce786]:first-child {\n  font-weight: bold;\n}\ntable td.hour-cell[data-v-4f8ce786] {\n  padding-right: 10px;\n  text-align: right;\n}\n\n/* table td{\n    font-weight: bold;\n} */\n.day.not-period[data-v-4f8ce786] {\n  color: #999;\n}\n.current-day[data-v-4f8ce786] {\n  background-color: rgba(8, 232, 222, 0.3) !important;\n}\n.booking[data-v-4f8ce786] {\n  position: absolute;\n  bottom: 0px;\n  right: 0px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -57581,10 +57674,19 @@ var render = function() {
         _c("thead", [
           _c("tr", [
             _c("th", { class: { "current-day": _vm.isCurrentDate } }, [
-              _vm._v(
-                "\n                        " +
-                  _vm._s(_vm.weekdayTitle) +
-                  "\n                    "
+              _c(
+                "span",
+                {
+                  staticClass:
+                    "first-letter-uppercase d-inline-block font-weight-bold"
+                },
+                [
+                  _vm._v(
+                    "\n                            " +
+                      _vm._s(_vm.weekdayTitle) +
+                      "\n                        "
+                  )
+                ]
               )
             ])
           ])
@@ -58079,7 +58181,17 @@ var render = function() {
                     staticClass: "modal-title",
                     attrs: { id: _vm.modalId + "Label" }
                   },
-                  [_vm._v("Event edit")]
+                  [
+                    _vm._v(
+                      "\n                            " +
+                        _vm._s(
+                          _vm.capitalizeFirstLetter(
+                            _vm.getText("text.edit_event")
+                          )
+                        ) +
+                        "\n                        "
+                    )
+                  ]
                 ),
                 _vm._v(" "),
                 _c(
@@ -58182,7 +58294,13 @@ var render = function() {
                   },
                   [
                     _vm._v(
-                      "\n                                Pick time\n                        "
+                      "\n                                " +
+                        _vm._s(
+                          _vm.capitalizeFirstLetter(
+                            _vm.getText("text.pick_time")
+                          )
+                        ) +
+                        "\n                        "
                     )
                   ]
                 ),
@@ -58202,7 +58320,13 @@ var render = function() {
                       },
                       [
                         _vm._v(
-                          "\n                                Reset\n                        "
+                          "\n                                " +
+                            _vm._s(
+                              _vm.capitalizeFirstLetter(
+                                _vm.getText("text.reset")
+                              )
+                            ) +
+                            "\n                        "
                         )
                       ]
                     )
@@ -58245,7 +58369,13 @@ var render = function() {
           _c(
             "tr",
             _vm._l(_vm.weekdaysList, function(weekday) {
-              return _c("th", [_vm._v(_vm._s(weekday))])
+              return _c("th", [
+                _c(
+                  "span",
+                  { staticClass: "first-letter-uppercase d-inline-block" },
+                  [_vm._v(_vm._s(weekday))]
+                )
+              ])
             }),
             0
           )
@@ -58365,8 +58495,19 @@ var render = function() {
                                               [
                                                 _c("b", [
                                                   _vm._v(
-                                                    _vm._s(_vm.freeHallTitle) +
-                                                      " closed"
+                                                    "\n                                            " +
+                                                      _vm._s(
+                                                        _vm.freeHallTitle
+                                                      ) +
+                                                      "\n                                            " +
+                                                      _vm._s(
+                                                        _vm.capitalizeFirstLetter(
+                                                          _vm.getText(
+                                                            "text.closed"
+                                                          )
+                                                        )
+                                                      ) +
+                                                      "\n                                        "
                                                   )
                                                 ])
                                               ]
@@ -58388,8 +58529,17 @@ var render = function() {
                                               [
                                                 _c("b", [
                                                   _vm._v(
-                                                    _vm._s(_vm.freeWorkerName) +
-                                                      " not working"
+                                                    "\n                                            " +
+                                                      _vm._s(
+                                                        _vm.freeWorkerName
+                                                      ) +
+                                                      "\n                                            " +
+                                                      _vm._s(
+                                                        _vm.getText(
+                                                          "text.suspended_workers"
+                                                        )
+                                                      ) +
+                                                      "\n                                        "
                                                   )
                                                 ])
                                               ]
@@ -58628,7 +58778,18 @@ var render = function() {
                                         )
                                       : _vm._e(),
                                     _vm._v(" "),
-                                    _c("b", [_vm._v("Free time:")]),
+                                    _c("b", [
+                                      _vm._v(
+                                        "\n                            " +
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.free_time")
+                                            )
+                                          ) +
+                                          ":\n                        "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
                                     _c("br"),
                                     _vm._v(" "),
                                     _c("b", [
@@ -58708,8 +58869,17 @@ var render = function() {
                                                     },
                                                     [
                                                       _c("span", [
-                                                        _vm._v("Client: ")
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            _vm.capitalizeFirstLetter(
+                                                              _vm.getText(
+                                                                "text.client"
+                                                              )
+                                                            )
+                                                          ) + ": "
+                                                        )
                                                       ]),
+                                                      _vm._v(" "),
                                                       _c("b", [
                                                         _vm._v(
                                                           _vm._s(
@@ -58729,8 +58899,17 @@ var render = function() {
                                                     },
                                                     [
                                                       _c("span", [
-                                                        _vm._v("Hall: ")
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            _vm.capitalizeFirstLetter(
+                                                              _vm.getText(
+                                                                "text.hall"
+                                                              )
+                                                            )
+                                                          ) + ": "
+                                                        )
                                                       ]),
+                                                      _vm._v(" "),
                                                       _c("b", [
                                                         _vm._v(
                                                           _vm._s(
@@ -58750,8 +58929,17 @@ var render = function() {
                                                     },
                                                     [
                                                       _c("span", [
-                                                        _vm._v("Temp: ")
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            _vm.capitalizeFirstLetter(
+                                                              _vm.getText(
+                                                                "text.temp"
+                                                              )
+                                                            )
+                                                          ) + ": "
+                                                        )
                                                       ]),
+                                                      _vm._v(" "),
                                                       _c("b", [
                                                         _vm._v(
                                                           _vm._s(
@@ -58771,8 +58959,17 @@ var render = function() {
                                                     },
                                                     [
                                                       _c("span", [
-                                                        _vm._v("Time: ")
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            _vm.capitalizeFirstLetter(
+                                                              _vm.getText(
+                                                                "text.time"
+                                                              )
+                                                            )
+                                                          ) + ": "
+                                                        )
                                                       ]),
+                                                      _vm._v(" "),
                                                       _c("b", [
                                                         _vm._v(
                                                           _vm._s(itmm.from) +
@@ -58790,8 +58987,17 @@ var render = function() {
                                                     },
                                                     [
                                                       _c("span", [
-                                                        _vm._v("Worker: ")
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            _vm.capitalizeFirstLetter(
+                                                              _vm.getText(
+                                                                "text.worker"
+                                                              )
+                                                            )
+                                                          ) + ": "
+                                                        )
                                                       ]),
+                                                      _vm._v(" "),
                                                       _c("b", [
                                                         _vm._v(
                                                           _vm._s(
@@ -58854,7 +59060,17 @@ var render = function() {
                                               }
                                             }
                                           },
-                                          [_vm._v("Pick")]
+                                          [
+                                            _vm._v(
+                                              "\n                                " +
+                                                _vm._s(
+                                                  _vm.capitalizeFirstLetter(
+                                                    _vm.getText("text.pick")
+                                                  )
+                                                ) +
+                                                "\n                        "
+                                            )
+                                          ]
                                         )
                                       : _vm._e(),
                                     _vm._v(" "),
@@ -58884,7 +59100,16 @@ var render = function() {
                                         staticClass: "event-itemm text-warning"
                                       },
                                       [
-                                        _c("span", [_vm._v("Client: ")]),
+                                        _c("span", [
+                                          _vm._v(
+                                            _vm._s(
+                                              _vm.capitalizeFirstLetter(
+                                                _vm.getText("text.client")
+                                              )
+                                            ) + ": "
+                                          )
+                                        ]),
+                                        _vm._v(" "),
                                         _c("b", [
                                           _vm._v(
                                             _vm._s(
@@ -58937,7 +59162,16 @@ var render = function() {
                                     ),
                                     _vm._v(" "),
                                     _c("div", { staticClass: "event-itemm" }, [
-                                      _c("span", [_vm._v("Hall: ")]),
+                                      _c("span", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.hall")
+                                            )
+                                          ) + ":"
+                                        )
+                                      ]),
+                                      _vm._v(" "),
                                       _c("b", [
                                         _vm._v(
                                           _vm._s(
@@ -58948,7 +59182,16 @@ var render = function() {
                                     ]),
                                     _vm._v(" "),
                                     _c("div", { staticClass: "event-itemm" }, [
-                                      _c("span", [_vm._v("Temp: ")]),
+                                      _c("span", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.temp")
+                                            )
+                                          ) + ": "
+                                        )
+                                      ]),
+                                      _vm._v(" "),
                                       _c("b", [
                                         _vm._v(
                                           _vm._s(
@@ -58960,7 +59203,16 @@ var render = function() {
                                     ]),
                                     _vm._v(" "),
                                     _c("div", { staticClass: "event-itemm" }, [
-                                      _c("span", [_vm._v("Time: ")]),
+                                      _c("span", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.time")
+                                            )
+                                          ) + ": "
+                                        )
+                                      ]),
+                                      _vm._v(" "),
                                       _c("b", [
                                         _vm._v(
                                           _vm._s(itm.from) +
@@ -58971,7 +59223,16 @@ var render = function() {
                                     ]),
                                     _vm._v(" "),
                                     _c("div", { staticClass: "event-itemm" }, [
-                                      _c("span", [_vm._v("Worker: ")]),
+                                      _c("span", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.worker")
+                                            )
+                                          ) + ": "
+                                        )
+                                      ]),
+                                      _vm._v(" "),
                                       _c("b", [
                                         _vm._v(
                                           _vm._s(
@@ -59035,7 +59296,13 @@ var render = function() {
                 }
               }
             },
-            [_vm._v("\n                    More ...\n            ")]
+            [
+              _vm._v(
+                "\n                    " +
+                  _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.more"))) +
+                  " ...\n            "
+              )
+            ]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "clearfix" })
@@ -59363,7 +59630,13 @@ var render = function() {
               }
             }
           },
-          [_vm._v("\n                today\n            ")]
+          [
+            _vm._v(
+              "\n                " +
+                _vm._s(_vm.getText("text.today")) +
+                "\n            "
+            )
+          ]
         ),
         _vm._v(" "),
         _c(
@@ -59372,7 +59645,13 @@ var render = function() {
             staticClass: "btn btn-sm btn-light float-left go-to-date",
             attrs: { id: _vm.toDateCalendar.initId, type: "button" }
           },
-          [_vm._v("\n                to date\n            ")]
+          [
+            _vm._v(
+              "\n                " +
+                _vm._s(_vm.getText("text.to_date")) +
+                "\n            "
+            )
+          ]
         )
       ]),
       _vm._v(" "),
@@ -59403,7 +59682,7 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v(_vm._s(item))]
+              [_vm._v(_vm._s(_vm.getText("text." + item)))]
             )
           }),
           0
@@ -59411,7 +59690,11 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "calendar-title" }, [
-        _vm._v("\n            " + _vm._s(_vm.calendarTitle) + "\n        ")
+        _c("span", { staticClass: "first-letter-uppercase d-inline-block" }, [
+          _vm._v(
+            "\n                " + _vm._s(_vm.calendarTitle) + "\n            "
+          )
+        ])
       ])
     ]),
     _vm._v(" "),
@@ -59644,12 +59927,25 @@ var render = function() {
                       }
                     },
                     [
+                      _c(
+                        "span",
+                        {
+                          staticClass:
+                            "first-letter-uppercase d-block font-weight-bold"
+                        },
+                        [
+                          _vm._v(
+                            "\n                                    " +
+                              _vm._s(_vm.weekdaysList[index]) +
+                              "\n                                "
+                          )
+                        ]
+                      ),
                       _vm._v(
                         "\n                                " +
-                          _vm._s(_vm.weekdaysList[index]) +
-                          "\n                                "
-                      ),
-                      _c("span", [_vm._v(_vm._s(_vm.datesPerWeekday[index]))])
+                          _vm._s(_vm.datesPerWeekday[index]) +
+                          "\n                            "
+                      )
                     ]
                   )
                 ]
@@ -60087,7 +60383,7 @@ var render = function() {
         class: {
           "form-control-sm": _vm.small === true
         },
-        attrs: { type: "text", placeholder: "Search ..." },
+        attrs: { type: "text", placeholder: _vm.placeholder },
         domProps: { value: _vm.search },
         on: {
           blur: function($event) {
@@ -60611,7 +60907,13 @@ var render = function() {
                             },
                             [
                               _vm._v(
-                                "\n                                        Duration\n                                        "
+                                "\n                                        " +
+                                  _vm._s(
+                                    _vm.capitalizeFirstLetter(
+                                      _vm.getText("text.duration")
+                                    )
+                                  ) +
+                                  "\n                                        "
                               ),
                               _vm.event.time_crossing
                                 ? _c(
@@ -60657,7 +60959,17 @@ var render = function() {
                                 }
                               }
                             },
-                            [_vm._v("Duration")]
+                            [
+                              _vm._v(
+                                "\n                                        " +
+                                  _vm._s(
+                                    _vm.capitalizeFirstLetter(
+                                      _vm.getText("text.duration")
+                                    )
+                                  ) +
+                                  "\n                                "
+                              )
+                            ]
                           )
                     ]),
                     _vm._v(" "),
@@ -60674,7 +60986,17 @@ var render = function() {
                             }
                           }
                         },
-                        [_vm._v("Date&Time")]
+                        [
+                          _vm._v(
+                            "\n                                        " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.date_and_time")
+                                )
+                              ) +
+                              "\n                                "
+                          )
+                        ]
                       )
                     ])
                   ])
@@ -60835,7 +61157,13 @@ var render = function() {
                   [
                     _c("div", { staticClass: "small" }, [
                       _vm._v(
-                        "\n                            Do you really want to delete this event?\n                        "
+                        "\n                            " +
+                          _vm._s(
+                            _vm.getText(
+                              "text.do_you_really_want_to_delete_this_event"
+                            )
+                          ) +
+                          "\n                        "
                       )
                     ]),
                     _vm._v(" "),
@@ -60854,7 +61182,13 @@ var render = function() {
                         },
                         [
                           _vm._v(
-                            "\n                                    Yes\n                            "
+                            "\n                                    " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.yes")
+                                )
+                              ) +
+                              "\n                            "
                           )
                         ]
                       ),
@@ -60875,7 +61209,13 @@ var render = function() {
                         },
                         [
                           _vm._v(
-                            "\n                                    No\n                            "
+                            "\n                                    " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.no")
+                                )
+                              ) +
+                              "\n                            "
                           )
                         ]
                       ),
@@ -60919,14 +61259,28 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", [
     _c("div", { staticClass: "duration-display" }, [
-      _vm._v("\n        Duration: "),
-      _c("b", [_vm._v(_vm._s(_vm.durationStrHoursAndMinutes))]),
+      _vm._v(
+        "\n        " +
+          _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.duration"))) +
+          ":\n        "
+      ),
+      _c("b", [
+        _vm._v(
+          "\n            " +
+            _vm._s(_vm.durationStrHoursAndMinutes) +
+            "\n        "
+        )
+      ]),
       _c("br"),
       _vm._v(" "),
       _c("span", { staticClass: "small" }, [
         _c("i", [
           _vm._v(
-            _vm._s(_vm.initDurationStrHoursAndMinutes) + " (current duration)"
+            "\n                " +
+              _vm._s(_vm.initDurationStrHoursAndMinutes) +
+              "\n                (" +
+              _vm._s(_vm.getText("text.current_duration")) +
+              ")\n            "
           )
         ])
       ])
@@ -61194,7 +61548,12 @@ var render = function() {
           attrs: { id: "hallDropdown" }
         },
         [
-          _c("span", [_vm._v("Hall: ")]),
+          _c("span", [
+            _vm._v(
+              _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.hall"))) + ": "
+            )
+          ]),
+          _vm._v(" "),
           _c("br"),
           _vm._v(" "),
           _c(
@@ -61253,7 +61612,7 @@ var render = function() {
         ? _c("template-picker", {
             attrs: {
               templates: _vm.templates,
-              label: "Template",
+              label: _vm.capitalizeFirstLetter(_vm.getText("text.template")),
               specifics: _vm.templateSpecifics,
               "specifics-as-id-key": _vm.templateSpecificsAsIdKey,
               "picked-template-ids-trace": _vm.pickedTemplateIdsTrace
@@ -61273,7 +61632,12 @@ var render = function() {
           attrs: { id: "workerDropdown" }
         },
         [
-          _c("span", [_vm._v("Worker:")]),
+          _c("span", [
+            _vm._v(
+              _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.worker"))) +
+                ":"
+            )
+          ]),
           _c("br"),
           _vm._v(" "),
           _c(
@@ -62608,7 +62972,13 @@ var render = function() {
       _c("div", { staticClass: "row" }, [
         _vm.clientName
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Client(name): ")]),
+              _c("span", [
+                _vm._v(
+                  _vm._s(
+                    _vm.capitalizeFirstLetter(_vm.getText("text.client"))
+                  ) + "(name): "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.clientName))])
             ])
@@ -62616,7 +62986,13 @@ var render = function() {
         _vm._v(" "),
         _vm.clientEmail
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Client(email): ")]),
+              _c("span", [
+                _vm._v(
+                  _vm._s(
+                    _vm.capitalizeFirstLetter(_vm.getText("text.client"))
+                  ) + "(email): "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.clientEmail))])
             ])
@@ -62624,7 +63000,12 @@ var render = function() {
         _vm._v(" "),
         _vm.hallTitle
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Hall: ")]),
+              _c("span", [
+                _vm._v(
+                  _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.hall"))) +
+                    ": "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.hallTitle))])
             ])
@@ -62632,7 +63013,13 @@ var render = function() {
         _vm._v(" "),
         _vm.templateTitle
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Template: ")]),
+              _c("span", [
+                _vm._v(
+                  _vm._s(
+                    _vm.capitalizeFirstLetter(_vm.getText("text.template"))
+                  ) + ": "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.templateTitle))])
             ])
@@ -62640,7 +63027,13 @@ var render = function() {
         _vm._v(" "),
         _vm.workerName
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Worker: ")]),
+              _c("span", [
+                _vm._v(
+                  _vm._s(
+                    _vm.capitalizeFirstLetter(_vm.getText("text.worker"))
+                  ) + ": "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.workerName))])
             ])
@@ -62648,7 +63041,17 @@ var render = function() {
         _vm._v(" "),
         _vm.eventDate
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Date(current): ")]),
+              _c("span", [
+                _vm._v(
+                  "\n                " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.date"))
+                    ) +
+                    "\n                (" +
+                    _vm._s(_vm.getText("text.current")) +
+                    "):\n            "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.eventDate))])
             ])
@@ -62656,7 +63059,17 @@ var render = function() {
         _vm._v(" "),
         _vm.eventTime
           ? _c("div", { staticClass: "col col-12 col-sm-6" }, [
-              _c("span", [_vm._v("Time(current): ")]),
+              _c("span", [
+                _vm._v(
+                  "\n                " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.time"))
+                    ) +
+                    "\n                (" +
+                    _vm._s(_vm.getText("text.current")) +
+                    "):\n            "
+                )
+              ]),
               _vm._v(" "),
               _c("b", [_vm._v(_vm._s(_vm.eventTime))])
             ])
@@ -62720,10 +63133,19 @@ var render = function() {
                               }
                             },
                             [
-                              _vm._v(
-                                "\n                                    " +
-                                  _vm._s(_vm.weekdaysList[index]) +
-                                  "\n                            "
+                              _c(
+                                "span",
+                                {
+                                  staticClass:
+                                    "first-letter-uppercase d-inline-block"
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                                        " +
+                                      _vm._s(_vm.weekdaysList[index]) +
+                                      "\n                                    "
+                                  )
+                                ]
                               )
                             ]
                           ),
@@ -62822,10 +63244,19 @@ var render = function() {
                             }
                           },
                           [
-                            _vm._v(
-                              "\n                                    " +
-                                _vm._s(_vm.weekdaysList[index]) +
-                                "\n                            "
+                            _c(
+                              "span",
+                              {
+                                staticClass:
+                                  "first-letter-uppercase d-inline-block"
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                        " +
+                                    _vm._s(_vm.weekdaysList[index]) +
+                                    "\n                                    "
+                                )
+                              ]
                             )
                           ]
                         ),
@@ -63174,7 +63605,19 @@ var render = function() {
     [
       _c("div", { staticClass: "modal-dialog" }, [
         _c("div", { staticClass: "modal-content" }, [
-          _vm._m(0),
+          _c("div", { staticClass: "modal-header" }, [
+            _c("h5", { staticClass: "modal-title" }, [
+              _vm._v(
+                "\n                    " +
+                  _vm._s(
+                    _vm.capitalizeFirstLetter(_vm.getText("text.book_an_event"))
+                  ) +
+                  "\n                "
+              )
+            ]),
+            _vm._v(" "),
+            _vm._m(0)
+          ]),
           _vm._v(" "),
           _c(
             "div",
@@ -63190,12 +63633,20 @@ var render = function() {
                   !_vm.showPickTimeBtn
                     ? [
                         _vm._v(
-                          "\n                        Pick all items and then pick a time for event!\n                    "
+                          "\n                        " +
+                            _vm._s(
+                              _vm.getText(
+                                "text.pick_all_items_and_then_pick_a_time_for_event"
+                              )
+                            ) +
+                            "!\n                    "
                         )
                       ]
                     : [
                         _vm._v(
-                          "\n                        Pick a time for event!\n                    "
+                          "\n                        " +
+                            _vm._s(_vm.getText("text.pick_a_time_for_event")) +
+                            "!\n                    "
                         )
                       ]
                 ],
@@ -63205,7 +63656,7 @@ var render = function() {
               _c("client-picker", {
                 ref: "client",
                 attrs: {
-                  label: "Client",
+                  label: _vm.capitalizeFirstLetter(_vm.getText("text.client")),
                   small: true,
                   "picked-item-placeholder": "---",
                   "max-dropdown-menu-height": "100px"
@@ -63231,7 +63682,13 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v("Pick time")]
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(_vm.getText("text.pick_time")) +
+                    "!\n                "
+                )
+              ]
             ),
             _vm._v(" "),
             _c(
@@ -63240,7 +63697,15 @@ var render = function() {
                 staticClass: "btn btn-sm btn-secondary",
                 attrs: { type: "button", "data-dismiss": "modal" }
               },
-              [_vm._v("Cancel")]
+              [
+                _vm._v(
+                  "\n                    " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.cancel"))
+                    ) +
+                    "\n                "
+                )
+              ]
             )
           ])
         ])
@@ -63253,22 +63718,18 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-header" }, [
-      _c("h5", { staticClass: "modal-title" }, [_vm._v("Book an event")]),
-      _vm._v(" "),
-      _c(
-        "button",
-        {
-          staticClass: "close",
-          attrs: {
-            type: "button",
-            "data-dismiss": "modal",
-            "aria-label": "Close"
-          }
-        },
-        [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-      )
-    ])
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
   }
 ]
 render._withStripped = true
@@ -63807,11 +64268,25 @@ var render = function() {
               ? _c("div", [
                   _c("h5", { staticClass: "modal-title" }, [
                     _vm._v(
-                      "\n                        Edit event\n                        "
+                      "\n                        " +
+                        _vm._s(
+                          _vm.capitalizeFirstLetter(
+                            _vm.getText("text.edit_event")
+                          )
+                        ) +
+                        "\n                        "
                     ),
                     _vm.showTab == "duration"
                       ? _c("span", { staticClass: "small" }, [
-                          _vm._v("(duration)")
+                          _vm._v(
+                            "\n                            (" +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.duration")
+                                )
+                              ) +
+                              ")\n                        "
+                          )
                         ])
                       : _vm._e(),
                     _vm._v(" "),
@@ -63853,7 +64328,13 @@ var render = function() {
                           ]
                         ),
                         _vm._v(
-                          "\n                            back to events\n                        "
+                          "\n                            " +
+                            _vm._s(
+                              _vm.capitalizeFirstLetter(
+                                _vm.getText("text.back_to_events")
+                              )
+                            ) +
+                            "\n                        "
                         )
                       ]
                     )
@@ -63970,7 +64451,16 @@ var render = function() {
                                   "div",
                                   { staticClass: "event-itemm text-warning" },
                                   [
-                                    _c("span", [_vm._v("Client: ")]),
+                                    _c("span", [
+                                      _vm._v(
+                                        _vm._s(
+                                          _vm.capitalizeFirstLetter(
+                                            _vm.getText("text.client")
+                                          )
+                                        ) + ": "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
                                     _c("b", [
                                       _vm._v(
                                         _vm._s(
@@ -63983,7 +64473,16 @@ var render = function() {
                                 ),
                                 _vm._v(" "),
                                 _c("div", { staticClass: "event-itemm" }, [
-                                  _c("span", [_vm._v("Hall: ")]),
+                                  _c("span", [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm.capitalizeFirstLetter(
+                                          _vm.getText("text.hall")
+                                        )
+                                      ) + ": "
+                                    )
+                                  ]),
+                                  _vm._v(" "),
                                   _c("b", [
                                     _vm._v(
                                       _vm._s(itm.hall_without_user_scope.title)
@@ -63992,7 +64491,16 @@ var render = function() {
                                 ]),
                                 _vm._v(" "),
                                 _c("div", { staticClass: "event-itemm" }, [
-                                  _c("span", [_vm._v("Template: ")]),
+                                  _c("span", [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm.capitalizeFirstLetter(
+                                          _vm.getText("text.template")
+                                        )
+                                      ) + ": "
+                                    )
+                                  ]),
+                                  _vm._v(" "),
                                   _c("b", [
                                     _vm._v(
                                       _vm._s(
@@ -64003,7 +64511,16 @@ var render = function() {
                                 ]),
                                 _vm._v(" "),
                                 _c("div", { staticClass: "event-itemm" }, [
-                                  _c("span", [_vm._v("Worker: ")]),
+                                  _c("span", [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm.capitalizeFirstLetter(
+                                          _vm.getText("text.worker")
+                                        )
+                                      ) + ": "
+                                    )
+                                  ]),
+                                  _vm._v(" "),
                                   _c("b", [
                                     _vm._v(
                                       _vm._s(
@@ -64104,7 +64621,13 @@ var render = function() {
                         },
                         [
                           _vm._v(
-                            "\n                            Reset\n                    "
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.reset")
+                                )
+                              ) +
+                              "\n                    "
                           )
                         ]
                       )
@@ -64127,7 +64650,13 @@ var render = function() {
                     },
                     [
                       _vm._v(
-                        "\n                            Pick time\n                    "
+                        "\n                            " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(
+                              _vm.getText("text.pick_time")
+                            )
+                          ) +
+                          "\n                    "
                       )
                     ]
                   )
@@ -64150,7 +64679,13 @@ var render = function() {
                         },
                         [
                           _vm._v(
-                            "\n                            Reset\n                    "
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.reset")
+                                )
+                              ) +
+                              "\n                    "
                           )
                         ]
                       )
@@ -64174,7 +64709,13 @@ var render = function() {
                         },
                         [
                           _vm._v(
-                            "\n                            Apply, and back to events\n                    "
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.apply_and_back_to_events")
+                                )
+                              ) +
+                              "\n                    "
                           )
                         ]
                       )
@@ -64198,7 +64739,13 @@ var render = function() {
                         },
                         [
                           _vm._v(
-                            "\n                            Apply, and close\n                    "
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.apply_and_close")
+                                )
+                              ) +
+                              "\n                    "
                           )
                         ]
                       )
@@ -64218,7 +64765,15 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v("\n                        Close\n                ")]
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.close"))
+                    ) +
+                    "\n                "
+                )
+              ]
             )
           ])
         ])
@@ -64998,7 +65553,15 @@ var render = function() {
                   attrs: { type: "button" },
                   on: { click: _vm.onClickBook }
                 },
-                [_vm._v("Book")]
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(
+                        _vm.capitalizeFirstLetter(_vm.getText("text.book"))
+                      ) +
+                      "\n            "
+                  )
+                ]
               )
             ]
           ),
@@ -78949,7 +79512,7 @@ Vue.mixin({
         hour: '23',
         minute: '00'
       }],
-      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      weekdaysList: [this.getText('text.monday'), this.getText('text.tuesday'), this.getText('text.wednesday'), this.getText('text.thursday'), this.getText('text.friday'), this.getText('text.saturday'), this.getText('text.sunday')],
       calendarSettings: calendarSettings,
       statusData: {
         approved: {
@@ -79205,6 +79768,9 @@ Vue.mixin({
     }
   },
   methods: {
+    getText: function getText(key) {
+      return Lang.get(key);
+    },
     // Switch to day view
     goToDayView: function goToDayView(dayItem) {
       var date = moment(dayItem.year + '-' + dayItem.month + '-' + dayItem.day, 'YYYY-MM-DD').toDate();
@@ -79407,11 +79973,15 @@ Vue.mixin({
     // Person helpers
     fullNameOfObj: function fullNameOfObj(obj) {
       return calendarHelper.person.fullName(obj);
-    } // showChildren: function () {
+    },
+    // showChildren: function () {
     //     // console.log(this.$root.$children[0].$options.name);
     //     console.log(this.$root.$children[0].$options.name);
     // }
-
+    //String helpers
+    capitalizeFirstLetter: function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
   }
 });
 window.app = new Vue({

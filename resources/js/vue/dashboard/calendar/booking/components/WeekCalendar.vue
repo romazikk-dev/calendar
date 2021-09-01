@@ -10,8 +10,10 @@
                             :class="{'current-day': isCurrentDate(index)}"
                             class="weekday-title">
                                 <a href="#" @click.prevent="goToDayView(getDayItem(index))">
-                                    {{weekdaysList[index]}}
-                                    <span>{{datesPerWeekday[index]}}</span>
+                                    <span class="first-letter-uppercase d-block font-weight-bold">
+                                        {{weekdaysList[index]}}
+                                    </span>
+                                    {{datesPerWeekday[index]}}
                                 </a>
                         </th>
                     </tr>
@@ -266,13 +268,13 @@
     table th{
         text-align: center;
     }
-    table th span{
-        display: block;
-        font-size: 16px;
-        font-weight: normal;
-        position: relative;
-        top: -3px;
-    }
+    // table th span{
+    //     display: block;
+    //     font-size: 16px;
+    //     font-weight: normal;
+    //     position: relative;
+    //     top: -3px;
+    // }
     table td, table th{
         border: 1px solid #ccc;
         // background-image: url('/imgs/week-calendar-table-odd-row-bg.jpg');

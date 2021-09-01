@@ -20,16 +20,16 @@ mix.js('resources/js/vue/calendar_2/booking/app.js', 'public/js/calendar-booking
 mix.js('resources/js/vue/calendar_3/booking/app.js', 'public/js/calendar-booking-3.js').vue();
 mix.js('resources/js/vue/dashboard/calendar/booking/app.js', 'public/js/dashboard/calendar-booking-admin.js').vue();
 
-// mix.js('resources/js/vue/dashboard/hall/index/app.js', 'public/js/dashboard/halls/halls-list.js').vue();
+mix.js('resources/js/vue/dashboard/hall/index/app.js', 'public/js/dashboard/halls/halls-list.js').vue();
 mix.js('resources/js/vue/dashboard/template/index/app.js', 'public/js/dashboard/template/templates-list.js').vue();
 // 
-// mix.js('resources/js/vue/dashboard/client/index/app.js', 'public/js/dashboard/client/clients-list.js').vue();
+mix.js('resources/js/vue/dashboard/client/index/app.js', 'public/js/dashboard/client/clients-list.js').vue();
 
 
 /*
  *  Worker mixes
  */
-// mix.js('resources/js/vue/dashboard/worker/index/app.js', 'public/js/dashboard/worker/workers-list.js').vue();
+mix.js('resources/js/vue/dashboard/worker/index/app.js', 'public/js/dashboard/worker/workers-list.js').vue();
 // mix.js('resources/js/vue/dashboard/business_hours/app.js', 'public/js/dashboard/business-hours.js').vue();
 // mix.js('resources/js/vue/dashboard/hall_assignment/app.js', 'public/js/dashboard/hall-assignment.js').vue();
 // mix.js('resources/js/vue/dashboard/suspension/app.js', 'public/js/dashboard/suspension.js').vue();

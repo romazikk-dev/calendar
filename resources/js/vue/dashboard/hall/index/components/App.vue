@@ -6,7 +6,7 @@
                 <tr>
                     <th>ID</th>
                     <th>
-                        Title
+                        <span class="first-letter-uppercase d-inline-block">{{getText('text.title')}}</span>
                     </th>
                     <th data-toggle="tooltip" data-placement="auto" title="Status of hall (suspended/active)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
@@ -20,7 +20,9 @@
                             <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
                         </svg>
                     </th>
-                    <th>Created</th>
+                    <th>
+                        <span class="first-letter-uppercase d-inline-block">{{getText('text.created')}}</span>
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -63,6 +65,9 @@
             };
         },
         methods: {
+            getText: function(key){
+                return Lang.get(key);
+            },
             isStatus: function(type, suspension){
                 return helper.isStatus(type, (typeof suspension == 'undefined' || suspension == null ? null : suspension));
             },
@@ -181,7 +186,8 @@
             },
             initDataTable: function(){
                 let _this = this;
-                $('#dataTable').DataTable({
+                
+                let params = {
                     "processing": true,
                     "serverSide": true,
                     "order": [[ 4, "desc" ]],
@@ -509,7 +515,16 @@
                         //     // "user_id": 451
                         // }
                     }
-                });
+                };
+                
+                if(typeof locale !== 'undefined' && locale !== null){
+                    if(locale.toLowerCase() == 'de')
+                        params.language = {
+                            url: '/locale/datatable/de_de.json'
+                        }
+                }
+                
+                $('#dataTable').DataTable(params);
             },
         },
         components: {

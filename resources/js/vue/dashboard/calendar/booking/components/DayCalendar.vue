@@ -9,7 +9,9 @@
                 <thead>
                     <tr>
                         <th :class="{'current-day': isCurrentDate}">
-                            {{weekdayTitle}}
+                            <span class="first-letter-uppercase d-inline-block font-weight-bold">
+                                {{weekdayTitle}}
+                            </span>
                         </th>
                     </tr>
                 </thead>

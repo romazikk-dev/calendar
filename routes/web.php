@@ -62,6 +62,17 @@ Route::group([
     'as' => 'dashboard.'
 ], function () {
     
+    Route::get('/switch-lang/{lang}', function ($lang) {
+        Cookie::queue('lang', $lang);
+        return redirect()->back();
+    })->name('switch_lang');
+    
+    // Route::get('/switch-lang/{lang}', function ($lang) {
+    //     // App::setlocale($lang);
+    //     // return view('home');
+    //     return redirect()->back();
+    // });
+    
     Route::get('/', [DashboardDefaultController::class, 'index'])->name('index');
     
     Route::group([
