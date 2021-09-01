@@ -355,9 +355,9 @@
                 let toHour = parseInt(toArr[0]);
                 let toMinutes = parseInt(toArr[1]);
                 let endPeriodDatetime = (toHour <= 0) ? 0 : toHour*60;
-                endPeriodDatetime += toMinutes;
+                endPeriodDatetime += toMinutes - this.cookieItmTemplate.duration;
                 this.endPeriodDatetime = endPeriodDatetime;
-                this.preEndPeriodDatetime = this.endPeriodDatetime - parseInt(this.cookieItmTemplate.duration/60);
+                this.preEndPeriodDatetime = this.endPeriodDatetime - this.cookieItmTemplate.duration;
                 
                 // console.log(this.startPeriodDatetime);
                 // console.log(this.endPeriodDatetime);
