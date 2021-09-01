@@ -4303,7 +4303,7 @@ __webpack_require__.r(__webpack_exports__);
       return this.isAuth();
     },
     templateDuration: function templateDuration() {
-      var durationInMin = parseInt(this.cookieItmTemplate.duration / 60);
+      var durationInMin = parseInt(this.cookieItmTemplate.duration);
       return this.composeHourMinuteTimeFromMinutes(durationInMin);
     },
     templateDurationMinutes: function templateDurationMinutes() {

@@ -155,7 +155,7 @@
                 return this.isAuth();
             },
             templateDuration: function () {
-                let durationInMin = parseInt(this.cookieItmTemplate.duration/60);
+                let durationInMin = parseInt(this.cookieItmTemplate.duration);
                 return this.composeHourMinuteTimeFromMinutes(durationInMin);
             },
             templateDurationMinutes: function () {
