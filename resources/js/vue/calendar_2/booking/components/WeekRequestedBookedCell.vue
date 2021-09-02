@@ -5,8 +5,11 @@
                 <template v-if="item.type == 'free'">
                     <div v-for="not_approved_booking in item.not_approved_bookings"
                         class="calendar-top-item requested-booking-calendar-item">
-                            In approving:<br>
-                            <b>Men haircut<br>{{not_approved_booking.from}} - {{not_approved_booking.to}}</b>
+                            {{capitalizeFirstLetter(getText('text.in_approving'))}}:<br>
+                            <b>
+                                {{not_approved_booking.template_without_user_scope.title}}<br>
+                                {{not_approved_booking.from}} - {{not_approved_booking.to}}
+                            </b>
                         <button @click.prevent="$emit('cancel', not_approved_booking)"
                             type="button"
                             class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>
@@ -18,8 +21,15 @@
                         'booked-calendar-item': item.approved,
                         'requested-booking-calendar-item': !item.approved,
                     }">
-                        {{item.approved ? 'Booked on' : 'In approving'}}:<br>
-                        <b>Men haircut<br>{{item.from}} - {{item.to}}</b>
+                        {{
+                            item.approved ?
+                            capitalizeFirstLetter(getText('text.booked_on')) :
+                            capitalizeFirstLetter(getText('text.in_approving'))
+                        }}:<br>
+                        <b>
+                            {{item.template_without_user_scope.title}}<br>
+                            {{item.from}} - {{item.to}}
+                        </b>
                         <button @click.prevent="$emit('cancel', item)"
                             type="button"
                             class="btn btn-link btn-sm btn-block cancel"><span>×</span></button>

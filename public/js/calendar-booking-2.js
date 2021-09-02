@@ -2714,7 +2714,7 @@ __webpack_require__.r(__webpack_exports__);
 
         $(div).attr('hour-item-index', hourItemIndex);
         $(div).addClass('calendar-item').addClass('free-calendar-item');
-        $(div).html('Free time:');
+        $(div).html(_this.capitalizeFirstLetter(_this.getText('text.free_time')) + ':');
         var diffHours = parseInt(toHour) - parseInt(fromHour); // let cellHeight = parseInt(beginCell.outerHeight());
 
         var cellHeight = beginCell.outerHeight(); // diffHours++;
@@ -2969,6 +2969,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3663,6 +3673,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -3752,7 +3770,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     getDayTitleFromDateItem: function getDayTitleFromDateItem(date) {
       var dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
-      return dateMoment.format('MMMM DD, YYYY');
+      var monthKey = 'text.' + dateMoment.format('MMMM').toLowerCase().trim();
+      var month = this.capitalizeFirstLetter(this.getText(monthKey));
+      return dateMoment.format('[' + month + '] DD, YYYY');
     },
     // getBussinessHourPerWeekday: function(i){
     //     let bussinessHours = this.bussinessHours[i];
@@ -5887,7 +5907,7 @@ __webpack_require__.r(__webpack_exports__);
         var beginCell = $('.hour-cell[data-hour="' + fromHour + '"][data-weekday="' + weekDay + '"]');
         var div = document.createElement('div');
         $(div).addClass('calendar-item').addClass('closed-calendar-item');
-        $(div).html('Closed');
+        $(div).html(_this.capitalizeFirstLetter(_this.getText('text.closed')));
         var diffHours = parseInt(toHour) - parseInt(fromHour);
         var cellHeight = beginCell.outerHeight();
         var divHeight = diffHours * cellHeight;
@@ -5916,8 +5936,9 @@ __webpack_require__.r(__webpack_exports__);
         var lengthCells = $('.hour-cell[data-weekday="' + dateItem.weekday + '"]').length;
         var beginCell = $('.hour-cell[data-weekday="' + dateItem.weekday + '"]').eq(0);
         var div = document.createElement('div');
-        $(div).addClass('calendar-item').addClass('closed-calendar-item');
-        $(div).html('Closed');
+        $(div).addClass('calendar-item').addClass('closed-calendar-item'); // $(div).html('Closed');
+
+        $(div).html(_this.capitalizeFirstLetter(_this.getText('text.closed')));
         var cellHeight = beginCell.outerHeight();
         var divHeight = lengthCells * cellHeight;
         divHeight = divHeight - 2;
@@ -5951,7 +5972,7 @@ __webpack_require__.r(__webpack_exports__);
         $(div).attr('date-item-index', dateItemIndex);
         $(div).attr('hour-item-index', hourItemIndex);
         $(div).addClass('calendar-item').addClass('free-calendar-item');
-        $(div).html('Free time:');
+        $(div).html(_this.capitalizeFirstLetter(_this.getText('text.free_time')) + ':');
         var diffHours = parseInt(toHour) - parseInt(fromHour); // let cellHeight = parseInt(beginCell.outerHeight());
 
         var cellHeight = beginCell.outerHeight(); // diffHours++;
@@ -6271,6 +6292,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -50619,16 +50650,32 @@ var render = function() {
                       "calendar-top-item requested-booking-calendar-item"
                   },
                   [
-                    _vm._v("\n                    In approving:"),
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(
+                          _vm.capitalizeFirstLetter(
+                            _vm.getText("text.in_approving")
+                          )
+                        ) +
+                        ":"
+                    ),
                     _c("br"),
                     _vm._v(" "),
                     _c("b", [
-                      _vm._v("Men haircut"),
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(
+                            not_approved_booking.template_without_user_scope
+                              .title
+                          )
+                      ),
                       _c("br"),
                       _vm._v(
-                        _vm._s(not_approved_booking.from) +
+                        "\n                        " +
+                          _vm._s(not_approved_booking.from) +
                           " - " +
-                          _vm._s(not_approved_booking.to)
+                          _vm._s(not_approved_booking.to) +
+                          "\n                    "
                       )
                     ]),
                     _vm._v(" "),
@@ -50664,15 +50711,32 @@ var render = function() {
                 [
                   _vm._v(
                     "\n                " +
-                      _vm._s(item.approved ? "Booked on" : "In approving") +
+                      _vm._s(
+                        item.approved
+                          ? _vm.capitalizeFirstLetter(
+                              _vm.getText("text.booked_on")
+                            )
+                          : _vm.capitalizeFirstLetter(
+                              _vm.getText("text.in_approving")
+                            )
+                      ) +
                       ":"
                   ),
                   _c("br"),
                   _vm._v(" "),
                   _c("b", [
-                    _vm._v("Men haircut"),
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(item.template_without_user_scope.title)
+                    ),
                     _c("br"),
-                    _vm._v(_vm._s(item.from) + " - " + _vm._s(item.to))
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(item.from) +
+                        " - " +
+                        _vm._s(item.to) +
+                        "\n                "
+                    )
                   ]),
                   _vm._v(" "),
                   _c(
@@ -51258,7 +51322,17 @@ var render = function() {
                               ? _c(
                                   "span",
                                   { staticClass: "badge badge-info" },
-                                  [_vm._v("Today")]
+                                  [
+                                    _vm._v(
+                                      "\n                                " +
+                                        _vm._s(
+                                          _vm.capitalizeFirstLetter(
+                                            _vm.getText("text.today")
+                                          )
+                                        ) +
+                                        "\n                            "
+                                    )
+                                  ]
                                 )
                               : _vm._e(),
                             _vm._v(" "),
@@ -51292,14 +51366,30 @@ var render = function() {
                                       _c(
                                         "span",
                                         { staticClass: "background-text" },
-                                        [_vm._v("FREE TIME")]
+                                        [
+                                          _vm._v(
+                                            "\n                                    " +
+                                              _vm._s(
+                                                _vm
+                                                  .getText("text.free_time")
+                                                  .toUpperCase()
+                                              ) +
+                                              "\n                                "
+                                          )
+                                        ]
                                       ),
                                       _vm._v(" "),
                                       _c("span", {
                                         staticClass: "circle free"
                                       }),
                                       _vm._v(
-                                        "\n                                Free time\n                                "
+                                        "\n                                " +
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.free_time")
+                                            )
+                                          ) +
+                                          "\n                                "
                                       ),
                                       _c(
                                         "a",
@@ -51313,7 +51403,17 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        [_vm._v("Book")]
+                                        [
+                                          _vm._v(
+                                            "\n                                    " +
+                                              _vm._s(
+                                                _vm.capitalizeFirstLetter(
+                                                  _vm.getText("text.book")
+                                                )
+                                              ) +
+                                              "\n                                "
+                                          )
+                                        ]
                                       ),
                                       _vm._v(" "),
                                       item.not_approved_bookings
@@ -51356,7 +51456,19 @@ var render = function() {
                                                         }
                                                       }
                                                     },
-                                                    [_vm._v("Cancel")]
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                            " +
+                                                          _vm._s(
+                                                            _vm.capitalizeFirstLetter(
+                                                              _vm.getText(
+                                                                "text.cancel"
+                                                              )
+                                                            )
+                                                          ) +
+                                                          "\n                                        "
+                                                      )
+                                                    ]
                                                   )
                                                 ])
                                               }
@@ -53543,16 +53655,32 @@ var render = function() {
                               "calendar-top-item requested-booking-calendar-item"
                           },
                           [
-                            _vm._v("\n                        In approving:"),
+                            _vm._v(
+                              "\n                        " +
+                                _vm._s(
+                                  _vm.capitalizeFirstLetter(
+                                    _vm.getText("text.in_approving")
+                                  )
+                                ) +
+                                ":"
+                            ),
                             _c("br"),
                             _vm._v(" "),
                             _c("b", [
-                              _vm._v("Men haircut"),
+                              _vm._v(
+                                "\n                            " +
+                                  _vm._s(
+                                    not_approved_booking
+                                      .template_without_user_scope.title
+                                  )
+                              ),
                               _c("br"),
                               _vm._v(
-                                _vm._s(not_approved_booking.from) +
+                                "\n                            " +
+                                  _vm._s(not_approved_booking.from) +
                                   " - " +
-                                  _vm._s(not_approved_booking.to)
+                                  _vm._s(not_approved_booking.to) +
+                                  "\n                        "
                               )
                             ]),
                             _vm._v(" "),
@@ -53593,16 +53721,31 @@ var render = function() {
                           _vm._v(
                             "\n                    " +
                               _vm._s(
-                                item.approved ? "Booked on" : "In approving"
+                                item.approved
+                                  ? _vm.capitalizeFirstLetter(
+                                      _vm.getText("text.booked_on")
+                                    )
+                                  : _vm.capitalizeFirstLetter(
+                                      _vm.getText("text.in_approving")
+                                    )
                               ) +
                               ":"
                           ),
                           _c("br"),
                           _vm._v(" "),
                           _c("b", [
-                            _vm._v("Men haircut"),
+                            _vm._v(
+                              "\n                        " +
+                                _vm._s(item.template_without_user_scope.title)
+                            ),
                             _c("br"),
-                            _vm._v(_vm._s(item.from) + " - " + _vm._s(item.to))
+                            _vm._v(
+                              "\n                        " +
+                                _vm._s(item.from) +
+                                " - " +
+                                _vm._s(item.to) +
+                                "\n                    "
+                            )
                           ]),
                           _vm._v(" "),
                           _c(

@@ -14,7 +14,9 @@
                         <tr class="day-title" :class="{'current-date': isCurrentDate(date)}">
                             <td colspan="2">
                                 <span>{{getWeekdayTitleFromDateItem(date)}}</span>
-                                <span v-if="isCurrentDate(date)" class="badge badge-info">Today</span>
+                                <span v-if="isCurrentDate(date)" class="badge badge-info">
+                                    {{capitalizeFirstLetter(getText('text.today'))}}
+                                </span>
                                 <span class="item-date">{{getDayTitleFromDateItem(date)}}</span>
                             </td>
                         </tr>
@@ -25,15 +27,21 @@
                             </td>
                             <td>
                                 <div v-if="item.type == 'free'" class="for-itm for-itm-free">
-                                    <span class="background-text">FREE TIME</span>
+                                    <span class="background-text">
+                                        {{getText('text.free_time').toUpperCase()}}
+                                    </span>
                                     <span class="circle free"></span>
-                                    Free time
-                                    <a href="#" @click.prevent="openModal(date, item)" class="btn-book">Book</a>
+                                    {{capitalizeFirstLetter(getText('text.free_time'))}}
+                                    <a href="#" @click.prevent="openModal(date, item)" class="btn-book">
+                                        {{capitalizeFirstLetter(getText('text.book'))}}
+                                    </a>
                                     <div v-if="item.not_approved_bookings" class="not-approved-bookings">
                                         <div v-for="notApprovedItem in item.not_approved_bookings">
                                             <span class="circle not-approved"></span>
                                             {{notApprovedItem.template_without_user_scope.title}}
-                                            <a href="#" @click.prevent="cancelBook(notApprovedItem)" class="btn-book">Cancel</a>
+                                            <a href="#" @click.prevent="cancelBook(notApprovedItem)" class="btn-book">
+                                                {{capitalizeFirstLetter(getText('text.cancel'))}}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -183,7 +191,9 @@
             },
             getDayTitleFromDateItem: function (date) {
                 let dateMoment = moment(date.year + '-' + date.month + '-' + date.day);
-                return dateMoment.format('MMMM DD, YYYY');
+                let monthKey = 'text.' + dateMoment.format('MMMM').toLowerCase().trim();
+                let month = this.capitalizeFirstLetter(this.getText(monthKey));
+                return dateMoment.format('[' + month + '] DD, YYYY');
             },
             // getBussinessHourPerWeekday: function(i){
             //     let bussinessHours = this.bussinessHours[i];

@@ -399,7 +399,7 @@
                     $(div).attr('hour-item-index', hourItemIndex);
                     $(div).addClass('calendar-item').addClass('free-calendar-item');
                     
-                    $(div).html('Free time:');
+                    $(div).html(_this.capitalizeFirstLetter(_this.getText('text.free_time')) + ':');
                     
                     let diffHours = parseInt(toHour) - parseInt(fromHour);
                     // let cellHeight = parseInt(beginCell.outerHeight());

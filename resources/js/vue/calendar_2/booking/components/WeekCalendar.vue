@@ -332,7 +332,7 @@
                     
                     let div = document.createElement('div');
                     $(div).addClass('calendar-item').addClass('closed-calendar-item');
-                    $(div).html('Closed');
+                    $(div).html(_this.capitalizeFirstLetter(_this.getText('text.closed')));
                     
                     let diffHours = parseInt(toHour) - parseInt(fromHour);
                     let cellHeight = beginCell.outerHeight();
@@ -362,7 +362,8 @@
                     
                     let div = document.createElement('div');
                     $(div).addClass('calendar-item').addClass('closed-calendar-item');
-                    $(div).html('Closed');
+                    // $(div).html('Closed');
+                    $(div).html(_this.capitalizeFirstLetter(_this.getText('text.closed')));
                     
                     let cellHeight = beginCell.outerHeight();
                     let divHeight = lengthCells*cellHeight;
@@ -400,7 +401,7 @@
                     $(div).attr('hour-item-index', hourItemIndex);
                     $(div).addClass('calendar-item').addClass('free-calendar-item');
                     
-                    $(div).html('Free time:');
+                    $(div).html(_this.capitalizeFirstLetter(_this.getText('text.free_time')) + ':');
                     
                     let diffHours = parseInt(toHour) - parseInt(fromHour);
                     // let cellHeight = parseInt(beginCell.outerHeight());
