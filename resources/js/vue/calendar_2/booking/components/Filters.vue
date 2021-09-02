@@ -18,11 +18,14 @@
                             {{capitalizeFirstLetter(getText('text.view'))}}:
                         </span>
                         <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{pickedItmView}}
+                            {{capitalizeFirstLetter(getText('text.' + pickedItmView.toLowerCase()))}}
                         </a>
         
                         <div class="dropdown-menu">
-                            <a @click.prevent="change('view', itm)" v-for="itm in views" v-if="itm.toLowerCase() != pickedItmView.toLowerCase()" class="dropdown-item" href="#">{{itm}}</a>
+                            <a @click.prevent="change('view', itm)" v-for="itm in views" v-if="itm.toLowerCase() != pickedItmView.toLowerCase()" class="dropdown-item" href="#">
+                                <!-- {{itm}} -->
+                                {{capitalizeFirstLetter(getText('text.' + itm))}}
+                            </a>
                             <!-- <a @click.prevent="change('view', itm)" v-for="itm in views" class="dropdown-item" href="#">{{itm}}</a> -->
                         </div>
                     </div>

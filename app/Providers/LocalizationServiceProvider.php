@@ -29,11 +29,11 @@ class LocalizationServiceProvider extends ServiceProvider
         // // decrypt
         // $decryptedValue = $encrypter->decrypt($value);
         
-        $locale = request()->cookie('lang');
+        $locale = request()->cookie('admin_lang');
         if(empty($locale))
             return;
         
-        $lang = explode('|', \Crypt::decrypt(request()->cookie('lang'), false))[1];
+        $lang = explode('|', \Crypt::decrypt($locale, false))[1];
         \App::setlocale($lang);
     }
 }

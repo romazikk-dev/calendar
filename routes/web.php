@@ -63,7 +63,7 @@ Route::group([
 ], function () {
     
     Route::get('/switch-lang/{lang}', function ($lang) {
-        Cookie::queue('lang', $lang);
+        Cookie::queue('admin_lang', $lang);
         return redirect()->back();
     })->name('switch_lang');
     

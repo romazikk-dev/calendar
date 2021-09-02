@@ -1,7 +1,10 @@
 <template>
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">Booking: <b>{{bookingDate}}</b></h5>
+            <h5 class="modal-title">
+                {{capitalizeFirstLetter(getText('text.booking'))}}:
+                <b>{{bookingDate}}</b>
+            </h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -12,10 +15,22 @@
                 <div class="alert alert-info alert-arrow" role="alert">
                     <div class="row">
                         <div class="col-sm-8 col">
-                            <div v-if="cookieItmTemplate.title">Title: <b>{{cookieItmTemplate.title}}</b></div>
-                            <div v-if="cookieItmTemplate.duration">Duration: <b>{{templateDuration}}</b></div>
-                            <div v-if="cookieItmTemplate.description">Description: <b>{{cookieItmTemplate.description}}</b></div>
-                            <div>Book on: <b>{{bookOn}}</b></div>
+                            <div v-if="cookieItmTemplate.title">
+                                {{capitalizeFirstLetter(getText('text.template'))}}:
+                                <b>{{cookieItmTemplate.title}}</b>
+                            </div>
+                            <div v-if="cookieItmTemplate.duration">
+                                {{capitalizeFirstLetter(getText('text.duration'))}}:
+                                <b>{{templateDuration}}</b>
+                            </div>
+                            <div v-if="cookieItmTemplate.description">
+                                {{capitalizeFirstLetter(getText('text.description'))}}:
+                                <b>{{cookieItmTemplate.description}}</b>
+                            </div>
+                            <div>
+                                {{capitalizeFirstLetter(getText('text.book_on'))}}:
+                                <b>{{bookOn}}</b>
+                            </div>
                         </div>
                         <div class="col-sm-4 col">
                             <div class="small" v-html="hintText"></div>
@@ -63,11 +78,15 @@
         </div>
         <div class="modal-footer">
             <template v-if="!successfullyBooked && !errorResponse">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    {{capitalizeFirstLetter(getText('text.cancel'))}}
+                </button>
                 <button @click.prevent="book"
                     type="button"
                     class="btn btn-success"
-                    :disabled="bookButtonDisabled">Book</button>
+                    :disabled="bookButtonDisabled">
+                        {{capitalizeFirstLetter(getText('text.book'))}}
+                </button>
             </template>
             <template v-if="successfullyBooked || errorResponse">
                 <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
@@ -140,7 +159,8 @@
                 timeBarChangeTimeout: null,
                 s: null,
                 arrowPosition: 10,
-                hintText: 'Move slider to choose time for booking.',
+                // hintText: 'Move slider to choose time for booking.',
+                hintText: this.capitalizeFirstLetter(this.getText('text.move_slider_to_choose_time_for_booking')),
                 errorResponse: null,
             };
         },
@@ -255,7 +275,8 @@
             },
             timeBarSliderEnabled: function (){
                 // console.log('timeBarSliderEnabled');
-                this.hintText = 'Move slider to choose time for booking.';
+                // this.hintText = 'Move slider to choose time for booking.';
+                this.hintText = this.capitalizeFirstLetter(this.getText('text.move_slider_to_choose_time_for_booking'));
             },
             timeBarSliderDisabled: function (){
                 // console.log('timeBarSliderDisabled');

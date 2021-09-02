@@ -2,7 +2,9 @@
     <div v-if="show">
         
         <div v-if="clientInfo" class="user-block">
-            <span>Hello, </span>
+            <span>
+                {{capitalizeFirstLetter(getText('text.hello'))}}, 
+            </span>
             <button type="button"
                 @click="enter"
                 class="btn-filter btn btn-sm btn-primary">
@@ -11,7 +13,7 @@
         </div>
         
         <div v-else class="guest-block">
-            Hello, <b>{{fullName}}</b>
+            {{capitalizeFirstLetter(getText('text.hello'))}}, <b>{{fullName}}</b>
             <button type="button"
                 @click="enter"
                 class="btn-filter btn btn-sm btn-primary">

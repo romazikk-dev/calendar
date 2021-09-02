@@ -2263,6 +2263,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -3046,6 +3048,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Loader.vue */ "./resources/js/vue/calendar_2/booking/components/Loader.vue");
 /* harmony import */ var _template_ExtensiveTemplateFilterPicker_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./template/ExtensiveTemplateFilterPicker.vue */ "./resources/js/vue/calendar_2/booking/components/template/ExtensiveTemplateFilterPicker.vue");
 /* harmony import */ var _ModalAlert_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ModalAlert.vue */ "./resources/js/vue/calendar_2/booking/components/ModalAlert.vue");
+//
+//
+//
 //
 //
 //
@@ -4080,6 +4085,22 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'modalAuthContent',
@@ -4250,6 +4271,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -4313,7 +4353,8 @@ __webpack_require__.r(__webpack_exports__);
       timeBarChangeTimeout: null,
       s: null,
       arrowPosition: 10,
-      hintText: 'Move slider to choose time for booking.',
+      // hintText: 'Move slider to choose time for booking.',
+      hintText: this.capitalizeFirstLetter(this.getText('text.move_slider_to_choose_time_for_booking')),
       errorResponse: null
     };
   },
@@ -4420,7 +4461,8 @@ __webpack_require__.r(__webpack_exports__);
     },
     timeBarSliderEnabled: function timeBarSliderEnabled() {
       // console.log('timeBarSliderEnabled');
-      this.hintText = 'Move slider to choose time for booking.';
+      // this.hintText = 'Move slider to choose time for booking.';
+      this.hintText = this.capitalizeFirstLetter(this.getText('text.move_slider_to_choose_time_for_booking'));
     },
     timeBarSliderDisabled: function timeBarSliderDisabled() {
       // console.log('timeBarSliderDisabled');
@@ -4720,6 +4762,24 @@ var _methods;
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -50372,7 +50432,15 @@ var render = function() {
     ? _c("div", [
         _vm.clientInfo
           ? _c("div", { staticClass: "user-block" }, [
-              _c("span", [_vm._v("Hello, ")]),
+              _c("span", [
+                _vm._v(
+                  "\n            " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.hello"))
+                    ) +
+                    ", \n        "
+                )
+              ]),
               _vm._v(" "),
               _c(
                 "button",
@@ -50389,7 +50457,11 @@ var render = function() {
               )
             ])
           : _c("div", { staticClass: "guest-block" }, [
-              _vm._v("\n        Hello, "),
+              _vm._v(
+                "\n        " +
+                  _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.hello"))) +
+                  ", "
+              ),
               _c("b", [_vm._v(_vm._s(_vm.fullName))]),
               _vm._v(" "),
               _c(
@@ -50836,7 +50908,13 @@ var render = function() {
                       [
                         _vm._v(
                           "\n                        " +
-                            _vm._s(_vm.pickedItmView) +
+                            _vm._s(
+                              _vm.capitalizeFirstLetter(
+                                _vm.getText(
+                                  "text." + _vm.pickedItmView.toLowerCase()
+                                )
+                              )
+                            ) +
                             "\n                    "
                         )
                       ]
@@ -50860,7 +50938,17 @@ var render = function() {
                                   }
                                 }
                               },
-                              [_vm._v(_vm._s(itm))]
+                              [
+                                _vm._v(
+                                  "\n                            " +
+                                    _vm._s(
+                                      _vm.capitalizeFirstLetter(
+                                        _vm.getText("text." + itm)
+                                      )
+                                    ) +
+                                    "\n                        "
+                                )
+                              ]
                             )
                           : _vm._e()
                       }),
@@ -51806,7 +51894,13 @@ var render = function() {
               }
             }
           },
-          [_vm._v("Sign up")]
+          [
+            _vm._v(
+              "\n                " +
+                _vm._s(_vm.getText("text.sign_up")) +
+                "\n            "
+            )
+          ]
         ),
         _vm._v(" "),
         _c(
@@ -51825,7 +51919,13 @@ var render = function() {
               }
             }
           },
-          [_vm._v("Sign in")]
+          [
+            _vm._v(
+              "\n                " +
+                _vm._s(_vm.getText("text.sign_in")) +
+                "\n            "
+            )
+          ]
         )
       ]),
       _vm._v(" "),
@@ -51876,7 +51976,9 @@ var render = function() {
                       name: "phone",
                       type: "text",
                       id: "signupPhone",
-                      placeholder: "Phone"
+                      placeholder: _vm.capitalizeFirstLetter(
+                        _vm.getText("text.phone")
+                      )
                     }
                   }),
                   _vm._v(" "),
@@ -51894,7 +51996,7 @@ var render = function() {
                       name: "first_name",
                       type: "text",
                       id: "signupFirstName",
-                      placeholder: "First Name"
+                      placeholder: _vm.getText("text.first_name")
                     }
                   }),
                   _vm._v(" "),
@@ -51912,7 +52014,7 @@ var render = function() {
                       name: "last_name",
                       type: "text",
                       id: "signupLastName",
-                      placeholder: "Last Name"
+                      placeholder: _vm.getText("text.last_name")
                     }
                   }),
                   _vm._v(" "),
@@ -51930,7 +52032,9 @@ var render = function() {
                       name: "password",
                       type: "password",
                       id: "signupPassword",
-                      placeholder: "Password"
+                      placeholder: _vm.capitalizeFirstLetter(
+                        _vm.getText("text.password")
+                      )
                     }
                   }),
                   _vm._v(" "),
@@ -51948,7 +52052,9 @@ var render = function() {
                       name: "password_confirm",
                       type: "password",
                       id: "signupPasswordConfirm",
-                      placeholder: "Password confirmation"
+                      placeholder: _vm.capitalizeFirstLetter(
+                        _vm.getText("text.password_confirmation")
+                      )
                     }
                   }),
                   _vm._v(" "),
@@ -51992,7 +52098,9 @@ var render = function() {
                     attrs: {
                       name: "password",
                       type: "password",
-                      placeholder: "Password"
+                      placeholder: _vm.capitalizeFirstLetter(
+                        _vm.getText("text.password")
+                      )
                     }
                   }),
                   _vm._v(" "),
@@ -52015,7 +52123,13 @@ var render = function() {
           staticClass: "btn btn-secondary",
           attrs: { type: "button", "data-dismiss": "modal" }
         },
-        [_vm._v("Close")]
+        [
+          _vm._v(
+            "\n            " +
+              _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.close"))) +
+              "\n        "
+          )
+        ]
       ),
       _vm._v(" "),
       _c(
@@ -52030,7 +52144,15 @@ var render = function() {
             }
           }
         },
-        [_vm._v(_vm._s(_vm.show == "signup" ? "Sign Up" : "Sign In"))]
+        [
+          _vm._v(
+            _vm._s(
+              _vm.show == "signup"
+                ? _vm.getText("text.sign_up")
+                : _vm.getText("text.sign_in")
+            )
+          )
+        ]
       )
     ])
   ])
@@ -52079,7 +52201,11 @@ var render = function() {
   return _c("div", { staticClass: "modal-content" }, [
     _c("div", { staticClass: "modal-header" }, [
       _c("h5", { staticClass: "modal-title" }, [
-        _vm._v("Booking: "),
+        _vm._v(
+          "\n            " +
+            _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.booking"))) +
+            ":\n            "
+        ),
         _c("b", [_vm._v(_vm._s(_vm.bookingDate))])
       ]),
       _vm._v(" "),
@@ -52106,21 +52232,45 @@ var render = function() {
                   _c("div", { staticClass: "col-sm-8 col" }, [
                     _vm.cookieItmTemplate.title
                       ? _c("div", [
-                          _vm._v("Title: "),
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.template")
+                                )
+                              ) +
+                              ":\n                            "
+                          ),
                           _c("b", [_vm._v(_vm._s(_vm.cookieItmTemplate.title))])
                         ])
                       : _vm._e(),
                     _vm._v(" "),
                     _vm.cookieItmTemplate.duration
                       ? _c("div", [
-                          _vm._v("Duration: "),
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.duration")
+                                )
+                              ) +
+                              ":\n                            "
+                          ),
                           _c("b", [_vm._v(_vm._s(_vm.templateDuration))])
                         ])
                       : _vm._e(),
                     _vm._v(" "),
                     _vm.cookieItmTemplate.description
                       ? _c("div", [
-                          _vm._v("Description: "),
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(
+                                _vm.capitalizeFirstLetter(
+                                  _vm.getText("text.description")
+                                )
+                              ) +
+                              ":\n                            "
+                          ),
                           _c("b", [
                             _vm._v(_vm._s(_vm.cookieItmTemplate.description))
                           ])
@@ -52128,7 +52278,15 @@ var render = function() {
                       : _vm._e(),
                     _vm._v(" "),
                     _c("div", [
-                      _vm._v("Book on: "),
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(
+                              _vm.getText("text.book_on")
+                            )
+                          ) +
+                          ":\n                            "
+                      ),
                       _c("b", [_vm._v(_vm._s(_vm.bookOn))])
                     ])
                   ]),
@@ -52205,7 +52363,15 @@ var render = function() {
                   staticClass: "btn btn-secondary",
                   attrs: { type: "button", "data-dismiss": "modal" }
                 },
-                [_vm._v("Cancel")]
+                [
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(
+                        _vm.capitalizeFirstLetter(_vm.getText("text.cancel"))
+                      ) +
+                      "\n            "
+                  )
+                ]
               ),
               _vm._v(" "),
               _c(
@@ -52220,7 +52386,15 @@ var render = function() {
                     }
                   }
                 },
-                [_vm._v("Book")]
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(
+                        _vm.capitalizeFirstLetter(_vm.getText("text.book"))
+                      ) +
+                      "\n            "
+                  )
+                ]
               )
             ]
           : _vm._e(),
@@ -52453,7 +52627,15 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v("Info")]
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.info"))
+                    ) +
+                    "\n                "
+                )
+              ]
             ),
             _vm._v(" "),
             _c(
@@ -52468,7 +52650,15 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v("Bookings")]
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.bookings"))
+                    ) +
+                    "\n                "
+                )
+              ]
             )
           ]
         ),
@@ -52485,7 +52675,13 @@ var render = function() {
               }
             }
           },
-          [_vm._v("Logout")]
+          [
+            _vm._v(
+              "\n                    " +
+                _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.logout"))) +
+                "\n            "
+            )
+          ]
         )
       ])
     ]),
@@ -52511,7 +52707,15 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("tr", [
-                    _c("td", [_vm._v("Phone: ")]),
+                    _c("td", [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(_vm.getText("text.phone"))
+                          ) +
+                          ":\n                        "
+                      )
+                    ]),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(_vm.clientInfo.phone))])
                   ])
@@ -52625,9 +52829,13 @@ var render = function() {
                                   _vm._v(
                                     _vm._s(
                                       itm.approved
-                                        ? "Booked on:"
-                                        : "In approving:"
-                                    )
+                                        ? _vm.capitalizeFirstLetter(
+                                            _vm.getText("text.booked_on")
+                                          )
+                                        : _vm.capitalizeFirstLetter(
+                                            _vm.getText("text.in_approving")
+                                          )
+                                    ) + ":"
                                   )
                                 ]),
                                 _vm._v(" "),
@@ -52725,7 +52933,17 @@ var render = function() {
                                         ) +
                                         "\n                                            "
                                     ),
-                                    _c("span", [_vm._v("(Duration)")])
+                                    _c("span", [
+                                      _vm._v(
+                                        "(\n                                                " +
+                                          _vm._s(
+                                            _vm.capitalizeFirstLetter(
+                                              _vm.getText("text.duration")
+                                            )
+                                          ) +
+                                          "\n                                            )"
+                                      )
+                                    ])
                                   ]
                                 )
                               ])
@@ -52745,7 +52963,9 @@ var render = function() {
           ? [
               _c("div", { staticClass: "pt-3 pb-3" }, [
                 _vm._v(
-                  "\n                Do you really want to logout?\n                "
+                  "\n                " +
+                    _vm._s(_vm.getText("text.do_you_really_want_to_logout")) +
+                    "?\n                "
                 ),
                 _c("div", [
                   _c(
@@ -52755,7 +52975,15 @@ var render = function() {
                       attrs: { type: "button" },
                       on: { click: _vm.logout }
                     },
-                    [_vm._v("Yes")]
+                    [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(_vm.getText("text.yes"))
+                          ) +
+                          "\n                    "
+                      )
+                    ]
                   )
                 ])
               ])
@@ -52765,26 +52993,25 @@ var render = function() {
       2
     ),
     _vm._v(" "),
-    _vm._m(0)
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-footer" }, [
+    _c("div", { staticClass: "modal-footer" }, [
       _c(
         "button",
         {
           staticClass: "btn btn-secondary",
           attrs: { type: "button", "data-dismiss": "modal" }
         },
-        [_vm._v("Close")]
+        [
+          _vm._v(
+            "\n            " +
+              _vm._s(_vm.capitalizeFirstLetter(_vm.getText("text.close"))) +
+              "\n        "
+          )
+        ]
       )
     ])
-  }
-]
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -53324,7 +53551,9 @@ var render = function() {
               [
                 _vm._v(
                   "\n                        " +
-                    _vm._s(_vm.getText("text." + item)) +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text." + item))
+                    ) +
                     "\n                "
                 )
               ]

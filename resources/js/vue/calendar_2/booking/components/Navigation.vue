@@ -29,7 +29,7 @@
                         @click.prevent="changeView(item)"
                         type="button"
                         class="btn btn-sm btn-secondary">
-                            {{getText('text.' + item)}}
+                            {{capitalizeFirstLetter(getText('text.' + item))}}
                     </button>
                 </div>
             </div>

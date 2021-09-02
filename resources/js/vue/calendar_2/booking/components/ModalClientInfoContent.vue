@@ -6,16 +6,22 @@
                     <button @click="showTab = 'info'"
                         :class="{'active': showTab == 'info'}"
                         type="button"
-                        class="btn btn-info">Info</button>
+                        class="btn btn-info">
+                            {{capitalizeFirstLetter(getText('text.info'))}}
+                    </button>
                     <button @click="showTab = 'bookings'"
                         :class="{'active': showTab == 'bookings'}"
                         type="button"
-                        class="btn btn-info">Bookings</button>
+                        class="btn btn-info">
+                            {{capitalizeFirstLetter(getText('text.bookings'))}}
+                    </button>
                 </div>
                 <button @click="showTab = 'logout'"
                     :class="{'active': showTab == 'logout'}"
                     type="button"
-                    class="btn btn-secondary float-right">Logout</button>
+                    class="btn btn-secondary float-right">
+                        {{capitalizeFirstLetter(getText('text.logout'))}}
+                </button>
                     
             </h5>
             <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -37,7 +43,9 @@
                             <td>{{clientInfo.email}}</td>
                         </tr>
                         <tr>
-                            <td>Phone: </td>
+                            <td>
+                                {{capitalizeFirstLetter(getText('text.phone'))}}:
+                            </td>
                             <td>{{clientInfo.phone}}</td>
                         </tr>
                     </table>
@@ -87,7 +95,11 @@
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <div class="small">{{itm.approved ? 'Booked on:' : 'In approving:'}}</div>
+                                            <div class="small">{{
+                                                itm.approved ?
+                                                capitalizeFirstLetter(getText('text.booked_on')) :
+                                                capitalizeFirstLetter(getText('text.in_approving'))
+                                            }}:</div>
                                             <div class="item-date">{{getStartDate(itm.time)}}</div>
                                             <div class="item-time"><b>{{getStartTime(itm.time)}}</b></div>
                                         </td>
@@ -106,7 +118,9 @@
                                             </div>
                                             <div class="book-item-property">
                                                 {{parseSecondsToHourMinuteString(itm.template_without_user_scope.duration)}}
-                                                <span>(Duration)</span>
+                                                <span>(
+                                                    {{capitalizeFirstLetter(getText('text.duration'))}}
+                                                )</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -120,16 +134,20 @@
             </template>
             <template v-if="showTab == 'logout'">
                 <div class="pt-3 pb-3">
-                    Do you really want to logout?
+                    {{getText('text.do_you_really_want_to_logout')}}?
                     <div>
-                        <button @click="logout" type="button" class="btn btn-link">Yes</button>
+                        <button @click="logout" type="button" class="btn btn-link">
+                            {{capitalizeFirstLetter(getText('text.yes'))}}
+                        </button>
                     </div>
                 </div>
             </template>
 
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                {{capitalizeFirstLetter(getText('text.close'))}}
+            </button>
         </div>
     </div>
 </template>

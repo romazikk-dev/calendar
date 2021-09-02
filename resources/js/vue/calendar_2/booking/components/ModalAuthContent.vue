@@ -2,8 +2,12 @@
     <div v-else class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">
-                <a @click.prevent="toggleShow" class="btn" :class="{'btn-success disabled': show == 'signup', 'btn-link': show == 'signin'}" href="#">Sign up</a>
-                <a @click.prevent="toggleShow" class="btn" :class="{'btn-success disabled': show == 'signin', 'btn-link': show == 'signup'}" href="#">Sign in</a>
+                <a @click.prevent="toggleShow" class="btn" :class="{'btn-success disabled': show == 'signup', 'btn-link': show == 'signin'}" href="#">
+                    {{getText('text.sign_up')}}
+                </a>
+                <a @click.prevent="toggleShow" class="btn" :class="{'btn-success disabled': show == 'signin', 'btn-link': show == 'signup'}" href="#">
+                    {{getText('text.sign_in')}}
+                </a>
             </h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -18,23 +22,28 @@
                         <small class="text-danger error" v-if="signupErrors && signupErrors.email">{{signupErrors.email[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <input name="phone" type="text" class="form-control" id="signupPhone" placeholder="Phone">
+                        <input name="phone" type="text" class="form-control" id="signupPhone"
+                        :placeholder="capitalizeFirstLetter(getText('text.phone'))">
                         <small class="text-danger error" v-if="signupErrors && signupErrors.phone">{{signupErrors.phone[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <input name="first_name" type="text" class="form-control" id="signupFirstName" placeholder="First Name">
+                        <input name="first_name" type="text" class="form-control" id="signupFirstName"
+                        :placeholder="getText('text.first_name')">
                         <small class="text-danger error" v-if="signupErrors && signupErrors.first_name">{{signupErrors.first_name[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <input name="last_name" type="text" class="form-control" id="signupLastName" placeholder="Last Name">
+                        <input name="last_name" type="text" class="form-control" id="signupLastName"
+                        :placeholder="getText('text.last_name')">
                         <small class="text-danger error" v-if="signupErrors && signupErrors.last_name">{{signupErrors.last_name[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <input name="password" type="password" class="form-control" id="signupPassword" placeholder="Password">
+                        <input name="password" type="password" class="form-control" id="signupPassword"
+                        :placeholder="capitalizeFirstLetter(getText('text.password'))">
                         <small class="text-danger error" v-if="signupErrors && signupErrors.password">{{signupErrors.password[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <input name="password_confirm" type="password" class="form-control" id="signupPasswordConfirm" placeholder="Password confirmation">
+                        <input name="password_confirm" type="password" class="form-control" id="signupPasswordConfirm"
+                        :placeholder="capitalizeFirstLetter(getText('text.password_confirmation'))">
                         <small class="text-danger error" v-if="signupErrors && signupErrors.password_confirm">{{signupErrors.password_confirm[0]}}</small>
                     </div>
                 </form>
@@ -46,15 +55,22 @@
                         <small class="text-danger error" v-if="signinErrors && signinErrors.email">{{signinErrors.email[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <input name="password" type="password" class="form-control" placeholder="Password">
+                        <input name="password" type="password" class="form-control"
+                        :placeholder="capitalizeFirstLetter(getText('text.password'))">
                         <small class="text-danger error" v-if="signinErrors && signinErrors.password">{{signinErrors.password[0]}}</small>
                     </div>
                 </form>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" @click.prevent="send()" class="btn btn-primary">{{show == 'signup' ? 'Sign Up' : 'Sign In'}}</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                {{capitalizeFirstLetter(getText('text.close'))}}
+            </button>
+            <button type="button" @click.prevent="send()" class="btn btn-primary">{{
+                show == 'signup' ?
+                getText('text.sign_up') :
+                getText('text.sign_in')
+            }}</button>
         </div>
     </div>
 </template>
