@@ -203,14 +203,21 @@
                 if(firstWeekdayMonth == lastWeekdayMonth){
                     let firstWeekdayDay = moment(this.firstWeekday).format('DD');
                     let lastWeekdayDay = moment(this.lastWeekday).format('DD');
-                    let monthTitle = moment(this.firstWeekday).format('MMMM');
+                    let key = 'text.' + moment(this.firstWeekday).format('MMMM').toLowerCase().trim();
+                    let monthTitle = this.capitalizeFirstLetter(this.getText(key));
                     return firstWeekdayDay + ' - ' + lastWeekdayDay + ' ' + monthTitle;
                 }else{
-                    let firstWeekdayMonthTitle = moment(this.firstWeekday).format('DD MMMM');
-                    let lastWeekdayMonthTitle = moment(this.lastWeekday).format('DD MMMM');
+                    let firstWeekdayMoment = moment(this.firstWeekday);
+                    let lastWeekdayMoment = moment(this.lastWeekday);
+                    let firstMonthKey = 'text.' + firstWeekdayMoment.format('MMMM').toLowerCase().trim();
+                    let lastMonthKey = 'text.' + lastWeekdayMoment.format('MMMM').toLowerCase().trim();
+                    let firstWeekdayMonthTitle = moment(this.firstWeekday).format('D ') +
+                        this.capitalizeFirstLetter(this.getText(firstMonthKey));
+                    let lastWeekdayMonthTitle = moment(this.lastWeekday).format('D ') +
+                        this.capitalizeFirstLetter(this.getText(lastMonthKey));
                     return firstWeekdayMonthTitle + ' - ' + lastWeekdayMonthTitle;
                 }
-                return moment(this.firstMonthDate).format('MMMM YYYY');
+                // return moment(this.firstMonthDate).format('MMMM YYYY');
             },
             canGoToPrevious: function () {
                 let firstWeekDayOfCurrentDate = moment(this.currentDate).startOf('week');

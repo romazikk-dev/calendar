@@ -31,7 +31,9 @@
                 'badge-warning': isProp(movingEvent) && !movingEvent.approved,
             }">
                 {{badgeTitle}}: 
-                <span v-if="isProp(movingEvent) && !movingEvent.approved">not approved</span>
+                <span v-if="isProp(movingEvent) && !movingEvent.approved">
+                    {{capitalizeFirstLetter(getText('text.not_approved'))}}
+                </span>
             </div>
             <div class="row">
                 <div v-for="item in dataItems" v-if="item.render" class="col col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
@@ -45,23 +47,29 @@
                             class="btn btn-sm btn-info"
                             :class="{
                                 'active': withEvents == GetDataFreeWithEventsParams.ALL
-                            }">With all events</button>
+                            }">
+                                {{capitalizeFirstLetter(getText('text.with_all_events'))}}
+                            </button>
                         <button type="button"
                             @click="switchWithEvents($event, GetDataFreeWithEventsParams.PER_CLIENT)"
                             class="btn btn-sm btn-info"
                             :class="{
                                 'active': withEvents == GetDataFreeWithEventsParams.PER_CLIENT
-                            }">With events per client</button>
+                            }">
+                                {{capitalizeFirstLetter(getText('text.with_events_per_client'))}}
+                            </button>
                         <button type="button"
                             @click="switchWithEvents($event, null)"
                             class="btn btn-sm btn-info"
                             :class="{
                                 'active': withEvents == null
-                            }">Only free slots</button>
+                            }">
+                                {{capitalizeFirstLetter(getText('text.only_free_slots'))}}
+                            </button>
                     </div>
                     
                     <div class="float-right mt-1" v-if="mainSettings.enable_booking_on_any_time">
-                        <checkbox label="Enable booking on any date, time"
+                        <checkbox :label="capitalizeFirstLetter(getText('text.enable_booking_on_any_date_time'))"
                             :checked="freeBookingAnyTime"
                             @change="onEnableBookingAnyTime($event)" />
                     </div>
@@ -104,49 +112,54 @@
             dataItems: function () {
                 return [
                     {
-                        title: "Client(name)",
+                        title: this.capitalizeFirstLetter(this.getText('text.client')) + "(name)",
                         val: this.clientName,
                         render: this.isProp(this.clientName),
                     },
                     {
-                        title: "Client(email)",
+                        title: this.capitalizeFirstLetter(this.getText('text.client')) + "(email)",
                         val: this.clientEmail,
                         render: this.isProp(this.clientEmail),
                     },
                     {
-                        title: "Hall",
+                        title: this.capitalizeFirstLetter(this.getText('text.hall')),
                         val: this.hallTitle,
                         render: this.isProp(this.hallTitle),
                     },
                     {
-                        title: "Template",
+                        title: this.capitalizeFirstLetter(this.getText('text.template')),
                         val: this.templateTitle,
                         render: this.isProp(this.templateTitle),
                     },
                     {
-                        title: "Worker",
+                        title: this.capitalizeFirstLetter(this.getText('text.worker')),
                         val: this.workerName,
                         render: this.isProp(this.workerName),
                     },
                     {
-                        title: "Duration(current)",
+                        title: this.capitalizeFirstLetter(this.getText('text.duration')) +
+                            "(" + this.getText('text.current') + ")",
                         val: this.eventDuration,
                         render: this.isProp(this.eventDuration),
                     },
                     {
-                        title: "Date(current)",
+                        title: this.capitalizeFirstLetter(this.getText('text.date')) +
+                            "(" + this.getText('text.current') + ")",
                         val: this.eventDate,
                         render: this.isProp(this.eventDate),
                     },
                     {
-                        title: "Time(current)",
+                        title: this.capitalizeFirstLetter(this.getText('text.time')) +
+                            "(" + this.getText('text.current') + ")",
                         val: this.eventTime,
                         render: this.isProp(this.eventTime),
                     },
                 ];
             },
             badgeTitle: function () {
-                return this.isProp(this.movingEvent) ? "Edit event" : "New event";
+                return this.isProp(this.movingEvent) ?
+                    this.capitalizeFirstLetter(this.getText('text.edit_event')) :
+                    this.capitalizeFirstLetter(this.getText('text.new_event'));
             },
             clientObj: function () {
                 if(this.isProp(this.movingEventClient))

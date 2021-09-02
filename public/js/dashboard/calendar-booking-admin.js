@@ -2720,6 +2720,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2746,41 +2754,41 @@ __webpack_require__.r(__webpack_exports__);
     },
     dataItems: function dataItems() {
       return [{
-        title: "Client(name)",
+        title: this.capitalizeFirstLetter(this.getText('text.client')) + "(name)",
         val: this.clientName,
         render: this.isProp(this.clientName)
       }, {
-        title: "Client(email)",
+        title: this.capitalizeFirstLetter(this.getText('text.client')) + "(email)",
         val: this.clientEmail,
         render: this.isProp(this.clientEmail)
       }, {
-        title: "Hall",
+        title: this.capitalizeFirstLetter(this.getText('text.hall')),
         val: this.hallTitle,
         render: this.isProp(this.hallTitle)
       }, {
-        title: "Template",
+        title: this.capitalizeFirstLetter(this.getText('text.template')),
         val: this.templateTitle,
         render: this.isProp(this.templateTitle)
       }, {
-        title: "Worker",
+        title: this.capitalizeFirstLetter(this.getText('text.worker')),
         val: this.workerName,
         render: this.isProp(this.workerName)
       }, {
-        title: "Duration(current)",
+        title: this.capitalizeFirstLetter(this.getText('text.duration')) + "(" + this.getText('text.current') + ")",
         val: this.eventDuration,
         render: this.isProp(this.eventDuration)
       }, {
-        title: "Date(current)",
+        title: this.capitalizeFirstLetter(this.getText('text.date')) + "(" + this.getText('text.current') + ")",
         val: this.eventDate,
         render: this.isProp(this.eventDate)
       }, {
-        title: "Time(current)",
+        title: this.capitalizeFirstLetter(this.getText('text.time')) + "(" + this.getText('text.current') + ")",
         val: this.eventTime,
         render: this.isProp(this.eventTime)
       }];
     },
     badgeTitle: function badgeTitle() {
-      return this.isProp(this.movingEvent) ? "Edit event" : "New event";
+      return this.isProp(this.movingEvent) ? this.capitalizeFirstLetter(this.getText('text.edit_event')) : this.capitalizeFirstLetter(this.getText('text.new_event'));
     },
     clientObj: function clientObj() {
       if (this.isProp(this.movingEventClient)) return this.movingEventClient;
@@ -57917,7 +57925,17 @@ var render = function() {
               "\n            " + _vm._s(_vm.badgeTitle) + ": \n            "
             ),
             _vm.isProp(_vm.movingEvent) && !_vm.movingEvent.approved
-              ? _c("span", [_vm._v("not approved")])
+              ? _c("span", [
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(
+                        _vm.capitalizeFirstLetter(
+                          _vm.getText("text.not_approved")
+                        )
+                      ) +
+                      "\n            "
+                  )
+                ])
               : _vm._e()
           ]
         ),
@@ -57972,7 +57990,17 @@ var render = function() {
                         }
                       }
                     },
-                    [_vm._v("With all events")]
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(
+                              _vm.getText("text.with_all_events")
+                            )
+                          ) +
+                          "\n                        "
+                      )
+                    ]
                   ),
                   _vm._v(" "),
                   _c(
@@ -57994,7 +58022,17 @@ var render = function() {
                         }
                       }
                     },
-                    [_vm._v("With events per client")]
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(
+                              _vm.getText("text.with_events_per_client")
+                            )
+                          ) +
+                          "\n                        "
+                      )
+                    ]
                   ),
                   _vm._v(" "),
                   _c(
@@ -58011,7 +58049,17 @@ var render = function() {
                         }
                       }
                     },
-                    [_vm._v("Only free slots")]
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(
+                              _vm.getText("text.only_free_slots")
+                            )
+                          ) +
+                          "\n                        "
+                      )
+                    ]
                   )
                 ]
               ),
@@ -58023,7 +58071,9 @@ var render = function() {
                     [
                       _c("checkbox", {
                         attrs: {
-                          label: "Enable booking on any date, time",
+                          label: _vm.capitalizeFirstLetter(
+                            _vm.getText("text.enable_booking_on_any_date_time")
+                          ),
                           checked: _vm.freeBookingAnyTime
                         },
                         on: {

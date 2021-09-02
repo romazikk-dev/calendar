@@ -14,7 +14,7 @@
                     </svg>
                 </button>
                 <button @click.prevent="$emit('today')" type="button" class="btn btn-sm btn-secondary float-left" :disabled="!canGoToPrevious">
-                    today
+                    {{getText('text.today')}}
                 </button>
             </div>
             
@@ -28,7 +28,9 @@
                         :disabled="item.toLowerCase() == view.toLowerCase()"
                         @click.prevent="changeView(item)"
                         type="button"
-                        class="btn btn-sm btn-secondary">{{item}}</button>
+                        class="btn btn-sm btn-secondary">
+                            {{getText('text.' + item)}}
+                    </button>
                 </div>
             </div>
             

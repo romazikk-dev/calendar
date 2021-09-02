@@ -27,7 +27,9 @@
                                 <template v-if="(getDate(i,k)).is_weekend">
                                     <div class='for-closed-slot'>
                                         <div class='closed-slot'>
-                                            <b>Closed</b>
+                                            <b>
+                                                {{capitalizeFirstLetter(getText('text.closed'))}}
+                                            </b>
                                         </div>
                                     </div>
                                 </template>
@@ -114,7 +116,9 @@
                 return this.$store.getters['updater/counter'];
             },
             calendarTitle: function () {
-                return moment(this.firstMonthDate).format('MMMM YYYY');
+                let titleMoment = moment(this.firstMonthDate);
+                let key = 'text.' + titleMoment.format('MMMM').toLowerCase().trim();
+                return this.capitalizeFirstLetter(this.getText(key)) + titleMoment.format(' YYYY');
             },
             canGoToPrevious: function () {
                 let firstMonthDay = moment(this.firstMonthDate).startOf('month');

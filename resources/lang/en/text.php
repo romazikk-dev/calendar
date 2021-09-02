@@ -120,5 +120,8 @@ return [
     'new_event' => 'new event',
     'yes' => 'yes',
     'no' => 'no',
+    'back' => 'back',
+    'booked_on' => 'Booked on',
+    'in_approving' => 'In approving',
 
 ];

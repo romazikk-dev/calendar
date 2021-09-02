@@ -160,10 +160,27 @@ Vue.mixin({
                     minute: '00',
                 },
             ],
-            weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            // weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            weekdaysList: [
+                this.capitalizeFirstLetter(this.getText('text.monday')),
+                this.capitalizeFirstLetter(this.getText('text.tuesday')),
+                this.capitalizeFirstLetter(this.getText('text.wednesday')),
+                this.capitalizeFirstLetter(this.getText('text.thursday')),
+                this.capitalizeFirstLetter(this.getText('text.friday')),
+                this.capitalizeFirstLetter(this.getText('text.saturday')),
+                this.capitalizeFirstLetter(this.getText('text.sunday')),
+            ],
+            // weekdaysList: [
+            //     this.getText('text.monday'), this.getText('text.tuesday'), this.getText('text.wednesday'),
+            //     this.getText('text.thursday'), this.getText('text.friday'), this.getText('text.saturday'),
+            //     this.getText('text.sunday'),
+            // ],
         };
     },
     methods: {
+        getText: function(key){
+            return Lang.get(key);
+        },
         getParentComponentByName: function (_thisComponent, componentName) {
             let component = null;
             if(_thisComponent.$options.name === componentName)
@@ -211,11 +228,16 @@ Vue.mixin({
             if(timeItemInt < 10)
                 return '0' + timeItemInt;
             return '' + timeItemInt;
-        }
+        },
         // showChildren: function () {
         //     // console.log(this.$root.$children[0].$options.name);
         //     console.log(this.$root.$children[0].$options.name);
         // }
+        
+        //String helpers
+        capitalizeFirstLetter: function (string){
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
     },
 });
 

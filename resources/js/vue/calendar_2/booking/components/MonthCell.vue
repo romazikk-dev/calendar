@@ -3,11 +3,14 @@
         <ul>
             <li v-for="itm in items">
                 <div v-if="itm.type == 'free'" class='free-slot'>
-                    <b>Free time:</b><br>
+                    <b>{{capitalizeFirstLetter(getText('text.free_time'))}}:</b>
+                    <br>
                     <b>{{itm.from}} - {{itm.to}}</b>
                     <div class="not-approved-bookings" v-if="itm.not_approved_bookings">
                         <div class="not-approved-bookings-itm" v-for="itmm in itm.not_approved_bookings">
-                            <b>In approving:</b><br>
+                            <b>
+                                {{capitalizeFirstLetter(getText('text.in_approving'))}}:
+                            </b><br>
                             <b>{{itmm.template_without_user_scope.title}}<br>
                             {{itmm.from}} - {{itmm.to}}</b>
                             <!-- <button @click.prevent="$emit('cancel', itm)"
@@ -20,7 +23,9 @@
                     </div>
                     <button @click.prevent="$emit('open-modal', itm)"
                         type="button"
-                        class="btn btn-link btn-sm btn-block book">Book</button >
+                        class="btn btn-link btn-sm btn-block book">
+                            {{capitalizeFirstLetter(getText('text.book'))}}
+                    </button >
                 </div>
                 <div v-if="itm.type == 'event'" class='booked-slot'
                 :class="{
@@ -28,7 +33,11 @@
                     'not-approved-bookings-itm': !itm.approved,
                 }">
                     <!-- <b>Booked on:</b><br> -->
-                    <b>{{itm.approved ? 'Booked on' : 'In approving'}}:</b><br>
+                    <b>{{
+                        itm.approved ?
+                        getText('text.booked_on') :
+                        getText('text.in_approving')
+                    }}:</b><br>
                     <b>{{itm.template_without_user_scope.title}}<br>
                     {{itm.from}} - {{itm.to}}</b>
                     <button @click.prevent="$emit('cancel', itm)"

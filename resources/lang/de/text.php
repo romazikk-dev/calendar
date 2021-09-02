@@ -120,5 +120,8 @@ return [
     'new_event' => 'neues Event',
     'yes' => 'ja',
     'no' => 'nein',
+    'back' => 'zurück',
+    'booked_on' => 'Gebucht am',
+    'in_approving' => 'In Genehmigung',
 
 ];

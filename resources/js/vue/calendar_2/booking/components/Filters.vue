@@ -5,13 +5,18 @@
         <div v-if="showFilters" class="filters-select">
             <!-- <h4>Select place, worker, service</h4> -->
             <div class="show-filters-title">
-                <h4>Please select all filters:</h4>
+                <h4>
+                    {{capitalizeFirstLetter(getText('text.please_select_all_filters'))}}:
+                </h4>
             </div>
             <div class="filter-select-item">
                 
                 <div>
                     <div id="viewDropdown" class="dropdown">
-                        <span>View: </span>
+                        <!-- <span>View: </span> -->
+                        <span>
+                            {{capitalizeFirstLetter(getText('text.view'))}}:
+                        </span>
                         <a class="btn btn-sm btn-info dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {{pickedItmView}}
                         </a>
@@ -24,10 +29,10 @@
                 </div>
                 
                 <div class="card text-dark bg-light mb-3">
-                    <div class="card-header">Filters</div>
+                    <div class="card-header">Filter</div>
                     <div class="card-body">
                         
-                        {{pickedTemplateIdsTrace}}
+                        <!-- {{pickedTemplateIdsTrace}} -->
                         
                         <div id="hallDropdown" class="dropdown">
                             <span>{{customTitle('hall')}}: </span>
@@ -90,13 +95,13 @@
                 
                 <div class="apply pt-2">
                     <a @click.prevent="apply" class="btn btn-sm btn-primary w-100" href="#">
-                        Apply
+                        {{capitalizeFirstLetter(getText('text.apply'))}}
                     </a>
                 </div>
                 
                 <div class="back pt-2" v-if="isFiltered">
                     <a @click.prevent="backToCalendar" class="btn btn-sm btn-link w-100" href="#">
-                        Back
+                        {{capitalizeFirstLetter(getText('text.back'))}}
                     </a>
                 </div>
             </div>

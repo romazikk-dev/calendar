@@ -3175,6 +3175,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -4993,6 +4998,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -5037,7 +5044,9 @@ __webpack_require__.r(__webpack_exports__);
       return this.$store.getters['updater/counter'];
     },
     calendarTitle: function calendarTitle() {
-      return moment(this.firstMonthDate).format('MMMM YYYY');
+      var titleMoment = moment(this.firstMonthDate);
+      var key = 'text.' + titleMoment.format('MMMM').toLowerCase().trim();
+      return this.capitalizeFirstLetter(this.getText(key)) + titleMoment.format(' YYYY');
     },
     canGoToPrevious: function canGoToPrevious() {
       var firstMonthDay = moment(this.firstMonthDate).startOf('month');
@@ -5250,6 +5259,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'monthCell',
   mounted: function mounted() {// console.log(this.dateRange);
@@ -5279,6 +5297,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
 //
 //
 //
@@ -5750,15 +5770,19 @@ __webpack_require__.r(__webpack_exports__);
       if (firstWeekdayMonth == lastWeekdayMonth) {
         var firstWeekdayDay = moment(this.firstWeekday).format('DD');
         var lastWeekdayDay = moment(this.lastWeekday).format('DD');
-        var monthTitle = moment(this.firstWeekday).format('MMMM');
+        var key = 'text.' + moment(this.firstWeekday).format('MMMM').toLowerCase().trim();
+        var monthTitle = this.capitalizeFirstLetter(this.getText(key));
         return firstWeekdayDay + ' - ' + lastWeekdayDay + ' ' + monthTitle;
       } else {
-        var firstWeekdayMonthTitle = moment(this.firstWeekday).format('DD MMMM');
-        var lastWeekdayMonthTitle = moment(this.lastWeekday).format('DD MMMM');
+        var firstWeekdayMoment = moment(this.firstWeekday);
+        var lastWeekdayMoment = moment(this.lastWeekday);
+        var firstMonthKey = 'text.' + firstWeekdayMoment.format('MMMM').toLowerCase().trim();
+        var lastMonthKey = 'text.' + lastWeekdayMoment.format('MMMM').toLowerCase().trim();
+        var firstWeekdayMonthTitle = moment(this.firstWeekday).format('D ') + this.capitalizeFirstLetter(this.getText(firstMonthKey));
+        var lastWeekdayMonthTitle = moment(this.lastWeekday).format('D ') + this.capitalizeFirstLetter(this.getText(lastMonthKey));
         return firstWeekdayMonthTitle + ' - ' + lastWeekdayMonthTitle;
-      }
+      } // return moment(this.firstMonthDate).format('MMMM YYYY');
 
-      return moment(this.firstMonthDate).format('MMMM YYYY');
     },
     canGoToPrevious: function canGoToPrevious() {
       var firstWeekDayOfCurrentDate = moment(this.currentDate).startOf('week');
@@ -6809,10 +6833,19 @@ Vue.mixin({
         hour: '23',
         minute: '00'
       }],
-      weekdaysList: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+      // weekdaysList: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      weekdaysList: [this.capitalizeFirstLetter(this.getText('text.monday')), this.capitalizeFirstLetter(this.getText('text.tuesday')), this.capitalizeFirstLetter(this.getText('text.wednesday')), this.capitalizeFirstLetter(this.getText('text.thursday')), this.capitalizeFirstLetter(this.getText('text.friday')), this.capitalizeFirstLetter(this.getText('text.saturday')), this.capitalizeFirstLetter(this.getText('text.sunday'))] // weekdaysList: [
+      //     this.getText('text.monday'), this.getText('text.tuesday'), this.getText('text.wednesday'),
+      //     this.getText('text.thursday'), this.getText('text.friday'), this.getText('text.saturday'),
+      //     this.getText('text.sunday'),
+      // ],
+
     };
   },
   methods: {
+    getText: function getText(key) {
+      return Lang.get(key);
+    },
     getParentComponentByName: function getParentComponentByName(_thisComponent, componentName) {
       var component = null;
       if (_thisComponent.$options.name === componentName) return _thisComponent;
@@ -6861,11 +6894,15 @@ Vue.mixin({
       var timeItemInt = parseInt(timeItem);
       if (timeItemInt < 10) return '0' + timeItemInt;
       return '' + timeItemInt;
-    } // showChildren: function () {
+    },
+    // showChildren: function () {
     //     // console.log(this.$root.$children[0].$options.name);
     //     console.log(this.$root.$children[0].$options.name);
     // }
-
+    //String helpers
+    capitalizeFirstLetter: function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
   }
 });
 window.app = new Vue({
@@ -50691,7 +50728,19 @@ var render = function() {
       _vm._v(" "),
       _vm.showFilters
         ? _c("div", { staticClass: "filters-select" }, [
-            _vm._m(0),
+            _c("div", { staticClass: "show-filters-title" }, [
+              _c("h4", [
+                _vm._v(
+                  "\n                " +
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(
+                        _vm.getText("text.please_select_all_filters")
+                      )
+                    ) +
+                    ":\n            "
+                )
+              ])
+            ]),
             _vm._v(" "),
             _c("div", { staticClass: "filter-select-item" }, [
               _c("div", [
@@ -50699,7 +50748,15 @@ var render = function() {
                   "div",
                   { staticClass: "dropdown", attrs: { id: "viewDropdown" } },
                   [
-                    _c("span", [_vm._v("View: ")]),
+                    _c("span", [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(
+                            _vm.capitalizeFirstLetter(_vm.getText("text.view"))
+                          ) +
+                          ":\n                    "
+                      )
+                    ]),
                     _vm._v(" "),
                     _c(
                       "a",
@@ -50750,17 +50807,12 @@ var render = function() {
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "card text-dark bg-light mb-3" }, [
-                _c("div", { staticClass: "card-header" }, [_vm._v("Filters")]),
+                _c("div", { staticClass: "card-header" }, [_vm._v("Filter")]),
                 _vm._v(" "),
                 _c(
                   "div",
                   { staticClass: "card-body" },
                   [
-                    _vm._v(
-                      "\n                    \n                    " +
-                        _vm._s(_vm.pickedTemplateIdsTrace) +
-                        "\n                    \n                    "
-                    ),
                     _c(
                       "div",
                       {
@@ -50982,7 +51034,15 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v("\n                    Apply\n                ")]
+                  [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(
+                          _vm.capitalizeFirstLetter(_vm.getText("text.apply"))
+                        ) +
+                        "\n                "
+                    )
+                  ]
                 )
               ]),
               _vm._v(" "),
@@ -51000,7 +51060,17 @@ var render = function() {
                           }
                         }
                       },
-                      [_vm._v("\n                    Back\n                ")]
+                      [
+                        _vm._v(
+                          "\n                    " +
+                            _vm._s(
+                              _vm.capitalizeFirstLetter(
+                                _vm.getText("text.back")
+                              )
+                            ) +
+                            "\n                "
+                        )
+                      ]
                     )
                   ])
                 : _vm._e()
@@ -51128,16 +51198,7 @@ var render = function() {
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "show-filters-title" }, [
-      _c("h4", [_vm._v("Please select all filters:")])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -52702,7 +52763,33 @@ var render = function() {
                                 ),
                                 _vm._v(" "),
                                 _vm.getDate(i, k).is_weekend
-                                  ? [_vm._m(0, true)]
+                                  ? [
+                                      _c(
+                                        "div",
+                                        { staticClass: "for-closed-slot" },
+                                        [
+                                          _c(
+                                            "div",
+                                            { staticClass: "closed-slot" },
+                                            [
+                                              _c("b", [
+                                                _vm._v(
+                                                  "\n                                            " +
+                                                    _vm._s(
+                                                      _vm.capitalizeFirstLetter(
+                                                        _vm.getText(
+                                                          "text.closed"
+                                                        )
+                                                      )
+                                                    ) +
+                                                    "\n                                        "
+                                                )
+                                              ])
+                                            ]
+                                          )
+                                        ]
+                                      )
+                                    ]
                                   : _vm._e(),
                                 _vm._v(" "),
                                 _vm.notPast(i, k)
@@ -52791,16 +52878,7 @@ var render = function() {
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "for-closed-slot" }, [
-      _c("div", { staticClass: "closed-slot" }, [_c("b", [_vm._v("Closed")])])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -52830,7 +52908,14 @@ var render = function() {
         return _c("li", [
           itm.type == "free"
             ? _c("div", { staticClass: "free-slot" }, [
-                _c("b", [_vm._v("Free time:")]),
+                _c("b", [
+                  _vm._v(
+                    _vm._s(
+                      _vm.capitalizeFirstLetter(_vm.getText("text.free_time"))
+                    ) + ":"
+                  )
+                ]),
+                _vm._v(" "),
                 _c("br"),
                 _vm._v(" "),
                 _c("b", [_vm._v(_vm._s(itm.from) + " - " + _vm._s(itm.to))]),
@@ -52844,7 +52929,17 @@ var render = function() {
                           "div",
                           { staticClass: "not-approved-bookings-itm" },
                           [
-                            _c("b", [_vm._v("In approving:")]),
+                            _c("b", [
+                              _vm._v(
+                                "\n                            " +
+                                  _vm._s(
+                                    _vm.capitalizeFirstLetter(
+                                      _vm.getText("text.in_approving")
+                                    )
+                                  ) +
+                                  ":\n                        "
+                              )
+                            ]),
                             _c("br"),
                             _vm._v(" "),
                             _c("b", [
@@ -52894,7 +52989,15 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v("Book")]
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(
+                          _vm.capitalizeFirstLetter(_vm.getText("text.book"))
+                        ) +
+                        "\n                "
+                    )
+                  ]
                 )
               ])
             : _vm._e(),
@@ -52912,7 +53015,11 @@ var render = function() {
                 [
                   _c("b", [
                     _vm._v(
-                      _vm._s(itm.approved ? "Booked on" : "In approving") + ":"
+                      _vm._s(
+                        itm.approved
+                          ? _vm.getText("text.booked_on")
+                          : _vm.getText("text.in_approving")
+                      ) + ":"
                     )
                   ]),
                   _c("br"),
@@ -53065,7 +53172,13 @@ var render = function() {
               }
             }
           },
-          [_vm._v("\n                today\n            ")]
+          [
+            _vm._v(
+              "\n                " +
+                _vm._s(_vm.getText("text.today")) +
+                "\n            "
+            )
+          ]
         )
       ]),
       _vm._v(" "),
@@ -53096,7 +53209,13 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v(_vm._s(item))]
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(_vm.getText("text." + item)) +
+                    "\n                "
+                )
+              ]
             )
           }),
           0
